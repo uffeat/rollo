@@ -1,0 +1,1 @@
+export const reactive = 42

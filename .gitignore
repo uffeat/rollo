@@ -27,3 +27,5 @@ dist-ssr
 # Custom
 __pycache__
 secrets.json
+
+.vercel/

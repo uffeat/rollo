@@ -1,0 +1,20 @@
+<!--
+text.html
+-->
+
+<template name="template"> </template>
+
+<style name="sheet"></style>
+
+<script type="module">
+  export default async (assets, { layout }) => {
+    const { component } = await use("/component.js");
+
+    assets.sheet.use();
+
+    const container = component.div({
+      innerHTML: assets.template,
+      parent: layout,
+    });
+  };
+</script>
