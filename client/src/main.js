@@ -15,7 +15,7 @@ class Assets {
 
 
 const image = document.createElement("img");
-image.src = "/images/sprocket.webp";
+image.src = "/images/low/sprocket.webp";
 document.body.append(image);
 
 const { foo } = await Module.import("/test/foo.js");
