@@ -9,7 +9,7 @@ document.body.append(image);
 
 //
 //
-await use("/test/bar.css", 'global')
+await use("/test/bar.css", document.head)
 document.body.insertAdjacentText("afterbegin", (await use("/test/foo.js")).foo);
 document.body.insertAdjacentHTML("afterbegin", await use("/test/foo.template"));
 document.body.insertAdjacentText(

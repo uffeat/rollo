@@ -1,5 +1,4 @@
 /* TODO
-- Handle link-added sheets in source.
 - js type handler for iife imports.
 - Imports by asset carrier sheet.
 - Import by glob.
@@ -165,32 +164,50 @@ assets.sources.add(
   (() => {
     const cache = new Map();
     return async ({ options, owner, path }, ...args) => {
+      const { iife = false, raw = false } = options;
       if (path.type === "js") {
+        if (iife || raw) {
+          let text;
+          if (cache.has(path.path)) {
+            text = cache.get(path.path);
+          }
+          const response = await fetch(path.path);
+          text = await response.text();
+          cache.set(path.path, text);
+          if (iife) {
+            //const result = Function(text)();
+          }
+          return text
+
+          
+        }
+
         const result = await Module.import(path.path);
         return result;
       }
 
-      if (path.type === "css" && args.includes("global")) {
-        let link = document.head.querySelector(
-          `link[rel="stylesheet"][href="${path.path}"]`
-        );
-        if (!link) {
-          link = document.createElement("link");
-          link.rel = "stylesheet";
-          link.href = path.path;
-          const { promise, resolve } = Promise.withResolvers();
-          link.addEventListener(
-            "load",
-            (event) => {
-              resolve(link);
-            },
-            { once: true }
-          );
-          document.head.append(link)
-          await promise;
+      const heads = args.filter((a) => a instanceof HTMLHeadElement);
+      if (path.type === "css" && heads.length) {
+        for (const head of heads) {
+          if (
+            !head.querySelector(`link[rel="stylesheet"][href="${path.path}"]`)
+          ) {
+            const link = document.createElement("link");
+            link.rel = "stylesheet";
+            link.href = path.path;
+            const { promise, resolve } = Promise.withResolvers();
+            link.addEventListener(
+              "load",
+              (event) => {
+                resolve(link);
+              },
+              { once: true }
+            );
+            head.append(link);
+            await promise;
+          }
         }
-        
-        return link;
+        return true;
       }
 
       if (cache.has(path.path)) {
