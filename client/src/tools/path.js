@@ -47,7 +47,7 @@ export class Path {
 
   /* Returns source name. */
   get source() {
-    return this.#_.source;
+    return this.#_.source  || '/';
   }
 
   /* Returns specifier (subject to reconstruction). */

@@ -5,8 +5,9 @@ export class Meta {
     detail: {},
   };
 
-  constructor() {
+  constructor(owner) {
     this.#_.DEV = location.hostname === "localhost";
+    this.#_.owner = owner
   }
 
   get DEV() {
@@ -23,5 +24,10 @@ export class Meta {
 
   set origin(origin) {
     this.#_.origin = origin;
+  }
+
+  /* Returns owner sheet. */
+  get owner() {
+    return this.#_.owner;
   }
 }
