@@ -1,13 +1,20 @@
+/* TODO
+- Handle link-added sheets in source.
+- js type handler for iife imports.
+- Imports by asset carrier sheet.
+- Import by glob.
+*/
+
+/* Import tools for the import engine. */
 import { Meta } from "./tools/meta.js";
 import { Module } from "./tools/module.js";
 import { Path } from "./tools/path.js";
 import { Registry } from "./tools/registry.js";
 import { Sheet } from "./tools/sheet.js";
+import * as caseTools from "./tools/case.js";
 import { define } from "./tools/define.js";
+import { truncate } from "./tools/truncate.js";
 import * as types from "./tools/types.js";
-
-// TODO case and truncate
-
 
 class Assets extends HTMLElement {
   static create = (...args) => new Assets(...args);
@@ -67,11 +74,12 @@ class Assets extends HTMLElement {
   }
 
   /* Returns types controller
-    NOTE Operates on 'path.type'. */
+  NOTE Operates on 'path.type'. */
   get types() {
     return this.#_.types;
   }
 
+  /* Injects vitual asset. */
   add(path, asset) {
     this.#_.added.set(path, asset);
     return this;
@@ -139,13 +147,17 @@ customElements.define("data-assets", Assets);
 
 const assets = Assets.create();
 
-/* Good practice to '/!'-prefix explicitly added assets. Mitigates path ambiguity. */
+/* Make import engine tools available via import engine.
+NOTE Good practice to '/!'-prefix explicitly added assets. 
+Mitigates path ambiguity. */
 assets.add("/!meta.js", Meta);
 assets.add("/!module.js", Module);
 assets.add("/!path.js", Path);
 assets.add("/!registry.js", Registry);
 assets.add("/!sheet.js", Sheet);
+assets.add("/!caseTools.js", caseTools);
 assets.add("/!define.js", define);
+assets.add("/!truncate.js", truncate);
 assets.add("/!types.js", types);
 
 assets.sources.add(
@@ -157,6 +169,30 @@ assets.sources.add(
         const result = await Module.import(path.path);
         return result;
       }
+
+      if (path.type === "css" && args.includes("global")) {
+        let link = document.head.querySelector(
+          `link[rel="stylesheet"][href="${path.path}"]`
+        );
+        if (!link) {
+          link = document.createElement("link");
+          link.rel = "stylesheet";
+          link.href = path.path;
+          const { promise, resolve } = Promise.withResolvers();
+          link.addEventListener(
+            "load",
+            (event) => {
+              resolve(link);
+            },
+            { once: true }
+          );
+          document.head.append(link)
+          await promise;
+        }
+        
+        return link;
+      }
+
       if (cache.has(path.path)) {
         return cache.get(path.path);
       }
@@ -168,6 +204,7 @@ assets.sources.add(
   })()
 );
 
+/* Transforms CSS text to Sheet instance. */
 assets.types.add(
   "css",
   (() => {
@@ -183,11 +220,31 @@ assets.types.add(
   })()
 );
 
-// TODO Handle link-added sheets in source
-// TODO json type handler - uncached!
-// TODO sheet processor
-// TODO js type handler for iife imports
-// TODO assets.add for injection of specific assets
+/* Transforms JSON text to JS object.
+NOTE Does not cache to avoid mutation issues. */
+assets.types.add("json", (result, { options, owner, path }, ...args) => {
+  return JSON.parse(result);
+});
+
+assets.processors.add(
+  "css",
+  async (result, { options, owner, path }, ...args) => {
+    if (types.typeName(result) !== "CSSStyleSheet") {
+      console.error("Result:", result);
+      throw new Error(`Result is not a CSSStyleSheet`);
+    }
+    const targets = args.filter(
+      (a) =>
+        types.typeName(a) === "HTMLDocument" ||
+        a instanceof ShadowRoot ||
+        a.shadowRoot
+    );
+    if (targets.length) {
+      /* NOTE sheet.use() adopts to document, therefore check targets' length */
+      result.use(...targets);
+    }
+  }
+);
 
 define(
   globalThis,
@@ -198,9 +255,4 @@ define(
 );
 define(use, assets.meta, "meta");
 
-
-
-
-
-
-export {}
+export {};

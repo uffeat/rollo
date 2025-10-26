@@ -1,9 +1,7 @@
 /* Activate Tailwind */
 import "./main.css";
 /* Initialize import engine */
-import "./use.js"
-
-
+import "./use.js";
 
 const image = document.createElement("img");
 image.src = "/images/sprocket.webp";
@@ -11,16 +9,17 @@ document.body.append(image);
 
 //
 //
-const { foo } = await use("/test/foo.js");
-console.log("foo:", foo);
-const fooHtml = await use("/test/foo.template");
-console.log("fooHtml:", fooHtml);
-const fooSheet = await use("/test/foo.css");
-console.log("fooSheet:", fooSheet);
+await use("/test/bar.css", 'global')
+document.body.insertAdjacentText("afterbegin", (await use("/test/foo.js")).foo);
+document.body.insertAdjacentHTML("afterbegin", await use("/test/foo.template"));
+document.body.insertAdjacentText(
+  "afterbegin",
+  (await use("/test/foo.json")).foo
+);
+
+await use("/test/foo.css", document)
+
 console.log("meta:", use.meta);
 console.log("Sheet:", await use("/!sheet.js"));
 //
 //
-
-
-
