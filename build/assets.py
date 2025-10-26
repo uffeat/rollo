@@ -1,7 +1,3 @@
-"""
-XXX Cannot run, while live server is running.
-"""
-
 import json
 from pathlib import Path
 from types import MappingProxyType

@@ -1,4 +1,4 @@
-import { typeName } from "./type.js";
+import { typeName } from "./types.js";
 import { camelToKebab } from "./case.js";
 
 const MEDIA = "@media";
