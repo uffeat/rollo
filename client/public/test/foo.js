@@ -1,1 +1,1 @@
-export const foo = 'FOO'
+export const foo = "PUBLIC JS FOO";
