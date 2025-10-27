@@ -25,8 +25,10 @@ class Assets extends HTMLElement {
   constructor() {
     super();
     document.head.append(this);
+
     /* Create meta */
     this.#_.meta = Meta.create(this);
+
     /* Create sources controller */
     this.#_.sources = new (class Sources extends Registry {
       constructor(owner) {
@@ -86,7 +88,6 @@ class Assets extends HTMLElement {
     const options = args.find((a) => types.typeName(a) === "Object") || {};
     args = args.filter((a) => types.typeName(a) !== "Object");
     path = Path.create(path);
-    const { raw = false } = options;
 
     let result;
 
@@ -100,28 +101,16 @@ class Assets extends HTMLElement {
         { options: { ...options }, owner: this, path },
         ...args
       );
+
+      /* Abort if source handler instructs to do so via mutation of path.detail. */
+      if (path.detail.transform === false) {
+        return result;
+      }
     }
 
-    /* TODO
-    - Also check that result is a string
-    */
-
-    /* Create asset from text unless raw or source handler instructs not to do so via mutation of path.detail. */
-    if (
-      raw !== true &&
-      path.detail.transform !== false &&
-      this.types.has(path.type)
-    ) {
-      const transformer = this.types.get(path.type);
-      //
-      //
-      console.log('transformer:', transformer)
-
-      //
-      //
-
-
-      const asset = await transformer(
+    /* Create asset from text. */
+    if (this.types.has(path.type)) {
+      const asset = await this.types.get(path.type)(
         result,
         { options: { ...options }, owner: this, path },
         ...args
@@ -132,14 +121,14 @@ class Assets extends HTMLElement {
       }
     }
 
-    /* Use asset unless raw or source or type handler instructs not to do so via mutation of path.detail. */
-    if (
-      raw !== true &&
-      path.detail.process !== false &&
-      this.processors.has(path.types)
-    ) {
-      const processor = this.processors.get(path.types);
-      const processed = await processor(
+    /* Abort if type handler instructs to do so via mutation of path.detail. */
+    if (path.detail.process === false) {
+      return result;
+    }
+
+    /* Use asset. */
+    if (this.processors.has(path.types)) {
+      const processed = await this.processors.get(path.types)(
         result,
         { options: { ...options }, owner: this, path },
         ...args
@@ -174,29 +163,66 @@ assets.sources.add(
   "/",
   (() => {
     const cache = new Map();
-    const link = document.head.querySelector(`link[assets]`);
     return async ({ options, owner, path }, ...args) => {
-      const { raw = false } = options;
-      let result;
-      if (cache.has(path.path)) {
-        result = cache.get(path.path);
-      } else {
-        //console.log('path:', path.path)////
+      const { iife = false, raw = false } = options;
 
-        link.setAttribute("__path__", path.path);
-        const propertyValue = getComputedStyle(link)
-          .getPropertyValue("--__asset__")
-          .trim();
-        link.removeAttribute("__path__");
-        if (!propertyValue) {
-          throw new Error(`Invalid path: ${path.path}`);
+      if (path.type === "js") {
+        if (iife || raw) {
+          Object.assign(path.detail, { transform: false, process: false });
+          let text;
+          if (cache.has(path.path)) {
+            text = cache.get(path.path);
+          }
+          const response = await fetch(path.path);
+          text = await response.text();
+          cache.set(path.path, text);
+          if (iife) {
+            const key = `${path.path}?iife`;
+            if (cache.has(key)) {
+              return cache.get(key);
+            }
+            const result = Function(text)();
+            cache.set(key, result);
+            return result;
+          }
+          return text;
         }
-        result = atob(propertyValue.slice(1, -1));
+        const result = await Module.import(path.path);
+        return result;
       }
-      if (raw) {
-        //Object.assign(path.detail, { transform: false, process: false });
+      /* Non-js assets. */
+      const heads = args.filter((a) => a instanceof HTMLHeadElement);
+      if (path.type === "css" && heads.length) {
+        Object.assign(path.detail, { transform: false, process: false });
+        for (const head of heads) {
+          if (
+            !head.querySelector(`link[rel="stylesheet"][href="${path.path}"]`)
+          ) {
+            const link = document.createElement("link");
+            link.rel = "stylesheet";
+            link.href = path.path;
+            const { promise, resolve } = Promise.withResolvers();
+            link.addEventListener(
+              "load",
+              (event) => {
+                resolve(link);
+              },
+              { once: true }
+            );
+            head.append(link);
+            await promise;
+          }
+        }
+        
+        return true;
       }
-      console.log("result from '/' source:", result); ////
+
+      if (cache.has(path.path)) {
+        return cache.get(path.path);
+      }
+      const response = await fetch(path.path);
+      const result = await response.text();
+      cache.set(path.path, result);
       return result;
     };
   })()
@@ -214,27 +240,6 @@ assets.types.add(
       result = Sheet.create(result, path.path);
       cache.set(path.path, result);
       return result;
-    };
-  })()
-);
-
-assets.types.add(
-  "js",
-  (() => {
-    const cache = new Map();
-    return async (result, { options, owner, path }, ...args) => {
-      const { iife = false } = options;
-      if (iife) {
-        if (cache.has(path.path)) {
-          return cache.get(path.path);
-        }
-        result = Function(result)();
-        cache.set(path.path, result);
-        return result;
-      } else {
-        result = await Module.create(result, path.path);
-        return result;
-      }
     };
   })()
 );

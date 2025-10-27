@@ -5,7 +5,7 @@ from types import MappingProxyType
 from mixins import Files, Minify
 from tools import encode, get_config, get_timestamp, plural, render
 
-SRC = Path.cwd() / "build_code/assets/assets/assets"
+SRC = Path.cwd() / "assets"
 UTF_8 = "utf-8"
 
 timestamp = get_timestamp()
@@ -16,14 +16,6 @@ class build(Files, Minify):
         """Reads config."""
         config = get_config()
         self.origins = MappingProxyType(config["origins"])
-
-    def __call__(self) -> str:
-        """Creates main sheet and asset bundle."""
-        config_file = SRC / ".build.config.json"
-        if config_file.is_file():
-            config = json.loads(config_file.read_text(encoding=UTF_8))
-        else:
-            config = {}
         # Extract globals_ -> Explicitly declared global sheet paths
         self.globals: tuple[str] = tuple(config.get("globals", []))
         # Extract priorities -> Order for global sheet composition
@@ -31,14 +23,8 @@ class build(Files, Minify):
             config.get("priorities", {})
         )
 
-        def COMMENT():
-            """Example of .build.config.json:"""
-            example = {
-                "globals": ["main.css"],
-                "priorities": {"bootstrap/bootstrap.css": 5, "foo/foo.css": 3},
-            }
-
-        self.create_index()
+    def __call__(self) -> str:
+        """Creates main sheet and asset bundle."""
 
         messages = []
         messages.append(self.build_main())
@@ -106,21 +92,12 @@ class build(Files, Minify):
         count = len(content)
         # Create css
         css = self.minify_css(f"/*{timestamp}*/\n" + "\n".join(content))
-        # Write to index app
+        # Write to public
         self.write(
-            "build_code/assets/index/public/main.css",
+            "client/public/main.css",
             css,
         )
-        # Write to theme for effect without building index
-        self.write(
-            "theme/assets/index/index/main.css",
-            css,
-        )
-        # Write to assets app
-        self.write(
-            "build_code/assets/assets/public/main.css",
-            css,
-        )
+
         # Inform
         message = f"Aggregated {count} global sheet{plural(count)}."
         print(message)
@@ -128,7 +105,6 @@ class build(Files, Minify):
 
     def build_assets(self) -> str:
         """Builds asset-carrier sheet."""
-        self.clear("theme/assets/assets")
 
         rules = []
         paths = []
@@ -186,12 +162,10 @@ class build(Files, Minify):
                 continue
 
         # Meta
-        build_no = self.update_build_no()
-        print("Build no:", build_no)  ##
-        meta = dict(build=build_no, origins=dict(self.origins))
+        meta = dict(origins=dict(self.origins))
         rules.append(self.create_asset_rule("/__meta__.json", encode(json.dumps(meta))))
         self.write(
-            "theme/assets/meta/paths.json",
+            "client/public/meta/paths.json",
             json.dumps(paths),
         )
 
@@ -199,17 +173,7 @@ class build(Files, Minify):
         css = f"/*{timestamp}*/\n" + self.minify_css("\n".join(rules))
         # Write to index app
         self.write(
-            "build_code/assets/index/public/assets.css",
-            css,
-        )
-        # Write to theme for effect without building index
-        self.write(
-            "theme/assets/index/index/assets.css",
-            css,
-        )
-        # Write to assets app
-        self.write(
-            "build_code/assets/assets/public/assets.css",
+            "client/public/assets.css",
             css,
         )
 
@@ -224,13 +188,6 @@ class build(Files, Minify):
         # NOTE Wrap encoded in "" to prevent formatters from messing up
         return f'[__path__="{path}"] {{\n  --__asset__: "{encoded}";}}'
 
-    def create_index(self) -> None:
-        """Creates index.html from template."""
-        text = render(
-            "build_code/assets/templates/index.jinja", origin=self.origins["development"]
-        )
-        self.write("build_code/assets/assets/index.html", text)
-
     @staticmethod
     def get_src(file: Path) -> tuple[str, str]:
         """Returns src asset path and text."""
@@ -239,25 +196,9 @@ class build(Files, Minify):
             file.read_text(encoding=UTF_8).strip(),
         )
 
-    def update_build_no(self) -> int:
-        """Updates, writes and returns buld number."""
-        path = "theme/assets/meta/build.json"
-        text = self.read(path)
-        if text:
-            data = json.loads(text)
-        else:
-            data = {"assets": 0}
-        previous = data.get("assets", 0)
-        current = previous + 1
-        data["assets"] = current
-
-        text = json.dumps(data)
-        self.write(path, text)
-        return current
-
     def write_raw(self, path: str, content: str) -> None:
         """Writes asset to file."""
-        self.write(f"theme/assets/assets/{path}", content)
+        self.write(f"client/public/assets/{path}", content)
 
 
 build = build()

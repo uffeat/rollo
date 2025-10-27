@@ -1,0 +1,8 @@
+{
+  "origins": {
+    "development": "https://rollohdev.anvil.app",
+    "production": "https://rolloh.anvil.app"
+  },
+  "globals": ["main.css"],
+  "priorities": { "bootstrap/bootstrap.css": 5 }
+}
