@@ -1,7 +1,8 @@
 /* TODO
-- raw css.
-- Imports by asset carrier sheet.
-- Import by glob.
+- await use('mysheet.css') should add sheet via link.
+- 'static' source.
+- 'assets' source.. Import by glob
+- Synthetic types, e.g., .component.html
 */
 
 /* Import tools for the import engine. */
@@ -102,9 +103,7 @@ class Assets extends HTMLElement {
       );
     }
 
-    /* TODO
-    - Also check that result is a string
-    */
+    
 
     /* Create asset from text unless raw or source handler instructs not to do so via mutation of path.detail. */
     if (
@@ -160,15 +159,15 @@ const assets = Assets.create();
 /* Make import engine tools available via import engine.
 NOTE Good practice to '/!'-prefix explicitly added assets. 
 Mitigates path ambiguity. */
-assets.add("/!meta.js", Meta);
-assets.add("/!module.js", Module);
-assets.add("/!path.js", Path);
-assets.add("/!registry.js", Registry);
-assets.add("/!sheet.js", Sheet);
-assets.add("/!caseTools.js", caseTools);
-assets.add("/!define.js", define);
-assets.add("/!truncate.js", truncate);
-assets.add("/!types.js", types);
+assets.add("/meta.js", Meta);
+assets.add("/module.js", Module);
+assets.add("/path.js", Path);
+assets.add("/registry.js", Registry);
+assets.add("/sheet.js", Sheet);
+assets.add("/caseTools.js", caseTools);
+assets.add("/define.js", define);
+assets.add("/truncate.js", truncate);
+assets.add("/types.js", types);
 
 assets.sources.add(
   "/",
