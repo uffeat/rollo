@@ -1,24 +1,46 @@
-/* Activate Tailwind */
-import "../src/main.css"
-/* Initialize import engine */
-import "../src/use.js";
+/* TODO
+- Implement shift+etc test bench; checkout 'setup'
+*/
 
-import {component} from '../../parcels/component/index.js'
+/* NOTE ...pretty unique, this module has access to unbuilt as well as built 
+parcels and can therefore instigate tests based on either!
+*/
 
-component.h1({parent: document.body, text: "I'm a component"})
+import "../src/main.js";
 
+const STORAGE_KEY = "__test__";
 
-
-await use("/test/bar.css", document.head)
-document.body.insertAdjacentText("afterbegin", (await use("/test/foo.js")).foo);
-document.body.insertAdjacentHTML("afterbegin", await use("/test/foo.html"));
-document.body.insertAdjacentText(
-  "afterbegin",
-  (await use("/test/foo.json")).foo
+const tests = Object.fromEntries(
+  Object.entries({
+    ...import.meta.glob("./tests/**/*.js"),
+    ...import.meta.glob("./tests/**/*.html", {
+      query: "?raw",
+    }),
+  }).map(([k, v]) => [k.slice('./tests/'.length), v])
 );
 
-await use("/test/foo.css", document)
+console.log("tests:", tests);
 
-console.log("meta:", use.meta);
-console.log("Sheet:", await use("/sheet.js"));
 
+
+
+window.addEventListener("keydown", async (event) => {
+    /* Unit tests */
+    if (event.code === "KeyU" && event.shiftKey) {
+      const path = prompt("Path:", localStorage.getItem(STORAGE_KEY) || "");
+      if (path) {
+        localStorage.setItem(STORAGE_KEY, path);
+       
+        if (!(path in tests)) {
+          throw new Error(`Invalid path: ${path}.`);
+        }
+        const load = tests[path];
+        const mod = await load();
+        await mod.default()
+      }
+    }
+    /* Batch tests */
+    if (event.code === "KeyT" && event.shiftKey) {
+    //
+    }
+  });

@@ -20,16 +20,10 @@ export default defineConfig(({ mode }) => {
       target: "es2022",
       rollupOptions: {
         /* Exclude files from bundle */
-        /*
-        external: (path) =>
-          path.endsWith(".test.js") &&
-          !path.includes("/batch/") &&
-          !path.includes("/preview/") &&
-          !path.includes("/vercel/"),
-        */
+        external: (path) => path.includes("/test/"),
       },
     },
-    
+
     plugins: [
       /* Enable Temporal without the need to go: 
         import { Temporal } from '@js-temporal/polyfill';

@@ -90,20 +90,20 @@ class Assets extends HTMLElement {
     const { raw = false } = options;
 
     let result;
+    //console.log("path:", path); ////
 
     if (this.#_.added.has(path.path)) {
       result = this.#_.added.get(path.path);
-    } else {
-      if (!this.sources.has(path.source)) {
-        throw new Error(`Invalid source: ${path.source}`);
-      }
-      result = await this.sources.get(path.source)(
-        { options: { ...options }, owner: this, path },
-        ...args
-      );
+      return result;
     }
 
-    
+    if (!this.sources.has(path.source)) {
+      throw new Error(`Invalid source: ${path.source}`);
+    }
+    result = await this.sources.get(path.source)(
+      { options: { ...options }, owner: this, path },
+      ...args
+    );
 
     /* Create asset from text unless raw or source handler instructs not to do so via mutation of path.detail. */
     if (
@@ -112,13 +112,8 @@ class Assets extends HTMLElement {
       this.types.has(path.type)
     ) {
       const transformer = this.types.get(path.type);
-      //
-      //
-      console.log('transformer:', transformer)
 
-      //
-      //
-
+      //console.log('transformer:', transformer)////
 
       const asset = await transformer(
         result,
