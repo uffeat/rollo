@@ -943,7 +943,7 @@ const Ss = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   write: fs
 }, Symbol.toStringTag, { value: "Module" }));
 /*!
-  * Bootstrap v5.3.7 (https://getbootstrap.com/)
+  * Bootstrap v5.3.8 (https://getbootstrap.com/)
   * Copyright 2011-2025 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
   */
@@ -1233,7 +1233,7 @@ class Ut {
     }
   }
 }
-const lr = "5.3.7";
+const lr = "5.3.8";
 class Y extends Ut {
   constructor(t, e) {
     super(), t = et(t), t && (this._element = t, this._config = this._getConfig(e), Ce.set(this._element, this.constructor.DATA_KEY, this));
@@ -1830,7 +1830,7 @@ class K extends Y {
       if ("ontouchstart" in document.documentElement)
         for (const s of [].concat(...document.body.children))
           c.off(s, "mouseover", pe);
-      this._popper && this._popper.destroy(), this._menu.classList.remove(Ct), this._element.classList.remove(Ct), this._element.setAttribute("aria-expanded", "false"), q.removeDataAttribute(this._menu, "popper"), c.trigger(this._element, No, t), this._element.focus();
+      this._popper && this._popper.destroy(), this._menu.classList.remove(Ct), this._element.classList.remove(Ct), this._element.setAttribute("aria-expanded", "false"), q.removeDataAttribute(this._menu, "popper"), c.trigger(this._element, No, t);
     }
   }
   _getConfig(t) {

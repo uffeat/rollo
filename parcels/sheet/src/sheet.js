@@ -1,5 +1,6 @@
-import { typeName } from "./types.js";
-import { camelToKebab } from "./case.js";
+const { typeName } = await use('/tools/types.js')
+const { camelToKebab }  = await use('/tools/case.js')
+const { truncate }  = await use('/tools/truncate.js')
 
 const MEDIA = "@media";
 
@@ -340,11 +341,4 @@ export class Sheet extends CSSStyleSheet {
   }
 }
 
-export const css = new Proxy(
-  {},
-  {
-    get(_, key) {
-      return (value) => `${value}${key}`;
-    },
-  }
-);
+

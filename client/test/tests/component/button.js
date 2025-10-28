@@ -2,8 +2,11 @@
 component/button.js
 */
 
+import {component} from '../../../../parcels/component/index.js'
+//const { component } = await use("/component.js");
+
 export default async () => {
-  const { component } = await use("/component.js");
+  
 
   component.button("btn.btn-success", {
     text: "Button",

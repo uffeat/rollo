@@ -19,7 +19,7 @@ export default defineConfig(({ mode }) => {
       manifest: true,
       target: "es2022",
       rollupOptions: {
-        /* Exclude files from bundle */
+        /* Exclude test files from bundle. Likely redundant, but keep as extra guard rail.  */
         external: (path) => path.includes("/test/"),
       },
     },
