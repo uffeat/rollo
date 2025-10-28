@@ -6,7 +6,7 @@ import "./use.js";
 document.querySelector("html").dataset.bsTheme = "dark";
 
 const image = document.createElement("img");
-image.src = "/images/sprocket.webp";
+image.src = "/images/engine.webp";
 document.body.append(image);
 
 
