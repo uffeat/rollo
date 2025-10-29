@@ -1,3 +1,8 @@
+"""TODO
+- clear out dirs
+- Mitigate the need for '//' imports
+"""
+
 import json
 from pathlib import Path
 from types import MappingProxyType
@@ -134,7 +139,7 @@ class build(Files, Minify):
                 minified = self.minify_css(text)
                 encoded = encode(minified)
                 rules.append(self.create_asset_rule(path, encoded))
-                self.write_raw(path, minified)
+                ##self.write_raw(path, minified)
                 continue
             if file.suffix == ".html":
                 text = self.minify_html(text)

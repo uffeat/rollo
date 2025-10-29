@@ -44,3 +44,6 @@ window.addEventListener("keydown", async (event) => {
     //
   }
 });
+
+
+console.log('foo:', await use('/test/foo.js'))

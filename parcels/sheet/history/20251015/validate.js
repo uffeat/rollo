@@ -4,7 +4,7 @@ const cls = class extends HTMLElement {
   }
 };
 
-customElements.define('data-sheet-validator', cls);
+customElements.define("data-sheet-validator", cls);
 
 const validator = new cls();
 

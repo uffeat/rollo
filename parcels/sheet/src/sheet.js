@@ -1,6 +1,7 @@
-const { typeName } = await use('/tools/types.js')
-const { camelToKebab }  = await use('/tools/case.js')
-const { truncate }  = await use('/tools/truncate.js')
+const { typeName } = await use("@/tools/types.js");
+const { camelToKebab } = await use("@/tools/case.js");
+const { truncate } = await use("@/tools/truncate.js");
+const { WebComponent } = await use("@/component.js");
 
 const MEDIA = "@media";
 
@@ -8,7 +9,9 @@ const MEDIA = "@media";
 class Rules {
   static create = (...args) => new Rules(...args);
 
-  #_ = {};
+  #_ = {
+    validator: WebComponent(),
+  };
 
   constructor(owner) {
     this.#_.owner = owner;
@@ -233,6 +236,8 @@ class Rules {
     }
     return rule;
   }
+
+  #validate(prop) {}
 }
 
 class Targets {
@@ -340,5 +345,3 @@ export class Sheet extends CSSStyleSheet {
     return this;
   }
 }
-
-

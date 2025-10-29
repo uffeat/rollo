@@ -1,4 +1,5 @@
-No critical TODO's
+# FIX BUGS
++ Animation does not work!
 
 # Highest priority ideas
 - Better removal of rules via index function

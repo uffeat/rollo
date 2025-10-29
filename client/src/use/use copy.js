@@ -5,7 +5,7 @@ TODO
 - 'static' source.
 - 'assets' source. Import by glob
 - Synthetic types, e.g., .component.html
-
+- Reconsider Assets as component vs. app composition on assets
 */
 
 /* Import tools for the import engine. */
@@ -15,7 +15,7 @@ import { Path } from "./path.js";
 import { Registry } from "./registry.js";
 import { define } from "./define.js";
 
-class Assets {
+class Assets extends HTMLElement {
   static create = (...args) => new Assets(...args);
   #_ = {
     added: new Map(),
@@ -23,6 +23,7 @@ class Assets {
   };
 
   constructor() {
+    super();
     document.head.append(this);
     /* Create meta */
     this.#_.meta = Meta.create(this);
@@ -83,38 +84,32 @@ class Assets {
   async get(path, ...args) {
     const options = args.find((a) => typeName(a) === "Object") || {};
     args = args.filter((a) => typeName(a) !== "Object");
+    path = Path.create(path);
+    const { raw = false } = options;
 
-    /* Added assets */
-    if (this.#_.added.has(path)) {
-      return this.#_.added.get(path);
+    let result;
+    //console.log("path:", path); ////
+
+    if (this.#_.added.has(path.path)) {
+      result = this.#_.added.get(path.path);
+      return result;
     }
 
-
-
-    path = Path.create(path);
-
-    
-
-    /* Assets from registered source */
     if (!this.sources.has(path.source)) {
       throw new Error(`Invalid source: ${path.source}`);
     }
-
-    let result;
-
     result = await this.sources.get(path.source)(
       { options: { ...options }, owner: this, path },
       ...args
     );
 
-    const { raw = false } = options;
-    if (raw) {
-      return result;
-    }
-
     /* Create asset from text unless raw or source handler instructs not to do 
     so via mutation of path.detail. */
-    if (path.detail.transform !== false && this.types.has(path.type)) {
+    if (
+      raw !== true &&
+      path.detail.transform !== false &&
+      this.types.has(path.type)
+    ) {
       const transformer = this.types.get(path.type);
 
       //console.log('transformer:', transformer)////
@@ -132,7 +127,11 @@ class Assets {
 
     /* Use asset unless raw or source or type handler instructs not to do so 
     via mutation of path.detail. */
-    if (path.detail.process !== false && this.processors.has(path.types)) {
+    if (
+      raw !== true &&
+      path.detail.process !== false &&
+      this.processors.has(path.types)
+    ) {
       const processor = this.processors.get(path.types);
       const processed = await processor(
         result,
@@ -148,66 +147,19 @@ class Assets {
   }
 }
 
+customElements.define("data-assets", Assets);
+
 const assets = Assets.create();
 
 /* Make selected import engine tools available via import engine. */
-assets.add("module.js", Module);
-assets.add("path.js", Path);
-assets.add("registry.js", Registry);
-assets.add("define.js", define);
+assets.add("/module.js", Module);
+assets.add("/path.js", Path);
+assets.add("/registry.js", Registry);
+assets.add("/define.js", define);
 
-/* Add public as source */
+/* Add carrier sheet as source */
 assets.sources.add(
   "/",
-  (() => {
-    const cache = new Map();
-
-    return async ({ options, owner, path }, ...args) => {
-      const head = args.find((a) => a instanceof HTMLHeadElement);
-      if (head) {
-        /* Escape processing */
-        Object.assign(path.detail, { transform: false, process: false });
-        let link = head.querySelector(
-          `link[rel="stylesheet"][href="/${path.path}"]`
-        );
-        if (link) {
-          return link;
-        }
-        link = document.createElement("link");
-        link.rel = "stylesheet";
-        link.href = `/${path.path}`;
-        const { promise, resolve } = Promise.withResolvers();
-        link.addEventListener(
-          "load",
-          (event) => {
-            resolve(link);
-          },
-          { once: true }
-        );
-        head.append(link);
-        return await promise;
-      }
-
-      let result;
-      if (cache.has(path.path)) {
-        result = cache.get(path.path);
-      } else {
-        console.log("path.path:", path.path); ////
-        const response = await fetch(path.path);
-        result = await response.text();
-        cache.set(path.path, result);
-      }
-      //console.log("result from '/' source:", result); ////
-      return result;
-    };
-  })()
-);
-
-/* Add carrier-sheet as source 
-NOTE
-- No point in providing the option to add sheet via link, since global main sheet is created by build tools. */
-assets.sources.add(
-  "@",
   (() => {
     const cache = new Map();
     const link = document.head.querySelector(`link[assets]`);
@@ -226,7 +178,6 @@ assets.sources.add(
           throw new Error(`Invalid path: ${path.path}`);
         }
         result = atob(propertyValue.slice(1, -1));
-        cache.set(path.path, result);
       }
       //console.log("result from '/' source:", result); ////
       return result;
@@ -243,7 +194,32 @@ assets.types.add(
   (() => {
     const cache = new Map();
     return async (text, { options, owner, path }, ...args) => {
-      const { Sheet } = await owner.get("@/sheet.js");
+      const head = args.find((a) => a instanceof HTMLHeadElement);
+      if (head) {
+        /* Escape processing */
+        Object.assign(path.detail, { process: false });
+        let link = head.querySelector(
+          `link[rel="stylesheet"][href="/assets${path.path}"]`
+        );
+        if (link) {
+          return link;
+        }
+        link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = `/assets${path.path}`;
+        const { promise, resolve } = Promise.withResolvers();
+        link.addEventListener(
+          "load",
+          (event) => {
+            resolve(link);
+          },
+          { once: true }
+        );
+        head.append(link);
+        return await promise;
+      }
+
+      const { Sheet } = await owner.get("/sheet.js");
       if (cache.has(path.path)) {
         return cache.get(path.path);
       }
