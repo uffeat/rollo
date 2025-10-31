@@ -1,8 +1,9 @@
-/* Test bench.
+/* Testbench.
+http://localhost:5173/test/test.html
 
 NOTE 
-- ...pretty unique, this module has access to unbuilt as well as built 
-parcels and can therefore instigate tests based on either!
+- Test scripts can access to unbuilt as well as built 
+parcels.
 
  TODO
 - html-based test scripts
@@ -22,7 +23,7 @@ const tests = Object.fromEntries(
   }).map(([k, v]) => [k.slice("./tests/".length), v])
 );
 
-console.log("tests:", tests);
+//console.log("tests:", tests);////
 
 window.addEventListener("keydown", async (event) => {
   /* Unit tests */
@@ -45,5 +46,17 @@ window.addEventListener("keydown", async (event) => {
   }
 });
 
+const { component } = await use("@/component.js");
+const container = component.div({ parent: document.body });
 
-console.log('foo:', await use('/test/foo.js'))
+await use("/test/foo.css", { as: "link" });
+
+container.insert.beforeend(await use("/test/foo.template"));
+
+console.log("foo:", (await use("/test/foo.js")).foo);
+console.log("foo:", (await use("/test/foo.json")).foo);
+
+await use("/test/ding.js", { as: "script" });
+console.log("ding:", ding);
+
+console.log("dong:", await use("/test/dong.js", { as: "iife" }));

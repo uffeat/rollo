@@ -2,6 +2,7 @@ const { typeName } = await use("@/tools/types.js");
 const { camelToKebab } = await use("@/tools/case.js");
 const { truncate } = await use("@/tools/truncate.js");
 const { WebComponent } = await use("@/component.js");
+const { Exception } = await use('exception.js');
 
 const MEDIA = "@media";
 
@@ -214,6 +215,11 @@ class Rules {
         rule.style.removeProperty(key);
         continue;
       }
+
+      if (!this.#validate(key)) {
+        throw new Error(`Invalid key: ${key}`);
+      }
+
       if (typeof value === "string") {
         value = value.trim();
         /* Handle priority */
@@ -237,7 +243,9 @@ class Rules {
     return rule;
   }
 
-  #validate(prop) {}
+  #validate(key) {
+    return key in this.#_.validator.style || key.startsWith("--");
+  }
 }
 
 class Targets {

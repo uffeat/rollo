@@ -1,14 +1,13 @@
 /* Import engine.
 
 TODO
-
-- 'static' source.
 - 'assets' source. Import by glob
 - Synthetic types, e.g., .component.html
 
 */
 
 /* Import tools for the import engine. */
+import { Exception } from "./exception.js";
 import { Meta } from "./meta.js";
 import { Module } from "./module.js";
 import { Path } from "./path.js";
@@ -89,20 +88,13 @@ class Assets {
       return this.#_.added.get(path);
     }
 
-
-
     path = Path.create(path);
 
-    
-
-    /* Assets from registered source */
+    /* Assets text from registered source */
     if (!this.sources.has(path.source)) {
       throw new Error(`Invalid source: ${path.source}`);
     }
-
-    let result;
-
-    result = await this.sources.get(path.source)(
+    let result = await this.sources.get(path.source)(
       { options: { ...options }, owner: this, path },
       ...args
     );
@@ -112,12 +104,10 @@ class Assets {
       return result;
     }
 
-    /* Create asset from text unless raw or source handler instructs not to do 
+    /* Create asset from text, unless source handler instructs not to do 
     so via mutation of path.detail. */
     if (path.detail.transform !== false && this.types.has(path.type)) {
       const transformer = this.types.get(path.type);
-
-      //console.log('transformer:', transformer)////
 
       const asset = await transformer(
         result,
@@ -130,7 +120,7 @@ class Assets {
       }
     }
 
-    /* Use asset unless raw or source or type handler instructs not to do so 
+    /* Use asset unless source or type handler instructs not to do so 
     via mutation of path.detail. */
     if (path.detail.process !== false && this.processors.has(path.types)) {
       const processor = this.processors.get(path.types);
@@ -150,7 +140,10 @@ class Assets {
 
 const assets = Assets.create();
 
-/* Make selected import engine tools available via import engine. */
+/* Make selected import engine tools available via import engine. 
+NOTE Good practice to indicate injection by not using a source prefix.
+Also mitigates collisions. */
+assets.add("exception.js", Exception);
 assets.add("module.js", Module);
 assets.add("path.js", Path);
 assets.add("registry.js", Registry);
@@ -161,43 +154,44 @@ assets.sources.add(
   "/",
   (() => {
     const cache = new Map();
-
     return async ({ options, owner, path }, ...args) => {
-      const head = args.find((a) => a instanceof HTMLHeadElement);
-      if (head) {
-        /* Escape processing */
+      const { component } = await use("@/component.js");
+
+      const { as } = options;
+      if (path.type === "css" && as === "link") {
+        /* Escape transformation and processing */
         Object.assign(path.detail, { transform: false, process: false });
-        let link = head.querySelector(
-          `link[rel="stylesheet"][href="/${path.path}"]`
+        let link = document.head.querySelector(
+          `link[rel="stylesheet"][href="${path.path}"]`
         );
-        if (link) {
-          return link;
-        }
-        link = document.createElement("link");
-        link.rel = "stylesheet";
-        link.href = `/${path.path}`;
+        if (link) return link;
+        link = component.link({ rel: "stylesheet", href: path.path });
         const { promise, resolve } = Promise.withResolvers();
-        link.addEventListener(
-          "load",
-          (event) => {
-            resolve(link);
-          },
-          { once: true }
-        );
-        head.append(link);
+        link.on.load$once = (event) => resolve(link);
+        document.head.append(link);
         return await promise;
       }
-
-      let result;
-      if (cache.has(path.path)) {
-        result = cache.get(path.path);
-      } else {
-        console.log("path.path:", path.path); ////
-        const response = await fetch(path.path);
-        result = await response.text();
-        cache.set(path.path, result);
+      if (path.type === "js" && as === "script") {
+        /* Escape transformation and processing */
+        Object.assign(path.detail, { transform: false, process: false });
+        let script = document.head.querySelector(`script[src="${path.path}"]`);
+        if (script) return script;
+        script = component.script({ src: path.path });
+        const { promise, resolve } = Promise.withResolvers();
+        script.on.load$once = (event) => resolve();
+        document.head.append(script);
+        return await promise;
       }
-      //console.log("result from '/' source:", result); ////
+      /* Asset text import */
+      if (cache.has(path.path)) return cache.get(path.path);
+      const result = (await (await fetch(path.path)).text()).trim();
+      /* Invalid paths causes result to be index.html (with misc devtools injected). 
+      Use custom index meta as indicator for invalid path, since such an element should not be present in imported assets.  */
+      //console.log('result:', result)////
+      const temp = component.div({ innerHTML: result });
+      if (temp.querySelector(`meta[index]`))
+        Exception.raise(`Invalid path: ${path.path}`);
+      cache.set(path.path, result);
       return result;
     };
   })()
@@ -205,39 +199,28 @@ assets.sources.add(
 
 /* Add carrier-sheet as source 
 NOTE
-- No point in providing the option to add sheet via link, since global main sheet is created by build tools. */
+- No strong case for providing the option to add sheet via link, since global main sheet is created by build tools. */
 assets.sources.add(
   "@",
   (() => {
     const cache = new Map();
     const link = document.head.querySelector(`link[assets]`);
     return async ({ options, owner, path }, ...args) => {
-      let result;
-      if (cache.has(path.path)) {
-        result = cache.get(path.path);
-      } else {
-        //console.log('path:', path.path)////
-        link.setAttribute("__path__", path.path);
-        const propertyValue = getComputedStyle(link)
-          .getPropertyValue("--__asset__")
-          .trim();
-        link.removeAttribute("__path__");
-        if (!propertyValue) {
-          throw new Error(`Invalid path: ${path.path}`);
-        }
-        result = atob(propertyValue.slice(1, -1));
-        cache.set(path.path, result);
-      }
-      //console.log("result from '/' source:", result); ////
+      if (cache.has(path.path)) return cache.get(path.path);
+      link.setAttribute("__path__", path.path);
+      const propertyValue = getComputedStyle(link)
+        .getPropertyValue("--__asset__")
+        .trim();
+      link.removeAttribute("__path__");
+      if (!propertyValue) Exception.raise(`Invalid path: ${path.path}`);
+      const result = atob(propertyValue.slice(1, -1));
+      cache.set(path.path, result);
       return result;
     };
   })()
 );
 
-/* Add css type handler 
-- to add sheet by link
-or
-- to transform CSS text to Sheet instance. */
+/* Add css type handler to transform CSS text to Sheet instance. */
 assets.types.add(
   "css",
   (() => {
@@ -261,15 +244,21 @@ assets.types.add(
     const cache = new Map();
     return async (text, { options, owner, path }, ...args) => {
       let result;
-      const { iife = false } = options;
-      const key = iife ? `${path.path}?iife` : path.path;
+      const { as = "module" } = options;
+      const key = as === "module" ? path.path : `${path.path}?${as}`;
       if (cache.has(key)) {
         return cache.get(key);
       }
-      if (iife) {
-        result = Function(text)();
-      } else {
+      if (as === "module") {
         result = await Module.create(text, path.path);
+      } else if (as === "iife") {
+        result = Function(`return ${text}`)();
+        if (result === undefined) {
+          /* Since undefined handler results are ignored, convert to null */
+          result = null;
+        }
+      } else {
+        throw new Error(`Invalid 'as': ${as}`);
       }
       cache.set(key, result);
       return result;
@@ -286,10 +275,11 @@ assets.types.add("json", (result, { options, owner, path }, ...args) => {
 assets.processors.add(
   "css",
   async (result, { options, owner, path }, ...args) => {
-    if (typeName(result) !== "CSSStyleSheet") {
-      console.error("Result:", result);
-      throw new Error(`Result is not a CSSStyleSheet`);
-    }
+    if (typeName(result) !== "CSSStyleSheet")
+      Exception.raise(`Result is not a CSSStyleSheet`, () =>
+        console.error("Result:", result)
+      );
+
     const targets = args.filter(
       (a) =>
         typeName(a) === "HTMLDocument" ||

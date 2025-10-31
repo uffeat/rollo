@@ -1,1 +1,1 @@
-export const foo = "STATIC JS FOO";
+export const foo = "From /test/foo.js";

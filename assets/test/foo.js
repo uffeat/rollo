@@ -1,1 +1,1 @@
-export const foo = "ASSETS JS FOO";
+export const foo = 'From @/test/foo.js';
