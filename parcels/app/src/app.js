@@ -1,7 +1,6 @@
-import '../assets/app.css'
+import "../assets/app.css";
 
 const { author, component, mix, mixins } = await use("@/component.js");
-
 
 const TAG = "div";
 
@@ -37,4 +36,4 @@ export const App = author(
   TAG
 );
 
-export const app = App({id: 'app', parent: document.body})
+export const app = App({ id: "app", parent: document.body });
