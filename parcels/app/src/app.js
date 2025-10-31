@@ -36,3 +36,5 @@ export const App = author(
   "app-component",
   TAG
 );
+
+export const app = App({id: 'app', parent: document.body})

@@ -28,9 +28,6 @@ class build(Files, Minify):
             config.get("priorities", {})
         )
 
-       
-       
-
     def __call__(self) -> str:
         """Creates main sheet and asset bundle."""
 
@@ -40,6 +37,12 @@ class build(Files, Minify):
         message = " ".join(messages)
 
         return message
+    
+    @property
+    def parcels(self):
+        """."""
+        # NOTE 'parcels' cannot be reused, therefore return new at each call
+        return (Path.cwd() / "parcels").glob("*/")
 
     def build_main(self) -> str:
         """Builds main (global) sheet."""
@@ -99,21 +102,17 @@ class build(Files, Minify):
 
         count = len(content)
         # Create css
-       
 
-
-
-
-        css = f"/*{timestamp}*/\n" +  self.minify_css("\n".join(content))
+        css = f"/*{timestamp}*/\n" + self.minify_css("\n".join(content))
         # Write to client public
         self.write(
             "client/public/main.css",
             css,
         )
-        # Write to parcel test dirs
-        for parcel in (Path.cwd() / "parcels").glob("*/"):
-            if (parcel / 'test').is_dir():
-                file = parcel / 'test/main.css'
+        # Write to parcel test dirs to enable access to main.css without commit
+        for parcel in self.parcels:
+            if (parcel / "test").is_dir():
+                file = parcel / "test/main.css"
                 file.write_text(css, encoding=UTF_8)
 
         # Inform
@@ -152,7 +151,7 @@ class build(Files, Minify):
                 minified = self.minify_css(text)
                 encoded = encode(minified)
                 rules.append(self.create_asset_rule(path, encoded))
-                ##self.write_raw(path, minified)
+                self.write_raw(path, minified)
                 continue
             if file.suffix == ".html":
                 text = self.minify_html(text)
@@ -194,13 +193,11 @@ class build(Files, Minify):
             "client/public/assets.css",
             css,
         )
-        # Write to parcel test dirs
-        for parcel in (Path.cwd() / "parcels").glob("*/"):
-            if (parcel / 'test').is_dir():
-                file = parcel / 'test/assets.css'
+        # Write to parcel test dirs to enable access to assets without commit
+        for parcel in self.parcels:
+            if (parcel / "test").is_dir():
+                file = parcel / "test/assets.css"
 
-
-            
                 file.write_text(css, encoding=UTF_8)
 
         # Inform

@@ -1,1 +1,1 @@
-export { App } from "./src/app.js";
+export { App, app } from "./src/app.js";
