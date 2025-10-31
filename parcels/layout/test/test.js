@@ -1,4 +1,4 @@
-import '../../client/src/use.js';
+import "../../../client/src/use/use.js";
 import { setup } from "../../../test/setup.js";
 import { Layout } from "../index.js";
 

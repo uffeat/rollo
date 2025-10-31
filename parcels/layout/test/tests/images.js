@@ -2,7 +2,9 @@
 images.js
 Tests scroll/overflow/flex behavior.
 */
-const { component } = await use("/component.js");
+const { component } = await use("@/component.js");
+
+use.meta.base = 'https://rolloh.vercel.app'
 
 export default ({ layout }) => {
   layout.clear(":not([slot])");

@@ -2,7 +2,7 @@
 resize.js
 Tests resize event.
 */
-const { component } = await use("/component.js");
+const { component } = await use("@/component.js");
 
 export default ({ layout }) => {
   layout.clear(":not([slot])");

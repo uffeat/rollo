@@ -8,7 +8,7 @@ from pathlib import Path
 from types import MappingProxyType
 
 from mixins import Files, Minify
-from tools import encode, get_config, get_timestamp, plural, render
+from tools import encode, get_config, get_timestamp, plural
 
 SRC = Path.cwd() / "assets"
 UTF_8 = "utf-8"
@@ -27,6 +27,9 @@ class build(Files, Minify):
         self.priorities: MappingProxyType = MappingProxyType(
             config.get("priorities", {})
         )
+
+       
+       
 
     def __call__(self) -> str:
         """Creates main sheet and asset bundle."""
@@ -96,12 +99,22 @@ class build(Files, Minify):
 
         count = len(content)
         # Create css
-        css = self.minify_css(f"/*{timestamp}*/\n" + "\n".join(content))
-        # Write to public
+       
+
+
+
+
+        css = f"/*{timestamp}*/\n" +  self.minify_css("\n".join(content))
+        # Write to client public
         self.write(
             "client/public/main.css",
             css,
         )
+        # Write to parcel test dirs
+        for parcel in (Path.cwd() / "parcels").glob("*/"):
+            if (parcel / 'test').is_dir():
+                file = parcel / 'test/main.css'
+                file.write_text(css, encoding=UTF_8)
 
         # Inform
         message = f"Aggregated {count} global sheet{plural(count)}."
@@ -176,11 +189,19 @@ class build(Files, Minify):
 
         # Create css
         css = f"/*{timestamp}*/\n" + self.minify_css("\n".join(rules))
-        # Write to index app
+        # Write to client public
         self.write(
             "client/public/assets.css",
             css,
         )
+        # Write to parcel test dirs
+        for parcel in (Path.cwd() / "parcels").glob("*/"):
+            if (parcel / 'test').is_dir():
+                file = parcel / 'test/assets.css'
+
+
+            
+                file.write_text(css, encoding=UTF_8)
 
         # Inform
         count = len(rules)
