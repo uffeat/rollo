@@ -198,8 +198,8 @@ assets.sources.add(
 );
 
 /* Add carrier-sheet as source 
-NOTE
-- No strong case for providing the option to add sheet via link, since global main sheet is created by build tools. */
+NOTE No strong case for providing the option to add sheet via link, 
+since global main sheet is created by build tools. */
 assets.sources.add(
   "@",
   (() => {
