@@ -1,3 +1,6 @@
+# 1st
+- Allow rules in 'create'
+
 # Highest priority ideas
 - Better removal of rules via index function
 - Self-contained special sheet type (or function) for defining a single animation.

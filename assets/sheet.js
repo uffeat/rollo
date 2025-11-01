@@ -1,8 +1,8 @@
-const { typeName: f } = await use("@/tools/types.js"), { camelToKebab: h } = await use("@/tools/case.js"), { truncate: d } = await use("@/tools/truncate.js"), { WebComponent: p } = await use("@/component.js"), { Exception: y } = await use("exception.js"), l = "@media";
-class c {
-  static create = (...e) => new c(...e);
+const { typeName: w } = await use("@/tools/types.js"), { camelToKebab: p } = await use("@/tools/case.js"), { truncate: m } = await use("@/tools/truncate.js"), { WebComponent: S } = await use("@/component.js"), { Exception: R } = await use("exception.js"), l = "@media";
+class u {
+  static create = (...e) => new u(...e);
   #e = {
-    validator: p()
+    validator: S()
   };
   constructor(e) {
     this.#e.owner = e;
@@ -19,7 +19,7 @@ class c {
   get text() {
     return Array.from(
       this.owner.cssRules,
-      (e) => d(e.cssText)
+      (e) => m(e.cssText)
     ).join(" ");
   }
   /* Adds rules. */
@@ -110,11 +110,11 @@ class c {
       throw console.error("rule:", e), new Error("Invalid rule.");
     for (let [s, t] of Object.entries(r))
       if (t !== void 0) {
-        if (f(t) === "Object") {
+        if (w(t) === "Object") {
           const [n, i] = Object.entries(t)[0];
           t = `${i}${n}`;
         }
-        if (s.startsWith("__") ? s = `--${s.slice(2)}` : s.startsWith("--") || (s = h(s.trim())), t === !1) {
+        if (s.startsWith("__") ? s = `--${s.slice(2)}` : s.startsWith("--") || (s = p(s.trim())), t === !1) {
           e.style.removeProperty(s);
           continue;
         }
@@ -136,8 +136,8 @@ class c {
     return e in this.#e.validator.style || e.startsWith("--");
   }
 }
-class u {
-  static create = (...e) => new u(...e);
+class a {
+  static create = (...e) => new a(...e);
   #e = { registry: /* @__PURE__ */ new Set() };
   constructor(e) {
     this.#e.owner = e;
@@ -164,13 +164,13 @@ class u {
     }
   }
 }
-class a extends CSSStyleSheet {
-  static create = (...e) => new a(...e);
+class f extends CSSStyleSheet {
+  static create = (...e) => new f(...e);
   #e = {
     detail: {}
   };
   constructor(e, r) {
-    super(), this.#e.rules = c.create(this), this.#e.targets = u.create(this), this.replaceSync(e), this.#e.path = r, this.#e.text = e;
+    super(), this.#e.rules = u.create(this), this.#e.targets = a.create(this), this.replaceSync(e), this.#e.path = r, this.#e.text = e;
   }
   /* Returns detail for ad-hoc data. */
   get detail() {
@@ -210,22 +210,52 @@ class a extends CSSStyleSheet {
     return this;
   }
 }
-const { camelToKebab: w } = await use("@/tools/case.js"), { WebComponent: m } = await use("@/component.js"), S = m(), g = new Proxy(
-  {},
-  {
-    get(R, e) {
-      return e in S.style ? new Proxy(
-        {},
-        {
-          get(r, s) {
-            return { [e]: w(s) };
+const { camelToKebab: d } = await use("@/tools/case.js"), { WebComponent: g } = await use("@/component.js"), y = g(), h = new class {
+  #e = {};
+  constructor() {
+    this.#e.color = new class {
+      get hex() {
+        return new Proxy(
+          {},
+          {
+            get(c, e) {
+              return `#${e}`;
+            }
           }
-        }
-      ) : (r) => (e === "pct" && (e = "%"), `${r}${e}`);
-    }
+        );
+      }
+    }();
   }
-);
+  get color() {
+    return this.#e.color;
+  }
+  get value() {
+    return new Proxy(
+      {},
+      {
+        get(c, e) {
+          return d(e);
+        }
+      }
+    );
+  }
+}(), x = new Proxy(() => {
+}, {
+  get(c, e) {
+    return e in y.style ? new Proxy(
+      {},
+      {
+        get(r, s) {
+          return { [e]: d(s) };
+        }
+      }
+    ) : e in h ? h[e] : (r) => (e === "pct" && (e = "%"), `${r}${e}`);
+  },
+  apply(c, e, r) {
+    return r.join(" ");
+  }
+});
 export {
-  a as Sheet,
-  g as css
+  f as Sheet,
+  x as css
 };

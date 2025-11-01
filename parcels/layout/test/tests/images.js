@@ -15,7 +15,15 @@ sheet.rules.add({
     rowGap: css.rem(1),
     padding: css.rem(1),
   },
+  "main>img": {
+    borderRadius: css.rem(1),
+    border: css(css.px(4), css.value.solid, css.value.green),
+    //border: css(css.px(4), css.value.solid, css.color.hex.ea2d2d),
+  
+  },
 });
+
+console.log(sheet.rules.text)
 
 const main = component.main({
   parent: layout,
@@ -41,8 +49,6 @@ export default ({ layout }) => {
     },
   });
 
-  
-
   /* Use Object.keys to avoid strings  */
   Object.keys({
     handle: "",
@@ -56,5 +62,5 @@ export default ({ layout }) => {
   );
 
   layout.append(main);
-  toTop(main)
+  toTop(main);
 };

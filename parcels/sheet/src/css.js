@@ -3,26 +3,64 @@ const { WebComponent } = await use("@/component.js");
 
 const reference = WebComponent();
 
-export const css = new Proxy(
-  {},
-  {
-    get(_, key) {
-      if (key in reference.style) {
+const cls = new (class {
+  #_ = {};
+
+  constructor() {
+    this.#_.color = new (class {
+      get hex() {
         return new Proxy(
           {},
           {
-            get(_, value) {
-              return { [key]: camelToKebab(value) };
+            get(target, key) {
+              return `#${key}`;
             },
           }
         );
       }
-      return (value) => {
-        if (key === 'pct') {
-          key = '%'
-        }
-        return `${value}${key}`
-      };
-    },
+    })();
   }
-);
+
+  get color() {
+    return this.#_.color;
+  }
+
+  get value() {
+    return new Proxy(
+      {},
+      {
+        get(target, value) {
+          return camelToKebab(value);
+        },
+      }
+    );
+  }
+})();
+
+export const css = new Proxy(() => {}, {
+  get(_, key) {
+    if (key in reference.style) {
+      return new Proxy(
+        {},
+        {
+          get(target, value) {
+            return { [key]: camelToKebab(value) };
+          },
+        }
+      );
+    }
+    if (key in cls) {
+      return cls[key];
+    }
+    return (value) => {
+      if (key === "pct") {
+        key = "%";
+      }
+      return `${value}${key}`;
+    };
+  },
+
+  apply(target, thisArg, args) {
+    return args.join(" ");
+  },
+});
