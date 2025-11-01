@@ -1,3 +1,4 @@
+const { camelToKebab } = await use("@/tools/case.js");
 const { WebComponent } = await use("@/component.js");
 
 const reference = WebComponent();
@@ -11,12 +12,17 @@ export const css = new Proxy(
           {},
           {
             get(_, value) {
-              return { [key]: value };
+              return { [key]: camelToKebab(value) };
             },
           }
         );
       }
-      return (value) => `${value}${key}`;
+      return (value) => {
+        if (key === 'pct') {
+          key = '%'
+        }
+        return `${value}${key}`
+      };
     },
   }
 );

@@ -1,12 +1,13 @@
-
-
 const STORAGE_KEY = "__test__";
 
 /* Returns async function that sets up testbench.
 NOTE Returns function, so that caller can overload assets between import and setup. */
-export const setup =
-  () =>
-  async ({ prefix = "./tests/", report, tests }, tools) => {
+export const setup = ({ base } = {}) => {
+  if (base) {
+    use.meta.base = base;
+  }
+
+  return async ({ prefix = "./tests/", report, tests }, tools) => {
     const { component } = await use("@/component.js");
     const { Module } = await use("module.js");
     const { Sheet } = await use("@/sheet.js");
@@ -62,3 +63,4 @@ export const setup =
       }
     }
   };
+};

@@ -1,6 +1,3 @@
-# FIX BUGS
-- Key validation also when using css DSL.
-
 # Highest priority ideas
 - Better removal of rules via index function
 - Self-contained special sheet type (or function) for defining a single animation.
@@ -8,6 +5,8 @@
 - Control of keyframes names and their application
 
 - Add break point 'observer' that sends a global event when change. Implement with media queries and standard breakpoints... Here or in sep parcel? Already doing stuff like that in layout.
+
+# Extend css DSL
 
 # Advanced ideas re build tool and/or 'use' integration
 - Automatic sheet loading when importing certain components.

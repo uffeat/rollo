@@ -10,7 +10,7 @@ document.querySelector("html").dataset.bsTheme = "dark";
 
 
 
-await setup()(
+await setup({base: 'https://rolloh.vercel.app'})(
   {
     tests: {
       ...import.meta.glob("./tests/**/*.js"),

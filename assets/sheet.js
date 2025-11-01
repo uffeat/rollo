@@ -1,4 +1,4 @@
-const { typeName: h } = await use("@/tools/types.js"), { camelToKebab: f } = await use("@/tools/case.js"), { truncate: d } = await use("@/tools/truncate.js"), { WebComponent: p } = await use("@/component.js"), { Exception: y } = await use("exception.js"), l = "@media";
+const { typeName: f } = await use("@/tools/types.js"), { camelToKebab: h } = await use("@/tools/case.js"), { truncate: d } = await use("@/tools/truncate.js"), { WebComponent: p } = await use("@/component.js"), { Exception: y } = await use("exception.js"), l = "@media";
 class c {
   static create = (...e) => new c(...e);
   #e = {
@@ -110,11 +110,11 @@ class c {
       throw console.error("rule:", e), new Error("Invalid rule.");
     for (let [s, t] of Object.entries(r))
       if (t !== void 0) {
-        if (h(t) === "Object") {
+        if (f(t) === "Object") {
           const [n, i] = Object.entries(t)[0];
           t = `${i}${n}`;
         }
-        if (s.startsWith("__") ? s = `--${s.slice(2)}` : s.startsWith("--") || (s = f(s.trim())), t === !1) {
+        if (s.startsWith("__") ? s = `--${s.slice(2)}` : s.startsWith("--") || (s = h(s.trim())), t === !1) {
           e.style.removeProperty(s);
           continue;
         }
@@ -210,22 +210,22 @@ class a extends CSSStyleSheet {
     return this;
   }
 }
-const { WebComponent: w } = await use("@/component.js"), m = w(), R = new Proxy(
+const { camelToKebab: w } = await use("@/tools/case.js"), { WebComponent: m } = await use("@/component.js"), S = m(), g = new Proxy(
   {},
   {
-    get(S, e) {
-      return e in m.style ? new Proxy(
+    get(R, e) {
+      return e in S.style ? new Proxy(
         {},
         {
           get(r, s) {
-            return { [e]: s };
+            return { [e]: w(s) };
           }
         }
-      ) : (r) => `${r}${e}`;
+      ) : (r) => (e === "pct" && (e = "%"), `${r}${e}`);
     }
   }
 );
 export {
   a as Sheet,
-  R as css
+  g as css
 };
