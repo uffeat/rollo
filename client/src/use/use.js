@@ -309,6 +309,7 @@ define(
   },
   "use"
 );
+define(use, assets, "assets");
 define(use, assets.meta, "meta");
 
 
