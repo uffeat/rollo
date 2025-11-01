@@ -205,14 +205,23 @@ assets.sources.add(
   (() => {
     const cache = new Map();
     const link = document.head.querySelector(`link[assets]`);
+
+    ////console.log('link:', link)////
+
     return async ({ options, owner, path }, ...args) => {
       if (cache.has(path.path)) return cache.get(path.path);
+
+      ////console.log('path.path:', path.path)////
+
       link.setAttribute("__path__", path.path);
       const propertyValue = getComputedStyle(link)
         .getPropertyValue("--__asset__")
         .trim();
       link.removeAttribute("__path__");
-      if (!propertyValue) Exception.raise(`Invalid path: ${path.path}`);
+
+      ////console.log('propertyValue:', propertyValue)////
+
+      if (!propertyValue) Exception.raise(`Invalid path: ${'@' + path.path}`);
       const result = atob(propertyValue.slice(1, -1));
       cache.set(path.path, result);
       return result;
@@ -301,6 +310,8 @@ define(
   "use"
 );
 define(use, assets.meta, "meta");
+
+
 
 function typeName(value) {
   return Object.prototype.toString.call(value).slice(8, -1);

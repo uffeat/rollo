@@ -1,6 +1,8 @@
-"""TODO
-- clear out dirs
-- Mitigate the need for '//' imports
+"""Utility for building main stylesheet and asset-carrier sheet.
+
+TODO
+- Perhaps: Clear out dirs
+- Perhaps: Mitigate the need for '//' imports
 """
 
 import json
@@ -21,7 +23,7 @@ class build(Files, Minify):
         """Reads config."""
         config = get_config()
         self.origins = MappingProxyType(config["origins"])
-        # Extract globals_ -> Explicitly declared global sheet paths
+        # Extract globals -> Explicitly declared global sheet paths
         self.globals: tuple[str] = tuple(config.get("globals", []))
         # Extract priorities -> Order for global sheet composition
         self.priorities: MappingProxyType = MappingProxyType(
@@ -40,7 +42,7 @@ class build(Files, Minify):
     
     @property
     def parcels(self):
-        """."""
+        """Returns dir iterator for parcels."""
         # NOTE 'parcels' cannot be reused, therefore return new at each call
         return (Path.cwd() / "parcels").glob("*/")
 

@@ -1,15 +1,11 @@
 import "../../../client/src/use/use.js";
 import { setup } from "../../../test/setup.js";
-import { Layout } from "../index.js";
+import { layout } from "../index.js";
 
 document.querySelector("html").dataset.bsTheme = "dark";
 
-/*
-const { App } = await use("//app.js");
-const app = App({ parent: document.body });
-const layout = Layout({ parent: app });
-*/
-const layout = Layout({ parent: document.body });
+
+
 
 await setup(
   {

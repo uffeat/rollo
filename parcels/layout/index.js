@@ -1,1 +1,1 @@
-export { Layout } from "./src/layout.js";
+export { Layout, layout } from "./src/layout.js";

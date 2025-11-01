@@ -1,7 +1,7 @@
 import "../assets/layout.css";
 import shadow from "../assets/shadow.css?raw";
 
-const { app } = await use("@///app.js");
+const { app } = await use("@//app.js");
 const icons = {
   close: await use("@/icons/close.svg"),
   menu: await use("@/icons/menu.svg"),
@@ -269,3 +269,7 @@ export const Layout = author(
   },
   "layout-component"
 );
+
+export const layout = Layout({id: 'layout', parent: app})
+
+

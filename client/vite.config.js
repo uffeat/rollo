@@ -24,6 +24,10 @@ export default defineConfig(({ mode }) => {
       },
     },
 
+    server: {
+    port: 8080
+  },
+
     plugins: [
       /* Enable Temporal without the need to go: 
         import { Temporal } from '@js-temporal/polyfill';
