@@ -1,14 +1,13 @@
 import "../../../client/src/use/use.js";
 import { setup } from "../../../test/setup.js";
-import { app } from "../index.js";
+import * as parcel from "../index.js";
+/* Overload to use live parcel */
+use.assets.add("@/app/app.js", parcel);
+use.assets.add("@//app.js", parcel);
 
 document.querySelector("html").dataset.bsTheme = "dark";
 
-
-const { Layout } = await use("@//layout.js");
-const layout = Layout({ parent: app });
-
-await setup(
+await setup()(
   {
     tests: {
       ...import.meta.glob("./tests/**/*.js"),
@@ -18,5 +17,5 @@ await setup(
     },
     report: async ({ path, result, test }) => {},
   },
-  { app, layout }
+  { ...parcel }
 );

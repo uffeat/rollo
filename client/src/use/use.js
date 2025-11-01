@@ -221,7 +221,7 @@ assets.sources.add(
 
       ////console.log('propertyValue:', propertyValue)////
 
-      if (!propertyValue) Exception.raise(`Invalid path: ${'@' + path.path}`);
+      if (!propertyValue) Exception.raise(`Invalid path: ${"@" + path.path}`);
       const result = atob(propertyValue.slice(1, -1));
       cache.set(path.path, result);
       return result;
@@ -311,8 +311,6 @@ define(
 );
 define(use, assets, "assets");
 define(use, assets.meta, "meta");
-
-
 
 function typeName(value) {
   return Object.prototype.toString.call(value).slice(8, -1);

@@ -2,8 +2,9 @@
 images.js
 */
 const { component } = await use("/component.js");
+const { layout } = await use("@//layout.js");
 
-export default async ({ app, layout }) => {
+export default async ({ app }) => {
   layout.clear(":not([slot])");
 
   

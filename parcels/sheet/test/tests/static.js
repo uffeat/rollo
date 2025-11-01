@@ -2,6 +2,7 @@
 static.js
 */
 const { component } = await use("@/component.js");
+const { layout } = await use("@//layout.js");
 
 export default ({ Sheet, assets, css }) => {
   
@@ -10,7 +11,7 @@ export default ({ Sheet, assets, css }) => {
   
   component.menu(
     {
-      parent: document.body,
+      parent: layout,
       "@click": (event) => {
         if (event.target._action) {
           event.target._action();
@@ -19,7 +20,7 @@ export default ({ Sheet, assets, css }) => {
     },
     component.button("base", {
       text: "Clear",
-      _action: sheet.rules.clear,
+      _action: () => sheet.rules.clear(),
     }),
     component.button({
       text: "Unuse",

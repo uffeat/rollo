@@ -16,7 +16,7 @@ import { setup } from "../../test/setup.js";
 
 document.querySelector("html").dataset.bsTheme = "dark";
 
-await setup(
+await setup()(
   {
     tests: {
       ...import.meta.glob("./tests/**/*.js"),

@@ -1,6 +1,8 @@
 import "../../../client/src/use/use.js";
 import { setup } from "../../../test/setup.js";
-import { Sheet, css } from "../index.js";
+import * as parcel from "../index.js";
+/* Overload to use live parcel */
+use.assets.add("@/sheet.js", parcel);
 
 document.querySelector("html").dataset.bsTheme = "dark";
 
@@ -15,7 +17,7 @@ const assets = Object.fromEntries(
   }).map(([path, css]) => [path.slice("../tests".length, -".css".length), css])
 );
 
-await setup(
+await setup()(
   {
     tests: {
       ...import.meta.glob("./tests/**/*.js"),
@@ -25,7 +27,7 @@ await setup(
     },
     report: async ({ path, result, test }) => {},
   },
-  { Sheet, css, assets }
+  { assets, ...parcel }
 );
 
 

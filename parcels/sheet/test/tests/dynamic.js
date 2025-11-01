@@ -2,10 +2,9 @@
 dynamic.js
 */
 const { component } = await use("@/component.js");
+const { layout } = await use("@//layout.js");
 
 export default ({ Sheet, assets, css }) => {
- 
-
   const path = "base";
   const sheet = Sheet.create(assets[path], path).use(document);
 
@@ -55,14 +54,14 @@ export default ({ Sheet, assets, css }) => {
 
   component.button("base", {
     text: "Reset",
-    parent: document.body,
+    parent: layout,
     "@click": (event) => {
       event.target.remove();
       sheet.unuse(document);
 
       component.button("base", {
         text: "Remove",
-        parent: document.body,
+        parent: layout,
         "@click": (event) => {
           event.target.remove();
         },

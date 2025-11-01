@@ -1,5 +1,5 @@
 # FIX BUGS
-+ Animation does not work!
+- Key validation also when using css DSL.
 
 # Highest priority ideas
 - Better removal of rules via index function
