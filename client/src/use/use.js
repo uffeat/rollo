@@ -3,7 +3,6 @@
 TODO
 - 'assets' source. Import by glob
 - Synthetic types, e.g., .component.html
-
 */
 
 /* Import tools for the import engine. */
@@ -98,17 +97,14 @@ class Assets {
       { options: { ...options }, owner: this, path },
       ...args
     );
-
     const { raw = false } = options;
     if (raw) {
       return result;
     }
-
     /* Create asset from text, unless source handler instructs not to do 
     so via mutation of path.detail. */
     if (path.detail.transform !== false && this.types.has(path.type)) {
       const transformer = this.types.get(path.type);
-
       const asset = await transformer(
         result,
         { options: { ...options }, owner: this, path },
@@ -119,7 +115,6 @@ class Assets {
         result = asset;
       }
     }
-
     /* Use asset unless source or type handler instructs not to do so 
     via mutation of path.detail. */
     if (path.detail.process !== false && this.processors.has(path.types)) {
@@ -156,7 +151,6 @@ assets.sources.add(
     const cache = new Map();
     return async ({ options, owner, path }, ...args) => {
       const { component } = await use("@/component.js");
-
       const { as } = options;
       if (path.type === "css" && as === "link") {
         /* Escape transformation and processing */
@@ -189,8 +183,10 @@ assets.sources.add(
       Use custom index meta as indicator for invalid path, since such an element should not be present in imported assets.  */
       //console.log('result:', result)////
       const temp = component.div({ innerHTML: result });
-      if (temp.querySelector(`meta[index]`))
-        Exception.raise(`Invalid path: ${path.path}`);
+      Exception.if(
+        temp.querySelector(`meta[index]`),
+        `Invalid path: ${path.path}`
+      );
       cache.set(path.path, result);
       return result;
     };
@@ -205,23 +201,17 @@ assets.sources.add(
   (() => {
     const cache = new Map();
     const link = document.head.querySelector(`link[assets]`);
-
     ////console.log('link:', link)////
-
     return async ({ options, owner, path }, ...args) => {
       if (cache.has(path.path)) return cache.get(path.path);
-
       ////console.log('path.path:', path.path)////
-
       link.setAttribute("__path__", path.path);
       const propertyValue = getComputedStyle(link)
         .getPropertyValue("--__asset__")
         .trim();
       link.removeAttribute("__path__");
-
       ////console.log('propertyValue:', propertyValue)////
-
-      if (!propertyValue) Exception.raise(`Invalid path: ${"@" + path.path}`);
+      Exception.if(!propertyValue, `Invalid path: ${"@" + path.path}`);
       const result = atob(propertyValue.slice(1, -1));
       cache.set(path.path, result);
       return result;
@@ -236,9 +226,7 @@ assets.types.add(
     const cache = new Map();
     return async (text, { options, owner, path }, ...args) => {
       const { Sheet } = await owner.get("@/sheet.js");
-      if (cache.has(path.path)) {
-        return cache.get(path.path);
-      }
+      if (cache.has(path.path)) return cache.get(path.path);
       const result = Sheet.create(text, path.path);
       cache.set(path.path, result);
       return result;
@@ -255,9 +243,7 @@ assets.types.add(
       let result;
       const { as = "module" } = options;
       const key = as === "module" ? path.path : `${path.path}?${as}`;
-      if (cache.has(key)) {
-        return cache.get(key);
-      }
+      if (cache.has(key)) return cache.get(key);
       if (as === "module") {
         result = await Module.create(text, path.path);
       } else if (as === "iife") {
@@ -284,11 +270,11 @@ assets.types.add("json", (result, { options, owner, path }, ...args) => {
 assets.processors.add(
   "css",
   async (result, { options, owner, path }, ...args) => {
-    if (typeName(result) !== "CSSStyleSheet")
-      Exception.raise(`Result is not a CSSStyleSheet`, () =>
-        console.error("Result:", result)
-      );
-
+    Exception.if(
+      typeName(result) !== "CSSStyleSheet",
+      `Result is not a CSSStyleSheet`,
+      () => console.error("Result:", result)
+    );
     const targets = args.filter(
       (a) =>
         typeName(a) === "HTMLDocument" ||
