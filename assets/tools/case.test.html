@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="#" type="image/x-icon" />
+    <link rel="stylesheet" href="../bootstrap/bootstrap.css" />
+    <script type="module">
+      import {
+        camelToKebab,
+        kebabToCamel,
+        kebabToPascal,
+        kebabToSnake,
+        pascalToKebab,
+      } from "./case.js";
+
+      function test(expected, actual) {
+        if (expected !== actual) {
+          console.error("Expected:", expected, "Actual:", actual);
+        }
+      }
+
+      /* Conversion from kebab */
+      (() => {
+        const kebab = "foo-42-bar";
+        /* kebab -> camel */
+        const camel = kebabToCamel(kebab);
+        test("foo42Bar", camel);
+        console.log(`Camel-interpretation of '${kebab}':`, camel);
+        /* kebab -> pascal */
+        const pascal = kebabToPascal(kebab);
+        test("Foo42Bar", pascal);
+        console.log(`Pascal-interpretation of '${kebab}':`, pascal);
+        /* kebab -> snake */
+        const snake = kebabToSnake(kebab)
+        test("foo_42_bar", snake);
+        console.log(`Snake-interpretation of '${kebab}':`, kebabToSnake(kebab));
+      })();
+
+      /* Conversion from camel */
+      (() => {
+        const camel = "foo42Bar";
+        /* camel -> kebab without 'numbers' option */
+        const kebab = camelToKebab(camel)
+        test("foo42-bar", kebab)
+        console.log(`Kebab-interpretation of '${camel}':`, kebab);
+        /* camel -> kebab with 'numbers' option */
+        const numberKebab = camelToKebab(camel, {numbers: true})
+        test("foo-42-bar", numberKebab)
+        console.log(`Kebab-interpretation of '${camel}' with 'numbers' option:`, numberKebab);
+      })();
+
+      (() => {
+        const pascal = "My42Kebab";
+        console.log(
+          `Kebab-interpretation of '${pascal}':`,
+          pascalToKebab(pascal)
+        );
+      })();
+    </script>
+
+    <title>case</title>
+  </head>
+  <body></body>
+</html>

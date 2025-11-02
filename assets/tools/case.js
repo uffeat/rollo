@@ -1,42 +1,59 @@
-export function camelToKebab(camel) {
-  /* NOTE Digits are treated as lower-case characters, 
-  i.e., p10 -> p10. */
-  return camel.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
+export function camelToKebab(camel, {numbers = false} = {}) {
+  if (numbers) {
+    return String(camel)
+    .replace(/([A-Z]+)([A-Z][a-z])/g, "$1-$2") // split acronym before a ProperCase chunk: XMLHTTPRequest -> XML-HttpRequest
+    .replace(/([a-z0-9])([A-Z])/g, "$1-$2")    // lower/number -> Upper
+    .replace(/([A-Za-z])([0-9])/g, "$1-$2")    // letter -> digit
+    .replace(/([0-9])([A-Za-z])/g, "$1-$2")    // digit -> letter
+    .toLowerCase();
+    
+  }
+  return String(camel)
+    .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
+    .toLowerCase();
 }
 
-export function camelToSnake(camel) {
-  const kebab = this.camel_to_kebab(camel);
-  const snake = kebab.replaceAll("-", "_");
-  return snake;
+export function camelToPascal(camel) {
+  if (!camel.length) return camel;
+  return camel[0].toUpperCase() + camel.slice(1);
 }
 
 export function kebabToCamel(kebab) {
-  return kebab.replace(/-([a-z])/g, function (match, capture) {
-    return capture.toUpperCase();
-  });
+  return String(kebab)
+    .toLowerCase()
+    .replace(/[-_\s]+([a-z0-9])/g, (_, c) => c.toUpperCase());
+}
+
+export function kebabToPascal(kebab) {
+  return String(kebab)
+    .toLowerCase()
+    .replace(/[-_\s]+([a-z0-9])/g, (_, c) => c.toUpperCase())
+    .replace(/^([a-z])/, (_, c) => c.toUpperCase());
+}
+
+export function kebabToSnake(kebab) {
+  return kebab.replaceAll("-", "_");
 }
 
 export function pascalToCamel(pascal) {
-  if (pascal.length === 0) return pascal;
+  if (!pascal.length) return pascal;
   return pascal[0].toLowerCase() + pascal.slice(1);
 }
 
 export function pascalToKebab(pascal) {
-  return pascal
-    .replace(/([A-Z])/g, "-$1")
-    .toLowerCase()
-    .replace(/^-/, "");
+  return String(pascal)
+    .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
+    .replace(/^([A-Z])/, (m) => m.toLowerCase())
+    .toLowerCase();
 }
 
-export function snakeToCamel(snake) {
-  const kebab = snake.replaceAll("_", "-");
-  return this.kebab_to_camel(kebab);
+export function snakeToKebab(snake) {
+  return snake.replaceAll("_", "-");
 }
-
 
 export const isUpper = (char) => {
   return /^[A-Z]/.test(char);
-}
+};
 
 export const capitalize = (text) => {
   if (text.length > 0) {

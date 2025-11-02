@@ -45,6 +45,91 @@ class build(Files, Minify):
         """Returns dir iterator for parcels."""
         # NOTE 'parcels' cannot be reused, therefore return new at each call
         return (Path.cwd() / "parcels").glob("*/")
+    
+    def build_assets(self) -> str:
+        """Builds asset-carrier sheet."""
+
+        rules = []
+        paths = []
+
+        for file in SRC.rglob("**/*.*"):
+            # Ignore unsupported types
+            if file.suffix not in [".css", ".html", ".js", ".json", ".py", ".svg"]:
+                continue
+            # Ignore meta files
+            if file.name.startswith("."):
+                continue
+            # Ignore test and scratch files
+            if " " in file.name or ".test." in file.name or ".nobuild." in file.name:
+                continue
+            # Read source
+            path, text = self.get_src(file)
+            # Ignore empty files
+            if not text:
+                continue
+            # Register meta
+            paths.append(path)
+            # Process
+            if file.suffix == ".css":
+                # Ignore global sheets
+                if f"/{path}" in self.globals:
+                    continue
+                minified = self.minify_css(text)
+                encoded = encode(minified)
+                rules.append(self.create_asset_rule(path, encoded))
+                self.write_raw(path, minified)
+                continue
+            if file.suffix == ".html":
+                text = self.minify_html(text)
+                encoded = encode(text)
+                rules.append(self.create_asset_rule(path, encoded))
+                continue
+            if file.suffix == ".js":
+                encoded = encode(text)
+                rules.append(self.create_asset_rule(path, encoded))
+                continue
+            if file.suffix == ".json":
+                encoded = encode(text)
+                rules.append(self.create_asset_rule(path, encoded))
+                continue
+            if file.suffix == ".py":
+                encoded = encode(text)
+                rules.append(self.create_asset_rule(path, encoded))
+                continue
+            if file.suffix == ".svg":
+                # Write raw to enable CSS ref
+                self.write_raw(path, text)
+                minified = self.minify_html(text)
+                encoded = encode(minified)
+                rules.append(self.create_asset_rule(path, encoded))
+                continue
+
+        # Meta
+        meta = dict(origins=dict(self.origins))
+        rules.append(self.create_asset_rule("/__meta__.json", encode(json.dumps(meta))))
+        self.write(
+            "client/public/meta/paths.json",
+            json.dumps(paths),
+        )
+
+        # Create css
+        css = f"/*{timestamp}*/\n" + self.minify_css("\n".join(rules))
+        # Write to client public
+        self.write(
+            "client/public/assets.css",
+            css,
+        )
+        # Write to parcel test dirs to enable access to assets without commit
+        for parcel in self.parcels:
+            if (parcel / "test").is_dir():
+                file = parcel / "test/assets.css"
+                file.write_text(css, encoding=UTF_8)
+
+        # Inform
+        count = len(rules)
+        message = f"Built {count} asset{plural(count)}."
+        print(message)
+        return message
 
     def build_main(self) -> str:
         """Builds main (global) sheet."""
@@ -122,91 +207,7 @@ class build(Files, Minify):
         print(message)
         return message
 
-    def build_assets(self) -> str:
-        """Builds asset-carrier sheet."""
-
-        rules = []
-        paths = []
-
-        for file in SRC.rglob("**/*.*"):
-            # Ignore unsupported types
-            if file.suffix not in [".css", ".html", ".js", ".json", ".py", ".svg"]:
-                continue
-            # Ignore meta files
-            if file.name.startswith("."):
-                continue
-            # Ignore scratch files
-            if " " in file.name or ".nobuild." in file.name:
-                continue
-            # Read source
-            path, text = self.get_src(file)
-            # Ignore empty files
-            if not text:
-                continue
-            # Register meta
-            paths.append(path)
-            # Process
-            if file.suffix == ".css":
-                # Ignore global sheets
-                if f"/{path}" in self.globals:
-                    continue
-                minified = self.minify_css(text)
-                encoded = encode(minified)
-                rules.append(self.create_asset_rule(path, encoded))
-                self.write_raw(path, minified)
-                continue
-            if file.suffix == ".html":
-                text = self.minify_html(text)
-                encoded = encode(text)
-                rules.append(self.create_asset_rule(path, encoded))
-                continue
-            if file.suffix == ".js":
-                encoded = encode(text)
-                rules.append(self.create_asset_rule(path, encoded))
-                continue
-            if file.suffix == ".json":
-                encoded = encode(text)
-                rules.append(self.create_asset_rule(path, encoded))
-                continue
-            if file.suffix == ".py":
-                encoded = encode(text)
-                rules.append(self.create_asset_rule(path, encoded))
-                continue
-            if file.suffix == ".svg":
-                # Write raw to enable CSS ref
-                self.write_raw(path, text)
-                minified = self.minify_html(text)
-                encoded = encode(minified)
-                rules.append(self.create_asset_rule(path, encoded))
-                continue
-
-        # Meta
-        meta = dict(origins=dict(self.origins))
-        rules.append(self.create_asset_rule("/__meta__.json", encode(json.dumps(meta))))
-        self.write(
-            "client/public/meta/paths.json",
-            json.dumps(paths),
-        )
-
-        # Create css
-        css = f"/*{timestamp}*/\n" + self.minify_css("\n".join(rules))
-        # Write to client public
-        self.write(
-            "client/public/assets.css",
-            css,
-        )
-        # Write to parcel test dirs to enable access to assets without commit
-        for parcel in self.parcels:
-            if (parcel / "test").is_dir():
-                file = parcel / "test/assets.css"
-
-                file.write_text(css, encoding=UTF_8)
-
-        # Inform
-        count = len(rules)
-        message = f"Built {count} asset{plural(count)}."
-        print(message)
-        return message
+    
 
     def create_asset_rule(self, path: str, encoded: str) -> str:
         """Returns rule text."""

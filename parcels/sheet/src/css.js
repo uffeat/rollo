@@ -39,6 +39,9 @@ const cls = new (class {
 
 export const css = new Proxy(() => {}, {
   get(_, key) {
+    if (key in cls) {
+      return cls[key];
+    }
     if (key in reference.style) {
       return new Proxy(
         {},
@@ -49,9 +52,7 @@ export const css = new Proxy(() => {}, {
         }
       );
     }
-    if (key in cls) {
-      return cls[key];
-    }
+    
     return (value) => {
       if (key === "pct") {
         key = "%";

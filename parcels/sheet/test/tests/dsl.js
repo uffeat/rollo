@@ -3,13 +3,14 @@ dsl.js
 */
 const { component } = await use("@/component.js");
 const { layout } = await use("@//layout.js");
+const { kebabToCamel } = await use("@/tools/case.js");
 
 export default ({ Sheet, assets, css }) => {
   const sheet = Sheet.create().use(document);
 
 
-  //const id = crypto.randomUUID();
-   const id = 'test';
+  const id = kebabToCamel(crypto.randomUUID());
+  //const id = 'test';
 
 
   sheet.rules.add({
