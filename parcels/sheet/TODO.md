@@ -9,7 +9,7 @@
 
 - Add break point 'observer' that sends a global event when change. Implement with media queries and standard breakpoints... Here or in sep parcel? Already doing stuff like that in layout.
 
-# Extend css DSL
+
 
 # Advanced ideas re build tool and/or 'use' integration
 - Automatic sheet loading when importing certain components.

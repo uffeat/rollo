@@ -19,6 +19,8 @@
 
 For an example of local parcel testing see `parcels/sheet/index.html` together with `parcels\sheet\index.html`. Local parcel testing offers a clean and focused approach, but testing can also be done at the client app level (for examples see `client/test/test.js` along with `client/test/test.html`). Client app-level testing provides greater flexibility with respect to code that tests have access to.
 
+Non-parcel assets (authored directly in `assets`) can be tested locally with live-server. The test html file can be places inside `assets` and escapes bundling if given the secondary file type `test` (e.g., `case.test.html`).
+
 # Caveats and limitations
 
 - Parcels should not be used for stuff that require "build-time awareness", such as React and Tailwind (could be done, but cleaner to place such code in the client app and accept the hit on bundle size).

@@ -1,5 +1,8 @@
 """Utility for building main stylesheet and asset-carrier sheet.
 
+NOTE
+- Cannot run, while live-server is running.
+
 TODO
 - Perhaps: Clear out dirs
 - Perhaps: Mitigate the need for '//' imports
@@ -60,7 +63,7 @@ class build(Files, Minify):
             if file.name.startswith("."):
                 continue
             # Ignore test and scratch files
-            if " " in file.name or ".test." in file.name or ".nobuild." in file.name:
+            if " " in file.name or ".test." in file.name:
                 continue
             # Read source
             path, text = self.get_src(file)

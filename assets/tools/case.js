@@ -1,12 +1,11 @@
-export function camelToKebab(camel, {numbers = false} = {}) {
+export function camelToKebab(camel, { numbers = false } = {}) {
   if (numbers) {
     return String(camel)
-    .replace(/([A-Z]+)([A-Z][a-z])/g, "$1-$2") // split acronym before a ProperCase chunk: XMLHTTPRequest -> XML-HttpRequest
-    .replace(/([a-z0-9])([A-Z])/g, "$1-$2")    // lower/number -> Upper
-    .replace(/([A-Za-z])([0-9])/g, "$1-$2")    // letter -> digit
-    .replace(/([0-9])([A-Za-z])/g, "$1-$2")    // digit -> letter
-    .toLowerCase();
-    
+      .replace(/([A-Z]+)([A-Z][a-z])/g, "$1-$2")
+      .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
+      .replace(/([A-Za-z])([0-9])/g, "$1-$2")
+      .replace(/([0-9])([A-Za-z])/g, "$1-$2")
+      .toLowerCase();
   }
   return String(camel)
     .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
@@ -40,11 +39,22 @@ export function pascalToCamel(pascal) {
   return pascal[0].toLowerCase() + pascal.slice(1);
 }
 
-export function pascalToKebab(pascal) {
+export function pascalToKebab(pascal, { numbers = false } = {}) {
+  if (numbers) {
+    return String(pascal)
+      .replace(/([A-Z]+)([A-Z][a-z])/g, "$1-$2")
+      .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
+      .replace(/([A-Za-z])([0-9])/g, "$1-$2")
+      .replace(/([0-9])([A-Za-z])/g, "$1-$2")
+      .replace(/^([A-Z])/, (m) => m.toLowerCase())
+      .toLowerCase();
+  }
   return String(pascal)
     .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
     .replace(/^([A-Z])/, (m) => m.toLowerCase())
     .toLowerCase();
+
+  
 }
 
 export function snakeToKebab(snake) {

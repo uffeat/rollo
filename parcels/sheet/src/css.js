@@ -30,13 +30,15 @@ const cls = new (class {
       {},
       {
         get(target, value) {
-          return camelToKebab(value);
+          return camelToKebab(value, {numbers: true});
         },
       }
     );
   }
 })();
 
+/* DSL-like helper for authoring CSS in JS with reduced use of strings.
+NOTE No effect beyond DX. */
 export const css = new Proxy(() => {}, {
   get(_, key) {
     if (key in cls) {
@@ -47,7 +49,7 @@ export const css = new Proxy(() => {}, {
         {},
         {
           get(target, value) {
-            return { [key]: camelToKebab(value) };
+            return { [key]: camelToKebab(value, {numbers: true}) };
           },
         }
       );

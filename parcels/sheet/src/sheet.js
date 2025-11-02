@@ -2,7 +2,7 @@ const { typeName } = await use("@/tools/types.js");
 const { camelToKebab } = await use("@/tools/case.js");
 const { truncate } = await use("@/tools/truncate.js");
 const { WebComponent } = await use("@/component.js");
-const { Exception } = await use('exception.js');
+const { Exception } = await use("exception.js");
 
 const MEDIA = "@media";
 
@@ -96,10 +96,10 @@ class Rules {
   }
 
   #appendRule(container, head, body) {
-    if (!("cssRules" in container) || !("insertRule" in container)) {
-      console.error(`container:`, container);
-      throw new Error(`Invalid container.`);
-    }
+    if (!("cssRules" in container) || !("insertRule" in container))
+      Exception.raise(`Invalid container.`, () =>
+        console.error(`container:`, container)
+      );
     const rule =
       container.cssRules[
         container.insertRule(`${head} { }`, container.cssRules.length)
@@ -113,7 +113,6 @@ class Rules {
       }
       return rule;
     }
-
     if (rule instanceof CSSKeyframesRule) {
       for (const [frame, updates] of Object.entries(body)) {
         rule.appendRule(`${frame}% { }`);
@@ -124,10 +123,10 @@ class Rules {
   }
 
   #findRule(container, head) {
-    if (!("cssRules" in container)) {
-      console.error(`container:`, container);
-      throw new Error(`Invalid container.`);
-    }
+    if (!("cssRules" in container))
+      Exception.raise(`Invalid container.`, () =>
+        console.error(`container:`, container)
+      );
     const rules = Array.from(container.cssRules);
     if (head.startsWith(MEDIA)) {
       head = head.slice(MEDIA.length).trim();
@@ -163,10 +162,10 @@ class Rules {
   }
 
   #removeRules(container, ...heads) {
-    if (!("cssRules" in container) || !("deleteRule" in container)) {
-      console.error(`container:`, container);
-      throw new Error(`Invalid container.`);
-    }
+    if (!("cssRules" in container) || !("deleteRule" in container))
+      Exception.raise(`Invalid container.`, () =>
+        console.error(`container:`, container)
+      );
     const rules = Array.from(container.cssRules);
 
     for (let head of heads) {
@@ -189,10 +188,8 @@ class Rules {
   }
 
   #updateRule(rule, updates = {}) {
-    if (!(rule instanceof CSSRule)) {
-      console.error(`rule:`, rule);
-      throw new Error(`Invalid rule.`);
-    }
+    if (!(rule instanceof CSSRule))
+      Exception.raise(`Invalid rule.`, () => console.error(`rule:`, rule));
 
     for (let [key, value] of Object.entries(updates)) {
       /* Ignore, if undefined, e.g., for efficient use of iife's */
