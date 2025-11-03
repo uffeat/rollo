@@ -5,16 +5,27 @@ If 'mode' is falsy, matching does not take into account order and duplicate valu
 NOTE
 - Intended for flat arrays with primitive values;
   could also used in other cases depending on specifics. */
-  export const match = (target, other, mode = true) => {
-    if (mode) {
-      if (target.length !== other.length) return false;
-      return target.every((value, index) =>
-        typeof mode === 'function' ? mode(value, other[index], index) : value === other[index]
-      );
-    }
-    /* falsy mode -> treat arrays as unordered sets */
-    return new Set(target).symmetricDifference(new Set(other)).size === 0;
-  };
+export const match = (target, other, mode = true) => {
+  if (!Array.isArray(target) || !Array.isArray(other)) {
+    return false;
+  }
+  /* Remove values with undefined values */
+  (() => {
+    const predicate = (v) => v !== undefined;
+    target = target.filter(predicate)
+    other = other.filter(predicate)
+  })();
+  if (mode) {
+    if (target.length !== other.length) return false;
+    return target.every((value, index) =>
+      typeof mode === "function"
+        ? mode(value, other[index], index)
+        : value === other[index]
+    );
+  }
+  /* falsy mode -> treat arrays as unordered sets */
+  return new Set(target).symmetricDifference(new Set(other)).size === 0;
+};
 
 /* EXAMPLES
 

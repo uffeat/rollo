@@ -3,7 +3,7 @@ const { typeName } = await use("@/tools/types.js");
 const { match: arrayMatch } = await use("@/tools/array/match.js");
 const { match: objectMatch } = await use("@/tools/object/match.js");
 
-export class Ref {
+export class Reactive {
   static create = (...args) => new Ref(...args);
 
   #_ = {
@@ -57,7 +57,7 @@ export class Ref {
         const options = args.find((a) => typeName(a) === "Object") || {};
         const { once, run = true } = options;
         /* Create detail. 
-        NOTE detail is kept mutable to enable dynamic reactive patterns. */
+          NOTE detail is kept mutable to enable dynamic reactive patterns. */
         const detail = (() => {
           const result = { detail: {} };
           if (condition) {
@@ -202,10 +202,10 @@ export class Ref {
   }
 }
 
-/* Proxy version of Ref with a leaner syntax: Update/access to current happens 
-via direct function call. */
-export const ref = (...args) => {
-  const instance = Ref.create(...args);
+
+
+export const reactive = (...args) => {
+  const instance = Reactive.create(...args);
   return new Proxy(() => {}, {
     get(target, key) {
       Exception.if(!(key in instance), `Invalid key: ${key}`);
@@ -234,3 +234,4 @@ function Message({ effect, detail, index = null, owner, session }) {
     session,
   });
 }
+
