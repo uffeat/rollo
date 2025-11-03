@@ -9,9 +9,16 @@ export class Ref {
     session: 0,
   };
 
-  constructor({ owner, name } = {}) {
+  constructor(value, { owner, name } = {}) {
+    /* TODO
+    - parse to extract options and effects
+    - config
+    - effects */
+    
     this.#_.owner = owner;
     this.#_.name = name;
+
+
     this.#_.config = new (class Config {
       #_ = {
         /* Default match */
@@ -46,31 +53,40 @@ export class Ref {
         const condition = args.find((a) => typeof a === "function");
         const options =
           args.find((a, i) => !i && typeName(a) === "Object") || {};
-        /* Create detail */
+        const {once, run} = options;
+
+        /* Create detail. 
+        NOTE detail is kept mutable to enable dynamic reactive patterns. */
         const detail = (() => {
-          const result = {};
+          const result = { detail: {} };
           if (condition) {
             result.condition = condition;
+          }
+          if (once) {
+            result.once = once;
           }
           return result;
         })();
         /* Register */
         this.#_.registry.set(effect, detail);
         /* Handle run */
-        if (options.run) {
-          const message = Object.freeze({
-            index: null,
-            session: null,
-            owner: this.#_.owner,
-          });
+        if (run) {
+          const message = Message({detail, effect, owner: this.#_.owner})
+
           if (
-            !detail.condition ||
-            detail.condition(this.#_.owner.current, message)
+            !condition ||
+            condition(this.#_.owner.current, message)
           ) {
             effect(this.#_.owner.current, message);
           }
         }
+        /* Return effect for later removal */
         return effect;
+      }
+
+      clear() {
+        this.#_.registry.clear();
+
       }
 
       has(effect) {
@@ -81,6 +97,8 @@ export class Ref {
         this.#_.registry.delete(effect);
       }
     })(this, this.#_.registry);
+
+    this.update(value)
   }
 
   get config() {
@@ -111,31 +129,48 @@ export class Ref {
     return this.#_.previous;
   }
 
-  update(value, { silent = false } = {}) {
+  update(value, { detail, silent = false } = {}) {
+    if (detail) {
+      Object.assign(this.detail, detail);
+    }
+    if (value === undefined) return this;
     if (this.config.match(this.#_.current, value)) return this;
     this.#_.previous = this.#_.current;
     this.#_.current = value;
     if (silent || !this.effects.size) return this;
     const session = this.#_.session++;
-
-    this.#_.registry.entries().forEach(([effect, detail], index) => {
-      const message = Object.freeze({
-        effect,
-        detail,
-        index,
-        session,
-        owner: this.#_.owner,
-      });
-      if (
-        !detail.condition ||
-        detail.condition(this.#_.owner.current, message)
-      ) {
-        effect(this.#_.owner.current, message);
+    let index = 0;
+    for (const [effect, detail] of this.#_.registry.entries()) {
+      index++;
+      const message = Message({ effect, detail, index, owner: this, session });
+      const { condition, once } = detail;
+      if (!condition || condition(this.current, message)) {
+        const result = effect(this.current, message);
+        if (once) {
+          this.effects.remove(effect)
+        }
+        if (result !== undefined) {
+          return result
+        }
       }
-    });
+    }
 
     return this;
   }
 }
 
-export const ref = 42;
+export function ref(value) {
+  const instance = Ref.create(value)
+  // handle params and return proxy
+
+};
+
+function Message({ effect, detail, index = null, owner, session = null }) {
+  Object.freeze({
+    detail,
+    effect,
+    index,
+    owner,
+    session,
+  });
+}
