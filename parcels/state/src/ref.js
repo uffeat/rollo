@@ -1,4 +1,7 @@
+const Exception  = await use("exception.js");
 const { typeName } = await use("@/tools/types.js");
+
+
 
 export class Ref {
   static create = (...args) => new Ref(...args);
@@ -6,19 +9,16 @@ export class Ref {
   #_ = {
     detail: {},
     registry: new Map(),
-    session: 0,
+    session: -1,
   };
 
-  constructor(value, { owner, name } = {}) {
-    /* TODO
-    - parse to extract options and effects
-    - config
-    - effects */
-    
-    this.#_.owner = owner;
-    this.#_.name = name;
-
-
+  constructor(value, ...args) {
+    /* Parse args */
+    const options = args.find((a) => typeName(a) === "Object") || {};
+    const { config = {}, detail = {}, name, owner } = options;
+    const { match } = config;
+    const effects = args.filter((a) => typeof a === "function");
+    /* Compose config */
     this.#_.config = new (class Config {
       #_ = {
         /* Default match */
@@ -32,10 +32,12 @@ export class Ref {
       }
 
       set match(match) {
-        this.#_.match = match;
+        if (match !== undefined) {
+          this.#_.match = match;
+        }
       }
     })();
-
+    /* Compose effects */
     this.#_.effects = new (class Effects {
       #_ = {};
 
@@ -51,10 +53,8 @@ export class Ref {
       add(effect, ...args) {
         /* Parse args */
         const condition = args.find((a) => typeof a === "function");
-        const options =
-          args.find((a, i) => !i && typeName(a) === "Object") || {};
-        const {once, run} = options;
-
+        const options = args.find((a) => typeName(a) === "Object") || {};
+        const { once, run = true } = options;
         /* Create detail. 
         NOTE detail is kept mutable to enable dynamic reactive patterns. */
         const detail = (() => {
@@ -71,12 +71,13 @@ export class Ref {
         this.#_.registry.set(effect, detail);
         /* Handle run */
         if (run) {
-          const message = Message({detail, effect, owner: this.#_.owner})
-
-          if (
-            !condition ||
-            condition(this.#_.owner.current, message)
-          ) {
+          const message = Message({
+            detail,
+            effect,
+            owner: this.#_.owner,
+            session: this.#_.owner.session,
+          });
+          if (!condition || condition(this.#_.owner.current, message)) {
             effect(this.#_.owner.current, message);
           }
         }
@@ -86,7 +87,6 @@ export class Ref {
 
       clear() {
         this.#_.registry.clear();
-
       }
 
       has(effect) {
@@ -97,8 +97,15 @@ export class Ref {
         this.#_.registry.delete(effect);
       }
     })(this, this.#_.registry);
-
-    this.update(value)
+    /* Apply arguments */
+    this.#_.owner = owner;
+    this.#_.name = name;
+    Object.assign(this.detail, detail);
+    this.config.match = match;
+    this.update(value);
+    for (const effect of effects) {
+      this.effects.add(effect);
+    }
   }
 
   get config() {
@@ -107,6 +114,10 @@ export class Ref {
 
   get current() {
     return this.#_.current;
+  }
+
+  set current(current) {
+    this.update(current);
   }
 
   get detail() {
@@ -129,44 +140,74 @@ export class Ref {
     return this.#_.previous;
   }
 
+  get session() {
+    return this.#_.session;
+  }
+
   update(value, { detail, silent = false } = {}) {
-    if (detail) {
-      Object.assign(this.detail, detail);
-    }
+    if (detail) Object.assign(this.detail, detail);
+    /* Abort if undefined value */
     if (value === undefined) return this;
+    /* Freeze mutable value */
+    if (typeName(value) === "Object" || Array.isArray(value)) {
+      value = Object.freeze(...value);
+    }
+    /* Abort if no change */
     if (this.config.match(this.#_.current, value)) return this;
+    /* Update stored values and session */
     this.#_.previous = this.#_.current;
     this.#_.current = value;
-    if (silent || !this.effects.size) return this;
-    const session = this.#_.session++;
+    this.#_.session++;
+    /* Abort if silent */
+    if (silent) return this;
+    /* Abort if no effects */
+    if (!this.effects.size) return this;
+    /* Run effects */
     let index = 0;
     for (const [effect, detail] of this.#_.registry.entries()) {
       index++;
-      const message = Message({ effect, detail, index, owner: this, session });
+      const message = Message({
+        effect,
+        detail,
+        index,
+        owner: this,
+        session: this.session,
+      });
       const { condition, once } = detail;
       if (!condition || condition(this.current, message)) {
         const result = effect(this.current, message);
         if (once) {
-          this.effects.remove(effect)
+          this.effects.remove(effect);
         }
         if (result !== undefined) {
-          return result
+          return result;
         }
       }
     }
-
     return this;
   }
 }
 
-export function ref(value) {
-  const instance = Ref.create(value)
-  // handle params and return proxy
+export function ref(...args) {
+  const instance = Ref.create(...args);
+  return new Proxy(() => {}, {
+    get(target, key) {
+      Exception.if(!(key in instance), `Invalid key: ${key}`);
+      return instance[key];
+    },
+    set(target, key, value) {
+      Exception.if(!(key in instance), `Invalid key: ${key}`);
+      instance[key] = value;
+      return true;
+    },
+    apply(target, thisArg, args) {
+      return instance.update(...args);
+    },
+  });
+}
 
-};
-
-function Message({ effect, detail, index = null, owner, session = null }) {
-  Object.freeze({
+function Message({ effect, detail, index = null, owner, session }) {
+  return Object.freeze({
     detail,
     effect,
     index,
