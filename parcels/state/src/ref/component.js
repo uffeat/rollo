@@ -1,8 +1,8 @@
 import { Ref } from "./ref.js";
 
 const Exception = await use("exception.js");
-
 const { author, component, mix, mixins } = await use("@/component.js");
+const { typeName } = await use("@/tools/types.js");
 
 /*. */
 export const RefComponent = author(
@@ -27,11 +27,29 @@ export const RefComponent = author(
     #_ = {};
     constructor() {
       super();
-      this.#_.ref = Ref.create();
+      this.#_.ref = Ref.create({ owner: this });
       this.#_.ref.effects.add(
-        (value, message) => {
-          this.attribute.current = value;
-          this.attribute.current = message.owner.previous;
+        (current, message) => {
+          if (typeName(current) === "Object" || Array.isArray(current)) {
+            try {
+              current = JSON.stringify(current);
+            } catch {}
+          }
+          this.attribute.current = current;
+
+          let previous = message.owner.previous;
+          if (typeName(previous) === "Object" || Array.isArray(previous)) {
+            try {
+              previous = JSON.stringify(previous);
+            } catch {}
+          }
+          this.attribute.previous = previous;
+
+          this.attribute.session = this.session;
+
+          this.attribute.efects = message.owner.effects.size;
+
+          this.send('change', {detail: {}})
         },
         { run: false }
       );
@@ -54,19 +72,21 @@ export const RefComponent = author(
     }
 
     get name() {
-      return this.#_.ref.name;
+      return this.attribute.name;
     }
 
     set name(name) {
-      this.#_.ref.name = name;
+      Exception.if(this.attribute.name !== null, `Cannot change 'name'.`);
+      this.attribute.name = name;
     }
 
     get owner() {
-      return this.#_.ref.owner;
+      return this.#_.owner;
     }
 
     set owner(owner) {
-      this.#_.ref.owner = owner;
+      Exception.if(this.#_.owner !== undefined, `Cannot change 'owner'.`);
+      this.#_.owner = owner;
     }
 
     get previous() {
