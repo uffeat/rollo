@@ -1,6 +1,6 @@
-const { author: o, component: s, mix: n, mixins: t } = await use("@/component.js"), e = "div", a = o(
-  class extends n(
-    document.createElement(e).constructor,
+const { author: e, component: s, mix: a, mixins: t } = await use("@/component.js"), o = "div", n = e(
+  class extends a(
+    document.createElement(o).constructor,
     {},
     t.append,
     t.attrs,
@@ -18,13 +18,13 @@ const { author: o, component: s, mix: n, mixins: t } = await use("@/component.js
   ) {
     #t = {};
     constructor() {
-      super(), this.#t.slot = s.slot(), this.#t.shadow = s.div({ id: "root" }, this.#t.slot), this.attachShadow({ mode: "open" }).append(this.#t.shadow), this.attribute.app = !0, this.attribute.webComponent = !0;
+      super(), this.#t.slot = s.slot(), this.#t.dataSlot = s.slot({ name: "data" }), this.#t.shadow = s.div({ id: "root" }, this.#t.slot, this.#t.dataSlot), this.attachShadow({ mode: "open" }).append(this.#t.shadow), this.attribute.app = !0, this.attribute.webComponent = !0;
     }
   },
   "app-component",
-  e
-), p = a({ id: "app", parent: document.body });
+  o
+), p = n({ id: "app", parent: document.body });
 export {
-  a as App,
+  n as App,
   p as app
 };

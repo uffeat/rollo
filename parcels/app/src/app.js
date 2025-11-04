@@ -26,7 +26,8 @@ export const App = author(
     constructor() {
       super();
       this.#_.slot = component.slot();
-      this.#_.shadow = component.div({ id: "root" }, this.#_.slot);
+      this.#_.dataSlot = component.slot({name: 'data'});
+      this.#_.shadow = component.div({ id: "root" }, this.#_.slot, this.#_.dataSlot);
       this.attachShadow({ mode: "open" }).append(this.#_.shadow);
       this.attribute.app = true;
       this.attribute.webComponent = true;

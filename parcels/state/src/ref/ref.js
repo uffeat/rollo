@@ -1,15 +1,16 @@
-const Exception = await use("exception.js");
+import { Message } from "../tools/message.js";
+
 const { typeName } = await use("@/tools/types.js");
 const { match: arrayMatch } = await use("@/tools/array/match.js");
 const { match: objectMatch } = await use("@/tools/object/match.js");
 
-export class Reactive {
+export class Ref {
   static create = (...args) => new Ref(...args);
 
   #_ = {
     detail: {},
     registry: new Map(),
-    session: -1,
+    session: null,
   };
 
   constructor(value, ...args) {
@@ -57,7 +58,7 @@ export class Reactive {
         const options = args.find((a) => typeName(a) === "Object") || {};
         const { once, run = true } = options;
         /* Create detail. 
-          NOTE detail is kept mutable to enable dynamic reactive patterns. */
+        NOTE detail is kept mutable to enable dynamic reactive patterns. */
         const detail = (() => {
           const result = { detail: {} };
           if (condition) {
@@ -72,12 +73,10 @@ export class Reactive {
         this.#_.registry.set(effect, detail);
         /* Handle run */
         if (run) {
-          const message = Message({
-            detail,
-            effect,
-            owner: this.#_.owner,
-            session: this.#_.owner.session,
-          });
+          const message = Message.create(this.#_.owner);
+          /* Update message */
+          message.detail = detail;
+          message.effect = effect;
           if (!condition || condition(this.#_.owner.current, message)) {
             effect(this.#_.owner.current, message);
           }
@@ -165,73 +164,38 @@ export class Reactive {
     }
     /* Abort if no change */
     if (this.config.match(this.#_.current, value)) return this;
-    /* Update stored values and session */
+    /* Update stored values */
     this.#_.previous = this.#_.current;
     this.#_.current = value;
+    /* Update session */
     this.#_.session++;
+    //console.log('session:', this.session)////
     /* Abort if silent */
     if (silent) return this;
     /* Abort if no effects */
     if (!this.effects.size) return this;
+    /* Create message */
+    const message = Message.create(this);
     /* Run effects */
     let index = 0;
     for (const [effect, detail] of this.#_.registry.entries()) {
-      index++;
-      const message = Message({
-        effect,
-        detail,
-        index,
-        owner: this,
-        session: this.session,
-      });
+      /* Update message */
+      message.detail = detail;
+      message.effect = effect;
+      message.index = index++;
+
       const { condition, once } = detail;
       if (!condition || condition(this.current, message)) {
-        const result = effect(this.current, message);
+        effect(this.current, message);
         if (once) {
           this.effects.remove(effect);
         }
-        /* Normally, effects should not return anything. However, to cater for 
-        special cases, a non-undefined effect result stops futher execution 
-        of the effects pipe. */
-        if (result !== undefined) {
+        if (message.stopped) {
           break;
         }
       }
     }
     return this;
   }
-}
-
-
-
-export const reactive = (...args) => {
-  const instance = Reactive.create(...args);
-  return new Proxy(() => {}, {
-    get(target, key) {
-      Exception.if(!(key in instance), `Invalid key: ${key}`);
-      return instance[key];
-    },
-    set(target, key, value) {
-      Exception.if(!(key in instance), `Invalid key: ${key}`);
-      instance[key] = value;
-      return true;
-    },
-    apply(target, thisArg, args) {
-      /* Turn apply into a getter-setter hybrid */
-      instance.update(...args);
-      return instance.current;
-    },
-  });
-}
-
-/* Creates and returns message argument for effects and conditions. */
-function Message({ effect, detail, index = null, owner, session }) {
-  return Object.freeze({
-    detail,
-    effect,
-    index,
-    owner,
-    session,
-  });
 }
 
