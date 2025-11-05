@@ -35,6 +35,10 @@ const cls = new (class {
       }
     );
   }
+
+  attr(value) {
+    return `attr(${value})`
+  }
 })();
 
 /* DSL-like helper for authoring CSS in JS with reduced use of strings.
@@ -64,6 +68,12 @@ export const css = new Proxy(() => {}, {
   },
 
   apply(target, thisArg, args) {
+    args = args.map((a) => {
+      if (a === '!') {
+        return '!important'
+      }
+      return a
+    })
     return args.join(" ");
   },
 });

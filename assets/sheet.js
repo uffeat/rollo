@@ -1,8 +1,8 @@
-const { typeName: w } = await use("@/tools/types.js"), { camelToKebab: p } = await use("@/tools/case.js"), { truncate: m } = await use("@/tools/truncate.js"), { WebComponent: S } = await use("@/component.js"), { Exception: R } = await use("exception.js"), l = "@media";
-class u {
-  static create = (...e) => new u(...e);
+const { typeName: m } = await use("@/tools/types.js"), { camelToKebab: w } = await use("@/tools/case.js"), { truncate: S } = await use("@/tools/truncate.js"), { WebComponent: y } = await use("@/component.js"), { Exception: u } = await use("exception.js"), a = "@media";
+class c {
+  static create = (...e) => new c(...e);
   #e = {
-    validator: S()
+    validator: y()
   };
   constructor(e) {
     this.#e.owner = e;
@@ -19,7 +19,7 @@ class u {
   get text() {
     return Array.from(
       this.owner.cssRules,
-      (e) => m(e.cssText)
+      (e) => S(e.cssText)
     ).join(" ");
   }
   /* Adds rules. */
@@ -52,13 +52,13 @@ class u {
           this.#s(t, s);
         else if (t instanceof CSSMediaRule)
           for (const [n, i] of Object.entries(s)) {
-            const o = this.#r(t, n);
-            o ? this.#s(o, i) : this.#t(t, n, i);
+            const l = this.#r(t, n);
+            l ? this.#s(l, i) : this.#t(t, n, i);
           }
         else if (t instanceof CSSKeyframesRule)
           for (const [n, i] of Object.entries(s)) {
-            const o = t.findRule(`${n}%`);
-            o ? this.#s(o, i) : this.#t(t, selector, i);
+            const l = t.findRule(`${n}%`);
+            l ? this.#s(l, i) : this.#t(t, selector, i);
           }
       } else
         this.#t(this.owner, r, s);
@@ -66,8 +66,10 @@ class u {
     return this;
   }
   #t(e, r, s) {
-    if (!("cssRules" in e) || !("insertRule" in e))
-      throw console.error("container:", e), new Error("Invalid container.");
+    (!("cssRules" in e) || !("insertRule" in e)) && u.raise(
+      "Invalid container.",
+      () => console.error("container:", e)
+    );
     const t = e.cssRules[e.insertRule(`${r} { }`, e.cssRules.length)];
     if (t instanceof CSSStyleRule)
       return this.#s(t, s);
@@ -83,10 +85,12 @@ class u {
     }
   }
   #r(e, r) {
-    if (!("cssRules" in e))
-      throw console.error("container:", e), new Error("Invalid container.");
+    "cssRules" in e || u.raise(
+      "Invalid container.",
+      () => console.error("container:", e)
+    );
     const s = Array.from(e.cssRules);
-    return r.startsWith(l) ? (r = r.slice(l.length).trim(), s.filter((t) => t instanceof CSSMediaRule).find((t) => t.conditionText === r) || null) : s.filter((t) => t instanceof CSSStyleRule).find((t) => t.selectorText === r) || null;
+    return r.startsWith(a) ? (r = r.slice(a.length).trim(), s.filter((t) => t instanceof CSSMediaRule).find((t) => t.conditionText === r) || null) : s.filter((t) => t instanceof CSSStyleRule).find((t) => t.selectorText === r) || null;
   }
   #n(e) {
     const r = Number(Object.keys(e)[0]);
@@ -96,25 +100,26 @@ class u {
     return e.startsWith("max") ? `@media (width <= ${e.slice(3)}px)` : e.startsWith("min") ? `@media (width >= ${e.slice(3)}px)` : !e.startsWith("@keyframes") && r && this.#n(r) ? `@keyframes ${e}` : e;
   }
   #o(e, ...r) {
-    if (!("cssRules" in e) || !("deleteRule" in e))
-      throw console.error("container:", e), new Error("Invalid container.");
+    (!("cssRules" in e) || !("deleteRule" in e)) && u.raise(
+      "Invalid container.",
+      () => console.error("container:", e)
+    );
     const s = Array.from(e.cssRules);
     for (let t of r) {
       let n;
-      t.startsWith(l) ? (t = t.slice(l.length).trim(), n = s.filter((i) => i instanceof CSSMediaRule).findIndex((i) => i.conditionText === t)) : n = s.filter((i) => i instanceof CSSStyleRule).findIndex((i) => i.selectorText === t), n > -1 && e.deleteRule(n);
+      t.startsWith(a) ? (t = t.slice(a.length).trim(), n = s.filter((i) => i instanceof CSSMediaRule).findIndex((i) => i.conditionText === t)) : n = s.filter((i) => i instanceof CSSStyleRule).findIndex((i) => i.selectorText === t), n > -1 && e.deleteRule(n);
     }
     return e;
   }
   #s(e, r = {}) {
-    if (!(e instanceof CSSRule))
-      throw console.error("rule:", e), new Error("Invalid rule.");
+    e instanceof CSSRule || u.raise("Invalid rule.", () => console.error("rule:", e));
     for (let [s, t] of Object.entries(r))
       if (t !== void 0) {
-        if (w(t) === "Object") {
+        if (m(t) === "Object") {
           const [n, i] = Object.entries(t)[0];
           t = `${i}${n}`;
         }
-        if (s.startsWith("__") ? s = `--${s.slice(2)}` : s.startsWith("--") || (s = p(s.trim())), t === !1) {
+        if (s.startsWith("__") ? s = `--${s.slice(2)}` : s.startsWith("--") || (s = w(s.trim())), t === !1) {
           e.style.removeProperty(s);
           continue;
         }
@@ -136,8 +141,8 @@ class u {
     return e in this.#e.validator.style || e.startsWith("--");
   }
 }
-class a {
-  static create = (...e) => new a(...e);
+class f {
+  static create = (...e) => new f(...e);
   #e = { registry: /* @__PURE__ */ new Set() };
   constructor(e) {
     this.#e.owner = e;
@@ -164,13 +169,13 @@ class a {
     }
   }
 }
-class f extends CSSStyleSheet {
-  static create = (...e) => new f(...e);
+class d extends CSSStyleSheet {
+  static create = (...e) => new d(...e);
   #e = {
     detail: {}
   };
   constructor(e, r) {
-    super(), this.#e.rules = u.create(this), this.#e.targets = a.create(this), this.replaceSync(e), this.#e.path = r, this.#e.text = e;
+    super(), this.#e.rules = c.create(this), this.#e.targets = f.create(this), this.replaceSync(e), this.#e.path = r, this.#e.text = e;
   }
   /* Returns detail for ad-hoc data. */
   get detail() {
@@ -210,7 +215,7 @@ class f extends CSSStyleSheet {
     return this;
   }
 }
-const { camelToKebab: d } = await use("@/tools/case.js"), { WebComponent: g } = await use("@/component.js"), y = g(), h = new class {
+const { camelToKebab: p } = await use("@/tools/case.js"), { WebComponent: R } = await use("@/component.js"), g = R(), h = new class {
   #e = {};
   constructor() {
     this.#e.color = new class {
@@ -218,7 +223,7 @@ const { camelToKebab: d } = await use("@/tools/case.js"), { WebComponent: g } = 
         return new Proxy(
           {},
           {
-            get(c, e) {
+            get(o, e) {
               return `#${e}`;
             }
           }
@@ -233,29 +238,32 @@ const { camelToKebab: d } = await use("@/tools/case.js"), { WebComponent: g } = 
     return new Proxy(
       {},
       {
-        get(c, e) {
-          return d(e);
+        get(o, e) {
+          return p(e, { numbers: !0 });
         }
       }
     );
   }
-}(), x = new Proxy(() => {
+  attr(o) {
+    return `attr(${o})`;
+  }
+}(), b = new Proxy(() => {
 }, {
-  get(c, e) {
-    return e in y.style ? new Proxy(
+  get(o, e) {
+    return e in h ? h[e] : e in g.style ? new Proxy(
       {},
       {
         get(r, s) {
-          return { [e]: d(s) };
+          return { [e]: p(s, { numbers: !0 }) };
         }
       }
-    ) : e in h ? h[e] : (r) => (e === "pct" && (e = "%"), `${r}${e}`);
+    ) : (r) => (e === "pct" && (e = "%"), `${r}${e}`);
   },
-  apply(c, e, r) {
-    return r.join(" ");
+  apply(o, e, r) {
+    return r = r.map((s) => s === "!" ? "!important" : s), r.join(" ");
   }
 });
 export {
-  f as Sheet,
-  x as css
+  d as Sheet,
+  b as css
 };

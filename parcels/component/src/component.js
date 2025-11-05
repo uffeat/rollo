@@ -68,7 +68,7 @@ export const Component = (arg, ...args) => {
 export const component = new Proxy(
   {},
   {
-    get: (target, tag) => {
+    get(target, tag) {
       return Factory(tag);
     },
   }

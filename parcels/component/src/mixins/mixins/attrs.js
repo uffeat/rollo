@@ -6,12 +6,21 @@ export default (parent, config) => {
     #_ = {};
     constructor() {
       super();
+
       const owner = this;
+
       const _attributes = super.attributes;
-      this.#_.attributes = new (class {
+      this.#_.attributes = new (class Attributes extends EventTarget {
+        constructor() {
+          super();
+        }
         /* Returns attributes NamedNodeMap (for advanced use). */
         get attributes() {
           return _attributes;
+        }
+
+        get owner() {
+          return owner;
         }
 
         /* Returns number of set attributes. */
@@ -53,15 +62,15 @@ export default (parent, config) => {
         set(name, value) {
           /* Normalize name */
           name = camelToKebab(name);
-          /* Abort, if undefined/'...', e.g., for efficient use of iife's.
+          /* Abort, if undefined'...', e.g., for efficient use of iife's.
           NOTE '...' is used as a proxy for undefined to enable use from Python, 
           which does not support undefined */
           if (value === undefined || value === "...") {
             return owner;
           }
           /* Abort, if no change */
-          const current = this.#interpret(owner.getAttribute(name));
-          if (value === current) {
+          const previous = this.#interpret(owner.getAttribute(name));
+          if (value === previous) {
             return owner;
           }
           /* Update */
@@ -77,6 +86,11 @@ export default (parent, config) => {
           } else {
             owner.setAttribute(name, value);
           }
+          this.dispatchEvent(
+            new CustomEvent("change", {
+              detail: Object.freeze({ name, current: value, previous }),
+            })
+          );
           return owner;
         }
 
@@ -100,6 +114,10 @@ export default (parent, config) => {
           }
           /* By convention, values that can be interpreted as numbers are 
           interpreted as numbers */
+          if (value === null) {
+            /* null converts to 0, therefore treat as special case */
+            return value;
+          }
           const number = Number(value);
           return isNaN(number) ? value || true : number;
         }
@@ -147,4 +165,3 @@ export default (parent, config) => {
     }
   };
 };
-

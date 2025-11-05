@@ -11,5 +11,5 @@ export default async ({ component }) => {
     parent: layout,
   });
 
-  button.attribute.score = 0
+  button.attribute.test = 0;
 };
