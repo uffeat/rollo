@@ -3,7 +3,6 @@ import { Ref } from "./ref.js";
 const Exception = await use("exception.js");
 const { author, component, mix, mixins } = await use("@/component.js");
 
-
 /*. */
 export const RefComponent = author(
   class extends mix(
@@ -31,27 +30,20 @@ export const RefComponent = author(
       this.#_.ref = Ref.create({ owner: this });
       this.#_.ref.effects.add(
         (current, message) => {
-
-          console.log('Effect that syncs to attrs got current:', current)////
-
-
-
+          //console.log('Effect that syncs to attrs got current:', current)////
           this.attribute.current = current;
           this.attribute.previous = this.previous;
           this.attribute.session = this.session;
           this.attribute.effects = message.owner.effects.size;
-          this.send('change', {detail: {current, message}})
+          this.send("change", { detail: { current, message } });
         },
         { run: false }
       );
-
-      
     }
 
     __init__(...args) {
       super.__init__?.(...args);
-        
-      }
+    }
 
     get config() {
       return this.#_.ref.config;
@@ -62,10 +54,7 @@ export const RefComponent = author(
     }
 
     set current(current) {
-
-      console.log('current setter got:', current)////
-
-
+      //console.log('current setter got:', current)////
       this.#_.ref.update(current);
     }
 
