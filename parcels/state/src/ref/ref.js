@@ -1,8 +1,6 @@
 import { Message } from "../tools/message.js";
 
 const { typeName } = await use("@/tools/types.js");
-const { match: arrayMatch } = await use("@/tools/array/match.js");
-const { match: objectMatch } = await use("@/tools/object/match.js");
 
 export class Ref {
   static create = (...args) => new Ref(...args);
@@ -13,18 +11,12 @@ export class Ref {
     session: null,
   };
 
-  constructor(value, ...args) {
+  constructor(...args) {
     /* Compose config */
     this.#_.config = new (class Config {
       #_ = {
         /* Default match */
         match: (value, other) => {
-          if (typeName(value) === "Object") {
-            return objectMatch(value, other);
-          }
-          if (Array.isArray(value)) {
-            return arrayMatch(value, other);
-          }
           return value === other;
         },
       };
@@ -98,16 +90,17 @@ export class Ref {
       }
     })(this, this.#_.registry);
     /* Parse args */
+    const current = args.find((a, i) => !i && typeName(a) !== "Object")
     const options = args.find((a) => typeName(a) === "Object") || {};
     const { config = {}, detail = {}, name, owner } = options;
     const { match } = config;
-    const effects = args.filter((a) => typeof a === "function");
+    const effects = args.filter((a, i) => i && typeof a === "function");
     /* Apply arguments */
     this.#_.owner = owner;
     this.#_.name = name;
     Object.assign(this.detail, detail);
     this.config.match = match;
-    this.update(value);
+    this.update(current);
     for (const effect of effects) {
       this.effects.add(effect);
     }
@@ -156,12 +149,6 @@ export class Ref {
     if (detail) Object.assign(this.detail, detail);
     /* Abort if undefined value */
     if (value === undefined) return this;
-    /* Freeze mutable value */
-    if (typeName(value) === "Object") {
-      value = Object.freeze({ ...value });
-    } else if (Array.isArray(value)) {
-      value = Object.freeze([...value]);
-    }
     /* Abort if no change */
     if (this.config.match(this.#_.current, value)) return this;
     /* Update stored values */
@@ -198,4 +185,3 @@ export class Ref {
     return this;
   }
 }
-

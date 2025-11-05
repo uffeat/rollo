@@ -17,7 +17,7 @@ export const ref = (...args) => {
       return true;
     },
     apply(target, thisArg, args) {
-      /* Turn apply into a getter-setter hybrid */
+      /* Turn apply into a getter-setter hybrid for current */
       instance.update(...args);
       return instance.current;
     },

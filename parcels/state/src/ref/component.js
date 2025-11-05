@@ -2,7 +2,7 @@ import { Ref } from "./ref.js";
 
 const Exception = await use("exception.js");
 const { author, component, mix, mixins } = await use("@/component.js");
-const { typeName } = await use("@/tools/types.js");
+
 
 /*. */
 export const RefComponent = author(
@@ -22,6 +22,7 @@ export const RefComponent = author(
     mixins.props,
     mixins.send,
     mixins.style,
+    mixins.text,
     mixins.vars
   ) {
     #_ = {};
@@ -30,30 +31,27 @@ export const RefComponent = author(
       this.#_.ref = Ref.create({ owner: this });
       this.#_.ref.effects.add(
         (current, message) => {
-          if (typeName(current) === "Object" || Array.isArray(current)) {
-            try {
-              current = JSON.stringify(current);
-            } catch {}
-          }
+
+          console.log('Effect that syncs to attrs is running')////
+
+
+
           this.attribute.current = current;
-
-          let previous = message.owner.previous;
-          if (typeName(previous) === "Object" || Array.isArray(previous)) {
-            try {
-              previous = JSON.stringify(previous);
-            } catch {}
-          }
-          this.attribute.previous = previous;
-
+          this.attribute.previous = this.previous;
           this.attribute.session = this.session;
-
-          this.attribute.efects = message.owner.effects.size;
-
-          this.send('change', {detail: {}})
+          this.attribute.effects = message.owner.effects.size;
+          this.send('change', {detail: {current, message}})
         },
         { run: false }
       );
+
+      
     }
+
+    __init__(...args) {
+      this.__init__?.(...args);
+        
+      }
 
     get config() {
       return this.#_.ref.config;
@@ -63,8 +61,8 @@ export const RefComponent = author(
       return this.#_.ref.current;
     }
 
-    set current(value) {
-      this.#_.ref.update(value);
+    set current(current) {
+      this.#_.ref.update(current);
     }
 
     get effects() {

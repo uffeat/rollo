@@ -8,11 +8,12 @@ const { layout } = await use("@//layout.js");
 
 
 export default async ({ RefComponent }) => {
-  const state = RefComponent({parent: app, slot: 'data'})
-  state.current = [1,2,3]
+  layout.clear(":not([slot])");
+  const state = RefComponent({parent: layout})
+  state.current = 42
 
   state.name='foo'
-  state.name='bar'
+ 
 
 
   
