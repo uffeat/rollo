@@ -55,7 +55,7 @@ const f = (r) => (...s) => {
   prepend(...t) {
     return super.prepend(...t), this;
   }
-}, y = (r, s) => class extends r {
+}, { camelToKebab: l } = await use("@/tools/case.js"), y = (r, s) => class extends r {
   static __name__ = "attrs";
   #t = {};
   constructor() {
@@ -145,11 +145,7 @@ const f = (r) => (...s) => {
       )
     ), this;
   }
-};
-function l(r) {
-  return r.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
-}
-const x = (r, s) => class extends r {
+}, x = (r, s) => class extends r {
   static __name__ = "classes";
   #t = {};
   constructor() {
@@ -234,7 +230,7 @@ const x = (r, s) => class extends r {
     }
     return this;
   }
-}, E = (r, s) => class extends r {
+}, v = (r, s) => class extends r {
   static __name__ = "connect";
   connectedCallback() {
     super.connectedCallback?.(), this.dispatchEvent(new CustomEvent("_connect"));
@@ -242,7 +238,7 @@ const x = (r, s) => class extends r {
   disconnectedCallback() {
     super.disconnectedCallback?.(), this.dispatchEvent(new CustomEvent("_disconnect"));
   }
-}, v = (r, s) => class extends r {
+}, E = (r, s) => class extends r {
   static __name__ = "detail";
   #t = {
     detail: {}
@@ -378,7 +374,7 @@ const P = (r, s, ...t) => class extends r {
   get insert() {
     return this.#t.insert;
   }
-}, $ = (r, s) => class extends r {
+}, W = (r, s) => class extends r {
   static __name__ = "novalidation";
   /* Returns 'novalidation' attribute. */
   get novalidation() {
@@ -388,7 +384,7 @@ const P = (r, s, ...t) => class extends r {
   set novalidation(t) {
     t ? this.setAttribute("novalidation", "") : this.removeAttribute("novalidation");
   }
-}, W = (r, s) => class extends r {
+}, T = (r, s) => class extends r {
   static __name__ = "parent";
   #t = {};
   /* Returns parent. */
@@ -411,7 +407,7 @@ const P = (r, s, ...t) => class extends r {
   __init__() {
     super.__init__?.(), this.__parent__ && (this.parent = this.__parent__);
   }
-}, T = (r, s) => class extends r {
+}, $ = (r, s) => class extends r {
   static __name__ = "props";
   /* Updates accessor props. Chainable. */
   update(t = {}) {
@@ -472,7 +468,7 @@ const P = (r, s, ...t) => class extends r {
   set tab(t) {
     [!1, null].includes(t) ? this.removeAttribute("tabindex") : this.setAttribute("tabindex", t);
   }
-}, z = (r, s) => class extends r {
+}, N = (r, s) => class extends r {
   static __name__ = "text";
   /* Returns text content. */
   get text() {
@@ -482,7 +478,7 @@ const P = (r, s, ...t) => class extends r {
   set text(t) {
     this.textContent = t;
   }
-}, N = (r, s) => class extends r {
+}, V = (r, s) => class extends r {
   static __name__ = "vars";
   #t = {};
   constructor() {
@@ -500,7 +496,7 @@ const P = (r, s, ...t) => class extends r {
         return i ? `${e} !${i}` : e === "none" ? null : e;
       },
       set(t, n, e) {
-        if (n.startsWith("--") || (n = `--${n}`), e === null ? e = "none" : e === 0 ? e = "0" : typeof e == "number" && (e = `${e}rem`), e === void 0 || e === "...")
+        if (n.startsWith("--") || (n = `--${n}`), e === null ? e = "none" : e === 0 && (e = "0"), e === void 0 || e === "...")
           return !0;
         const i = t.__[n];
         return e === i || (e === !1 ? t.style.removeProperty(n) : typeof e == "string" ? (e = e.trim(), e.endsWith("!important") ? t.style.setProperty(
@@ -527,21 +523,21 @@ const P = (r, s, ...t) => class extends r {
   attrs: y,
   classes: x,
   clear: w,
-  connect: E,
-  detail: v,
+  connect: v,
+  detail: E,
   find: A,
   for_: j,
   handlers: C,
   insert: P,
-  novalidation: $,
-  parent: W,
-  props: T,
+  novalidation: W,
+  parent: T,
+  props: $,
   send: H,
   style: M,
   super_: S,
   tab: q,
-  text: z,
-  vars: N
+  text: N,
+  vars: V
 };
 Object.freeze(u);
 const a = new class {
@@ -572,7 +568,7 @@ const a = new class {
   values() {
     return this.#t.registry.values();
   }
-}(), V = (r) => {
+}(), z = (r) => {
   const s = `x-${r}`;
   if (a.has(s))
     return a.get(s);
@@ -590,7 +586,7 @@ const a = new class {
     }
   );
 }, h = (r) => {
-  const s = V(r), t = new s();
+  const s = z(r), t = new s();
   return f(t);
 }, F = (r, ...s) => {
   const [t, ...n] = r.split("."), e = h(t);
@@ -600,15 +596,15 @@ const a = new class {
   {
     get: (r, s) => h(s)
   }
-), U = (r, s, t) => f(a.add(r, s, t)), D = Object.entries(u).filter(([r, s]) => !["for_", "novalidation"].includes(r)).map(([r, s]) => s), d = class extends _(HTMLElement, {}, ...D) {
+), K = (r, s, t) => f(a.add(r, s, t)), D = Object.entries(u).filter(([r, s]) => !["for_", "novalidation"].includes(r)).map(([r, s]) => s), d = class extends _(HTMLElement, {}, ...D) {
 };
 a.has("x-component") || a.add(d, "x-component");
-const Z = f(d);
+const U = f(d);
 export {
   F as Component,
   h as Factory,
-  Z as WebComponent,
-  U as author,
+  U as WebComponent,
+  K as author,
   I as component,
   f as factory,
   _ as mix,

@@ -15,7 +15,7 @@ sheet.rules.add({
 
 export default async ({ RefComponent }) => {
   layout.clear(":not([slot])");
-  const state = RefComponent("btn.btn-primary", { current: 0, text: 'Count: ' }, function () {
+  const state = RefComponent("btn.btn-primary", { current: 1, text: 'Count: ' }, function () {
     /* Use/unuse sheet */
     this.on._connect$once = (event) => {
       sheet.use();

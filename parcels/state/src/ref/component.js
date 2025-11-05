@@ -32,7 +32,7 @@ export const RefComponent = author(
       this.#_.ref.effects.add(
         (current, message) => {
 
-          console.log('Effect that syncs to attrs is running')////
+          console.log('Effect that syncs to attrs got current:', current)////
 
 
 
@@ -49,7 +49,7 @@ export const RefComponent = author(
     }
 
     __init__(...args) {
-      this.__init__?.(...args);
+      super.__init__?.(...args);
         
       }
 
@@ -62,6 +62,10 @@ export const RefComponent = author(
     }
 
     set current(current) {
+
+      console.log('current setter got:', current)////
+
+
       this.#_.ref.update(current);
     }
 

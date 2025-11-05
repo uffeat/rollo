@@ -40,9 +40,7 @@ export default (parent, config) => {
             value = "none";
           } else if (value === 0) {
             value = "0";
-          } else if (typeof value === "number") {
-            value = `${value}rem`;
-          }
+          } 
           /* Abort, if undefined/'...' value, e.g., for efficient use of iife's */
           if (value === undefined || value === "...") {
             return true;

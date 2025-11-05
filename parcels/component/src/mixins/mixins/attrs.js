@@ -1,3 +1,5 @@
+const { camelToKebab } = await use("@/tools/case.js");
+
 export default (parent, config) => {
   return class extends parent {
     static __name__ = "attrs";
@@ -27,7 +29,7 @@ export default (parent, config) => {
 
         /* Returns attribute value. */
         get(name) {
-          name = kebab(name);
+          name = camelToKebab(name);
           /* By convention, non-present attrs are interpreted as null */
           if (!owner.hasAttribute(name)) {
             return null;
@@ -38,7 +40,7 @@ export default (parent, config) => {
 
         /* Checks, if attribute set. */
         has(name) {
-          name = kebab(name);
+          name = camelToKebab(name);
           return owner.hasAttribute(name);
         }
 
@@ -50,7 +52,7 @@ export default (parent, config) => {
         /* Sets one or more attribute values. Chainable with respect to component. */
         set(name, value) {
           /* Normalize name */
-          name = kebab(name);
+          name = camelToKebab(name);
           /* Abort, if undefined/'...', e.g., for efficient use of iife's.
           NOTE '...' is used as a proxy for undefined to enable use from Python, 
           which does not support undefined */
@@ -146,8 +148,3 @@ export default (parent, config) => {
   };
 };
 
-/* Returns kebab-interpretation of camel-case string. */
-function kebab(camel) {
-  /* NOTE Digits as lower-case, e.g., p10 -> p10. */
-  return camel.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
-}
