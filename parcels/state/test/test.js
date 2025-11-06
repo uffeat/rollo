@@ -6,13 +6,6 @@ use.assets.add("@/state.js", parcel);
 
 document.querySelector("html").dataset.bsTheme = "dark";
 
-//
-//
-
-console.log('foo:', (await use('/test/foo.js')).foo)
-
-//
-//
 
 
 

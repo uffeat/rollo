@@ -1,19 +1,15 @@
 /* Import engine.
 
 TODO
-- 'assets' source. Import by glob
+- 'assets' source. Import by glob - do in other module so that this module can be consumed outside Vite
 - Synthetic types, e.g., .component.html
 */
 
 /* Import tools for the import engine. */
-import { Exception } from "./exception.js";
-import { Meta } from "./meta.js";
-import { Module } from "./module.js";
-import { Path } from "./path.js";
-import { Registry } from "./registry.js";
-import { define } from "./define.js";
-
-console.dir(location)////
+import { Exception } from "./_tools/exception.js";
+import { Module } from "./_tools/module.js";
+import { Path } from "./_tools/path.js";
+import { Registry } from "./_tools/registry.js";
 
 class Assets {
   static create = (...args) => new Assets(...args);
@@ -25,7 +21,38 @@ class Assets {
   constructor() {
     document.head.append(this);
     /* Create meta */
-    this.#_.meta = Meta.create(this);
+    this.#_.meta = new (class Meta {
+      #_ = {
+        detail: {},
+      };
+
+      constructor() {
+        const PORT = "3869";
+        /* NOTE Refraining from using Vite's `import.meta.env.DEV` 
+        makes consumption in a non-Vite context possible. */
+        this.#_.DEV = location.hostname === "localhost";
+        this.#_.base = "";
+        if (this.DEV && location.port !== PORT) {
+          this.#_.base = `http://localhost:${PORT}`;
+        }
+      }
+
+      get DEV() {
+        return this.#_.DEV;
+      }
+
+      get base() {
+        return this.#_.base;
+      }
+
+      get detail() {
+        return this.#_.detail;
+      }
+
+      get origin() {
+        return location.origin;
+      }
+    })();
     /* Create sources controller */
     this.#_.sources = new (class Sources extends Registry {
       constructor(owner) {
@@ -74,14 +101,18 @@ class Assets {
     return this.#_.types;
   }
 
-  /* Injects vitual asset. */
+  /* Injects asset. 
+  NOTE Useful for
+  - manually making objects use-importable (do this only sparringly)
+  - "overloading" asset when testing parcels. */
   add(path, asset) {
     this.#_.added.set(path, asset);
     return this;
   }
 
+  /* Returns asset */
   async get(path, ...args) {
-    const options = args.find((a) => typeName(a) === "Object") || {};
+    const options = { ...(args.find((a) => typeName(a) === "Object") || {}) };
     args = args.filter((a) => typeName(a) !== "Object");
 
     /* Added assets */
@@ -144,13 +175,11 @@ assets.add("exception.js", Exception);
 assets.add("module.js", Module);
 assets.add("path.js", Path);
 assets.add("registry.js", Registry);
-assets.add("define.js", define);
 
 /* Add public as source */
 assets.sources.add(
   "/",
   (() => {
-    let submission = 0
     const cache = new Map();
     return async ({ options, owner, path }, ...args) => {
       const { component } = await use("@/component.js");
@@ -158,11 +187,12 @@ assets.sources.add(
       if (path.type === "css" && as === "link") {
         /* Escape transformation and processing */
         Object.assign(path.detail, { transform: false, process: false });
+        const href = `${owner.meta.base}${path.path}`;
         let link = document.head.querySelector(
-          `link[rel="stylesheet"][href="${path.path}"]`
+          `link[rel="stylesheet"][href="${href}"]`
         );
         if (link) return link;
-        link = component.link({ rel: "stylesheet", href: path.path });
+        link = component.link({ rel: "stylesheet", href });
         const { promise, resolve } = Promise.withResolvers();
         link.on.load$once = (event) => resolve(link);
         document.head.append(link);
@@ -171,9 +201,10 @@ assets.sources.add(
       if (path.type === "js" && as === "script") {
         /* Escape transformation and processing */
         Object.assign(path.detail, { transform: false, process: false });
-        let script = document.head.querySelector(`script[src="${path.path}"]`);
+        const src = `${owner.meta.base}${path.path}`;
+        let script = document.head.querySelector(`script[src="${src}"]`);
         if (script) return script;
-        script = component.script({ src: path.path });
+        script = component.script({ src });
         const { promise, resolve } = Promise.withResolvers();
         script.on.load$once = (event) => resolve();
         document.head.append(script);
@@ -181,7 +212,15 @@ assets.sources.add(
       }
       /* Asset text import */
       if (cache.has(path.path)) return cache.get(path.path);
-      const result = (await (await fetch(`${owner.meta.base}${path.path}?submission=${submission++}`)).text()).trim();
+      const result = (
+        await (
+          await fetch(`${owner.meta.base}${path.path}`, { cache: "no-store" })
+        )
+          /* Alternatively:
+          await fetch(`${owner.meta.base}${path.path}?d=${Date.now()}`)
+          */
+          .text()
+      ).trim();
       /* Invalid paths causes result to be index.html (with misc devtools injected). 
       Use custom index meta as indicator for invalid path, since such an element should not be present in imported assets.  */
       //console.log('result:', result)////
@@ -291,15 +330,25 @@ assets.processors.add(
   }
 );
 
-define(
-  globalThis,
-  async (...args) => {
-    return await assets.get(...args);
-  },
-  "use"
-);
-define(use, assets, "assets");
-define(use, assets.meta, "meta");
+/* Repackage 'assets' to global 'use' callable */
+Object.defineProperty(globalThis, "use", {
+  configurable: false,
+  enumerable: true,
+  writable: false,
+  value: new Proxy(() => {}, {
+    get(target, key) {
+      if (key === "assets") return assets;
+      return assets[key];
+    },
+    set(target, key, value) {
+      assets[key] = value;
+      return true;
+    },
+    apply(target, thisArg, args) {
+      return assets.get(...args);
+    },
+  }),
+});
 
 function typeName(value) {
   return Object.prototype.toString.call(value).slice(8, -1);

@@ -4,6 +4,7 @@ NOTE
 - Cannot run, while live-server is running.
 
 TODO
+- Do NOT build to parcels
 - Perhaps: Clear out dirs
 - Perhaps: Mitigate the need for '//' imports
 """
