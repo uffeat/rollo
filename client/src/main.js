@@ -13,3 +13,4 @@ const image = component.img({ src: "/images/engine.webp", parent: layout });
 
 
 console.log('foo:', (await use('/test/foo.js')).foo)////
+console.log('foo:', (await use('/test/foo.json')).foo)////

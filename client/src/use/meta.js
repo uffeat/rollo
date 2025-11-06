@@ -8,17 +8,17 @@ export class Meta {
   constructor(owner) {
     this.#_.DEV = location.hostname === "localhost";
     if (this.DEV) {
-      if (location.port === '3869') {
-        this.#_.base = ''
+      if (location.port === "3869") {
+        this.#_.base = "";
       } else {
-        this.#_.base = 'http://localhost:3869'
+        this.#_.base = "http://localhost:3869";
       }
-      
     } else {
-      this.#_.base = location.origin
+      //this.#_.base = location.origin;
+      this.#_.base = "";
     }
 
-    this.#_.owner = owner
+    this.#_.owner = owner;
   }
 
   get DEV() {
@@ -36,9 +36,6 @@ export class Meta {
   get origin() {
     return this.#_.origin;
   }
-
-  
-
 
   get owner() {
     return this.#_.owner;

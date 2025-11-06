@@ -150,6 +150,7 @@ assets.add("define.js", define);
 assets.sources.add(
   "/",
   (() => {
+    let submission = 0
     const cache = new Map();
     return async ({ options, owner, path }, ...args) => {
       const { component } = await use("@/component.js");
@@ -180,7 +181,7 @@ assets.sources.add(
       }
       /* Asset text import */
       if (cache.has(path.path)) return cache.get(path.path);
-      const result = (await (await fetch(`${owner.meta.base}${path.path}`)).text()).trim();
+      const result = (await (await fetch(`${owner.meta.base}${path.path}?submission=${submission++}`)).text()).trim();
       /* Invalid paths causes result to be index.html (with misc devtools injected). 
       Use custom index meta as indicator for invalid path, since such an element should not be present in imported assets.  */
       //console.log('result:', result)////
