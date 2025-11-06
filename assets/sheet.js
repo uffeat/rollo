@@ -247,6 +247,9 @@ const { camelToKebab: p } = await use("@/tools/case.js"), { WebComponent: R } = 
   attr(o) {
     return `attr(${o})`;
   }
+  important(...o) {
+    return `${o.join(" ")} !important`;
+  }
 }(), b = new Proxy(() => {
 }, {
   get(o, e) {

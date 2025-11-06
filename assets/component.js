@@ -61,10 +61,7 @@ const l = (r) => (...n) => {
   constructor() {
     super();
     const t = this, e = super.attributes;
-    this.#t.attributes = new class extends EventTarget {
-      constructor() {
-        super();
-      }
+    this.#t.attributes = new class {
       /* Returns attributes NamedNodeMap (for advanced use). */
       get attributes() {
         return e;
@@ -103,8 +100,8 @@ const l = (r) => (...n) => {
         if (i = a(i), o === void 0 || o === "...")
           return t;
         const c = this.#e(t.getAttribute(i));
-        return o === c || ([!1, null].includes(o) ? t.removeAttribute(i) : o === !0 || !["number", "string"].includes(typeof o) ? t.setAttribute(i, "") : t.setAttribute(i, o), this.dispatchEvent(
-          new CustomEvent("change", {
+        return o === c || ([!1, null].includes(o) ? t.removeAttribute(i) : o === !0 || !["number", "string"].includes(typeof o) ? t.setAttribute(i, "") : t.setAttribute(i, o), t.dispatchEvent(
+          new CustomEvent("_attributes", {
             detail: Object.freeze({ name: i, current: o, previous: c })
           })
         )), t;

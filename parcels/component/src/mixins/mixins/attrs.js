@@ -10,10 +10,8 @@ export default (parent, config) => {
       const owner = this;
 
       const _attributes = super.attributes;
-      this.#_.attributes = new (class Attributes extends EventTarget {
-        constructor() {
-          super();
-        }
+      this.#_.attributes = new (class Attributes {
+        
         /* Returns attributes NamedNodeMap (for advanced use). */
         get attributes() {
           return _attributes;
@@ -86,8 +84,8 @@ export default (parent, config) => {
           } else {
             owner.setAttribute(name, value);
           }
-          this.dispatchEvent(
-            new CustomEvent("change", {
+          owner.dispatchEvent(
+            new CustomEvent("_attributes", {
               detail: Object.freeze({ name, current: value, previous }),
             })
           );

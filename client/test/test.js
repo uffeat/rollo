@@ -1,7 +1,7 @@
 /* Testbench.
 
 Runs on:
-http://localhost:8080/test/test.html
+http://localhost:3869/test/test.html
 
 NOTE 
 - Test scripts can access

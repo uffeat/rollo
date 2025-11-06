@@ -6,23 +6,17 @@ const { component } = await use("@/component.js");
 const { layout } = await use("@//layout.js");
 const { Sheet, css } = await use("@/sheet.js");
 
-
-
 const sheet = Sheet.create();
 sheet.rules.add({
-  'ref-component': {
-    fontWeight: css(700, `!`),
+  "ref-component": {
+    fontWeight: css.important(700),
     margin: css.rem(1),
-    marginLeft: 'auto'
-
+    ...css.marginLeft.auto,
   },
-  
-
 
   "ref-component::after": {
-    content: css.attr('current'),
-    fontWeight: css('initial', `!`),
-
+    content: css.attr("current"),
+    fontWeight: css.important("initial"),
   },
 });
 

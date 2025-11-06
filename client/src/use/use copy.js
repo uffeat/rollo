@@ -180,7 +180,7 @@ assets.sources.add(
       }
       /* Asset text import */
       if (cache.has(path.path)) return cache.get(path.path);
-      const result = (await (await fetch(`${owner.meta.base}${path.path}`)).text()).trim();
+      const result = (await (await fetch(path.path)).text()).trim();
       /* Invalid paths causes result to be index.html (with misc devtools injected). 
       Use custom index meta as indicator for invalid path, since such an element should not be present in imported assets.  */
       //console.log('result:', result)////

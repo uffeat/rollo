@@ -39,6 +39,11 @@ const cls = new (class {
   attr(value) {
     return `attr(${value})`
   }
+
+  important(...args) {
+    return `${args.join(" ")} !important`
+
+  }
 })();
 
 /* DSL-like helper for authoring CSS in JS with reduced use of strings.
