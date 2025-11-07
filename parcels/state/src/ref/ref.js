@@ -12,25 +12,6 @@ export class Ref {
   };
 
   constructor(...args) {
-    /* Compose config */
-    this.#_.config = new (class Config {
-      #_ = {
-        /* Default match */
-        match: (value, other) => {
-          return value === other;
-        },
-      };
-
-      get match() {
-        return this.#_.match;
-      }
-
-      set match(match) {
-        if (match !== undefined) {
-          this.#_.match = match;
-        }
-      }
-    })();
     /* Compose effects */
     this.#_.effects = new (class Effects {
       #_ = {};
@@ -90,24 +71,21 @@ export class Ref {
       }
     })(this, this.#_.registry);
     /* Parse args */
-    const current = args.find((a, i) => !i && typeName(a) !== "Object")
+    const current = args.find((a, i) => !i && typeName(a) !== "Object");
     const options = args.find((a) => typeName(a) === "Object") || {};
-    const { config = {}, detail = {}, name, owner } = options;
-    const { match } = config;
+    const { detail = {}, match = function(other) {return this.current === other}, name, owner } = options;
     const effects = args.filter((a, i) => i && typeof a === "function");
     /* Apply arguments */
-    this.#_.owner = owner;
+    this.match = match;
     this.#_.name = name;
+    this.#_.owner = owner;
+
     Object.assign(this.detail, detail);
-    this.config.match = match;
+   
     this.update(current);
     for (const effect of effects) {
       this.effects.add(effect);
     }
-  }
-
-  get config() {
-    return this.#_.config;
   }
 
   get current() {
@@ -124,6 +102,16 @@ export class Ref {
 
   get effects() {
     return this.#_.effects;
+  }
+
+  get match() {
+    return this.#_.match;
+  }
+
+  set match(match) {
+    if (match !== undefined) {
+      this.#_.match = match.bind(this);
+    }
   }
 
   get name() {
@@ -150,7 +138,7 @@ export class Ref {
     /* Abort if undefined value */
     if (value === undefined) return this;
     /* Abort if no change */
-    if (this.config.match(this.#_.current, value)) return this;
+    if (this.match(value)) return this;
     /* Update stored values */
     this.#_.previous = this.#_.current;
     this.#_.current = value;

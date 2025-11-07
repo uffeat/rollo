@@ -5,6 +5,7 @@ NOTE
 
 TODO
 - Do NOT build to parcels
+- Build none-same name parcel assets to client public (JS parcel tests can overload)
 - Perhaps: Clear out dirs
 - Perhaps: Mitigate the need for '//' imports
 """
@@ -124,10 +125,13 @@ class build(Files, Minify):
             css,
         )
         # Write to parcel test dirs to enable access to assets without commit
+        """
         for parcel in self.parcels:
             if (parcel / "test").is_dir():
                 file = parcel / "test/assets.css"
                 file.write_text(css, encoding=UTF_8)
+        """
+        
 
         # Inform
         count = len(rules)
@@ -201,10 +205,13 @@ class build(Files, Minify):
             css,
         )
         # Write to parcel test dirs to enable access to main.css without commit
+        """
         for parcel in self.parcels:
             if (parcel / "test").is_dir():
                 file = parcel / "test/main.css"
                 file.write_text(css, encoding=UTF_8)
+        """
+        
 
         # Inform
         message = f"Aggregated {count} global sheet{plural(count)}."

@@ -11,15 +11,14 @@ import { Module } from "./_tools/module.js";
 import { Path } from "./_tools/path.js";
 import { Registry } from "./_tools/registry.js";
 
-class Assets {
-  static create = (...args) => new Assets(...args);
+const assets = new (class Assets {
   #_ = {
     added: new Map(),
     detail: {},
   };
 
   constructor() {
-    document.head.append(this);
+    const assets = this;
     /* Create meta */
     this.#_.meta = new (class Meta {
       #_ = {
@@ -71,6 +70,25 @@ class Assets {
         super(owner);
       }
     })(this);
+    /* Repackage 'assets' to global 'use' callable */
+    Object.defineProperty(globalThis, "use", {
+      configurable: false,
+      enumerable: true,
+      writable: false,
+      value: new Proxy(async () => {}, {
+        get(target, key) {
+          if (key === "assets") return assets;
+          return assets[key];
+        },
+        set(target, key, value) {
+          assets[key] = value;
+          return true;
+        },
+        apply(target, thisArg, args) {
+          return assets.get(...args);
+        },
+      }),
+    });
   }
 
   /* Returns detail for ad-hoc data. */
@@ -105,8 +123,16 @@ class Assets {
   NOTE Useful for
   - manually making objects use-importable (do this only sparringly)
   - "overloading" asset when testing parcels. */
-  add(path, asset) {
-    this.#_.added.set(path, asset);
+  add(key, value) {
+    if (typeof key === "string") {
+      this.#_.added.set(key, value);
+    } else {
+      /* key assumed to be a plain object */
+      for (const [k, v] of Object.entries(key)) {
+        this.#_.added.set(k, v);
+      }
+    }
+
     return this;
   }
 
@@ -164,17 +190,17 @@ class Assets {
     }
     return result;
   }
-}
-
-const assets = Assets.create();
+})();
 
 /* Make selected import engine tools available via import engine. 
 NOTE Good practice to indicate injection by not using a source prefix.
 Also mitigates collisions. */
-assets.add("exception.js", Exception);
-assets.add("module.js", Module);
-assets.add("path.js", Path);
-assets.add("registry.js", Registry);
+assets.add({
+  Exception,
+  Module,
+  Path,
+  Registry,
+});
 
 /* Add public as source */
 assets.sources.add(
@@ -329,26 +355,6 @@ assets.processors.add(
     }
   }
 );
-
-/* Repackage 'assets' to global 'use' callable */
-Object.defineProperty(globalThis, "use", {
-  configurable: false,
-  enumerable: true,
-  writable: false,
-  value: new Proxy(() => {}, {
-    get(target, key) {
-      if (key === "assets") return assets;
-      return assets[key];
-    },
-    set(target, key, value) {
-      assets[key] = value;
-      return true;
-    },
-    apply(target, thisArg, args) {
-      return assets.get(...args);
-    },
-  }),
-});
 
 function typeName(value) {
   return Object.prototype.toString.call(value).slice(8, -1);

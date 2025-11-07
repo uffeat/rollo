@@ -1,6 +1,6 @@
 import { Ref } from "./ref.js";
 
-const Exception = await use("exception.js");
+const Exception = await use("Exception");
 const { author, component, mix, mixins } = await use("@/component.js");
 
 /*. */

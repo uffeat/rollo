@@ -8,9 +8,9 @@ export const setup = ({ base } = {}) => {
   }
 
   return async ({ prefix = "./tests/", report, tests }, tools) => {
-    const { component } = await use("@/component.js");
-    const Module = await use("module.js");
+    const Module = await use("Module");
     const { Sheet } = await use("@/sheet.js");
+    const { component } = await use("@/component.js");
 
     window.addEventListener("keydown", async (event) => {
       /* Unit tests */

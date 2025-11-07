@@ -7,6 +7,7 @@ export class Reactive {
 
   #_ = {
     change: Object.freeze({}),
+    current: {},
     detail: {},
     previous: {},
     registry: new Map(),
@@ -92,7 +93,9 @@ export class Reactive {
       }
     })(this, this.#_.registry);
     /* Parse args */
-    const current = {...(args.find((a, i) => !i && typeName(a) !== "Object") || {})};
+    const updates = {
+      ...(args.find((a, i) => !i && typeName(a) !== "Object") || {}),
+    };
     const options = args.find((a, i) => i && typeName(a) === "Object") || {};
     const { config = {}, detail = {}, name, owner } = options;
     const { match } = config;
@@ -102,7 +105,7 @@ export class Reactive {
     this.#_.name = name;
     Object.assign(this.detail, detail);
     this.config.match = match;
-    this.update(current);
+    this.update(updates);
     for (const effect of effects) {
       this.effects.add(effect);
     }
@@ -144,12 +147,52 @@ export class Reactive {
     return Object.freeze(this.#_.previous);
   }
 
+  get size() {
+    return Object.keys(this.#_.current).length;
+  }
+
   get session() {
     return this.#_.session;
   }
 
-  clear() {
+  clear(silent = false) {
+    const updates = this.keys().map((k) => [k, undefined]);
+    return this.update(updates, { silent });
+  }
 
+  entries() {
+    return Object.entries(this.#_.current);
+  }
+
+  /*
+  NOTE Not core to reactive features, but useful extra, especially for testing. */
+  match(other) {
+    if (other instanceof Reactive) {
+      other = other.current;
+    } else {
+      if (typeName(other) == "Object") {
+        /* Remove items with undefined values */
+        other = Object.fromEntries(
+          Object.entries(other).filter(([k, v]) => v !== undefined)
+        );
+      } else {
+        return false;
+      }
+    }
+    /* Check size */
+    if (this.size !== Object.keys(other).length) return false;
+    for (const [key, value] of this.entries()) {
+      if (!this.config.match(other[key], value)) return false;
+    }
+    return true;
+  }
+
+  keys() {
+    return Object.keys(this.#_.current);
+  }
+
+  values() {
+    return Object.values(this.#_.current);
   }
 
   /* Updates current reactively.
@@ -157,9 +200,12 @@ export class Reactive {
   - Option for updating silently, i.e., non-reactively. */
   update(updates, { detail, silent = false } = {}) {
     if (Array.isArray(updates)) {
-      updates = Object.fromEntries(updates)
+      /* Assume entries */
+      updates = Object.fromEntries(updates);
+    } else if (updates instanceof Reactive) {
+      updates = updates.current;
     } else {
-      updates = {...updates}
+      updates = { ...updates };
     }
     if (detail) Object.assign(this.detail, detail);
     /* Infer change and update stores */
@@ -169,7 +215,8 @@ export class Reactive {
       if (this.config.match(value, this.#_.current[key])) {
         continue;
       }
-      /* Handle item removal */
+      /* Handle item removal
+      NOTE By convention, undefined deletes */
       if (value === undefined) {
         if (key in this.#_.current) {
           change[key] = value;

@@ -1,4 +1,4 @@
-const { typeName: m } = await use("@/tools/types.js"), { camelToKebab: w } = await use("@/tools/case.js"), { truncate: S } = await use("@/tools/truncate.js"), { WebComponent: y } = await use("@/component.js"), { Exception: u } = await use("exception.js"), a = "@media";
+const { typeName: m } = await use("@/tools/types.js"), { camelToKebab: w } = await use("@/tools/case.js"), { truncate: S } = await use("@/tools/truncate.js"), { WebComponent: y } = await use("@/component.js"), { Exception: u } = await use("Exception"), a = "@media";
 class c {
   static create = (...e) => new c(...e);
   #e = {

@@ -2,7 +2,7 @@ const { typeName } = await use("@/tools/types.js");
 const { camelToKebab } = await use("@/tools/case.js");
 const { truncate } = await use("@/tools/truncate.js");
 const { WebComponent } = await use("@/component.js");
-const { Exception } = await use("exception.js");
+const { Exception } = await use("Exception");
 
 const MEDIA = "@media";
 
