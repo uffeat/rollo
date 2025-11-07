@@ -170,7 +170,7 @@ export class Reactive {
     if (other instanceof Reactive) {
       other = other.current;
     } else {
-      if (typeName(other) == "Object") {
+      if (typeName(other) === "Object") {
         /* Remove items with undefined values */
         other = Object.fromEntries(
           Object.entries(other).filter(([k, v]) => v !== undefined)

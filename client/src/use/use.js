@@ -261,7 +261,7 @@ assets.sources.add(
   })()
 );
 
-/* Add carrier-sheet as source 
+/* Add asset sheet as source 
 NOTE No strong case for providing the option to add sheet via link, 
 since global main sheet is created by build tools. */
 assets.sources.add(
@@ -287,7 +287,8 @@ assets.sources.add(
   })()
 );
 
-/* Add css type handler to transform CSS text to Sheet instance. */
+/* Add css type handler to transform CSS text to Sheet instance and css 
+processor to use Sheet instance. */
 assets.types.add(
   "css",
   (() => {
@@ -300,6 +301,25 @@ assets.types.add(
       return result;
     };
   })()
+).processors.add(
+  "css",
+  async (result, { options, owner, path }, ...args) => {
+    Exception.if(
+      typeName(result) !== "CSSStyleSheet",
+      `Result is not a CSSStyleSheet`,
+      () => console.error("Result:", result)
+    );
+    const targets = args.filter(
+      (a) =>
+        typeName(a) === "HTMLDocument" ||
+        a instanceof ShadowRoot ||
+        a.shadowRoot
+    );
+    if (targets.length) {
+      /* NOTE sheet.use() adopts to document, therefore check targets' length */
+      result.use(...targets);
+    }
+  }
 );
 
 /* Add js type handler to transform JS text to module or to execute iife. */
@@ -335,26 +355,7 @@ assets.types.add("json", (result, { options, owner, path }, ...args) => {
   return JSON.parse(result);
 });
 
-assets.processors.add(
-  "css",
-  async (result, { options, owner, path }, ...args) => {
-    Exception.if(
-      typeName(result) !== "CSSStyleSheet",
-      `Result is not a CSSStyleSheet`,
-      () => console.error("Result:", result)
-    );
-    const targets = args.filter(
-      (a) =>
-        typeName(a) === "HTMLDocument" ||
-        a instanceof ShadowRoot ||
-        a.shadowRoot
-    );
-    if (targets.length) {
-      /* NOTE sheet.use() adopts to document, therefore check targets' length */
-      result.use(...targets);
-    }
-  }
-);
+
 
 function typeName(value) {
   return Object.prototype.toString.call(value).slice(8, -1);
