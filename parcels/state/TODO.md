@@ -1,0 +1,4 @@
+- $ syntax for Reactive
+- use mixins to build component versions
+- Reactive lists
+- Computed

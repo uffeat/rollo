@@ -1,5 +1,5 @@
 {
-  "origins": {
+  "server": {
     "development": "https://rollohdev.anvil.app",
     "production": "https://rolloh.anvil.app"
   },

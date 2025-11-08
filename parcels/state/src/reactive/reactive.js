@@ -50,36 +50,34 @@ export class Reactive {
       add(effect, ...args) {
         /* Parse args */
 
-        
-
-
-
         const condition = (() => {
           const condition = args.find((a) => typeof a === "function");
           if (condition) {
-            return condition
+            return condition;
           }
-          const keys = args.find((a) => Array.isArray(a))
+          const keys = args.find((a) => Array.isArray(a));
           if (keys) {
             return (change) => {
               for (const key of keys) {
                 if (key in change) {
-                  return true
+                  return true;
                 }
               }
-              return false
-
-            }
+              return false;
+            };
           }
-
         })();
-       
-        const { data = {}, once, run = true } = (args.find((a, i) => !i && typeName(a) === "Object") || {});
-       
+
+        const {
+          data = {},
+          once,
+          run = true,
+        } = args.find((a, i) => !i && typeName(a) === "Object") || {};
+
         /* Create detail. 
         NOTE detail is kept mutable to enable dynamic reactive patterns. */
         const detail = (() => {
-          const detail = { data: {...data} };
+          const detail = { data: { ...data } };
           if (condition) {
             detail.condition = condition;
           }
@@ -144,7 +142,7 @@ export class Reactive {
   }
 
   get current() {
-    return Object.freeze({...this.#_.current});
+    return Object.freeze({ ...this.#_.current });
   }
 
   set current(current) {
@@ -168,7 +166,7 @@ export class Reactive {
   }
 
   get previous() {
-    return Object.freeze({...this.#_.previous});
+    return Object.freeze({ ...this.#_.previous });
   }
 
   get size() {

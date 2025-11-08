@@ -63,7 +63,7 @@ export default async ({ Reactive }) => {
     });
     const outputComponent = component.input("form-control", {
       parent: outputGroup,
-      inert: true,
+      readOnly: true,
     });
 
     state.effects.add(
@@ -88,16 +88,18 @@ export default async ({ Reactive }) => {
       text: "Bump score",
       "@click": (event) => state.update({ score: state.current.score + 1 }),
     });
+    /* NOTE `readOnly: true` allows focus, tab, showing of title, etc.;
+    the stronger `inert: true`/`disabled: true` do not. */
     const score = component.input("form-control", {
       parent: group,
-      //inert: true,
+      readOnly: true,
       type: "number",
       placeholder: "score",
       title: 'Value of score'
     });
     const count = component.input("form-control", {
       parent: group,
-      //inert: true,
+      readOnly: true,
       type: "number",
       placeholder: "count",
       title: 'Effect run count'
