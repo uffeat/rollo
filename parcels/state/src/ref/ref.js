@@ -28,19 +28,18 @@ export class Ref {
       add(effect, ...args) {
         /* Parse args */
         const condition = args.find((a) => typeof a === "function");
-        const options = args.find((a) => typeName(a) === "Object") || {};
-        const { once, run = true } = options;
+        const { data = {}, once, run = true } = (args.find((a, i) => !i && typeName(a) === "Object") || {});
         /* Create detail. 
         NOTE detail is kept mutable to enable dynamic reactive patterns. */
         const detail = (() => {
-          const result = { detail: {} };
+          const detail = { data: {...data} };
           if (condition) {
-            result.condition = condition;
+            detail.condition = condition;
           }
           if (once) {
-            result.once = once;
+            detail.once = once;
           }
-          return result;
+          return detail;
         })();
         /* Register */
         this.#_.registry.set(effect, detail);

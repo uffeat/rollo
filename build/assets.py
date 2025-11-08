@@ -4,7 +4,6 @@ NOTE
 - Cannot run, while live-server is running.
 
 TODO
-- Do NOT build to parcels
 - Build none-same name parcel assets to client public (JS parcel tests can overload)
 - Perhaps: Clear out dirs
 - Perhaps: Mitigate the need for '//' imports
@@ -44,13 +43,13 @@ class build(Files, Minify):
         message = " ".join(messages)
 
         return message
-    
+
     @property
     def parcels(self):
         """Returns dir iterator for parcels."""
         # NOTE 'parcels' cannot be reused, therefore return new at each call
         return (Path.cwd() / "parcels").glob("*/")
-    
+
     def build_assets(self) -> str:
         """Builds asset-carrier sheet."""
 
@@ -124,14 +123,6 @@ class build(Files, Minify):
             "client/public/assets.css",
             css,
         )
-        # Write to parcel test dirs to enable access to assets without commit
-        """
-        for parcel in self.parcels:
-            if (parcel / "test").is_dir():
-                file = parcel / "test/assets.css"
-                file.write_text(css, encoding=UTF_8)
-        """
-        
 
         # Inform
         count = len(rules)
@@ -204,21 +195,11 @@ class build(Files, Minify):
             "client/public/main.css",
             css,
         )
-        # Write to parcel test dirs to enable access to main.css without commit
-        """
-        for parcel in self.parcels:
-            if (parcel / "test").is_dir():
-                file = parcel / "test/main.css"
-                file.write_text(css, encoding=UTF_8)
-        """
-        
 
         # Inform
         message = f"Aggregated {count} global sheet{plural(count)}."
         print(message)
         return message
-
-    
 
     def create_asset_rule(self, path: str, encoded: str) -> str:
         """Returns rule text."""

@@ -1,7 +1,6 @@
 import { Ref } from "./ref.js";
 
-const Exception = await use("Exception");
-const { author, component, mix, mixins } = await use("@/component.js");
+const { author, mix, mixins } = await use("@/component.js");
 
 /*. */
 export const RefComponent = author(
@@ -23,7 +22,7 @@ export const RefComponent = author(
     mixins.style,
     mixins.text,
     mixins.uid,
-    mixins.vars,
+    mixins.vars
   ) {
     #_ = {};
     constructor() {
@@ -31,22 +30,15 @@ export const RefComponent = author(
       this.#_.ref = Ref.create({ owner: this });
       this.#_.ref.effects.add(
         (current, message) => {
-          //console.log('Effect that syncs to attrs got current:', current)////
           this.attribute.current = current;
           this.attribute.previous = this.previous;
           this.attribute.session = this.session;
-        
-          this.send("change", { detail: { current, message } });
+
+          this.send("change", { detail: Object.freeze({ current, message }) });
         },
         { run: false }
       );
     }
-
-    __init__(...args) {
-      super.__init__?.(...args);
-    }
-
-   
 
     get current() {
       return this.#_.ref.current;
@@ -65,7 +57,6 @@ export const RefComponent = author(
     }
 
     set name(name) {
-      
       this.attribute.name = name;
     }
 
@@ -77,7 +68,7 @@ export const RefComponent = author(
       if (owner) {
         this.attribute.owner = owner.uid ? owner.uid : true;
       }
-      
+
       this.#_.owner = owner;
     }
 

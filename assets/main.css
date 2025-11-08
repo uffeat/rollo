@@ -1,3 +1,22 @@
 img {
   max-width: 100%;
 }
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield; /* legacy/ESR safety */
+}
+
+/* Chromium + Safari */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0; /* avoids old layout quirks */
+}
+
+/* Optional: if you also want to nuke any UA styling entirely */
+input[type="number"] {
+  appearance: none; /* modern generic reset */
+  box-sizing: border-box;
+}

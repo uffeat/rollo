@@ -2,5 +2,7 @@ h1 {
   flex-direction: column-reverse;
   color: rgb(234, 45, 45);
   font-weight: bold;
+  flex-wrap: wrap;
+  visibility: hidden;
   
 }

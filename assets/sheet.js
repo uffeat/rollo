@@ -265,8 +265,9 @@ const { camelToKebab: p } = await use("@/tools/case.js"), { WebComponent: R } = 
   apply(o, e, r) {
     return r = r.map((s) => s === "!" ? "!important" : s), r.join(" ");
   }
-});
+}), x = (o) => `[uid="${o.uid}"]`;
 export {
   d as Sheet,
-  b as css
+  b as css,
+  x as scope
 };

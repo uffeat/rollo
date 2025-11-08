@@ -49,20 +49,44 @@ export class Reactive {
 
       add(effect, ...args) {
         /* Parse args */
-        const condition = args.find((a) => typeof a === "function");
-        const options = args.find((a) => typeName(a) === "Object") || {};
-        const { once, run = true } = options;
+
+        
+
+
+
+        const condition = (() => {
+          const condition = args.find((a) => typeof a === "function");
+          if (condition) {
+            return condition
+          }
+          const keys = args.find((a) => Array.isArray(a))
+          if (keys) {
+            return (change) => {
+              for (const key of keys) {
+                if (key in change) {
+                  return true
+                }
+              }
+              return false
+
+            }
+          }
+
+        })();
+       
+        const { data = {}, once, run = true } = (args.find((a, i) => !i && typeName(a) === "Object") || {});
+       
         /* Create detail. 
         NOTE detail is kept mutable to enable dynamic reactive patterns. */
         const detail = (() => {
-          const result = { detail: {} };
+          const detail = { data: {...data} };
           if (condition) {
-            result.condition = condition;
+            detail.condition = condition;
           }
           if (once) {
-            result.once = once;
+            detail.once = once;
           }
-          return result;
+          return detail;
         })();
         /* Register */
         this.#_.registry.set(effect, detail);
@@ -94,7 +118,7 @@ export class Reactive {
     })(this, this.#_.registry);
     /* Parse args */
     const updates = {
-      ...(args.find((a, i) => !i && typeName(a) !== "Object") || {}),
+      ...(args.find((a, i) => !i && typeName(a) === "Object") || {}),
     };
     const options = args.find((a, i) => i && typeName(a) === "Object") || {};
     const { config = {}, detail = {}, name, owner } = options;
@@ -120,7 +144,7 @@ export class Reactive {
   }
 
   get current() {
-    return Object.freeze(this.#_.current);
+    return Object.freeze({...this.#_.current});
   }
 
   set current(current) {
@@ -144,7 +168,7 @@ export class Reactive {
   }
 
   get previous() {
-    return Object.freeze(this.#_.previous);
+    return Object.freeze({...this.#_.previous});
   }
 
   get size() {
@@ -164,8 +188,8 @@ export class Reactive {
     return Object.entries(this.#_.current);
   }
 
-  /*
-  NOTE Not core to reactive features, but useful extra, especially for testing. */
+  /* Tests if other contains the same non-undefined items as current.
+  NOTE Does not participate in reactivity, but useful extra, especially for testing. */
   match(other) {
     if (other instanceof Reactive) {
       other = other.current;

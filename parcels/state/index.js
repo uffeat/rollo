@@ -3,3 +3,6 @@ export { reactive } from "./src/reactive/proxy.js";
 export { Ref } from "./src/ref/ref.js";
 export { RefComponent } from "./src/ref/component.js";
 export { ref } from "./src/ref/proxy.js";
+
+import refMixin from "./src/ref/mixin.js";
+export { refMixin };
