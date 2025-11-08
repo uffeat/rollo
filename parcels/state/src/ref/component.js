@@ -22,7 +22,8 @@ export const RefComponent = author(
     mixins.send,
     mixins.style,
     mixins.text,
-    mixins.vars
+    mixins.uid,
+    mixins.vars,
   ) {
     #_ = {};
     constructor() {
@@ -34,7 +35,7 @@ export const RefComponent = author(
           this.attribute.current = current;
           this.attribute.previous = this.previous;
           this.attribute.session = this.session;
-          this.attribute.effects = message.owner.effects.size;
+        
           this.send("change", { detail: { current, message } });
         },
         { run: false }
@@ -45,16 +46,13 @@ export const RefComponent = author(
       super.__init__?.(...args);
     }
 
-    get config() {
-      return this.#_.ref.config;
-    }
+   
 
     get current() {
       return this.#_.ref.current;
     }
 
     set current(current) {
-      //console.log('current setter got:', current)////
       this.#_.ref.update(current);
     }
 
@@ -67,7 +65,7 @@ export const RefComponent = author(
     }
 
     set name(name) {
-      Exception.if(this.attribute.name !== null, `Cannot change 'name'.`);
+      
       this.attribute.name = name;
     }
 
@@ -76,12 +74,19 @@ export const RefComponent = author(
     }
 
     set owner(owner) {
-      Exception.if(this.#_.owner !== undefined, `Cannot change 'owner'.`);
+      if (owner) {
+        this.attribute.owner = owner.uid ? owner.uid : true;
+      }
+      
       this.#_.owner = owner;
     }
 
     get previous() {
       return this.#_.ref.previous;
+    }
+
+    get ref() {
+      return this.#_.ref;
     }
 
     get session() {
