@@ -30,11 +30,6 @@ export class Path {
     return this.#_.file;
   }
 
-  /* Returns full path (incl. source). */
-  get full() {
-    return this.#_.full;
-  }
-
   /* Returns array of dir/file parts (source excluded). */
   get parts() {
     return this.#_.parts;
@@ -52,7 +47,7 @@ export class Path {
 
   /* Returns source name. */
   get source() {
-    return this.#_.source || "/";
+    return this.#_.source  || '/';
   }
 
   /* Returns specifier (subject to reconstruction). */
@@ -133,8 +128,6 @@ export class Path {
         });
       Object.freeze(this.#_.parts);
       this.#_.path = `/${this.#_.parts.join("/")}`;
-      /* full */
-      this.#_.full = `${this.#_.source || ""}${this.#_.path}`;
     }
 
     return this;

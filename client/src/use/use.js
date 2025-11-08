@@ -1,7 +1,6 @@
 /* Import engine.
 
 TODO
-- 'assets' source. Import by glob - do in other module so that this module can be consumed outside Vite
 - Synthetic types, e.g., .component.html
 */
 
@@ -122,7 +121,7 @@ const assets = new (class Assets {
   /* Injects asset. 
   NOTE Useful for
   - manually making objects use-importable (do this only sparringly)
-  - "overloading" asset when testing parcels. */
+  - overloading asset when testing parcels. */
   add(key, value) {
     if (typeof key === "string") {
       this.#_.added.set(key, value);
@@ -132,11 +131,10 @@ const assets = new (class Assets {
         this.#_.added.set(k, v);
       }
     }
-
     return this;
   }
 
-  /* Returns asset */
+  /* Returns asset. */
   async get(path, ...args) {
     const options = { ...(args.find((a) => typeName(a) === "Object") || {}) };
     args = args.filter((a) => typeName(a) !== "Object");
@@ -237,7 +235,8 @@ assets.sources.add(
         return await promise;
       }
       /* Asset text import */
-      if (cache.has(path.path)) return cache.get(path.path);
+      const key = path.full;
+      if (cache.has(key)) return cache.get(key);
       const result = (
         await (
           await fetch(`${owner.meta.base}${path.path}`, { cache: "no-store" })
@@ -255,55 +254,94 @@ assets.sources.add(
         temp.querySelector(`meta[index]`),
         `Invalid path: ${path.path}`
       );
-      cache.set(path.path, result);
+      cache.set(key, result);
       return result;
     };
   })()
 );
 
 /* Add asset sheet as source 
-NOTE No strong case for providing the option to add sheet via link, 
+NOTE No strong case for providing option to add sheet via link, 
 since global main sheet is created by build tools. */
 assets.sources.add(
   "@",
   (() => {
     const cache = new Map();
     const link = document.head.querySelector(`link[assets]`);
-    ////console.log('link:', link)////
     return async ({ options, owner, path }, ...args) => {
-      if (cache.has(path.path)) return cache.get(path.path);
-      ////console.log('path.path:', path.path)////
+      const key = path.full;
+      if (cache.has(key)) return cache.get(key);
       link.setAttribute("__path__", path.path);
       const propertyValue = getComputedStyle(link)
         .getPropertyValue("--__asset__")
         .trim();
       link.removeAttribute("__path__");
       ////console.log('propertyValue:', propertyValue)////
-      Exception.if(!propertyValue, `Invalid path: ${"@" + path.path}`);
+      Exception.if(!propertyValue, `Invalid path: ${key}`);
       const result = atob(propertyValue.slice(1, -1));
-      cache.set(path.path, result);
+      cache.set(key, result);
       return result;
     };
   })()
 );
 
+/* Add assets as source.
+NOTE Only if run in Vite environment so that module can be imported in
+external non-Vite code (albeit without assets import of course). */
+if (import.meta.glob) {
+  const START = "../assets".length;
+  
+  const loaders = Object.freeze(
+    Object.fromEntries(
+      Object.entries({
+        ...import.meta.glob("../assets/**/*.css", {
+          import: "default",
+          query: "?raw",
+        }),
+        ...import.meta.glob("../assets/**/*.html", {
+          import: "default",
+          query: "?raw",
+        }),
+        ...import.meta.glob("../assets/**/*.js"),
+        ...import.meta.glob("../assets/**/*.json", {
+          import: "default",
+          query: "?raw",
+        }),
+        ...import.meta.glob("../assets/**/*.jsx"),
+      }).map(([k, v]) => [k.slice(START), v])
+    )
+  );
+
+  assets.sources.add("@@", async ({ options, owner, path }, ...args) => {
+    Exception.if(!(path.path in loaders), `Invalid path:${path.full}`);
+    if (path.type === "js") {
+      /* Escape transformation and processing */
+      Object.assign(path.detail, { transform: false, process: false });
+    }
+    const load = loaders[path.path];
+    const result = await load();
+    return result;
+  });
+}
+
 /* Add css type handler to transform CSS text to Sheet instance and css 
 processor to use Sheet instance. */
-assets.types.add(
-  "css",
-  (() => {
-    const cache = new Map();
-    return async (text, { options, owner, path }, ...args) => {
-      const { Sheet } = await owner.get("@/sheet.js");
-      if (cache.has(path.path)) return cache.get(path.path);
-      const result = Sheet.create(text, path.path);
-      cache.set(path.path, result);
-      return result;
-    };
-  })()
-).processors.add(
-  "css",
-  async (result, { options, owner, path }, ...args) => {
+assets.types
+  .add(
+    "css",
+    (() => {
+      const cache = new Map();
+      return async (text, { options, owner, path }, ...args) => {
+        const { Sheet } = await owner.get("@/sheet.js");
+        const key = path.full;
+        if (cache.has(key)) return cache.get(key);
+        const result = Sheet.create(text, key);
+        cache.set(key, result);
+        return result;
+      };
+    })()
+  )
+  .processors.add("css", async (result, { options, owner, path }, ...args) => {
     Exception.if(
       typeName(result) !== "CSSStyleSheet",
       `Result is not a CSSStyleSheet`,
@@ -313,14 +351,13 @@ assets.types.add(
       (a) =>
         typeName(a) === "HTMLDocument" ||
         a instanceof ShadowRoot ||
-        a.shadowRoot
+        a.shadowRoot 
     );
     if (targets.length) {
       /* NOTE sheet.use() adopts to document, therefore check targets' length */
       result.use(...targets);
     }
-  }
-);
+  });
 
 /* Add js type handler to transform JS text to module or to execute iife. */
 assets.types.add(
@@ -330,7 +367,7 @@ assets.types.add(
     return async (text, { options, owner, path }, ...args) => {
       let result;
       const { as = "module" } = options;
-      const key = as === "module" ? path.path : `${path.path}?${as}`;
+      const key = as === "module" ? path.full : `${path.full}?${as}`;
       if (cache.has(key)) return cache.get(key);
       if (as === "module") {
         result = await Module.create(text, path.path);
@@ -354,8 +391,6 @@ NOTE Does not cache to avoid mutation issues. */
 assets.types.add("json", (result, { options, owner, path }, ...args) => {
   return JSON.parse(result);
 });
-
-
 
 function typeName(value) {
   return Object.prototype.toString.call(value).slice(8, -1);

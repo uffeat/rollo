@@ -7,8 +7,8 @@ NOTE
 - Test scripts can access
   - unbuilt parcels
   - built parcels
-
-
+  - public assets
+  - assets
 */
 
 import "../src/use/use.js";
