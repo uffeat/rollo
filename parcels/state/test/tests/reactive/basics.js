@@ -76,7 +76,7 @@ export default async ({ Reactive }) => {
     );
 
     inputComponent.on.change = (event) =>
-      state.update({
+      state.$({
         text: event.target.value,
       });
   })();
@@ -86,7 +86,11 @@ export default async ({ Reactive }) => {
     const button = component.button("btn.btn-primary", {
       parent: group,
       text: "Bump score",
-      "@click": (event) => state.update({ score: state.current.score + 1 }),
+      "@click": (event) => {
+        //state.update({ score: state.current.score + 1 });
+        //state.$.score += 1;
+        ++state.$.score;
+      },
     });
     /* NOTE `readOnly: true` allows focus, tab, showing of title, etc.;
     the stronger `inert: true`/`disabled: true` do not. */
@@ -95,14 +99,14 @@ export default async ({ Reactive }) => {
       readOnly: true,
       type: "number",
       placeholder: "score",
-      title: 'Value of score'
+      title: "Value of score",
     });
     const count = component.input("form-control", {
       parent: group,
       readOnly: true,
       type: "number",
       placeholder: "count",
-      title: 'Effect run count'
+      title: "Effect run count",
     });
 
     state.effects.add(
@@ -116,4 +120,6 @@ export default async ({ Reactive }) => {
   })();
 
   console.log("state.current:", state.current);
+  console.log("score:", state.$.score);
+  state.$.score = 43;
 };

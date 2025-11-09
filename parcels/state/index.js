@@ -4,5 +4,8 @@ export { Ref } from "./src/ref/ref.js";
 export { RefComponent } from "./src/ref/component.js";
 export { ref } from "./src/ref/proxy.js";
 
+import stateMixin from "./src/reactive/mixin.js";
+export { stateMixin };
+
 import refMixin from "./src/ref/mixin.js";
 export { refMixin };

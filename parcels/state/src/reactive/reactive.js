@@ -15,6 +15,27 @@ export class Reactive {
   };
 
   constructor(...args) {
+    const reactive = this;
+    /* Compose $ */
+    this.#_.$ = new Proxy(() => {}, {
+      get(target, key) {
+        return reactive.#_.current[key];
+      },
+      set(target, key, value) {
+        reactive.update({ [key]: value });
+        return true;
+      },
+      apply(target, thisArg, args) {
+        return reactive.update(...args);
+      },
+      deleteProperty(target, key) {
+        reactive.update({ [key]: undefined });
+      },
+      has(target, key) {
+        return key in reactive.#_.current;
+      },
+    });
+
     /* Compose config */
     this.#_.config = new (class Config {
       #_ = {
@@ -49,7 +70,6 @@ export class Reactive {
 
       add(effect, ...args) {
         /* Parse args */
-
         const condition = (() => {
           const condition = args.find((a) => typeof a === "function");
           if (condition) {
@@ -133,6 +153,10 @@ export class Reactive {
     }
   }
 
+  get $() {
+    return this.#_.$;
+  }
+
   get config() {
     return this.#_.config;
   }
@@ -146,6 +170,7 @@ export class Reactive {
   }
 
   set current(current) {
+    this.clear();
     this.update(current);
   }
 
