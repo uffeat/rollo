@@ -15,10 +15,11 @@ export default (parent) => {
       
       this.#_.state.effects.add(
         (change, message) => {
-          /* state -> component natives */
+          /* Update component natives from state */
           this.update(change);
-
-          const attributeUpdates = Object.fromEntries(
+          /* Update component attributes from state items that do not 
+          correspond to component natives */
+          const updates = Object.fromEntries(
             Object.entries(change).filter(([k, v]) => {
               return (
                 !(k in this && !k.startsWith("_")) &&
@@ -30,7 +31,7 @@ export default (parent) => {
               );
             }).map(([k, v]) => [`state-${k}`, v])
           );
-          this.attributes.update(attributeUpdates)
+          this.attributes.update(updates)
         },
         { run: false }
       );
@@ -71,7 +72,7 @@ export default (parent) => {
 
     update(updates = {}) {
       super.update?.(updates);
-
+      /* Reactively update component natives prefixed with '$' */
       this.$(
         Object.fromEntries(
           Object.entries(updates)
@@ -79,7 +80,6 @@ export default (parent) => {
             .map(([k, v]) => [k.slice(START), v])
         )
       );
-
       return this;
     }
   };

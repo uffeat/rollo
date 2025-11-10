@@ -1,6 +1,6 @@
 import { Message } from "../tools/message.js";
 
-const { typeName } = await use("@/tools/types.js");
+const { typeName, is } = await use("@/tools/types.js");
 
 export class Ref {
   static create = (...args) => new Ref(...args);
@@ -77,17 +77,19 @@ export class Ref {
     const current = args.find((a, i) => !i && typeName(a) !== "Object");
     const options = args.find((a) => typeName(a) === "Object") || {};
     const { detail = {}, match = function(other) {return this.current === other}, name, owner } = options;
-    const effects = args.filter((a, i) => i && typeof a === "function");
-    /* Apply arguments */
+    const effects = args.filter((a) => is.arrow(a));
+    const hooks = args.filter((a) => !is.arrow(a) && typeof a === "function");
+    /* Use arguments */
     this.match = match;
     this.#_.name = name;
     this.#_.owner = owner;
-
-    Object.assign(this.detail, detail);
-   
+    Object.assign(this.detail, { ...detail });
     this.update(current);
     for (const effect of effects) {
       this.effects.add(effect);
+    }
+    for (const hook of hooks) {
+      hook.call(this);
     }
   }
 

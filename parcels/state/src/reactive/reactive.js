@@ -1,7 +1,15 @@
 import { Message } from "../tools/message.js";
+import { Ref } from "../ref/ref.js";
 
-const { typeName } = await use("@/tools/types.js");
+const { typeName, is } = await use("@/tools/types.js");
 
+/* Reactive ADT for flat key-value collections.
+NOTE
+- Reactivity is implmented via effect functions with options for 
+  immediate/conditional invokation.
+- Supports dynamic reactivity patterns.
+- Object/Map hybrid API.
+*/
 export class Reactive {
   static create = (...args) => new Reactive(...args);
 
@@ -19,9 +27,17 @@ export class Reactive {
     /* Compose $ */
     this.#_.$ = new Proxy(() => {}, {
       get(target, key) {
-         if (key === '_') {
-        return reactive
-      }
+        /* Provide escape hatch for access to any reactive member;
+        useful for props. */
+        if (key === "_") {
+          return reactive;
+        }
+        /* Enable call of reactive methods directly on proxy */
+        if (typeof reactive[key] === "function") {
+          return (...args) => reactive[key](...args);
+          /* Alternatively: */
+          return reactive[key].bind(reactive);
+        }
         return reactive.#_.current[key];
       },
       set(target, key, value) {
@@ -38,6 +54,30 @@ export class Reactive {
         return key in reactive.#_.current;
       },
     });
+
+    /* Compose computed */
+    this.#_.computed = new (class Computed {
+      #_ = {
+        registry: new Map(),
+      };
+
+      add(reducer, { once = false, run = false } = {}) {
+        const ref = Ref.create({ name, owner: reactive });
+
+        const effect = (change, message) => {
+          ref.update(reducer(change, message));
+        };
+
+        reactive.effects.add(effect, { once, run });
+
+        this.#_.registry.set(ref, {});
+
+        return ref;
+      }
+
+      /* TODO
+      - remove, size, etc. */
+    })();
 
     /* Compose config */
     this.#_.config = new (class Config {
@@ -99,7 +139,7 @@ export class Reactive {
           data = {},
           once,
           run = true,
-        } = args.find((a, i) => !i && typeName(a) === "Object") || {};
+        } = args.find((a) => typeName(a) === "Object") || {};
 
         /* Create detail. 
         NOTE detail is kept mutable to enable dynamic reactive patterns. */
@@ -148,8 +188,11 @@ export class Reactive {
     const options = args.find((a, i) => i && typeName(a) === "Object") || {};
     const { config = {}, detail = {}, name, owner } = options;
     const { match } = config;
-    const effects = args.filter((a, i) => i && typeof a === "function");
-    /* Apply arguments */
+
+    const effects = args.filter((a) => is.arrow(a));
+    const hooks = args.filter((a) => !is.arrow(a) && typeof a === "function");
+
+    /* Use arguments */
     this.#_.owner = owner;
     this.#_.name = name;
     Object.assign(this.detail, { ...detail });
@@ -158,10 +201,21 @@ export class Reactive {
     for (const effect of effects) {
       this.effects.add(effect);
     }
+    /* NOTE Effects registered at construction must be arrow functions and 
+    are registered with default options and without condition. For more 
+    fine-grained control, register via hooks (or after construction). */
+    for (const hook of hooks) {
+      hook.call(this);
+    }
   }
 
+  /* Alternative API with leaner syntax */
   get $() {
     return this.#_.$;
+  }
+
+  get computed() {
+    return this.#_.computed;
   }
 
   get config() {
@@ -226,12 +280,22 @@ export class Reactive {
   }
 
   filter(predicate, silent = false) {
-    const updates = this.entries().filter(predicate);
+    const updates = {};
+    for (const [k, v] of this.entries()) {
+      if (!predicate([k, v])) {
+        updates[k] = undefined;
+      }
+    }
     return this.update(updates, { silent });
   }
 
+  forEach(action) {
+    this.entries().forEach(action);
+    return this;
+  }
+
   has(key) {
-    return (key in this.#_.current)
+    return key in this.#_.current;
   }
 
   map(transformer, silent = false) {
