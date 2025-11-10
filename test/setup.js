@@ -7,10 +7,14 @@ export const setup = ({ base } = {}) => {
     use.meta.base = base;
   }
 
-  return async ({ prefix = "./tests/", report, tests }, tools) => {
+  return async ({ prefix = "./tests/", report, tests }, tools = {}) => {
     const Module = await use("Module");
     const { Sheet } = await use("@/sheet.js");
     const { component } = await use("@/component.js");
+
+    
+
+
 
     window.addEventListener("keydown", async (event) => {
       /* Unit tests */

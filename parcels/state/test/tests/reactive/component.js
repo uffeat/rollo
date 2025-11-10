@@ -1,10 +1,8 @@
 /*
-state/reactive/component.js
+reactive/component.js
 */
 
-import { ReactiveComponent } from "../../../../../parcels/state/index.js";
-
-import { RefComponent } from "../../../../../parcels/state/index.js";////
+import { ReactiveComponent } from "../../../src/reactive/component.js";
 
 const { layout } = await use("@//layout.js");
 
