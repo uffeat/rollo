@@ -26,7 +26,7 @@ class build(Files, Minify):
     def __init__(self):
         """Reads config."""
         config = get_config()
-        self.origins = MappingProxyType(config["origins"])
+        self.server = MappingProxyType(config["server"])
         # Extract globals -> Explicitly declared global sheet paths
         self.globals: tuple[str] = tuple(config.get("globals", []))
         # Extract priorities -> Order for global sheet composition
@@ -109,7 +109,7 @@ class build(Files, Minify):
                 continue
 
         # Meta
-        meta = dict(origins=dict(self.origins))
+        meta = dict(origins=dict(self.server))
         rules.append(self.create_asset_rule("/__meta__.json", encode(json.dumps(meta))))
         self.write(
             "client/public/meta/paths.json",

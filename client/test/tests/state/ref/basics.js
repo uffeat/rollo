@@ -1,12 +1,14 @@
 /*
-ref/basics.js
+state/ref/basics.js
 */
+import { Ref, ref } from "../../../../../parcels/state/index.js";
+
 const { component } = await use("@/component.js");
 const { layout } = await use("@//layout.js");
 
 const STYLE = "color: green; font: bold 1em 'JetBrains Mono';";
 
-export default async ({ Ref, ref }) => {
+export default async () => {
   const state = ref(42, (current, message) => {
     console.groupCollapsed("Inside effect");
 

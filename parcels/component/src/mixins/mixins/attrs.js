@@ -135,7 +135,7 @@ export default (parent, config) => {
     attributeChangedCallback(name, previous, current) {
       super.attributeChangedCallback?.(name, previous, current);
       this.dispatchEvent(
-        new CustomEvent("_attribute", { detail: { name, previous, current } })
+        new CustomEvent("_attribute", { detail: Object.freeze({ name, previous, current }) })
       );
     }
 

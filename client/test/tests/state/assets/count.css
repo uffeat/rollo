@@ -1,0 +1,10 @@
+ref-component {
+  font-weight: 700 !important;
+  margin: 1rem;
+  margin-left: auto;
+}
+
+ref-component::after {
+  content: attr(current);
+  font-weight: initial !important;
+}

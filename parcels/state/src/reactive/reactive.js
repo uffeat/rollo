@@ -19,6 +19,9 @@ export class Reactive {
     /* Compose $ */
     this.#_.$ = new Proxy(() => {}, {
       get(target, key) {
+         if (key === '_') {
+        return reactive
+      }
         return reactive.#_.current[key];
       },
       set(target, key, value) {
@@ -62,6 +65,10 @@ export class Reactive {
       constructor(owner, registry) {
         this.#_.owner = owner;
         this.#_.registry = registry;
+      }
+
+      get owner() {
+        return this.#_.owner;
       }
 
       get size() {
@@ -145,7 +152,7 @@ export class Reactive {
     /* Apply arguments */
     this.#_.owner = owner;
     this.#_.name = name;
-    Object.assign(this.detail, detail);
+    Object.assign(this.detail, { ...detail });
     this.config.match = match;
     this.update(updates);
     for (const effect of effects) {
@@ -207,8 +214,29 @@ export class Reactive {
     return this.update(updates, { silent });
   }
 
+  copy() {
+    return Reactive.create(
+      { ...this.#_.current },
+      { config: { match: this.config.match }, detail: { ...this.detail } }
+    );
+  }
+
   entries() {
     return Object.entries(this.#_.current);
+  }
+
+  filter(predicate, silent = false) {
+    const updates = this.entries().filter(predicate);
+    return this.update(updates, { silent });
+  }
+
+  has(key) {
+    return (key in this.#_.current)
+  }
+
+  map(transformer, silent = false) {
+    const updates = this.entries().map(transformer);
+    return this.update(updates, { silent });
   }
 
   /* Tests if other contains the same non-undefined items as current.
@@ -218,7 +246,7 @@ export class Reactive {
       other = other.current;
     } else {
       if (typeName(other) === "Object") {
-        /* Remove items with undefined values */
+        /* Remove items with undefined values (ignored by convention) */
         other = Object.fromEntries(
           Object.entries(other).filter(([k, v]) => v !== undefined)
         );
@@ -254,7 +282,7 @@ export class Reactive {
     } else {
       updates = { ...updates };
     }
-    if (detail) Object.assign(this.detail, detail);
+    if (detail) Object.assign(this.detail, { ...detail });
     /* Infer change and update stores */
     const change = {};
     for (const [key, value] of Object.entries(updates)) {

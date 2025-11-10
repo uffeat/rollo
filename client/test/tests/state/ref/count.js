@@ -1,13 +1,20 @@
 /*
-ref/count.js
+state/ref/count.js
 */
+
+//import sheetText from '../assets/count.css?raw'
+//const sheetText = (await import('../assets/count.css?raw')).default
+//console.log(sheetText)
+
+
+import { RefComponent, refMixin, ref } from "../../../../../parcels/state/index.js";
 
 const { component } = await use("@/component.js");
 const { layout } = await use("@//layout.js");
 const { Sheet, css, scope } = await use("@/sheet.js");
 const sheet = Sheet.create();
 
-export default async ({ RefComponent, refMixin, ref }) => {
+export default async () => {
   layout.clear(":not([slot])");
 
   sheet.rules.clear();

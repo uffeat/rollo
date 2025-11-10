@@ -12,17 +12,30 @@ export default (parent) => {
     constructor() {
       super();
       this.#_.state = Reactive.create({ owner: this });
+      
       this.#_.state.effects.add(
         (change, message) => {
-          
+          /* state -> component natives */
           this.update(change);
 
-          
-
-          //this.send("_state", { detail: Object.freeze({ change, message }) });
+          const attributeUpdates = Object.fromEntries(
+            Object.entries(change).filter(([k, v]) => {
+              return (
+                !(k in this && !k.startsWith("_")) &&
+                !(k in this.style) &&
+                !k.startsWith("[") &&
+                !k.startsWith(".") &&
+                !k.startsWith("__") &&
+                !k.startsWith("@")
+              );
+            }).map(([k, v]) => [`state-${k}`, v])
+          );
+          this.attributes.update(attributeUpdates)
         },
         { run: false }
       );
+
+      
     }
 
     get $() {
@@ -54,6 +67,20 @@ export default (parent) => {
 
     get state() {
       return this.#_.state;
+    }
+
+    update(updates = {}) {
+      super.update?.(updates);
+
+      this.$(
+        Object.fromEntries(
+          Object.entries(updates)
+            .filter(([k, v]) => k.startsWith($))
+            .map(([k, v]) => [k.slice(START), v])
+        )
+      );
+
+      return this;
     }
   };
 };

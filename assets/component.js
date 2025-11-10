@@ -27,7 +27,7 @@ class b {
     return this.#t.updates === void 0 && (this.#t.updates = this.#t.args.find((n, t) => g(n) === "Object") || {}), this.#t.updates;
   }
 }
-const l = (r) => (...n) => {
+const a = (r) => (...n) => {
   n = new b(n);
   const t = typeof r == "function" ? new r(n) : r;
   if (t.constructor.__new__?.call(t, n), t.__new__?.(n), t.classes && t.classes.add(n.classes), t.update?.(n.updates), n.text && t.insertAdjacentText("afterbegin", n.text), t.append?.(...n.children), t.__init__?.(n), t.constructor.__init__?.call(t, n), n.hooks) {
@@ -55,7 +55,7 @@ const l = (r) => (...n) => {
   prepend(...t) {
     return super.prepend(...t), this;
   }
-}, { camelToKebab: a } = await use("@/tools/case.js"), x = (r, n) => class extends r {
+}, { camelToKebab: l } = await use("@/tools/case.js"), x = (r, n) => class extends r {
   static __name__ = "attrs";
   #t = {};
   constructor() {
@@ -82,14 +82,14 @@ const l = (r) => (...n) => {
       }
       /* Returns attribute value. */
       get(i) {
-        if (i = a(i), !t.hasAttribute(i))
+        if (i = l(i), !t.hasAttribute(i))
           return null;
         const o = t.getAttribute(i);
         return this.#e(o);
       }
       /* Checks, if attribute set. */
       has(i) {
-        return i = a(i), t.hasAttribute(i);
+        return i = l(i), t.hasAttribute(i);
       }
       /* Returns attribute keys (names). */
       keys() {
@@ -97,7 +97,7 @@ const l = (r) => (...n) => {
       }
       /* Sets one or more attribute values. Chainable with respect to component. */
       set(i, o) {
-        if (i = a(i), o === void 0 || o === "...")
+        if (i = l(i), o === void 0 || o === "...")
           return t;
         const c = this.#e(t.getAttribute(i));
         return o === c || ([!1, null].includes(o) ? t.removeAttribute(i) : o === !0 || !["number", "string"].includes(typeof o) ? t.setAttribute(i, "") : t.setAttribute(i, o), t.dispatchEvent(
@@ -135,7 +135,7 @@ const l = (r) => (...n) => {
   }
   attributeChangedCallback(t, e, s) {
     super.attributeChangedCallback?.(t, e, s), this.dispatchEvent(
-      new CustomEvent("_attribute", { detail: { name: t, previous: e, current: s } })
+      new CustomEvent("_attribute", { detail: Object.freeze({ name: t, previous: e, current: s }) })
     );
   }
   /* Provides access to single attribute without use of strings. */
@@ -280,7 +280,7 @@ const l = (r) => (...n) => {
     t ? this.setAttribute("for", t) : this.removeAttribute("for");
   }
 };
-class L {
+class O {
   #t = {};
   constructor(n) {
     this.#t.owner = n, this.#t.on = new Proxy(this, {
@@ -309,11 +309,11 @@ class L {
     }), this.#t.owner;
   }
 }
-const C = (r, n) => class extends r {
+const L = (r, n) => class extends r {
   static __name__ = "handlers";
   #t = {};
   constructor() {
-    super(), this.#t.handlers = new L(this);
+    super(), this.#t.handlers = new O(this);
   }
   /* Returns controller for managing event handlers. */
   get handlers() {
@@ -324,7 +324,7 @@ const C = (r, n) => class extends r {
     return this.#t.handlers.on;
   }
   addEventListener(t, e, s) {
-    return super.addEventListener(t, e, s), O(e) ? e : this;
+    return super.addEventListener(t, e, s), C(e) ? e : this;
   }
   removeEventListener(t, e, ...s) {
     return super.removeEventListener(t, e, ...s), this;
@@ -338,7 +338,7 @@ const C = (r, n) => class extends r {
     ), this;
   }
 };
-function O(r) {
+function C(r) {
   return r.toString().includes("=>");
 }
 class k {
@@ -383,7 +383,7 @@ const P = (r, n, ...t) => class extends r {
   get insert() {
     return this.#t.insert;
   }
-}, T = (r, n) => class extends r {
+}, W = (r, n) => class extends r {
   static __name__ = "novalidation";
   /* Returns 'novalidation' attribute. */
   get novalidation() {
@@ -393,7 +393,7 @@ const P = (r, n, ...t) => class extends r {
   set novalidation(t) {
     t ? this.setAttribute("novalidation", "") : this.removeAttribute("novalidation");
   }
-}, W = (r, n) => class extends r {
+}, T = (r, n) => class extends r {
   static __name__ = "parent";
   #t = {};
   /* Returns parent. */
@@ -425,7 +425,7 @@ const P = (r, n, ...t) => class extends r {
       e.startsWith("__") || !(e in this) && !e.startsWith("_") || s === void 0 || s === "..." || this[e] !== s && (this[e] = s);
     return this;
   }
-}, H = (r, n) => class extends r {
+}, M = (r, n) => class extends r {
   static __name__ = "send";
   /* Dispatches event with additional options and a leaner syntax. */
   send(t, { detail: e, trickle: s, ...i } = {}) {
@@ -437,7 +437,7 @@ const P = (r, n, ...t) => class extends r {
     }
     return o;
   }
-}, M = (r, n) => class extends r {
+}, H = (r, n) => class extends r {
   static __name__ = "style";
   /* Updates style props. Chainable. */
   update(t = {}) {
@@ -477,7 +477,7 @@ const P = (r, n, ...t) => class extends r {
   set tab(t) {
     [!1, null].includes(t) ? this.removeAttribute("tabindex") : this.setAttribute("tabindex", t);
   }
-}, N = (r, n) => class extends r {
+}, z = (r, n) => class extends r {
   static __name__ = "text";
   /* Returns text content. */
   get text() {
@@ -488,11 +488,11 @@ const P = (r, n, ...t) => class extends r {
     this.textContent = t;
   }
 };
-let z = 0;
+let N = 0;
 const V = (r, n) => class extends r {
   static __name__ = "uid";
   constructor() {
-    super(), this.setAttribute("uid", `uid${z++}`);
+    super(), this.setAttribute("uid", `uid${N++}`);
   }
   /* Returns uid. */
   get uid() {
@@ -550,22 +550,29 @@ const V = (r, n) => class extends r {
         "./mixins/detail.js": w,
         "./mixins/find.js": E,
         "./mixins/for_.js": A,
-        "./mixins/handlers.js": C,
+        "./mixins/handlers.js": L,
         "./mixins/insert.js": P,
-        "./mixins/novalidation.js": T,
-        "./mixins/parent.js": W,
+        "./mixins/novalidation.js": W,
+        "./mixins/parent.js": T,
         "./mixins/props.js": $,
-        "./mixins/send.js": H,
-        "./mixins/style.js": M,
+        "./mixins/send.js": M,
+        "./mixins/style.js": H,
         "./mixins/super_.js": S,
         "./mixins/tab.js": q,
-        "./mixins/text.js": N,
+        "./mixins/text.js": z,
         "./mixins/uid.js": V,
         "./mixins/vars.js": D
       })
     ).map(([r, n]) => [r.slice(F, I), n])
   )
-), _ = new class {
+), B = (...r) => {
+  const n = r.filter(
+    (i) => typeof i == "string" && !i.startsWith("!")
+  ), t = r.filter((i) => typeof i == "string" && i.startsWith("!")).map((i) => i.slice(1)), e = r.filter((i) => typeof i == "function");
+  t.push("for_", "novalidation");
+  const s = Object.entries(u).filter(([i, o]) => n.includes(i) ? !0 : !t.includes(i)).map(([i, o]) => o);
+  return s.push(...e), s;
+}, _ = new class {
   #t = {
     registry: /* @__PURE__ */ new Map()
   };
@@ -612,28 +619,29 @@ const V = (r, n) => class extends r {
   );
 }, h = (r) => {
   const n = K(r), t = new n();
-  return l(t);
-}, B = (r, ...n) => {
+  return a(t);
+}, G = (r, ...n) => {
   const [t, ...e] = r.split("."), s = h(t);
   return e.length ? s(`${e.join(".")}`, ...n) : s(...n);
-}, G = new Proxy(
+}, J = new Proxy(
   {},
   {
     get(r, n) {
       return h(n);
     }
   }
-), J = (r, n, t) => l(_.add(r, n, t)), R = Object.entries(u).filter(([r, n]) => !["for_", "novalidation"].includes(r)).map(([r, n]) => n), d = class extends f(HTMLElement, {}, ...R) {
+), Q = (r, n, t) => a(_.add(r, n, t)), R = Object.entries(u).filter(([r, n]) => !["for_", "novalidation"].includes(r)).map(([r, n]) => n), d = class extends f(HTMLElement, {}, ...R) {
 };
 _.has("x-component") || _.add(d, "x-component");
-const Q = l(d);
+const X = a(d);
 export {
-  B as Component,
+  G as Component,
   h as Factory,
-  Q as WebComponent,
-  J as author,
-  G as component,
-  l as factory,
+  B as Mixins,
+  X as WebComponent,
+  Q as author,
+  J as component,
+  a as factory,
   f as mix,
   u as mixins,
   _ as registry

@@ -1,12 +1,14 @@
 /*
-reactive/basics.js
+state/reactive/basics.js
 */
+import { Reactive } from "../../../../../parcels/state/index.js";
+
 const { component } = await use("@/component.js");
 const { layout } = await use("@//layout.js");
 const { Sheet, css, scope } = await use("@/sheet.js");
 const sheet = Sheet.create();
 
-export default async ({ Reactive }) => {
+export default async () => {
   layout.clear(":not([slot])");
   sheet.rules.clear();
 
@@ -93,7 +95,7 @@ export default async ({ Reactive }) => {
       },
     });
     /* NOTE `readOnly: true` allows focus, tab, showing of title, etc.;
-    the stronger `inert: true`/`disabled: true` do not. */
+    the stronger `inert: true` and `disabled: true` do not. */
     const score = component.input("form-control", {
       parent: group,
       readOnly: true,
@@ -118,6 +120,10 @@ export default async ({ Reactive }) => {
       ["score"]
     );
   })();
+
+  state.$._foo = 'FOO';
+
+
 
   console.log("state.current:", state.current);
   console.log("score:", state.$.score);

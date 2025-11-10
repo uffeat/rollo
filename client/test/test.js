@@ -26,5 +26,5 @@ await setup()(
     },
     report: async ({ path, result, test }) => {},
   },
-  {  }
+  {}
 );

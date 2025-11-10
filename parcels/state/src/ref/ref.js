@@ -21,6 +21,10 @@ export class Ref {
         this.#_.registry = registry;
       }
 
+      get owner() {
+        return this.#_.owner;
+      }
+
       get size() {
         return this.#_.registry.size;
       }

@@ -1,26 +1,19 @@
 /*
-reactive/mixin.js
+state/reactive/mixin.js
 */
+import { stateMixin } from "../../../../../parcels/state/index.js";
 
-const { component } = await use("@/component.js");
+const { Mixins, author, component, factory, mix, mixins, registry } = await use(
+  "@/component.js"
+);
 const { layout } = await use("@//layout.js");
 const { Sheet, css, scope } = await use("@/sheet.js");
 const sheet = Sheet.create();
 
-export default async ({ stateMixin }) => {
+export default async () => {
   layout.clear(":not([slot])");
 
-  
-
-  
-
-
-
   await (async () => {
-    const { author, component, factory, mix, mixins, registry } = await use(
-      "@/component.js"
-    );
-
     const TAG = "button";
 
     const TestComponent = registry.has("test-component")
@@ -29,23 +22,7 @@ export default async ({ stateMixin }) => {
           class extends mix(
             document.createElement(TAG).constructor,
             {},
-            mixins.append,
-            mixins.attrs,
-            mixins.classes,
-            mixins.clear,
-            mixins.connect,
-            mixins.detail,
-            mixins.find,
-            mixins.handlers,
-            mixins.insert,
-            mixins.parent,
-            mixins.props,
-            mixins.send,
-            mixins.style,
-            mixins.text,
-            mixins.uid,
-            mixins.vars,
-            stateMixin
+            ...Mixins(stateMixin)
           ) {
             static sheet = null;
 
@@ -53,10 +30,7 @@ export default async ({ stateMixin }) => {
               super(...args);
               if (!this.constructor.sheet) {
                 this.constructor.sheet = Sheet.create();
-                this.constructor.sheet.rules.add({
-                });
-
-                
+                this.constructor.sheet.rules.add({});
               }
             }
 
@@ -67,9 +41,7 @@ export default async ({ stateMixin }) => {
               this.on._disconnect$once = (event) =>
                 this.constructor.sheet.unuse();
 
-              
-             
-              this.on.click = (event) => null;
+              this.on.click = (event) => null; ////
             }
           },
           "test-component",
@@ -78,10 +50,15 @@ export default async ({ stateMixin }) => {
 
     const testComponent = TestComponent({ parent: layout });
 
-    testComponent.$({text: 'My button', foo: 42, '[bar]': true, '.ding': true, __stuff: null})
+    testComponent.$({
+      text: "My button",
+      "[myBar]": true,
+      ".ding": true,
+      __stuff: null,
+      foo: 42,
+    });
 
-    testComponent.$.text = 'Reactive button'
-
-
+    testComponent.$.text = "Reactive button";
+    testComponent.update({ $dong: "DONG" });
   })();
 };

@@ -1,10 +1,12 @@
 /*
-ref/condition.js
+state/ref/condition.js
 */
+import { ref } from "../../../../../parcels/state/index.js";
+
 const { component } = await use("@/component.js");
 const { layout } = await use("@//layout.js");
 
-export default async ({ ref }) => {
+export default async () => {
   (() => {
     const state = ref(42);
 

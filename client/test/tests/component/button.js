@@ -2,8 +2,8 @@
 component/button.js
 */
 
-//import { component } from "../../../../parcels/component/index.js";
-const { component } = await use("@/component.js");
+import { component } from "../../../../parcels/component/index.js";
+//const { component } = await use("@/component.js");
 
 const { layout } = await use("@//layout.js");
 
