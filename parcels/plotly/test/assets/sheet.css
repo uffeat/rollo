@@ -1,0 +1,4 @@
+layout-component > .plot {
+  width: 100%;
+  display: flex;
+}

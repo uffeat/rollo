@@ -1,16 +1,14 @@
 /*
 ref/count.js
 */
-import { RefComponent } from "../../../src/ref/component.js";
-import refMixin from "../../../src/ref/mixin.js";
-import { ref } from "../../../src/ref/proxy.js";
+
 
 const { component } = await use("@/component.js");
 const { layout } = await use("@//layout.js");
 const { Sheet, css, scope } = await use("@/sheet.js");
 const sheet = Sheet.create();
 
-export default async () => {
+export default async ({ RefComponent, refMixin, ref }) => {
   layout.clear(":not([slot])");
 
   sheet.rules.clear();

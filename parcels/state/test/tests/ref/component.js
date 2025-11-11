@@ -1,15 +1,15 @@
 /*
 ref/component.js
 */
-import { RefComponent } from "../../../src/ref/component.js";
 
-const { app } = await use("@//app.js");
+
+
 const { component } = await use("@/component.js");
 const { layout } = await use("@//layout.js");
 const { Sheet, css } = await use("@/sheet.js");
 const sheet = Sheet.create();
 
-export default async () => {
+export default async ({ RefComponent }) => {
   layout.clear(":not([slot])");
   sheet.rules.clear();
 

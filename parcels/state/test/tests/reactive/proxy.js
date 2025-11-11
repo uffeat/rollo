@@ -3,11 +3,11 @@ reactive/proxy.js
 */
 
 
-import { reactive } from "../../../src/reactive/proxy.js";
+
 
 const { layout } = await use("@//layout.js");
 
-export default async () => {
+export default async ({ reactive }) => {
   layout.clear(":not([slot])");
 
   const state = reactive({ foo: 42 }, { detail: { count: 0 } }, function () {

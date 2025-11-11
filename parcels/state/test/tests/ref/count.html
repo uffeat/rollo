@@ -18,17 +18,7 @@ ref/count.html
   const { layout } = await use("@//layout.js");
 
   export default async ({ RefComponent, ReactiveComponent }, { sheet }) => {
-    RefComponent = await RefComponent();
-
-    
-
-
     layout.clear(":not([slot])");
-
-    ReactiveComponent = await ReactiveComponent();
-    ReactiveComponent({parent: layout})
-
-
 
     const state = RefComponent(
       "btn.btn-primary",

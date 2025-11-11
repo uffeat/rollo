@@ -1,5 +1,6 @@
 export const Module = new (class {
   #_ = {
+    /* Rebuild native 'import' to prevent Vite from barking */
     import_: Function("url", "return import(url)"),
   };
   async create(text, path) {

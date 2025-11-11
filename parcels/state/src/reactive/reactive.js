@@ -61,16 +61,35 @@ export class Reactive {
         registry: new Map(),
       };
 
-      add(reducer, { once = false, run = false } = {}) {
-        const ref = Ref.create({ name, owner: reactive });
+      add(reducer, ...args) {
+        /* Parse args */
+        const {
+          data,
+          once = false,
+          run = true,
+        } = args.find((a, i) => !i && typeName(a) === "Object") || {};
+        const effects = args.filter((a) => is.arrow(a));
+        const hooks = args.filter(
+          (a) => !is.arrow(a) && typeof a === "function"
+        );
 
-        const effect = (change, message) => {
-          ref.update(reducer(change, message));
-        };
+        const ref = Ref.create({ owner: reactive });
 
-        reactive.effects.add(effect, { once, run });
+        const effect = reactive.effects.add(
+          (change, message) => {
+            ref.update(reducer(change, message));
+          },
+          { data, once, run }
+        );
 
-        this.#_.registry.set(ref, {});
+        this.#_.registry.set(ref, effect);
+
+        for (const effect of effects) {
+          ref.effects.add(effect, { once, run });
+        }
+        for (const hook of hooks) {
+          hook.call(ref);
+        }
 
         return ref;
       }

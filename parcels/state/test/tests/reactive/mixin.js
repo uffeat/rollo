@@ -1,7 +1,7 @@
 /*
 reactive/mixin.js
 */
-import stateMixin from "../../../src/reactive/mixin.js";
+
 
 const { Mixins, author, component, factory, mix, mixins, registry } = await use(
   "@/component.js"
@@ -10,7 +10,7 @@ const { layout } = await use("@//layout.js");
 const { Sheet, css, scope } = await use("@/sheet.js");
 const sheet = Sheet.create();
 
-export default async () => {
+export default async ({stateMixin}) => {
   layout.clear(":not([slot])");
 
   await (async () => {

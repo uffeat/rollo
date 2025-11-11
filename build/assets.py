@@ -1,12 +1,10 @@
 """Utility for building main stylesheet and asset-carrier sheet.
 
 NOTE
-- Cannot run, while live-server is running.
+- Risk of error, if live-server is running.
 
 TODO
-- Build none-same name parcel assets to client public (JS parcel tests can overload)
-- Perhaps: Clear out dirs
-- Perhaps: Mitigate the need for '//' imports
+- Perhaps: Clear out 'client/public/assets'.
 """
 
 import json

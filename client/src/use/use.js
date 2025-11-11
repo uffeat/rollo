@@ -202,7 +202,7 @@ assets.add({
   Registry,
 });
 
-/* Add public as source */
+/* Add public as source (/). */
 assets.sources.add(
   "/",
   (() => {
@@ -270,7 +270,7 @@ assets.sources.add(
   })()
 );
 
-/* Add asset sheet as source 
+/* Add asset sheet as source (@/).
 NOTE No strong case for providing option to add sheet via link, 
 since global main sheet is created by build tools. */
 assets.sources.add(
@@ -295,7 +295,7 @@ assets.sources.add(
   })()
 );
 
-/* Add assets as source.
+/* Add assets as source (@@/).
 NOTE Only if run in Vite environment so that module can be imported in
 external non-Vite code (albeit without assets import of course). */
 if (
@@ -325,6 +325,9 @@ if (
       }).map(([k, v]) => [k.slice(START), v])
     )
   );
+
+  /* NOTE Currently, raw is not supported for js (and js-like) assets (@@/) imports. 
+  Could be done via manipulation of loaders keys, but is probably not worth it. */
 
   assets.sources.add("@@", async ({ options, owner, path }, ...args) => {
     Exception.if(!(path.path in loaders), `Invalid path:${path.full}`);
@@ -381,30 +384,20 @@ assets.types.add(
     return async (text, { options, owner, path }, ...args) => {
       let result;
       const { as } = options;
-
-     
-      const key = as === "function" ?  `${path.full}?${as}` : path.full;
-
-
+      const key = as === "function" ? `${path.full}?${as}` : path.full;
       if (cache.has(key)) return cache.get(key);
-
-
       if (as === "function") {
-         result = Function(`return ${text}`)();
-         if (result === undefined) {
+        /* NOTE When dealing with self-hosted external libs that are not 
+        available as ESM, import as 'function' can sometimes be a cleaner 
+        alternative to importing as 'script'. */
+        result = Function(`return ${text}`)();
+        if (result === undefined) {
           /* Since undefined results are ignored, convert to null */
           result = null;
         }
-
-
-       
-
-
-      }  else {
-         result = await Module.create(text, path.path);
+      } else {
+        result = await Module.create(text, path.path);
       }
-
-
 
       cache.set(key, result);
       return result;

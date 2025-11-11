@@ -1,26 +1,14 @@
 import "../assets/app.css";
 
-const { author, component, mix, mixins } = await use("@/component.js");
+const { Mixins, author, component, mix } = await use("@/component.js");
 
 const TAG = "div";
 
-export const App = author(
+const App = author(
   class extends mix(
     document.createElement(TAG).constructor,
     {},
-    mixins.append,
-    mixins.attrs,
-    mixins.classes,
-    mixins.clear,
-    mixins.detail,
-    mixins.find,
-    mixins.handlers,
-    mixins.insert,
-    mixins.parent,
-    mixins.props,
-    mixins.send,
-    mixins.style,
-    mixins.vars
+    ...Mixins(),
   ) {
     #_ = {};
     constructor() {

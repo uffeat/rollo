@@ -1,14 +1,13 @@
 /*
 reactive/basics.js
 */
-import { Reactive } from "../../../src/reactive/reactive.js";
 
 const { component } = await use("@/component.js");
 const { layout } = await use("@//layout.js");
 const { Sheet, css, scope } = await use("@/sheet.js");
 const sheet = Sheet.create();
 
-export default async () => {
+export default async ({ Reactive }) => {
   layout.clear(":not([slot])");
   sheet.rules.clear();
 
@@ -121,9 +120,7 @@ export default async () => {
     );
   })();
 
-  state.$._foo = 'FOO';
-
-
+  state.$._foo = "FOO";
 
   console.log("state.current:", state.current);
   console.log("score:", state.$.score);

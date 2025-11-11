@@ -1,0 +1,30 @@
+.uk-modal-full .uk-modal-dialog {
+  height: 100%;
+}
+.uk-modal-dialog {
+  flex-direction: column;
+  min-height: 4rem;
+  display: flex;
+}
+.uk-modal-title {
+  padding-top: 1.5rem;
+  padding-left: 1rem;
+}
+.uk-modal-dialog > header {
+  display: flex;
+}
+.uk-modal-dialog > body {
+  flex-direction: column;
+  flex-grow: 1;
+  display: flex;
+}
+.uk-modal-dialog > body > p.content {
+  padding: 0 1rem;
+}
+.uk-modal-dialog > footer {
+  justify-content: end;
+  column-gap: 1rem;
+  margin-bottom: 1rem !important;
+  padding-right: 1rem;
+  display: flex;
+}

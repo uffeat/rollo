@@ -1,4 +1,4 @@
-div[web-component][app] {
+#app {
   height: 100vh;
   overflow-x: hidden;
   display: flex;
