@@ -3,18 +3,31 @@ import shadow from "../assets/shadow.css?raw";
 
 const { app } = await use("@//app.js");
 const icons = {
-  close: await use("/icons/close.svg"),
-  menu: await use("/icons/menu.svg"),
+  close: await use("@/icons/close.svg"),
+  menu: await use("@/icons/menu.svg"),
 };
 const { Sheet } = await use("@/sheet.js");
 const reboot = await use("@/bootstrap/reboot.css");
-const { Mixins, author, component, mix } = await use("@/component.js");
+const { Mixins, author, component, mix, mixins } = await use("@/component.js");
 
 export const Layout = author(
   class extends mix(
     HTMLElement,
     {},
-    ...Mixins()
+    mixins.append,
+    mixins.attrs,
+    mixins.classes,
+    mixins.clear,
+    mixins.connect,
+    mixins.detail,
+    mixins.find,
+    mixins.handlers,
+    mixins.insert,
+    mixins.parent,
+    mixins.props,
+    mixins.send,
+    mixins.style,
+    mixins.vars
   ) {
     #_ = {
       tree: {},

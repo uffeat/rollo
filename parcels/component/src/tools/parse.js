@@ -1,6 +1,6 @@
-//import '../../use.js'
-//const { typename } = await use("/tools/type/typename.js");
-const typename = (value) => Object.prototype.toString.call(value).slice(8, -1);
+
+const { typeName } = await use("@/tools/types.js");
+
 
 /* Utility for parsing args in component factory functions. */
 export class Parse {
@@ -59,7 +59,7 @@ export class Parse {
   get updates() {
     if (this.#_.updates === undefined) {
       this.#_.updates =
-        this.#_.args.find((a, i) => typename(a) === "Object") || {};
+        this.#_.args.find((a, i) => typeName(a) === "Object") || {};
     }
     return this.#_.updates;
   }

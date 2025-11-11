@@ -1,3 +1,3 @@
 (() => {
-  return "/test/dong.js imported as iife";
+  return "/test/dong.js imported as function";
 })();

@@ -1,4 +1,4 @@
-const d = `#root {\r
+const h = `#root {\r
   position: relative;\r
   width: 100%;\r
   min-height: 100vh;\r
@@ -122,59 +122,46 @@ footer {\r
 :host(._md._close) main {\r
   margin-left: calc(-1 * min(var(--width), 100%));\r
 }\r
-`, { app: l } = await use("@//app.js"), h = {
-  close: await use("@/icons/close.svg"),
-  menu: await use("@/icons/menu.svg")
-}, { Sheet: c } = await use("@/sheet.js"), g = await use("@/bootstrap/reboot.css"), { author: m, component: r, mix: u, mixins: t } = await use("@/component.js"), b = m(
+`, { app: d } = await use("@//app.js"), a = {
+  close: await use("/icons/close.svg"),
+  menu: await use("/icons/menu.svg")
+}, { Sheet: l } = await use("@/sheet.js"), c = await use("@/bootstrap/reboot.css"), { Mixins: g, author: m, component: t, mix: u } = await use("@/component.js"), b = m(
   class extends u(
     HTMLElement,
     {},
-    t.append,
-    t.attrs,
-    t.classes,
-    t.clear,
-    t.connect,
-    t.detail,
-    t.find,
-    t.handlers,
-    t.insert,
-    t.parent,
-    t.props,
-    t.send,
-    t.style,
-    t.vars
+    ...g()
   ) {
     #t = {
       tree: {}
     };
     constructor() {
-      super(), this.#t.shadow = r.div(
+      super(), this.#t.shadow = t.div(
         { id: "root" },
-        r.header(
-          r.slot({ name: "home" }),
-          r.button("_close", {
+        t.header(
+          t.slot({ name: "home" }),
+          t.button("_close", {
             ariaLabel: "Toggle",
-            innerHTML: h.menu
+            innerHTML: a.menu
           }),
-          r.section(r.slot({ name: "top" }))
+          t.section(t.slot({ name: "top" }))
         ),
-        r.section(
+        t.section(
           "_main",
-          r.section(
+          t.section(
             "_side",
-            r.button("_close", {
+            t.button("_close", {
               ariaLabel: "Close",
-              innerHTML: h.close
+              innerHTML: a.close
             }),
-            r.slot({ name: "side" })
+            t.slot({ name: "side" })
           ),
-          r.main(r.slot())
+          t.main(t.slot())
         ),
-        r.footer()
-      ), this.attachShadow({ mode: "open" }).append(this.shadow), g.use(this), c.create(d).use(this), this.#t.config = new class {
+        t.footer()
+      ), this.attachShadow({ mode: "open" }).append(this.shadow), c.use(this), l.create(h).use(this), this.#t.config = new class {
         #e = {};
-        constructor(n) {
-          this.#e.owner = n;
+        constructor(r) {
+          this.#e.owner = r;
         }
         get owner() {
           return this.#e.owner;
@@ -189,16 +176,16 @@ footer {\r
           return this.owner.__.width;
         }
         update({
-          easing: n = "ease-in-out",
-          time: s = "200ms",
-          width: i = "300px"
+          easing: r = "ease-in-out",
+          time: n = "200ms",
+          width: s = "300px"
         } = {}) {
-          this.owner.__.easing = n, this.owner.__.width = i, this.owner.attribute._time = s, this.owner.send("_config", { detail: { easing: n, time: s, width: i } });
+          this.owner.__.easing = r, this.owner.__.width = s, this.owner.attribute._time = n, this.owner.send("_config", { detail: { easing: r, time: n, width: s } });
         }
       }(this), this.config.update(), (() => {
         const e = window.matchMedia("(width >= 768px)");
-        e.matches ? (this.classes.add("_md"), this.send("_md", { detail: !0 })) : this.send("_md", { detail: !1 }), e.addEventListener("change", (n) => {
-          n.matches ? (this.classes.add("_md"), this.send("_md", { detail: !0 })) : (this.classes.remove("_md"), this.send("_md", { detail: !1 }));
+        e.matches ? (this.classes.add("_md"), this.send("_md", { detail: !0 })) : this.send("_md", { detail: !1 }), e.addEventListener("change", (r) => {
+          r.matches ? (this.classes.add("_md"), this.send("_md", { detail: !0 })) : (this.classes.remove("_md"), this.send("_md", { detail: !1 }));
         });
       })(), this.tree.header = this.shadow.find("header"), this.tree.side = this.shadow.find("section._side"), this.tree.slot = this.shadow.find("main>slot"), this.tree.main = this.shadow.find("main"), this.tree.header = this.shadow.find("header"), this.tree.side.addEventListener("transitionstart", (e) => {
         this.classes.has("_close") ? this.send("_close_start") : this.send("_open_start");
@@ -214,21 +201,21 @@ footer {\r
         #e = {
           observers: {}
         };
-        constructor(n) {
-          this.#e.owner = n, this.#e.observers.header = new ResizeObserver((s) => {
+        constructor(r) {
+          this.#e.owner = r, this.#e.observers.header = new ResizeObserver((n) => {
             setTimeout(() => {
-              for (const i of s) {
-                const o = this.owner.tree.header.clientHeight;
-                this.owner.attribute._top = o, this.owner.send("_header_resize", { detail: { top: o } });
+              for (const s of n) {
+                const i = this.owner.tree.header.clientHeight;
+                this.owner.attribute._top = i, this.owner.send("_header_resize", { detail: { top: i } });
               }
             }, 0);
-          }), this.#e.observers.main = new ResizeObserver((s) => {
+          }), this.#e.observers.main = new ResizeObserver((n) => {
             setTimeout(() => {
-              for (const i of s) {
-                const o = i.contentRect.width;
-                this.owner.attribute._width = o;
-                const a = i.contentRect.height;
-                this.owner.attribute._height = a, this.owner.send("_main_resize", { detail: { width: o, height: a } });
+              for (const s of n) {
+                const i = s.contentRect.width;
+                this.owner.attribute._width = i;
+                const o = s.contentRect.height;
+                this.owner.attribute._height = o, this.owner.send("_main_resize", { detail: { width: i, height: o } });
               }
             }, 0);
           });
@@ -248,10 +235,10 @@ footer {\r
     connectedCallback() {
       const e = this.tree.header.clientHeight;
       this.attribute._top = e;
-      const n = this.tree.main.getBoundingClientRect().width;
-      this.attribute._width = n;
-      const s = this.tree.main.getBoundingClientRect().height;
-      this.attribute._height = s;
+      const r = this.tree.main.getBoundingClientRect().width;
+      this.attribute._width = r;
+      const n = this.tree.main.getBoundingClientRect().height;
+      this.attribute._height = n;
     }
     get config() {
       return this.#t.config;
@@ -276,7 +263,7 @@ footer {\r
     }
   },
   "layout-component"
-), p = b({ id: "layout", parent: l });
+), p = b({ id: "layout", parent: d });
 export {
   b as Layout,
   p as layout

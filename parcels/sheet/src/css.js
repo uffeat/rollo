@@ -1,5 +1,5 @@
 const { camelToKebab } = await use("@/tools/case.js");
-const { WebComponent } = await use("@/component.js");
+const { WebComponent } = await use("@/web_component.js");
 
 const reference = WebComponent();
 

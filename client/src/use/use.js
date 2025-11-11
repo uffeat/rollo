@@ -154,10 +154,12 @@ const assets = new (class Assets {
       { options: { ...options }, owner: this, path },
       ...args
     );
+
+    if (path.detail.escape) return result;
+
     const { raw = false } = options;
-    if (raw) {
-      return result;
-    }
+    if (raw) return result;
+
     /* Create asset from text, unless source handler instructs not to do 
     so via mutation of path.detail. */
     if (path.detail.transform !== false && this.types.has(path.type)) {
@@ -207,10 +209,10 @@ assets.sources.add(
     const cache = new Map();
     return async ({ options, owner, path }, ...args) => {
       const { component } = await use("@/component.js");
-      const { as } = options;
+      const { as, raw } = options;
       if (path.type === "css" && as === "link") {
         /* Escape transformation and processing */
-        Object.assign(path.detail, { transform: false, process: false });
+        Object.assign(path.detail, { escape: true });
         const href = `${owner.meta.base}${path.path}`;
         let link = document.head.querySelector(
           `link[rel="stylesheet"][href="${href}"]`
@@ -222,18 +224,26 @@ assets.sources.add(
         document.head.append(link);
         return await promise;
       }
-      if (path.type === "js" && as === "script") {
-        /* Escape transformation and processing */
-        Object.assign(path.detail, { transform: false, process: false });
-        const src = `${owner.meta.base}${path.path}`;
-        let script = document.head.querySelector(`script[src="${src}"]`);
-        if (script) return script;
-        script = component.script({ src });
-        const { promise, resolve } = Promise.withResolvers();
-        script.on.load$once = (event) => resolve();
-        document.head.append(script);
-        return await promise;
+      if (path.type === "js" && raw !== true) {
+        if (as === "script") {
+          /* Escape transformation and processing */
+          Object.assign(path.detail, { escape: true });
+          const src = `${owner.meta.base}${path.path}`;
+          let script = document.head.querySelector(`script[src="${src}"]`);
+          if (script) return script;
+          script = component.script({ src });
+          const { promise, resolve } = Promise.withResolvers();
+          script.on.load$once = (event) => resolve();
+          document.head.append(script);
+          return await promise;
+        }
+        if (as !== "function") {
+          /* Escape transformation and processing */
+          Object.assign(path.detail, { escape: true });
+          return await Module.import(`${owner.meta.base}${path.path}`);
+        }
       }
+
       /* Asset text import */
       const key = path.full;
       if (cache.has(key)) return cache.get(key);
@@ -288,9 +298,13 @@ assets.sources.add(
 /* Add assets as source.
 NOTE Only if run in Vite environment so that module can be imported in
 external non-Vite code (albeit without assets import of course). */
-if (import.meta.glob) {
+if (
+  typeof import.meta !== "undefined" &&
+  typeof import.meta.env !== "undefined" &&
+  import.meta.env.MODE
+) {
   const START = "../assets".length;
-  
+
   const loaders = Object.freeze(
     Object.fromEntries(
       Object.entries({
@@ -351,7 +365,7 @@ assets.types
       (a) =>
         typeName(a) === "HTMLDocument" ||
         a instanceof ShadowRoot ||
-        a.shadowRoot 
+        a.shadowRoot
     );
     if (targets.length) {
       /* NOTE sheet.use() adopts to document, therefore check targets' length */
@@ -366,20 +380,32 @@ assets.types.add(
     const cache = new Map();
     return async (text, { options, owner, path }, ...args) => {
       let result;
-      const { as = "module" } = options;
-      const key = as === "module" ? path.full : `${path.full}?${as}`;
+      const { as } = options;
+
+     
+      const key = as === "function" ?  `${path.full}?${as}` : path.full;
+
+
       if (cache.has(key)) return cache.get(key);
-      if (as === "module") {
-        result = await Module.create(text, path.path);
-      } else if (as === "iife") {
-        result = Function(`return ${text}`)();
-        if (result === undefined) {
-          /* Since undefined handler results are ignored, convert to null */
+
+
+      if (as === "function") {
+         result = Function(`return ${text}`)();
+         if (result === undefined) {
+          /* Since undefined results are ignored, convert to null */
           result = null;
         }
-      } else {
-        throw new Error(`Invalid 'as': ${as}`);
+
+
+       
+
+
+      }  else {
+         result = await Module.create(text, path.path);
       }
+
+
+
       cache.set(key, result);
       return result;
     };

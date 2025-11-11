@@ -2,19 +2,11 @@ const STORAGE_KEY = "__test__";
 
 /* Returns async function that sets up testbench.
 NOTE Returns function, so that caller can overload assets between import and setup. */
-export const setup = ({ base } = {}) => {
-  if (base) {
-    use.meta.base = base;
-  }
-
+export const setup = () => {
   return async ({ prefix = "./tests/", report, tests }, tools = {}) => {
     const Module = await use("Module");
     const { Sheet } = await use("@/sheet.js");
     const { component } = await use("@/component.js");
-
-    
-
-
 
     window.addEventListener("keydown", async (event) => {
       /* Unit tests */

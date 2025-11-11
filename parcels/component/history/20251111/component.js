@@ -1,6 +1,6 @@
 import { factory } from "./tools/factory.js";
 import { mix } from "./tools/mix.js";
-import { Mixins, mixins } from "./mixins/mixins.js";
+import { mixins } from "./mixins/mixins.js";
 import { registry } from "./tools/registry.js";
 
 /* Registers native web component from tag and returns component class. */
@@ -17,7 +17,9 @@ const create = (tag) => {
     throw new Error(`'${tag}' is not native.`);
   }
 
-  const _mixins = Mixins("!text");
+  const _mixins = Object.entries(mixins)
+    .filter(([name, mixin]) => !["for_", "novalidation", "text"].includes(name))
+    .map(([name, mixin]) => mixin);
 
   if ("textContent" in ref) {
     _mixins.push(mixins.text);
@@ -59,6 +61,8 @@ export const Component = (arg, ...args) => {
   }
   return factory(...args);
 };
+
+
 
 /* Returns instance factory for basic non-autonomous web component. */
 export const component = new Proxy(

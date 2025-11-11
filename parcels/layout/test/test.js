@@ -7,10 +7,7 @@ use.assets.add("@//layout.js", parcel);
 
 document.querySelector("html").dataset.bsTheme = "dark";
 
-
-
-
-await setup({base: 'https://rolloh.vercel.app'})(
+await setup()(
   {
     tests: {
       ...import.meta.glob("./tests/**/*.js"),
@@ -22,4 +19,3 @@ await setup({base: 'https://rolloh.vercel.app'})(
   },
   { ...parcel }
 );
-

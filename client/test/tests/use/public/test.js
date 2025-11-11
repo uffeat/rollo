@@ -22,6 +22,6 @@ console.log("foo:", (await use("/test/foo.json")).foo);
 await use("/test/ding.js", { as: "script" });
 console.log("ding:", ding);
 
-console.log("dong:", await use("/test/dong.js", { as: "iife" }));
+console.log("dong:", await use("/test/dong.js", { as: "function" }));
 
 };

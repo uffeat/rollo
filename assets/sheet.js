@@ -1,4 +1,4 @@
-const { typeName: m } = await use("@/tools/types.js"), { camelToKebab: w } = await use("@/tools/case.js"), { truncate: S } = await use("@/tools/truncate.js"), { WebComponent: y } = await use("@/component.js"), { Exception: u } = await use("Exception"), a = "@media";
+const { typeName: m } = await use("@/tools/types.js"), { camelToKebab: w } = await use("@/tools/case.js"), { truncate: S } = await use("@/tools/truncate.js"), { WebComponent: y } = await use("@/web_component.js"), { Exception: u } = await use("Exception"), a = "@media";
 class c {
   static create = (...e) => new c(...e);
   #e = {
@@ -215,7 +215,7 @@ class d extends CSSStyleSheet {
     return this;
   }
 }
-const { camelToKebab: p } = await use("@/tools/case.js"), { WebComponent: R } = await use("@/component.js"), g = R(), h = new class {
+const { camelToKebab: p } = await use("@/tools/case.js"), { WebComponent: R } = await use("@/web_component.js"), g = R(), h = new class {
   #e = {};
   constructor() {
     this.#e.color = new class {

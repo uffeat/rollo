@@ -2,7 +2,7 @@
 use/test.js
 */
 
-const Path = await use("Path");
+
 
 export default async () => {
   await (async () => {
