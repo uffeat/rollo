@@ -83,10 +83,10 @@ section._side button svg {
   --size: 24px;
   width: var(--size);
   height: var(--size);
-  fill: var(--bs-light);
+  fill: var(--bs-light);/*color instead?*/
 }
 section._side button:hover svg {
-  fill: var(--bs-gray-300);
+  fill: var(--bs-gray-500);
 }
 
 main {

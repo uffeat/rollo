@@ -205,7 +205,7 @@ export class Reactive {
       ...(args.find((a, i) => !i && typeName(a) === "Object") || {}),
     };
     const options = args.find((a, i) => i && typeName(a) === "Object") || {};
-    const { config = {}, detail = {}, name, owner } = options;
+    const { config = {}, detail, name, owner } = options;
     const { match } = config;
 
     const effects = args.filter((a) => is.arrow(a));
@@ -214,7 +214,7 @@ export class Reactive {
     /* Use arguments */
     this.#_.owner = owner;
     this.#_.name = name;
-    Object.assign(this.detail, { ...detail });
+    Object.assign(this.detail, detail);
     this.config.match = match;
     this.update(updates);
     for (const effect of effects) {

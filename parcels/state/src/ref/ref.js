@@ -76,14 +76,14 @@ export class Ref {
     /* Parse args */
     const current = args.find((a, i) => !i && typeName(a) !== "Object");
     const options = args.find((a) => typeName(a) === "Object") || {};
-    const { detail = {}, match = function(other) {return this.current === other}, name, owner } = options;
+    const { detail, match = function(other) {return this.current === other}, name, owner } = options;
     const effects = args.filter((a) => is.arrow(a));
     const hooks = args.filter((a) => !is.arrow(a) && typeof a === "function");
     /* Use arguments */
     this.match = match;
     this.#_.name = name;
     this.#_.owner = owner;
-    Object.assign(this.detail, { ...detail });
+    Object.assign(this.detail, detail);
     this.update(current);
     for (const effect of effects) {
       this.effects.add(effect);

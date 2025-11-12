@@ -26,9 +26,7 @@ export default (parent, config) => {
           value = "none";
         } else if (value === 0) {
           value = "0";
-        } else if (typeof value === "number") {
-          value = `${value}rem`;
-        }
+        } 
 
         /* Ignore no change */
         if (this.style[key] === value) {

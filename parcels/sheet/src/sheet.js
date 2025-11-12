@@ -1,7 +1,8 @@
+import { reference } from "./reference.js";
+
 const { typeName } = await use("@/tools/types.js");
 const { camelToKebab } = await use("@/tools/case.js");
 const { truncate } = await use("@/tools/truncate.js");
-const { WebComponent } = await use("@/web_component.js");
 const { Exception } = await use("Exception");
 
 const MEDIA = "@media";
@@ -10,9 +11,7 @@ const MEDIA = "@media";
 class Rules {
   static create = (...args) => new Rules(...args);
 
-  #_ = {
-    validator: WebComponent(),
-  };
+  #_ = {};
 
   constructor(owner) {
     this.#_.owner = owner;
@@ -241,7 +240,7 @@ class Rules {
   }
 
   #validate(key) {
-    return key in this.#_.validator.style || key.startsWith("--");
+    return key in reference.style || key.startsWith("--");
   }
 }
 
@@ -256,6 +255,11 @@ class Targets {
   /* Returns owner sheet. */
   get owner() {
     return this.#_.owner;
+  }
+
+  /* Returns number of targets. */
+  get size() {
+    return this.#_.registry.size;
   }
 
   /* Adopts owner sheet to target. */
@@ -292,14 +296,18 @@ export class Sheet extends CSSStyleSheet {
     detail: {},
   };
 
-  constructor(text, path) {
+  constructor(...args) {
     super();
+    /* Compose */
     this.#_.rules = Rules.create(this);
     this.#_.targets = Targets.create(this);
-
-    this.replaceSync(text);
-    this.#_.path = path;
-    this.#_.text = text;
+    /* Parse args */
+    this.#_.text = args.find((a, i) => !i && typeof a === "string");
+    this.#_.path = args.find((a, i) => i && typeof a === "string");
+    const rules = args.find((a, i) => typeName(a) === "Object");
+    /* Use args */
+    if (this.text) this.replaceSync(this.text);
+    if (rules) this.rules.add(rules);
   }
 
   /* Returns detail for ad-hoc data. */
@@ -328,9 +336,7 @@ export class Sheet extends CSSStyleSheet {
 
   /* Unadopts sheet from targets. */
   unuse(...targets) {
-    if (targets.length === 0) {
-      targets.push(document);
-    }
+    if (!targets.length) targets.push(document);
     for (const _target of targets) {
       const target = _target.shadowRoot || _target;
       this.targets.remove(target);
@@ -340,9 +346,7 @@ export class Sheet extends CSSStyleSheet {
 
   /* Adopts sheet to targets. */
   use(...targets) {
-    if (targets.length === 0) {
-      targets.push(document);
-    }
+    if (!targets.length) targets.push(document);
     for (const _target of targets) {
       const target = _target.shadowRoot || _target;
       this.targets.add(target);

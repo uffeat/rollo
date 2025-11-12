@@ -1,7 +1,8 @@
+import { reference } from "./reference.js";
 const { camelToKebab } = await use("@/tools/case.js");
-const { WebComponent } = await use("@/web_component.js");
 
-const reference = WebComponent();
+
+const root = document.documentElement;
 
 const cls = new (class {
   #_ = {};
@@ -21,6 +22,20 @@ const cls = new (class {
     })();
   }
 
+  get __() {
+    return new Proxy(
+      {},
+      {
+        get(target, key) {
+          const value = getComputedStyle(root)
+            .getPropertyValue(`--${camelToKebab(key, { numbers: true })}`)
+            .trim();
+          return value;
+        },
+      }
+    );
+  }
+
   get color() {
     return this.#_.color;
   }
@@ -30,26 +45,24 @@ const cls = new (class {
       {},
       {
         get(target, value) {
-          return camelToKebab(value, {numbers: true});
+          return camelToKebab(value, { numbers: true });
         },
       }
     );
   }
 
   attr(value) {
-    return `attr(${value})`
+    return `attr(${value})`;
   }
 
   important(...args) {
-    return `${args.join(" ")} !important`
-
+    return `${args.join(" ")} !important`;
   }
 })();
 
-/* DSL-like helper for authoring CSS in JS with reduced use of strings.
-NOTE No effect beyond DX. */
+/* DSL-like helper for authoring CSS in JS. */
 export const css = new Proxy(() => {}, {
-  get(_, key) {
+  get(target, key) {
     if (key in cls) {
       return cls[key];
     }
@@ -58,12 +71,12 @@ export const css = new Proxy(() => {}, {
         {},
         {
           get(target, value) {
-            return { [key]: camelToKebab(value, {numbers: true}) };
+            return { [key]: camelToKebab(value, { numbers: true }) };
           },
         }
       );
     }
-    
+
     return (value) => {
       if (key === "pct") {
         key = "%";
@@ -74,11 +87,11 @@ export const css = new Proxy(() => {}, {
 
   apply(target, thisArg, args) {
     args = args.map((a) => {
-      if (a === '!') {
-        return '!important'
+      if (a === "!") {
+        return "!important";
       }
-      return a
-    })
+      return a;
+    });
     return args.join(" ");
   },
 });

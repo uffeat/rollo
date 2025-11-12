@@ -30,7 +30,7 @@ export default ({ Sheet, assets, css }) => {
   sheet.rules.update({
     ".base": {
       ...css.border["4px solid red"],
-      ...css.animationName.slideIn,
+      animationName: 'slideIn',
       animationDuration: css.s(1),
     },
     min600: {

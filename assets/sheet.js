@@ -1,9 +1,13 @@
-const { typeName: m } = await use("@/tools/types.js"), { camelToKebab: w } = await use("@/tools/case.js"), { truncate: S } = await use("@/tools/truncate.js"), { WebComponent: y } = await use("@/web_component.js"), { Exception: u } = await use("Exception"), a = "@media";
-class c {
-  static create = (...e) => new c(...e);
-  #e = {
-    validator: y()
-  };
+const m = class extends HTMLElement {
+  constructor() {
+    super();
+  }
+};
+customElements.define("sheet-reference", m);
+const p = new m(), { typeName: g } = await use("@/tools/types.js"), { camelToKebab: y } = await use("@/tools/case.js"), { truncate: S } = await use("@/tools/truncate.js"), { Exception: u } = await use("Exception"), c = "@media";
+class f {
+  static create = (...e) => new f(...e);
+  #e = {};
   constructor(e) {
     this.#e.owner = e;
   }
@@ -90,7 +94,7 @@ class c {
       () => console.error("container:", e)
     );
     const s = Array.from(e.cssRules);
-    return r.startsWith(a) ? (r = r.slice(a.length).trim(), s.filter((t) => t instanceof CSSMediaRule).find((t) => t.conditionText === r) || null) : s.filter((t) => t instanceof CSSStyleRule).find((t) => t.selectorText === r) || null;
+    return r.startsWith(c) ? (r = r.slice(c.length).trim(), s.filter((t) => t instanceof CSSMediaRule).find((t) => t.conditionText === r) || null) : s.filter((t) => t instanceof CSSStyleRule).find((t) => t.selectorText === r) || null;
   }
   #n(e) {
     const r = Number(Object.keys(e)[0]);
@@ -107,7 +111,7 @@ class c {
     const s = Array.from(e.cssRules);
     for (let t of r) {
       let n;
-      t.startsWith(a) ? (t = t.slice(a.length).trim(), n = s.filter((i) => i instanceof CSSMediaRule).findIndex((i) => i.conditionText === t)) : n = s.filter((i) => i instanceof CSSStyleRule).findIndex((i) => i.selectorText === t), n > -1 && e.deleteRule(n);
+      t.startsWith(c) ? (t = t.slice(c.length).trim(), n = s.filter((i) => i instanceof CSSMediaRule).findIndex((i) => i.conditionText === t)) : n = s.filter((i) => i instanceof CSSStyleRule).findIndex((i) => i.selectorText === t), n > -1 && e.deleteRule(n);
     }
     return e;
   }
@@ -115,11 +119,11 @@ class c {
     e instanceof CSSRule || u.raise("Invalid rule.", () => console.error("rule:", e));
     for (let [s, t] of Object.entries(r))
       if (t !== void 0) {
-        if (m(t) === "Object") {
+        if (g(t) === "Object") {
           const [n, i] = Object.entries(t)[0];
           t = `${i}${n}`;
         }
-        if (s.startsWith("__") ? s = `--${s.slice(2)}` : s.startsWith("--") || (s = w(s.trim())), t === !1) {
+        if (s.startsWith("__") ? s = `--${s.slice(2)}` : s.startsWith("--") || (s = y(s.trim())), t === !1) {
           e.style.removeProperty(s);
           continue;
         }
@@ -138,11 +142,11 @@ class c {
     return e;
   }
   #l(e) {
-    return e in this.#e.validator.style || e.startsWith("--");
+    return e in p.style || e.startsWith("--");
   }
 }
-class f {
-  static create = (...e) => new f(...e);
+class h {
+  static create = (...e) => new h(...e);
   #e = { registry: /* @__PURE__ */ new Set() };
   constructor(e) {
     this.#e.owner = e;
@@ -150,6 +154,10 @@ class f {
   /* Returns owner sheet. */
   get owner() {
     return this.#e.owner;
+  }
+  /* Returns number of targets. */
+  get size() {
+    return this.#e.registry.size;
   }
   /* Adopts owner sheet to target. */
   add(e) {
@@ -169,13 +177,15 @@ class f {
     }
   }
 }
-class d extends CSSStyleSheet {
-  static create = (...e) => new d(...e);
+class w extends CSSStyleSheet {
+  static create = (...e) => new w(...e);
   #e = {
     detail: {}
   };
-  constructor(e, r) {
-    super(), this.#e.rules = c.create(this), this.#e.targets = f.create(this), this.replaceSync(e), this.#e.path = r, this.#e.text = e;
+  constructor(...e) {
+    super(), this.#e.rules = f.create(this), this.#e.targets = h.create(this), this.#e.text = e.find((s, t) => !t && typeof s == "string"), this.#e.path = e.find((s, t) => t && typeof s == "string");
+    const r = e.find((s, t) => g(s) === "Object");
+    this.text && this.replaceSync(this.text), r && this.rules.add(r);
   }
   /* Returns detail for ad-hoc data. */
   get detail() {
@@ -198,7 +208,7 @@ class d extends CSSStyleSheet {
   }
   /* Unadopts sheet from targets. */
   unuse(...e) {
-    e.length === 0 && e.push(document);
+    e.length || e.push(document);
     for (const r of e) {
       const s = r.shadowRoot || r;
       this.targets.remove(s);
@@ -207,7 +217,7 @@ class d extends CSSStyleSheet {
   }
   /* Adopts sheet to targets. */
   use(...e) {
-    e.length === 0 && e.push(document);
+    e.length || e.push(document);
     for (const r of e) {
       const s = r.shadowRoot || r;
       this.targets.add(s);
@@ -215,7 +225,7 @@ class d extends CSSStyleSheet {
     return this;
   }
 }
-const { camelToKebab: p } = await use("@/tools/case.js"), { WebComponent: R } = await use("@/web_component.js"), g = R(), h = new class {
+const { camelToKebab: a } = await use("@/tools/case.js"), R = document.documentElement, d = new class {
   #e = {};
   constructor() {
     this.#e.color = new class {
@@ -231,6 +241,16 @@ const { camelToKebab: p } = await use("@/tools/case.js"), { WebComponent: R } = 
       }
     }();
   }
+  get __() {
+    return new Proxy(
+      {},
+      {
+        get(o, e) {
+          return getComputedStyle(R).getPropertyValue(`--${a(e, { numbers: !0 })}`).trim();
+        }
+      }
+    );
+  }
   get color() {
     return this.#e.color;
   }
@@ -239,7 +259,7 @@ const { camelToKebab: p } = await use("@/tools/case.js"), { WebComponent: R } = 
       {},
       {
         get(o, e) {
-          return p(e, { numbers: !0 });
+          return a(e, { numbers: !0 });
         }
       }
     );
@@ -253,11 +273,11 @@ const { camelToKebab: p } = await use("@/tools/case.js"), { WebComponent: R } = 
 }(), b = new Proxy(() => {
 }, {
   get(o, e) {
-    return e in h ? h[e] : e in g.style ? new Proxy(
+    return e in d ? d[e] : e in p.style ? new Proxy(
       {},
       {
         get(r, s) {
-          return { [e]: p(s, { numbers: !0 }) };
+          return { [e]: a(s, { numbers: !0 }) };
         }
       }
     ) : (r) => (e === "pct" && (e = "%"), `${r}${e}`);
@@ -265,9 +285,9 @@ const { camelToKebab: p } = await use("@/tools/case.js"), { WebComponent: R } = 
   apply(o, e, r) {
     return r = r.map((s) => s === "!" ? "!important" : s), r.join(" ");
   }
-}), x = (o) => `[uid="${o.uid}"]`;
+}), $ = (o) => `[uid="${o.uid}"]`;
 export {
-  d as Sheet,
+  w as Sheet,
   b as css,
-  x as scope
+  $ as scope
 };

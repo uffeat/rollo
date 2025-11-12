@@ -5,16 +5,20 @@ const { component } = await use("@/component.js");
 const { layout } = await use("@//layout.js");
 
 
-export default ({ Sheet, assets, css }) => {
+export default ({ Sheet, assets, css, scope }) => {
+  layout.clear(":not([slot])");
+  
   const sheet = Sheet.create().use(document);
 
 
-  const id = `id${crypto.randomUUID()}`;
+
+
+  const element = component.div({ parent: layout }, component.p({}, 'Hi!'));
  
 
 
   sheet.rules.add({
-    [`#${id}`]: {
+    [scope(element)]: {
       ...css.display.flex,
       width: css.rem(3),
       height: css.rem(4),
@@ -25,5 +29,5 @@ export default ({ Sheet, assets, css }) => {
 
   //console.log("text:", sheet.rules.text); ////
 
-  component.div({ parent: layout, id }, component.p({}, 'Hi!'));
+  
 };

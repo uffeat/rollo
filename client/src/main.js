@@ -7,7 +7,7 @@ import "./use/use.js";
 
 const { layout } = await use("@//layout.js");
 
-document.querySelector("html").dataset.bsTheme = "dark";
+document.documentElement.dataset.bsTheme = "dark";
 
 const { component } = await use("@/component.js");
 
