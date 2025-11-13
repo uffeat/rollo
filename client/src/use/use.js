@@ -398,7 +398,6 @@ assets.types.add(
       } else {
         result = await Module.create(text, path.path);
       }
-
       cache.set(key, result);
       return result;
     };
@@ -410,6 +409,41 @@ NOTE Does not cache to avoid mutation issues. */
 assets.types.add("json", (result, { options, owner, path }, ...args) => {
   return JSON.parse(result);
 });
+
+assets.processors.add(
+  "x.template",
+  (() => {
+    const cache = new Map();
+    return async (result, { options, owner, path }, ...args) => {
+      const key = path.full;
+      if (cache.has(key)) return cache.get(key);
+      const { component } = await use("@/component.js");
+      const { Sheet } = await owner.get("@/sheet.js");
+      const temp = component.div({ innerHTML: result });
+      const assets = Object.freeze(
+        Object.fromEntries([
+          ...Array.from(temp.querySelectorAll(`style[name]`), (e) => [
+            e.getAttribute("name"),
+            Sheet.create(e.textContent.trim()),
+          ]),
+          ...Array.from(temp.querySelectorAll(`template[name]`), (e) => [
+            e.getAttribute("name"),
+            e.innerHTML.trim(),
+          ]),
+        ])
+      );
+      const script = temp.querySelector("script");
+      if (script) {
+        const mod = await Module.create(script.textContent.trim(), path.path);
+        result = (await mod?.default?.call(assets, {path})) ?? assets;
+      } else {
+        result = assets
+      }
+      cache.set(key, result);
+      return result;
+    };
+  })()
+);
 
 function typeName(value) {
   return Object.prototype.toString.call(value).slice(8, -1);

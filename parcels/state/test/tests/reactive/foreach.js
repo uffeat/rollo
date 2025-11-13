@@ -1,12 +1,12 @@
 /*
-state/reactive/foreach.js
+reactive/foreach.js
 */
 
-import { reactive } from "../../../../../parcels/state/index.js";
+
 
 const { layout } = await use("@//layout.js");
 
-export default async () => {
+export default async ({ reactive }) => {
   layout.clear(":not([slot])");
 
   const state = reactive({ foo: 2, bar: 3 });

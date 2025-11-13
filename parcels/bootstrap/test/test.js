@@ -4,20 +4,14 @@ import * as parcel from "../index.js";
 /* Overload to use live parcel */
 use.assets.add("@/bootstrap.js", parcel);
 
-document.querySelector("html").dataset.bsTheme = "dark";
-
-
-
+document.documentElement.dataset.bsTheme = "dark";
 
 await setup()(
   {
-    tests: {
-      ...import.meta.glob("./tests/**/*.js"),
-      ...import.meta.glob("./tests/**/*.html", {
-        query: "?raw",
-      }),
-    },
-    report: async ({ path, result, test }) => {},
+    ...import.meta.glob("./tests/**/*.js"),
+    ...import.meta.glob("./tests/**/*.html", {
+      query: "?raw",
+    }),
   },
   { ...parcel }
 );

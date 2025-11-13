@@ -1,0 +1,23 @@
+<style name="sheet">
+  [foo] {
+    color: pink !important;
+  }
+</style>
+
+<template name="template">
+  <h1 class="foo">From '/test/foo.x.template'</h1>
+</template>
+
+<script type="module">
+  export default async function () {
+    const { Sheet, scope } = await use("@/sheet.js");
+    const { component, factory } = await use("@/component.js");
+    return (...args) => {
+      const element = component.div({ innerHTML: this.template });
+      element.attribute.foo = true;
+      element.on._connect = (event) => this.sheet.use();
+      element.on._disconnect = (event) => this.sheet.unuse();
+      return factory(element)(...args);
+    };
+  }
+</script>

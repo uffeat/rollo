@@ -4,11 +4,13 @@ static.js
 const { component } = await use("@/component.js");
 const { layout } = await use("@//layout.js");
 
-export default ({ Sheet, assets, css }) => {
-  
+export default ({ Sheet, sheets }) => {
+  layout.clear(":not([slot])");
 
-  const sheet = Sheet.create(assets.base).use(document);
-  
+  const sheet = Sheet.create(sheets.base, {}, { foo: 42 }).use(document);
+
+  console.log("detail:", sheet.detail); ////
+
   component.menu(
     {
       parent: layout,

@@ -20,13 +20,10 @@ document.querySelector("html").dataset.bsTheme = "dark";
 
 await setup()(
   {
-    tests: {
-      ...import.meta.glob("./tests/**/*.js"),
-      ...import.meta.glob("./tests/**/*.html", {
-        query: "?raw",
-      }),
-    },
-    report: async ({ path, result, test }) => {},
+    ...import.meta.glob("./tests/**/*.js"),
+    ...import.meta.glob("./tests/**/*.html", {
+      query: "?raw",
+    }),
   },
   {}
 );

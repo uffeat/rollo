@@ -21,13 +21,7 @@ export default async ({ marked }) => {
   const page = component.div("container.p-3", { parent: layout }, items);
 
   const Item = async (path) => {
-
-
-
-    console.log('path:', path)
-
-
-
+    console.log("path:", path);
 
     const raw = await use(path);
     const parts = raw.trim().split("---");
@@ -103,12 +97,9 @@ export default async ({ marked }) => {
     return item;
   };
 
-  const paths = ["/content/blog/sprocket.md", "/content/blog/bevel.md"]
+  const paths = ["/content/blog/sprocket.md", "/content/blog/bevel.md"];
 
   for (const path of paths) {
     Item(path).then((item) => items.append(item));
-    
   }
-
- 
 };

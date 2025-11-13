@@ -4,7 +4,7 @@ const m = class extends HTMLElement {
   }
 };
 customElements.define("sheet-reference", m);
-const p = new m(), { typeName: g } = await use("@/tools/types.js"), { camelToKebab: y } = await use("@/tools/case.js"), { truncate: S } = await use("@/tools/truncate.js"), { Exception: u } = await use("Exception"), c = "@media";
+const y = new m(), { typeName: w } = await use("@/tools/types.js"), { camelToKebab: S } = await use("@/tools/case.js"), { truncate: R } = await use("@/tools/truncate.js"), { Exception: u } = await use("Exception"), c = "@media";
 class f {
   static create = (...e) => new f(...e);
   #e = {};
@@ -23,7 +23,7 @@ class f {
   get text() {
     return Array.from(
       this.owner.cssRules,
-      (e) => S(e.cssText)
+      (e) => R(e.cssText)
     ).join(" ");
   }
   /* Adds rules. */
@@ -55,14 +55,14 @@ class f {
         if (t instanceof CSSStyleRule)
           this.#s(t, s);
         else if (t instanceof CSSMediaRule)
-          for (const [n, i] of Object.entries(s)) {
-            const l = this.#r(t, n);
-            l ? this.#s(l, i) : this.#t(t, n, i);
+          for (const [i, n] of Object.entries(s)) {
+            const l = this.#r(t, i);
+            l ? this.#s(l, n) : this.#t(t, i, n);
           }
         else if (t instanceof CSSKeyframesRule)
-          for (const [n, i] of Object.entries(s)) {
-            const l = t.findRule(`${n}%`);
-            l ? this.#s(l, i) : this.#t(t, selector, i);
+          for (const [i, n] of Object.entries(s)) {
+            const l = t.findRule(`${i}%`);
+            l ? this.#s(l, n) : this.#t(t, selector, n);
           }
       } else
         this.#t(this.owner, r, s);
@@ -78,13 +78,13 @@ class f {
     if (t instanceof CSSStyleRule)
       return this.#s(t, s);
     if (t instanceof CSSMediaRule) {
-      for (const [n, i] of Object.entries(s))
-        this.#t(t, n, i);
+      for (const [i, n] of Object.entries(s))
+        this.#t(t, i, n);
       return t;
     }
     if (t instanceof CSSKeyframesRule) {
-      for (const [n, i] of Object.entries(s))
-        t.appendRule(`${n}% { }`), this.#s(t.findRule(`${n}%`), i);
+      for (const [i, n] of Object.entries(s))
+        t.appendRule(`${i}% { }`), this.#s(t.findRule(`${i}%`), n);
       return t;
     }
   }
@@ -110,8 +110,8 @@ class f {
     );
     const s = Array.from(e.cssRules);
     for (let t of r) {
-      let n;
-      t.startsWith(c) ? (t = t.slice(c.length).trim(), n = s.filter((i) => i instanceof CSSMediaRule).findIndex((i) => i.conditionText === t)) : n = s.filter((i) => i instanceof CSSStyleRule).findIndex((i) => i.selectorText === t), n > -1 && e.deleteRule(n);
+      let i;
+      t.startsWith(c) ? (t = t.slice(c.length).trim(), i = s.filter((n) => n instanceof CSSMediaRule).findIndex((n) => n.conditionText === t)) : i = s.filter((n) => n instanceof CSSStyleRule).findIndex((n) => n.selectorText === t), i > -1 && e.deleteRule(i);
     }
     return e;
   }
@@ -119,11 +119,11 @@ class f {
     e instanceof CSSRule || u.raise("Invalid rule.", () => console.error("rule:", e));
     for (let [s, t] of Object.entries(r))
       if (t !== void 0) {
-        if (g(t) === "Object") {
-          const [n, i] = Object.entries(t)[0];
-          t = `${i}${n}`;
+        if (w(t) === "Object") {
+          const [i, n] = Object.entries(t)[0];
+          t = `${n}${i}`;
         }
-        if (s.startsWith("__") ? s = `--${s.slice(2)}` : s.startsWith("--") || (s = y(s.trim())), t === !1) {
+        if (s.startsWith("__") ? s = `--${s.slice(2)}` : s.startsWith("--") || (s = S(s.trim())), t === !1) {
           e.style.removeProperty(s);
           continue;
         }
@@ -142,7 +142,7 @@ class f {
     return e;
   }
   #l(e) {
-    return e in p.style || e.startsWith("--");
+    return e in y.style || e.startsWith("--");
   }
 }
 class h {
@@ -177,15 +177,16 @@ class h {
     }
   }
 }
-class w extends CSSStyleSheet {
-  static create = (...e) => new w(...e);
+const { typeName: d } = await use("@/tools/types.js");
+class g extends CSSStyleSheet {
+  static create = (...e) => new g(...e);
   #e = {
     detail: {}
   };
   constructor(...e) {
-    super(), this.#e.rules = f.create(this), this.#e.targets = h.create(this), this.#e.text = e.find((s, t) => !t && typeof s == "string"), this.#e.path = e.find((s, t) => t && typeof s == "string");
-    const r = e.find((s, t) => g(s) === "Object");
-    this.text && this.replaceSync(this.text), r && this.rules.add(r);
+    super(), this.#e.rules = f.create(this), this.#e.targets = h.create(this), this.#e.text = e.find((t, i) => !i && typeof t == "string"), this.#e.path = e.find((t, i) => i && typeof t == "string");
+    const r = e.find((t) => d(t) === "Object"), s = e.find((t) => d(t) === "Object" && t !== r);
+    this.text && this.replaceSync(this.text), r && this.rules.add(r), Object.assign(this.detail, s);
   }
   /* Returns detail for ad-hoc data. */
   get detail() {
@@ -225,7 +226,7 @@ class w extends CSSStyleSheet {
     return this;
   }
 }
-const { camelToKebab: a } = await use("@/tools/case.js"), R = document.documentElement, d = new class {
+const { camelToKebab: a } = await use("@/tools/case.js"), x = document.documentElement, p = new class {
   #e = {};
   constructor() {
     this.#e.color = new class {
@@ -246,7 +247,7 @@ const { camelToKebab: a } = await use("@/tools/case.js"), R = document.documentE
       {},
       {
         get(o, e) {
-          return getComputedStyle(R).getPropertyValue(`--${a(e, { numbers: !0 })}`).trim();
+          return getComputedStyle(x).getPropertyValue(`--${a(e, { numbers: !0 })}`).trim();
         }
       }
     );
@@ -270,10 +271,10 @@ const { camelToKebab: a } = await use("@/tools/case.js"), R = document.documentE
   important(...o) {
     return `${o.join(" ")} !important`;
   }
-}(), b = new Proxy(() => {
+}(), j = new Proxy(() => {
 }, {
   get(o, e) {
-    return e in d ? d[e] : e in p.style ? new Proxy(
+    return e in p ? p[e] : e in y.style ? new Proxy(
       {},
       {
         get(r, s) {
@@ -287,7 +288,9 @@ const { camelToKebab: a } = await use("@/tools/case.js"), R = document.documentE
   }
 }), $ = (o) => `[uid="${o.uid}"]`;
 export {
-  w as Sheet,
-  b as css,
+  f as Rules,
+  g as Sheet,
+  h as Targets,
+  j as css,
   $ as scope
 };

@@ -50,7 +50,7 @@ export default (parent, config) => {
 
         /* Replaces classes with substitutes. Chainable with respect to component.
         NOTE
-        - Mismatch between 'classes' and 'substitutes' sizes are (intentionally) 
+        - If mismatch between 'classes' and 'substitutes' sizes are (intentionally) 
         silently ignored. */
         replace(classes, substitutes) {
           classes = classes.split(".");

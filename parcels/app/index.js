@@ -1,1 +1,1 @@
-export { app } from "./src/app.js";
+export { app, breakpoints } from "./src/app.js";

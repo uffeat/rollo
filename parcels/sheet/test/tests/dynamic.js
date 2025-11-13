@@ -4,11 +4,11 @@ dynamic.js
 const { component } = await use("@/component.js");
 const { layout } = await use("@//layout.js");
 
-export default ({ Sheet, assets, css }) => {
-  const path = "base";
-  const sheet = Sheet.create(assets[path], path).use(document);
+export default ({ Sheet, sheets, css }) => {
+  layout.clear(":not([slot])");
 
-  sheet.rules.add({
+  const path = "base";
+  const sheet = Sheet.create(sheets[path], path, {
     ".base": css.backgroundColor.hotpink,
     min600: {
       ".base": css.backgroundColor.green,
@@ -23,14 +23,16 @@ export default ({ Sheet, assets, css }) => {
         scale: 1,
       },
     },
-  });
+  }, {foo: 42}).use(document);
+
+  console.log("detail:", sheet.detail); ////
 
   console.log("text:", sheet.rules.text); ////
 
   sheet.rules.update({
     ".base": {
       ...css.border["4px solid red"],
-      animationName: 'slideIn',
+      animationName: "slideIn",
       animationDuration: css.s(1),
     },
     min600: {

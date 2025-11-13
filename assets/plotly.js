@@ -1,4 +1,4 @@
-await use("/plotly.js", { as: "script" });
+await use("/assets/plotly.js", { as: "script" });
 const l = globalThis.Plotly;
 delete globalThis.Plotly;
 export {
