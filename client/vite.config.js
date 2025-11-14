@@ -19,14 +19,13 @@ export default defineConfig(({ mode }) => {
       manifest: true,
       target: "es2022",
       rollupOptions: {
-        /* Exclude test files from bundle. Likely redundant, but keep as extra guard rail.  */
-        external: (path) => path.includes("/test/"),
+        external: (path) => !path.includes("/src/"),
       },
     },
 
     server: {
-    port: 3869
-  },
+      port: 3869,
+    },
 
     plugins: [
       /* Enable Temporal without the need to go: 
@@ -40,3 +39,5 @@ export default defineConfig(({ mode }) => {
     ],
   };
 });
+
+//path.startsWith("./test/")

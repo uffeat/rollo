@@ -2,25 +2,25 @@ export default (parent, config, ...mixins) => {
   return class extends parent {
     static __name__ = "super_";
 
-    #super_;
+    #_ = {}
 
     __new__() {
       super.__new__?.();
 
-      const get_super = (key) => {
+      const _get = (key) => {
         return super[key];
       };
 
-      const set_super = (key, value) => {
+      const _set = (key, value) => {
         super[key] = value;
       };
 
-      this.#super_ = new Proxy(this, {
+      this.#_.super_ = new Proxy(this, {
         get(target, key) {
-          return get_super(key);
+          return _get(key);
         },
         set(target, key, value) {
-          set_super(key, value);
+          _set(key, value);
           return true;
         },
       });
@@ -28,7 +28,7 @@ export default (parent, config, ...mixins) => {
 
     /* Returns object, from which super items can be retrived/set. */
     get super_() {
-      return this.#super_;
+      return this.#_.super_
     }
   };
 };

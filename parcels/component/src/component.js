@@ -3,6 +3,8 @@ import { mix } from "./tools/mix.js";
 import { Mixins, mixins } from "./mixins/mixins.js";
 import { registry } from "./tools/registry.js";
 
+const { stateMixin } = await use("@/state.js");
+
 /* Registers native web component from tag and returns component class. */
 const create = (tag) => {
   const key = `x-${tag}`;
@@ -17,7 +19,7 @@ const create = (tag) => {
     throw new Error(`'${tag}' is not native.`);
   }
 
-  const _mixins = Mixins("!text");
+  const _mixins = Mixins("!text", stateMixin);
 
   if ("textContent" in ref) {
     _mixins.push(mixins.text);

@@ -13,7 +13,7 @@ from types import MappingProxyType
 from mixins import Files, Minify
 from tools import encode, get_config, get_timestamp, plural
 
-SRC = Path.cwd() / "client/assets"
+SRC = Path.cwd() / "assets"
 UTF_8 = "utf-8"
 
 timestamp = get_timestamp()

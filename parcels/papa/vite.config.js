@@ -7,7 +7,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   build: {
     emptyOutDir: false,
-    outDir: "../../assets",
+    outDir: "../../client/assets",
     minify: true, //
     target: "es2022",
     lib: {
