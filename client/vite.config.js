@@ -19,7 +19,9 @@ export default defineConfig(({ mode }) => {
       manifest: true,
       target: "es2022",
       rollupOptions: {
-        external: (path) => !path.includes("/src/"),
+        external: (path) =>
+          (path.includes("/assets/") && !path.includes("/src/")) ||
+          (path.includes("/test/") && !path.includes("/src/")),
       },
     },
 
@@ -40,4 +42,4 @@ export default defineConfig(({ mode }) => {
   };
 });
 
-//path.startsWith("./test/")
+
