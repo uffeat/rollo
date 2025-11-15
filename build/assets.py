@@ -1,9 +1,4 @@
 """Utility for building main stylesheet and asset-carrier sheet.
-
-NOTE
-- Risk of error, if live-server is running.
-
-
 """
 
 import json

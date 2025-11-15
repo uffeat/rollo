@@ -2,7 +2,7 @@
 path/full.js
 */
 
-const Path = await use("Path");
+const Path = await use("/tools/path.js");
 
 export default async () => {
   (() => {

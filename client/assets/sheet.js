@@ -4,7 +4,7 @@ const m = class extends HTMLElement {
   }
 };
 customElements.define("sheet-reference", m);
-const y = new m(), { typeName: w } = await use("@/tools/types.js"), { camelToKebab: S } = await use("@/tools/case.js"), { truncate: R } = await use("@/tools/truncate.js"), { Exception: u } = await use("Exception"), c = "@media";
+const y = new m(), { Exception: u } = await use("@/tools/exception.js"), { camelToKebab: w } = await use("@/tools/case.js"), { truncate: S } = await use("@/tools/truncate.js"), { type: R } = await use("@/tools/type.js"), c = "@media";
 class f {
   static create = (...e) => new f(...e);
   #e = {};
@@ -23,7 +23,7 @@ class f {
   get text() {
     return Array.from(
       this.owner.cssRules,
-      (e) => R(e.cssText)
+      (e) => S(e.cssText)
     ).join(" ");
   }
   /* Adds rules. */
@@ -119,11 +119,11 @@ class f {
     e instanceof CSSRule || u.raise("Invalid rule.", () => console.error("rule:", e));
     for (let [s, t] of Object.entries(r))
       if (t !== void 0) {
-        if (w(t) === "Object") {
+        if (R(t) === "Object") {
           const [i, n] = Object.entries(t)[0];
           t = `${n}${i}`;
         }
-        if (s.startsWith("__") ? s = `--${s.slice(2)}` : s.startsWith("--") || (s = S(s.trim())), t === !1) {
+        if (s.startsWith("__") ? s = `--${s.slice(2)}` : s.startsWith("--") || (s = w(s.trim())), t === !1) {
           e.style.removeProperty(s);
           continue;
         }
@@ -177,7 +177,7 @@ class h {
     }
   }
 }
-const { typeName: d } = await use("@/tools/types.js");
+const { type: d } = await use("@/tools/type.js");
 class g extends CSSStyleSheet {
   static create = (...e) => new g(...e);
   #e = {

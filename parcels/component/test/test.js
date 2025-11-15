@@ -1,4 +1,4 @@
-import "../../../client/src/use/use.js";
+import "../../../client/src/use.js";
 import { setup } from "../../../test/setup.js";
 import * as parcel from "../index.js";
 /* Overload to use live parcel */

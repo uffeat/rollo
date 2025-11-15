@@ -1,4 +1,4 @@
-const { typeName: d } = await use("@/tools/types.js");
+const { type: d } = await use("@/tools/type.js");
 class p {
   #t = {};
   constructor(n) {
@@ -430,8 +430,8 @@ const k = (r, n, ...t) => class extends r {
   /* Updates accessor props. Chainable. */
   update(t = {}) {
     super.update?.(t);
-    for (let [e, s] of Object.entries(t))
-      e.startsWith("__") || !(e in this) && !e.startsWith("_") || s === void 0 || s === "..." || this[e] !== s && (this[e] = s);
+    for (const [e, s] of Object.entries(t))
+      e.startsWith("__") || !(e in this) && !e.startsWith("_") || s === void 0 || s === "..." || this[e] !== s && (typeof s == "function" ? s((i) => this[e] = i) : this[e] = s);
     return this;
   }
 }, M = (r, n) => class extends r {
@@ -476,7 +476,7 @@ const k = (r, n, ...t) => class extends r {
   get super_() {
     return this.#t.super_;
   }
-}, N = (r, n) => class extends r {
+}, q = (r, n) => class extends r {
   static __name__ = "tab";
   /* Returns tabindex. */
   get tab() {
@@ -486,7 +486,7 @@ const k = (r, n, ...t) => class extends r {
   set tab(t) {
     [!1, null].includes(t) ? this.removeAttribute("tabindex") : this.setAttribute("tabindex", t);
   }
-}, q = (r, n) => class extends r {
+}, z = (r, n) => class extends r {
   static __name__ = "text";
   /* Returns text content. */
   get text() {
@@ -497,11 +497,11 @@ const k = (r, n, ...t) => class extends r {
     this.textContent = t;
   }
 };
-let z = 0;
+let N = 0;
 const V = (r, n) => class extends r {
   static __name__ = "uid";
   constructor() {
-    super(), this.setAttribute("uid", `uid${z++}`);
+    super(), this.setAttribute("uid", `uid${N++}`);
   }
   /* Returns uid. */
   get uid() {
@@ -568,8 +568,8 @@ const V = (r, n) => class extends r {
         "./mixins/send.js": M,
         "./mixins/style.js": H,
         "./mixins/super_.js": S,
-        "./mixins/tab.js": N,
-        "./mixins/text.js": q,
+        "./mixins/tab.js": q,
+        "./mixins/text.js": z,
         "./mixins/uid.js": V,
         "./mixins/vars.js": D
       })

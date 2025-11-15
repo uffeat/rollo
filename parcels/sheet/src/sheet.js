@@ -1,7 +1,7 @@
 import { Rules } from "./rules.js";
 import { Targets } from "./targets.js";
 
-const { typeName } = await use("@/tools/types.js");
+const { type } = await use("@/tools/type.js");
 
 /* CSSStyleSheet extension with controlled adoption and light-weight dynamic 
 rule control. */
@@ -20,20 +20,12 @@ export class Sheet extends CSSStyleSheet {
     /* Parse args */
     this.#_.text = args.find((a, i) => !i && typeof a === "string");
     this.#_.path = args.find((a, i) => i && typeof a === "string");
-
-    const rules = args.find((a) => typeName(a) === "Object");
-
-    const detail = args.find((a) => typeName(a) === "Object" && a !== rules);
-
-
-   
-
-
-
+    const rules = args.find((a) => type(a) === "Object");
+    const detail = args.find((a) => type(a) === "Object" && a !== rules);
     /* Use args */
     if (this.text) this.replaceSync(this.text);
     if (rules) this.rules.add(rules);
-    Object.assign(this.detail, detail)
+    Object.assign(this.detail, detail);
   }
 
   /* Returns detail for ad-hoc data. */

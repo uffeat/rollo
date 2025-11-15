@@ -3,7 +3,7 @@ import { UIkit } from "./uk.js";
 const { Future } = await use("@/tools/future.js");
 const { Sheet, css } = await use("@/sheet.js");
 const { component } = await use("@/component.js");
-const { typeName } = await use("@/tools/types.js");
+const { type } = await use("/tools/type.js");
 
 //const sheet = await use("/assets/uk/modal.css");
 
@@ -60,7 +60,7 @@ export const modal = (content, ...args) => {
     dismissible = true,
     full = false,
     scroll = false,
-  } = args.find((a) => typeName(a) === "Object") || {};
+  } = args.find((a) => type(a) === "Object") || {};
   const callback = args.find((a) => typeof a === "function");
 
   /* Build tree */

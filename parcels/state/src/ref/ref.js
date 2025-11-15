@@ -1,6 +1,7 @@
 import { Message } from "../tools/message.js";
 
-const { typeName, is } = await use("@/tools/types.js");
+const { type } = await use("@/tools/type.js");
+const { is } = await use("@/tools/is.js");
 
 export class Ref {
   static create = (...args) => new Ref(...args);
@@ -32,7 +33,7 @@ export class Ref {
       add(effect, ...args) {
         /* Parse args */
         const condition = args.find((a) => typeof a === "function");
-        const { data = {}, once, run = true } = (args.find((a, i) => !i && typeName(a) === "Object") || {});
+        const { data = {}, once, run = true } = (args.find((a, i) => !i && type(a) === "Object") || {});
         /* Create detail. 
         NOTE detail is kept mutable to enable dynamic reactive patterns. */
         const detail = (() => {
@@ -74,8 +75,8 @@ export class Ref {
       }
     })(this, this.#_.registry);
     /* Parse args */
-    const current = args.find((a, i) => !i && typeName(a) !== "Object");
-    const options = args.find((a) => typeName(a) === "Object") || {};
+    const current = args.find((a, i) => !i && type(a) !== "Object");
+    const options = args.find((a) => type(a) === "Object") || {};
     const { detail, match = function(other) {return this.current === other}, name, owner } = options;
     const effects = args.filter((a) => is.arrow(a));
     const hooks = args.filter((a) => !is.arrow(a) && typeof a === "function");

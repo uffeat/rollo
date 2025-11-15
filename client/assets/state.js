@@ -34,7 +34,7 @@ class x {
     this.#t.stopped = !0;
   }
 }
-const { typeName: A, is: W } = await use("@/tools/types.js");
+const { type: A } = await use("@/tools/type.js"), { is: W } = await use("@/tools/is.js");
 class z {
   static create = (...t) => new z(...t);
   #t = {
@@ -133,7 +133,7 @@ class z {
     return this;
   }
 }
-const { typeName: $, is: k } = await use("@/tools/types.js");
+const { type: $ } = await use("@/tools/type.js"), { is: E } = await use("@/tools/is.js");
 class j {
   static create = (...t) => new j(...t);
   #t = {
@@ -172,20 +172,20 @@ class j {
           data: m,
           once: O = !1,
           run: y = !0
-        } = a.find((u, _) => !_ && $(u) === "Object") || {}, d = a.filter((u) => k.arrow(u)), v = a.filter(
-          (u) => !k.arrow(u) && typeof u == "function"
-        ), f = z.create({ owner: s }), E = s.effects.add(
-          (u, _) => {
-            f.update(e(u, _));
+        } = a.find((f, _) => !_ && $(f) === "Object") || {}, d = a.filter((f) => E.arrow(f)), v = a.filter(
+          (f) => !E.arrow(f) && typeof f == "function"
+        ), u = z.create({ owner: s }), k = s.effects.add(
+          (f, _) => {
+            u.update(e(f, _));
           },
           { data: m, once: O, run: y }
         );
-        this.#e.registry.set(f, E);
-        for (const u of d)
-          f.effects.add(u, { once: O, run: y });
-        for (const u of v)
-          u.call(f);
-        return f;
+        this.#e.registry.set(u, k);
+        for (const f of d)
+          u.effects.add(f, { once: O, run: y });
+        for (const f of v)
+          f.call(u);
+        return u;
       }
       /* TODO
       - remove, size, etc. */
@@ -213,14 +213,14 @@ class j {
       }
       add(e, ...a) {
         const m = (() => {
-          const f = a.find((u) => typeof u == "function");
-          if (f)
-            return f;
-          const E = a.find((u) => Array.isArray(u));
-          if (E)
-            return (u) => {
-              for (const _ of E)
-                if (_ in u)
+          const u = a.find((f) => typeof f == "function");
+          if (u)
+            return u;
+          const k = a.find((f) => Array.isArray(f));
+          if (k)
+            return (f) => {
+              for (const _ of k)
+                if (_ in f)
                   return !0;
               return !1;
             };
@@ -228,13 +228,13 @@ class j {
           data: O = {},
           once: y,
           run: d = !0
-        } = a.find((f) => $(f) === "Object") || {}, v = (() => {
-          const f = { data: { ...O } };
-          return m && (f.condition = m), y && (f.once = y), f;
+        } = a.find((u) => $(u) === "Object") || {}, v = (() => {
+          const u = { data: { ...O } };
+          return m && (u.condition = m), y && (u.once = y), u;
         })();
         if (this.#e.registry.set(e, v), d) {
-          const f = x.create(this.#e.owner);
-          f.detail = v, f.effect = e, (!m || m(this.#e.owner.current, f)) && e(this.#e.owner.current, f);
+          const u = x.create(this.#e.owner);
+          u.detail = v, u.effect = e, (!m || m(this.#e.owner.current, u)) && e(this.#e.owner.current, u);
         }
         return e;
       }
@@ -250,7 +250,7 @@ class j {
     }(this, this.#t.registry);
     const r = {
       ...t.find((n, e) => !e && $(n) === "Object") || {}
-    }, i = t.find((n, e) => e && $(n) === "Object") || {}, { config: h = {}, detail: p, name: c, owner: l } = i, { match: w } = h, o = t.filter((n) => k.arrow(n)), g = t.filter((n) => !k.arrow(n) && typeof n == "function");
+    }, i = t.find((n, e) => e && $(n) === "Object") || {}, { config: h = {}, detail: p, name: c, owner: l } = i, { match: w } = h, o = t.filter((n) => E.arrow(n)), g = t.filter((n) => !E.arrow(n) && typeof n == "function");
     this.#t.owner = l, this.#t.name = c, Object.assign(this.detail, p), this.config.match = w, this.update(r);
     for (const n of o)
       this.effects.add(n);
@@ -376,7 +376,7 @@ class j {
     return this;
   }
 }
-const q = (...b) => j.create(...b).$, M = await use("Exception"), B = (...b) => {
+const B = (...b) => j.create(...b).$, { Exception: M } = await use("@/tools/exception.js"), D = (...b) => {
   const t = z.create(...b);
   return new Proxy(() => {
   }, {
@@ -390,7 +390,7 @@ const q = (...b) => j.create(...b).$, M = await use("Exception"), B = (...b) => 
       return t.update(...i), t.current;
     }
   });
-}, N = "$", P = N.length, D = (b) => class extends b {
+}, P = "$", C = P.length, F = (b) => class extends b {
   static __name__ = "reactive";
   #t = {};
   constructor() {
@@ -429,11 +429,11 @@ const q = (...b) => j.create(...b).$, M = await use("Exception"), B = (...b) => 
   update(t = {}) {
     return super.update?.(t), this.$(
       Object.fromEntries(
-        Object.entries(t).filter(([s, r]) => s.startsWith(N)).map(([s, r]) => [s.slice(P), r])
+        Object.entries(t).filter(([s, r]) => s.startsWith(P)).map(([s, r]) => [s.slice(C), r])
       )
     ), this;
   }
-}, F = (b) => class extends b {
+}, G = (b) => class extends b {
   static __name__ = "ref";
   #t = {};
   constructor() {
@@ -478,8 +478,8 @@ const q = (...b) => j.create(...b).$, M = await use("Exception"), B = (...b) => 
 export {
   j as Reactive,
   z as Ref,
-  q as reactive,
-  B as ref,
-  F as refMixin,
-  D as stateMixin
+  B as reactive,
+  D as ref,
+  G as refMixin,
+  F as stateMixin
 };

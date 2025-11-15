@@ -1,7 +1,8 @@
 import { Message } from "../tools/message.js";
 import { Ref } from "../ref/ref.js";
 
-const { typeName, is } = await use("@/tools/types.js");
+const { type } = await use("@/tools/type.js");
+const { is } = await use("@/tools/is.js");
 
 /* Reactive ADT for flat key-value collections.
 NOTE
@@ -67,7 +68,7 @@ export class Reactive {
           data,
           once = false,
           run = true,
-        } = args.find((a, i) => !i && typeName(a) === "Object") || {};
+        } = args.find((a, i) => !i && type(a) === "Object") || {};
         const effects = args.filter((a) => is.arrow(a));
         const hooks = args.filter(
           (a) => !is.arrow(a) && typeof a === "function"
@@ -158,7 +159,7 @@ export class Reactive {
           data = {},
           once,
           run = true,
-        } = args.find((a) => typeName(a) === "Object") || {};
+        } = args.find((a) => type(a) === "Object") || {};
 
         /* Create detail. 
         NOTE detail is kept mutable to enable dynamic reactive patterns. */
@@ -202,9 +203,9 @@ export class Reactive {
     })(this, this.#_.registry);
     /* Parse args */
     const updates = {
-      ...(args.find((a, i) => !i && typeName(a) === "Object") || {}),
+      ...(args.find((a, i) => !i && type(a) === "Object") || {}),
     };
-    const options = args.find((a, i) => i && typeName(a) === "Object") || {};
+    const options = args.find((a, i) => i && type(a) === "Object") || {};
     const { config = {}, detail, name, owner } = options;
     const { match } = config;
 
@@ -328,7 +329,7 @@ export class Reactive {
     if (other instanceof Reactive) {
       other = other.current;
     } else {
-      if (typeName(other) === "Object") {
+      if (type(other) === "Object") {
         /* Remove items with undefined values (ignored by convention) */
         other = Object.fromEntries(
           Object.entries(other).filter(([k, v]) => v !== undefined)

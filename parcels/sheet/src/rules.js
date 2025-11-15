@@ -1,9 +1,9 @@
 import { reference } from "./reference.js";
 
-const { typeName } = await use("@/tools/types.js");
+const { Exception } = await use("@/tools/exception.js");
 const { camelToKebab } = await use("@/tools/case.js");
 const { truncate } = await use("@/tools/truncate.js");
-const { Exception } = await use("Exception");
+const { type } = await use("@/tools/type.js");
 
 const MEDIA = "@media";
 
@@ -196,7 +196,7 @@ export class Rules {
         continue;
       }
 
-      if (typeName(value) === "Object") {
+      if (type(value) === "Object") {
         const [u, v] = Object.entries(value)[0];
         value = `${v}${u}`;
       }
@@ -243,4 +243,3 @@ export class Rules {
     return key in reference.style || key.startsWith("--");
   }
 }
-

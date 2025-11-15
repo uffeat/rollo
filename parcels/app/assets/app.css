@@ -1,9 +1,10 @@
 #app {
+  position: relative;
   height: 100vh;
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  position: relative;
+  
 
   img {
     max-width: 100%;

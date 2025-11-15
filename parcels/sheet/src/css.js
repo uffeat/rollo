@@ -1,7 +1,6 @@
 import { reference } from "./reference.js";
 const { camelToKebab } = await use("@/tools/case.js");
 
-
 const root = document.documentElement;
 
 const cls = new (class {

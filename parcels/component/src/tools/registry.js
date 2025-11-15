@@ -1,5 +1,3 @@
-
-
 export const registry = new (class {
   #_ = {
     registry: new Map(),

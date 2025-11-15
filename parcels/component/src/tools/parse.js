@@ -1,5 +1,6 @@
 
-const { typeName } = await use("@/tools/types.js");
+
+const { type } = await use("@/tools/type.js");
 
 
 /* Utility for parsing args in component factory functions. */
@@ -58,8 +59,7 @@ export class Parse {
   /* Returns updates. */
   get updates() {
     if (this.#_.updates === undefined) {
-      this.#_.updates =
-        this.#_.args.find((a, i) => typeName(a) === "Object") || {};
+      this.#_.updates = this.#_.args.find((a, i) => type(a) === "Object") || {};
     }
     return this.#_.updates;
   }

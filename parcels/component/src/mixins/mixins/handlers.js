@@ -1,5 +1,4 @@
 /* TODO
-- Refactor to use $ instead of @
 - Refactor run dir, so that an actual event is created. See py code 
  */
 

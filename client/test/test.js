@@ -11,19 +11,36 @@ NOTE
   - assets
 */
 
-import "../src/use/use.js";
-import { setup } from "../../test/setup.js";
+import "../src/use.js";
+
 
 document.querySelector("html").dataset.bsTheme = "dark";
 
+const STORAGE_KEY = "__test__";
+const PREFIX = "./tests/";
 
-
-await setup()(
-  {
-    ...import.meta.glob("./tests/**/*.js"),
-    ...import.meta.glob("./tests/**/*.html", {
-      query: "?raw",
-    }),
-  },
-  {}
+const tests = Object.fromEntries(
+  Object.entries(import.meta.glob("./tests/**/*.js")).map(([k, v]) => [
+    k.slice(PREFIX.length),
+    v,
+  ])
 );
+
+window.addEventListener("keydown", async (event) => {
+  /* Unit tests */
+  if (event.code === "KeyU" && event.shiftKey) {
+    const path = prompt("Path:", localStorage.getItem(STORAGE_KEY) || "");
+    if (path) {
+      localStorage.setItem(STORAGE_KEY, path);
+
+      const load = tests[path];
+      const loaded = await load();
+      const test = loaded.default;
+      await test();
+    }
+  }
+  /* Batch tests */
+  if (event.code === "KeyT" && event.shiftKey) {
+    //TODO
+  }
+});

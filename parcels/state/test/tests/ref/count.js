@@ -3,12 +3,21 @@ ref/count.js
 */
 
 
-const { component } = await use("@/component.js");
+import refMixin from "../../../src/ref/mixin.js";
+
+const { Mixins, author, component, mix } = await use("@/component.js");
 const { layout } = await use("@//layout.js");
 const { Sheet, css, scope } = await use("@/sheet.js");
+
+
 const sheet = Sheet.create();
 
-export default async ({ RefComponent, refMixin, ref }) => {
+const RefComponent = author(
+  class extends mix(HTMLElement, {}, ...Mixins(refMixin)) {},
+  "ref-component"
+);
+
+export default async ({ ref }) => {
   layout.clear(":not([slot])");
 
   sheet.rules.clear();

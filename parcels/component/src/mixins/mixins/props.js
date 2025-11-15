@@ -4,7 +4,7 @@ export default (parent, config) => {
     /* Updates accessor props. Chainable. */
     update(updates = {}) {
       super.update?.(updates);
-      for (let [key, value] of Object.entries(updates)) {
+      for (const [key, value] of Object.entries(updates)) {
         /* Ignore __ keys */
         if (key.startsWith("__")) {
           continue;
@@ -16,7 +16,7 @@ export default (parent, config) => {
         /* Ignore undefined'...' values, e.g., for efficient use of iife's.
         NOTE '...' is used as a proxy for undefined to enable use from Python, 
         which does not support undefined */
-        if (value === undefined || value === '...') {
+        if (value === undefined || value === "...") {
           continue;
         }
         /* Ignore no change */
@@ -24,10 +24,13 @@ export default (parent, config) => {
           continue;
         }
         /* Update */
-        this[key] = value;
+        if (typeof value === "function") {
+          value((v) => (this[key] = v));
+        } else {
+          this[key] = value;
+        }
       }
       return this;
     }
   };
 };
-

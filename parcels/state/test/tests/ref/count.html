@@ -15,9 +15,15 @@ ref/count.html
 </style>
 
 <script type="module">
+  const { Mixins, author, component, mix } = await use("@/component.js");
   const { layout } = await use("@//layout.js");
 
-  export default async ({ RefComponent, ReactiveComponent }, { sheet }) => {
+  export default async ({ refMixin }, { sheet }) => {
+    const RefComponent = author(
+      class extends mix(HTMLElement, {}, ...Mixins(refMixin)) {},
+      "ref-component"
+    );
+
     layout.clear(":not([slot])");
 
     const state = RefComponent(

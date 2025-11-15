@@ -1,7 +1,7 @@
 await use("/assets/uk/uk.js", { as: "function" });
 await use("/assets/uk/uk-icons.js", { as: "function" });
 await use("/assets/uk/uk.css", { as: "link" });
-const h = globalThis.UIkit, { Future: f } = await use("@/tools/future.js"), { Sheet: g, css: e } = await use("@/sheet.js"), { component: a } = await use("@/component.js"), { typeName: p } = await use("@/tools/types.js");
+const h = globalThis.UIkit, { Future: f } = await use("@/tools/future.js"), { Sheet: g, css: e } = await use("@/sheet.js"), { component: a } = await use("@/component.js"), { type: p } = await use("/tools/type.js");
 document.documentElement.dataset.bsTheme = "dark";
 const n = g.create();
 n.rules.add({

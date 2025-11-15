@@ -1,1 +1,0 @@
-Use the html-associated file type 'template' for html public assets to avoid injection of stuff by Vercel.
