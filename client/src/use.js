@@ -231,6 +231,8 @@ const assets = new (class Assets {
         get(target, key) {
           if (key === "assets") return assets;
           const value = assets[key];
+          /* TODO
+          - bind/call */
           return value;
         },
         set(target, key, value) {
@@ -274,7 +276,7 @@ const assets = new (class Assets {
 
   /* Injects asset. 
   NOTE Useful for
-  - manually making objects use-importable (avoid)
+  - manually making objects use-importable (generally avoid)
   - overloading asset when testing parcels (knock yourself out!). */
   add(key, value) {
     if (typeof key === "string") {
@@ -383,7 +385,6 @@ assets.sources.add(
       const { component } = await use("@/component.js");
       const { as, raw } = options;
 
-
       if (path.type === "css" && as !== "sheet" && raw !== true) {
         /* Escape transformation and processing */
         Object.assign(path.detail, { escape: true });
@@ -399,17 +400,16 @@ assets.sources.add(
         return await promise;
       }
 
-
       if (path.type === "js" && raw !== true) {
         if (as === "script") {
           /* Escape transformation and processing */
           Object.assign(path.detail, { escape: true });
           const src = `${owner.meta.base}${path.path}`;
           let script = document.head.querySelector(`script[src="${src}"]`);
-          if (script) return script;
+          if (script) return true;
           script = component.script({ src });
           const { promise, resolve } = Promise.withResolvers();
-          script.on.load$once = (event) => resolve();
+          script.on.load$once = (event) => resolve(true);
           document.head.append(script);
           return await promise;
         }
@@ -420,8 +420,11 @@ assets.sources.add(
         }
       }
       /* Asset text import */
-      const key = path.full;
-      if (cache.has(key)) return cache.get(key);
+      if (cache.has(path.full)) return cache.get(path.full);
+
+      console.log('fetching:', path.full)////
+
+
       const result = (
         await (
           await fetch(`${owner.meta.base}${path.path}`, { cache: "no-store" })
@@ -436,10 +439,10 @@ assets.sources.add(
       const temp = component.div({ innerHTML: result });
 
       if (temp.querySelector(`meta[index]`)) {
-        throw new Error(`Invalid path: ${path.path}`);
+        throw new Error(`Invalid path: ${path.full}`);
       }
 
-      cache.set(key, result);
+      cache.set(path.full, result);
       return result;
     };
   })()
@@ -452,20 +455,20 @@ assets.sources.add(
   "@",
   (() => {
     const cache = new Map();
-    const link = document.head.querySelector(`link[assets]`);
     return async ({ options, owner, path }, ...args) => {
-      const key = path.full;
-      if (cache.has(key)) return cache.get(key);
-      link.setAttribute("__path__", path.path);
-      const propertyValue = getComputedStyle(link)
+      if (cache.has(path.full)) return cache.get(path.full);
+      const probe = document.createElement("meta");
+      document.head.append(probe);
+      probe.setAttribute("__path__", path.path);
+      const propertyValue = getComputedStyle(probe)
         .getPropertyValue("--__asset__")
         .trim();
-      link.removeAttribute("__path__");
+      probe.remove();
       if (!propertyValue) {
-        throw new Error(`Invalid path: ${key}`);
+        throw new Error(`Invalid path: ${path.full}`);
       }
       const result = atob(propertyValue.slice(1, -1));
-      cache.set(key, result);
+      cache.set(path.full, result);
       return result;
     };
   })()
@@ -595,20 +598,17 @@ to avoid Vercel-injections.*/
 (() => {
   const cache = new Map();
   const handler = async (result, { options, owner, path }, ...args) => {
-    const { Module } = await owner.get("@/tools/module.js");
-
-    const key = path.full;
-    if (cache.has(key)) return cache.get(key);
+    if (cache.has(path.full)) return cache.get(path.full);
     const { extract } = await use("@/tools/html.js");
     const { assets, js } = extract(result);
     result = assets;
     if (js) {
       result =
         (await (
-          await Module.create(js, path.path)
+          await owner.module(js, path.path)
         )?.default?.call(assets, { path })) ?? assets;
     }
-    cache.set(key, result);
+    cache.set(path.full, result);
     return result;
   };
   use.assets.processors.add("x.html", handler);

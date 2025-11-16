@@ -1,12 +1,16 @@
-"""Utility for building main stylesheet and asset-carrier sheet.
+"""Utility for building main stylesheet and asset-carrier sheet."""
+
+"""TODO
+- Get public paths and write to public and assets
 """
 
 import json
 from pathlib import Path
-from types import MappingProxyType
+
 
 from mixins import Files, Minify
-from tools import encode, get_config, get_timestamp, plural
+from tools import encode, get_timestamp, plural
+from config import config
 
 SRC = Path.cwd() / "client/assets"
 UTF_8 = "utf-8"
@@ -16,25 +20,12 @@ timestamp = get_timestamp()
 
 class build(Files, Minify):
     def __init__(self):
-        """Reads config."""
-        config = get_config()
-        self.server = MappingProxyType(config["server"])
-        # Extract globals -> Explicitly declared global sheet paths
-        self.globals: tuple[str] = tuple(config.get("globals", []))
-        # Extract priorities -> Order for global sheet composition
-        self.priorities: MappingProxyType = MappingProxyType(
-            config.get("priorities", {})
-        )
+        """."""
 
-    def __call__(self) -> str:
+    def __call__(self):
         """Creates main sheet and asset bundle."""
-
-        messages = []
-        messages.append(self.build_main())
-        messages.append(self.build_assets())
-        message = " ".join(messages)
-
-        return message
+        self.build_assets()
+        self.build_main()
 
     @property
     def parcels(self):
@@ -42,11 +33,14 @@ class build(Files, Minify):
         # NOTE 'parcels' cannot be reused, therefore return new at each call
         return (Path.cwd() / "parcels").glob("*/")
 
-    def build_assets(self) -> str:
+    def build_assets(self):
         """Builds asset-carrier sheet."""
+        _config: dict = config()
+        main: tuple = _config.get("main", tuple())
+        private: tuple = _config.get("private", tuple())
 
-        rules = []
         paths = []
+        rules = []
 
         for file in SRC.rglob("**/*.*"):
             # Ignore unsupported types
@@ -76,20 +70,23 @@ class build(Files, Minify):
             # Process
             if file.suffix == ".css":
                 # Ignore global sheets
-                if f"/{path}" in self.globals:
+                if path in main:
                     continue
                 minified = self.minify_css(text)
                 encoded = encode(minified)
                 rules.append(self.create_asset_rule(path, encoded))
-                self.write_raw(path, minified)
+                """NOTE
+                - Writing to public enables css use by link.
+                """
+                if path not in private:
+                    self.write_public(path, minified)
                 continue
             if file.suffix == ".html":
-                ##self.write_raw(path, text)
-
-                text = self.minify_html(text)
-                encoded = encode(text)
+                minified = self.minify_html(minified)
+                encoded = encode(minified)
                 rules.append(self.create_asset_rule(path, encoded))
-                
+                if path not in private:
+                    self.write_public(path, minified)
                 continue
             if file.suffix == ".js":
                 encoded = encode(text)
@@ -104,27 +101,36 @@ class build(Files, Minify):
                 rules.append(self.create_asset_rule(path, encoded))
                 continue
             if file.suffix == ".svg":
-                # Write raw to enable CSS ref
-                self.write_raw(path, text)
                 minified = self.minify_html(text)
                 encoded = encode(minified)
                 rules.append(self.create_asset_rule(path, encoded))
+                """NOTE
+                - Writing to public enables svg use by css ref.
+                - Write unminified to enable icon display in editor.
+                """
+                if path not in private:
+                    self.write_public(path, text)
                 continue
             if file.suffix == ".template":
-                ##self.write_raw(path, text)
-
-                text = self.minify_html(text)
-                encoded = encode(text)
+                minified = self.minify_html(minified)
+                encoded = encode(minified)
                 rules.append(self.create_asset_rule(path, encoded))
+                if path not in private:
+                    self.write_public(path, minified)
                 continue
 
         # Meta
-        meta = dict(origins=dict(self.server))
-        rules.append(self.create_asset_rule("/__meta__.json", encode(json.dumps(meta))))
+        ## paths
+        paths = json.dumps(paths)
+        rules.append(self.create_asset_rule("/__paths__.json", encode(paths)))
         self.write(
-            "client/public/meta/paths.json",
-            json.dumps(paths),
+            "client/public/assets/meta/paths.json",
+            paths,
         )
+        ## server
+        server = json.dumps(_config.get("server", {}))
+        rules.append(self.create_asset_rule("/__server__.json", encode(server)))
+        self.write("client/public/assets/meta/server.json", server)
 
         # Create css
         css = f"/*{timestamp}*/\n" + self.minify_css("\n".join(rules))
@@ -138,31 +144,31 @@ class build(Files, Minify):
         count = len(rules)
         message = f"Built {count} asset{plural(count)}."
         print(message)
-        return message
 
-    def build_main(self) -> str:
+    def build_main(self):
         """Builds main (global) sheet."""
-        # Unfreeze globals
-        self.globals: list = list(self.globals)
+        _config: dict = config()
+        main: list = list(_config.get("main", tuple()))
+        priorities: dict = _config.get("priorities", {})
+
         # Prepare container for holding sheet text
         content = []
         # Get declared globals
-        for name in self.globals:
-            file: Path = SRC / name
+        for name in main:
+            file: Path = SRC / name[1:]
             if not file.is_file():
                 raise ValueError(f"Declared global sheet '{name}' not found.")
             text: str = file.read_text(encoding=UTF_8).strip()
             # Ignore empty files
             if not text:
                 continue
-            priority: int = self.priorities.get(name, 0)
+            priority: int = priorities.get(name, 0)
             # Harvest
             content.append([priority, text])
 
         # Get built parcel sheets.
-        """NOTE Vite writes global sheets to same-name dirs. To capture the behavior 
-        of the parcel in DEV, such sheets are interpreted as 'global' without
-        explicit declaration as such."""
+        """NOTE Vite writes global sheets to same-name dirs. Such sheets are 
+        interpreted as 'main' without explicit declaration."""
         for parcel in SRC.glob("*/"):
             file: Path = parcel / f"{parcel.name}.css"
             if file.is_file():
@@ -170,26 +176,23 @@ class build(Files, Minify):
                 # Ignore empty files
                 if not text:
                     continue
-                path = f"{parcel.name}/{parcel.name}.css"
-                priority: int = self.priorities.get(path, 0)
+                path = f"/{parcel.name}/{parcel.name}.css"
+                priority: int = priorities.get(path, 0)
                 # Guard against double reg
-                if path in self.globals:
+                if path in main:
                     raise ValueError(
                         f"Same-name parcel sheet '{path}' is considered global and should not be explicitly declared as such."
                     )
                 # Add to globals to signal to escape asset bundle
-                self.globals.append(path)
+                main.append(path)
                 # Harvest
                 content.append([priority, text])
-
-        # Refreeze globals
-        self.globals = tuple(self.globals)
 
         def COMMENT():
             """Now, content has the shape:"""
             content = [[0, "...css..."], ...]
 
-        content = sorted(content, key=lambda item: item[0], reverse=True)
+        content = sorted(content, key=lambda item: item[0])
         content = [item[1] for item in content]
 
         def COMMENT():
@@ -198,18 +201,15 @@ class build(Files, Minify):
 
         count = len(content)
         # Create css
-
         css = f"/*{timestamp}*/\n" + self.minify_css("\n".join(content))
         # Write to client public
         self.write(
             "client/public/main.css",
             css,
         )
-
         # Inform
         message = f"Aggregated {count} global sheet{plural(count)}."
         print(message)
-        return message
 
     def create_asset_rule(self, path: str, encoded: str) -> str:
         """Returns rule text."""
@@ -224,7 +224,7 @@ class build(Files, Minify):
             file.read_text(encoding=UTF_8).strip(),
         )
 
-    def write_raw(self, path: str, content: str) -> None:
+    def write_public(self, path: str, content: str) -> None:
         """Writes asset to file."""
         self.write(f"client/public/assets/{path}", content)
 

@@ -4,14 +4,7 @@ import shutil
 
 UTF_8 = "utf-8"
 
-PROTECTED = (
-    "_notes",
-    "theme/assets/favicon.svg",
-    "theme/assets/standard-page.html",
-    "theme/assets/theme.css",
-    "secrets.json",
-   
-)
+
 
 
 class Files:
@@ -22,24 +15,7 @@ class Files:
         if isinstance(target, str):
             target = Path.cwd() / target
 
-        """XXX Pretty manual, but unintended file deletion by code can be catastrophic!"""
-        if (
-            target.stem.startswith(".")
-            or target.suffix in (".md", ".yaml")
-            or (target.stem.startswith("__") and target.stem.endswith("__"))
-            or target.stem.endswith("_code")
-            and "out" not in target.parts
-        ):
-            ...
-
-        for protected in PROTECTED:
-
-            protected = Path.cwd() / protected
-
-            if protected is target or target.is_relative_to(protected):
-                raise ValueError(
-                    f"Cannot delete {str(target)[len(str(Path.cwd()))+1:]}"
-                )
+        
 
         if target.exists():
             for item in target.iterdir():
