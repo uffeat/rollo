@@ -1,5 +1,134 @@
 /* Import engine. */
 
+/* Utility for parsing path.
+NOTE export to enable testing */
+export class Path {
+  static create = (arg) => {
+    if (arg instanceof Path) {
+      return arg;
+    }
+    return new Path(arg);
+  };
+
+  #_ = {
+    detail: {},
+  };
+
+  constructor(specifier) {
+    this.#_.specifier = specifier;
+    /* Base path and query */
+    const [path, query] = specifier.split("?");
+    this.#_.query = Object.freeze(
+      query ? Array.from(new URLSearchParams(query).keys()) : []
+    );
+    /* Source */
+    this.#_.source = path.split("/").at(0);
+    /* Specifiers with file */
+    this.#_.file = path.split("/").at(-1) || undefined;
+    if (this.#_.file) {
+      /* File details */
+      this.#_.stem = this.#_.file.split(".").at(0);
+      this.#_.type = this.#_.file.split(".").at(-1);
+      const [_, ...types] = this.#_.file.split(".");
+      this.#_.types = types.join(".");
+      /* Parts and path with correction of '//' shorthand */
+      this.#_.parts = [];
+      path
+        .slice(this.#_.source.length + 1)
+        .split("/")
+        .forEach((part, index, parts) => {
+          if (part) {
+            this.#_.parts.push(part);
+          } else {
+            /* part represents the empty space between '//'. Get next dir or file stem */
+            if (index === parts.length - 2) {
+              /* Next is file */
+              this.#_.parts.push(this.#_.stem);
+            } else {
+              /* Next is a dir */
+              this.#_.parts.push(parts[index + 1]);
+            }
+          }
+        });
+      Object.freeze(this.#_.parts);
+      this.#_.path = `/${this.#_.parts.join("/")}`;
+      /* full */
+      this.#_.full = `${this.#_.source || ""}${this.#_.path}`;
+    }
+  }
+
+  /* Returns detail for ad-hoc data. */
+  get detail() {
+    return this.#_.detail;
+  }
+
+  /* Returns file name with types(s). */
+  get file() {
+    return this.#_.file;
+  }
+
+  /* Returns full path (incl. source). */
+  get full() {
+    return this.#_.full;
+  }
+
+  /* Returns array of dir/file parts (source excluded). */
+  get parts() {
+    return this.#_.parts;
+  }
+
+  /* Returns full file path (source excluded). */
+  get path() {
+    return this.#_.path;
+  }
+
+  /* Returns query array. */
+  get query() {
+    return this.#_.query;
+  }
+
+  /* Returns source name. */
+  get source() {
+    return this.#_.source || "/";
+  }
+
+  /* Returns specifier (subject to reconstruction). */
+  get specifier() {
+    return this.#_.specifier;
+  }
+
+  /* Returns file stem. */
+  get stem() {
+    return this.#_.stem;
+  }
+
+  /* Returns declared file type. */
+  get type() {
+    return this.#_.type;
+  }
+
+  /* Returns string with pseudo files types and declared file type. */
+  get types() {
+    return this.#_.types;
+  }
+
+  /* Returns 'Path' instance (of specifier, if 'raw') created current instance, 
+  but with replaced file type(s). */
+  as(types, { raw = false } = {}) {
+    if (!this.#_.file) {
+      throw new Error(`No file.`);
+    }
+    const specifier = `${this.source}${this.path.slice(
+      0,
+      -this.types.length
+    )}${types}${this.query.length ? "?" : ""}${this.query.join("&")}`;
+    if (raw) {
+      return specifier;
+    }
+    return new Path(specifier);
+  }
+}
+
 /* Base for composed registries */
 class Registry {
   #_ = {
@@ -35,7 +164,6 @@ class Registry {
 const assets = new (class Assets {
   #_ = {
     added: new Map(),
-    //cache: new Map(),
     detail: {},
     /* Rebuild native 'import' to prevent Vite from barking */
     import: Function("u", "return import(u)"),
@@ -43,7 +171,7 @@ const assets = new (class Assets {
 
   constructor() {
     const assets = this;
-    /* Create meta */
+    /* Compose meta */
     this.#_.meta = new (class Meta {
       #_ = {
         detail: {},
@@ -76,19 +204,19 @@ const assets = new (class Assets {
         return location.origin;
       }
     })();
-    /* Create sources controller */
+    /* Compose sources */
     this.#_.sources = new (class Sources extends Registry {
       constructor(owner) {
         super(owner);
       }
     })(this);
-    /* Create processors controller */
+    /* Compose processors */
     this.#_.processors = new (class Processors extends Registry {
       constructor(owner) {
         super(owner);
       }
     })(this);
-    /* Create types controller */
+    /* Compose types */
     this.#_.types = new (class Types extends Registry {
       constructor(owner) {
         super(owner);
@@ -102,7 +230,8 @@ const assets = new (class Assets {
       value: new Proxy(async () => {}, {
         get(target, key) {
           if (key === "assets") return assets;
-          return assets[key];
+          const value = assets[key];
+          return value;
         },
         set(target, key, value) {
           assets[key] = value;
@@ -120,7 +249,7 @@ const assets = new (class Assets {
     return this.#_.detail;
   }
 
-  /* Returns meta data. */
+  /* Returns meta. */
   get meta() {
     return this.#_.meta;
   }
@@ -160,19 +289,30 @@ const assets = new (class Assets {
   }
 
   /* Returns public module. 
-  NOTE Provided to enable dog-fooding. */
+  NOTE Provided as a service to handlers. */
   async import(path) {
-    //if (this.#_.cache.has(path)) return this.#_.cache.get(path);
     const result = await this.#_.import(`${this.meta.base}${path}`);
-    //this.#_.cache.set(path, result);
+    return result;
+  }
+
+  /* Returns uncached constructed module.
+  NOTE Provided as a service to handlers. */
+  async module(text, path) {
+    if (path) {
+      text = `${text}\n//# sourceURL=${path}`;
+    }
+    const url = URL.createObjectURL(
+      new Blob([text], {
+        type: "text/javascript",
+      })
+    );
+    const result = await this.#_.import(url);
+    URL.revokeObjectURL(url);
     return result;
   }
 
   /* Returns asset. */
   async get(path, ...args) {
-    const { Exception } = await this.import("/tools/exception.js");
-    const { Path } = await this.import("/tools/path.js");
-    const { type } = await this.import("/tools/type.js");
     const options = { ...(args.find((a) => type(a) === "Object") || {}) };
     args = args.filter((a) => type(a) !== "Object");
     let result;
@@ -240,10 +380,11 @@ assets.sources.add(
   (() => {
     const cache = new Map();
     return async ({ options, owner, path }, ...args) => {
-      const { Exception } = await owner.import("/tools/exception.js");
       const { component } = await use("@/component.js");
       const { as, raw } = options;
-      if (path.type === "css" && as === "link") {
+
+
+      if (path.type === "css" && as !== "sheet" && raw !== true) {
         /* Escape transformation and processing */
         Object.assign(path.detail, { escape: true });
         const href = `${owner.meta.base}${path.path}`;
@@ -257,6 +398,8 @@ assets.sources.add(
         document.head.append(link);
         return await promise;
       }
+
+
       if (path.type === "js" && raw !== true) {
         if (as === "script") {
           /* Escape transformation and processing */
@@ -291,10 +434,11 @@ assets.sources.add(
       /* Invalid paths causes result to be index.html (with misc devtools injected). 
       Use custom index meta as indicator for invalid path, since such an element should not be present in imported assets.  */
       const temp = component.div({ innerHTML: result });
-      Exception.if(
-        temp.querySelector(`meta[index]`),
-        `Invalid path: ${path.path}`
-      );
+
+      if (temp.querySelector(`meta[index]`)) {
+        throw new Error(`Invalid path: ${path.path}`);
+      }
+
       cache.set(key, result);
       return result;
     };
@@ -310,7 +454,6 @@ assets.sources.add(
     const cache = new Map();
     const link = document.head.querySelector(`link[assets]`);
     return async ({ options, owner, path }, ...args) => {
-      const { Exception } = await owner.import("/tools/exception.js");
       const key = path.full;
       if (cache.has(key)) return cache.get(key);
       link.setAttribute("__path__", path.path);
@@ -318,8 +461,9 @@ assets.sources.add(
         .getPropertyValue("--__asset__")
         .trim();
       link.removeAttribute("__path__");
-      ////console.log('propertyValue:', propertyValue)////
-      Exception.if(!propertyValue, `Invalid path: ${key}`);
+      if (!propertyValue) {
+        throw new Error(`Invalid path: ${key}`);
+      }
       const result = atob(propertyValue.slice(1, -1));
       cache.set(key, result);
       return result;
@@ -417,7 +561,6 @@ assets.types.add(
   (() => {
     const cache = new Map();
     return async (text, { options, owner, path }, ...args) => {
-      const { Module } = await owner.import("/tools/module.js");
       let result;
       const { as } = options;
       const key = as === "function" ? `${path.full}?${as}` : path.full;
@@ -432,7 +575,7 @@ assets.types.add(
           result = null;
         }
       } else {
-        result = await Module.create(text, path.path);
+        result = await owner.module(text, path.path);
       }
       cache.set(key, result);
       return result;
@@ -472,4 +615,6 @@ to avoid Vercel-injections.*/
   use.assets.processors.add("x.template", handler);
 })();
 
-export {};
+function type(value) {
+  return Object.prototype.toString.call(value).slice(8, -1);
+}

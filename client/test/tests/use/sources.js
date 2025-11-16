@@ -1,5 +1,5 @@
 /*
-use/test.js
+use/sources.js
 
 Tests import of js, json and x.template assets from
 - public
@@ -15,12 +15,9 @@ export default async () => {
 
   const container = component.main("container.mt-3", {
     parent: layout,
-
     ...css.display.flex,
     ...css.flexDirection.column,
     ...css.alignItems.end,
-
-    border: "2px solid blue",
   });
 
   /* Import from public (always live) */

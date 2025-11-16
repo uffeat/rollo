@@ -2,7 +2,7 @@
 path/full.js
 */
 
-const Path = await use("/tools/path.js");
+import { Path } from "../../../src/use.js";
 
 export default async () => {
   (() => {
