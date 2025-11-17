@@ -26,6 +26,18 @@ const cls = new (class {
       {},
       {
         get(target, key) {
+          const value = `var(--${camelToKebab(key, { numbers: true })})`;
+          return value;
+        },
+      }
+    );
+  }
+
+  get root() {
+    return new Proxy(
+      {},
+      {
+        get(target, key) {
           const value = getComputedStyle(root)
             .getPropertyValue(`--${camelToKebab(key, { numbers: true })}`)
             .trim();
@@ -56,6 +68,10 @@ const cls = new (class {
 
   important(...args) {
     return `${args.join(" ")} !important`;
+  }
+
+  rotate(value) {
+    return `rotate(${value})`;
   }
 })();
 

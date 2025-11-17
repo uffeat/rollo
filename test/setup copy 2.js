@@ -8,36 +8,25 @@ export const setup = ({ prefix = "./tests/", report } = {}) => {
     const { Module } = await use("@/tools/module.js");
     const { Sheet, css } = await use("@/sheet.js");
     const { extract } = await use("@/tools/html.js");
-    const { ref } = await use("@/state.js");
-
-    const state = ref();
 
     const sheet = Sheet.create({
       "[rig]": {
-        ...css.position.absolute,
+        position: "absolute",
         top: css.pct(30),
         right: 0,
-        backgroundColor: css.__.bsLightBgSubtle,
+
+        backgroundColor: css.__.bsLight,
+        zIndex: 300,
+        margin: css.rem(1),
+      },
+
+      "[rig] select": {
         width: css.rem(16),
-        paddingRight: css.rem(0.5),
-        transition: css("transform", css.ms(400), "ease-in-out"),
-      },
-
-      "[rig][close]": {
-        transform: `translateX(${css.rem(16 - 2.5 + 0.5)})`,
-      },
-
-      "[rig][close] button": {
-        transform: css.rotate(css.turn(0.5)),
+        margin: css.rem(1),
       },
 
       "[rig] button": {
-        padding: 0,
-        width: css.rem(2.5),
-      },
-
-      "[rig] button svg": {
-        color: css.__.bsLight,
+        //background: `url("${use.meta.base}/icons/menu.svg") no-repeat center / 1em`
       },
     });
 
@@ -52,21 +41,32 @@ export const setup = ({ prefix = "./tests/", report } = {}) => {
         );
 
         const keys = Object.keys(this.tests);
+        //console.log("keys:", keys);
 
-        /* Create rig component */
         const rig = component.div(
-          "d-flex.align-items-center.rounded-start.z-3",
-          { parent: app },
-          component.button("btn.d-flex.justify-content-center", {
-            innerHTML: (update) => {
-              use("@/icons/chevron_left.svg").then(update);
-            },
-          }),
+          {
+            parent: app,
+          },
+          component.button(
+            "btn",
+            {
+              innerHTML: (update) => {
+                use("/icons/menu.svg").then(update);
+              },
+            }
+            /* Alternatively:
+            function() {
+              use("/icons/menu.svg").then((html) => this.innerHTML = html)
+            }
+            */
+            /* Alternatively:
+            component.img({ src: `${use.meta.base}/icons/menu.svg` }),
+            */
+          ),
           component.select(
-            "form-select.flex-grow-1.my-2",
+            "form-select",
             { name: "tests", title: "tests" },
             component.option({ text: "Test" }),
-            /* Set options */
             function () {
               keys.forEach((k) => {
                 component.option({
@@ -78,78 +78,48 @@ export const setup = ({ prefix = "./tests/", report } = {}) => {
             }
           )
         );
-        /* For styling */
         rig.attribute.rig = true;
 
-        rig.on.click = (event) => {
-          if (
-            event.target.tagName === "BUTTON" ||
-            event.target.closest("button")
-          ) {
-            rig.attribute.close = !rig.attribute.close;
-          }
-        };
-
-        //
-        //rig.attribute.close = true
-
         //
 
-        /** State updaters */
-
-        /* User change -> state */
+        /* User change */
         rig.on.change = (event) => {
-          state(event.target.value);
+          //console.log('key:', `${event.target.value}`)
+          this.run(`${event.target.value}`);
         };
 
-        /* Initial url -> state */
+        /* Initial */
         if (location.pathname) {
+          //console.log('location.pathname:', location.pathname)
           const value = location.pathname.slice(1);
-          state(value);
+          if (value) {
+            console.log('value:', value)
+
+          const selected = rig.find(`option[value="${value}"]`);
+          //console.log("selected:", selected);
+          selected.selected = true;
+          this.run(value);
+          }
+
+
+
+          
         }
 
-        /** Effects */
-
-        /* state -> run test */
-        state.effects.add(
-          (current) => {
-            this.run(current);
-          },
-          (current) => !!current,
-          { run: false }
-        );
-
-        /* state -> update url */
-        state.effects.add(
-          (current) => {
-            history.pushState({}, "", `/${current}`);
-          },
-          (current) => !!current,
-          { run: false }
-        );
-
-        /* state -> update rig option */
-        state.effects.add(
-          (current, message) => {
-            /* Reset selected option */
-            const previous = rig.find(`option[selected]`);
-            if (previous) {
-              previous.selected = false;
-              previous.attribute.selected = false;
-            }
-            const selected = rig.find(`option[value="${current}"]`);
-            if (selected) {
-              selected.selected = true;
-              selected.attribute.selected = true;
-            }
-          },
-          (current) => !!current
-        );
-
-        /* User nav -> state */
+        /* User nav */
         window.addEventListener("popstate", (event) => {
           const value = location.pathname.slice(1);
-          state(value);
+
+          const previous = rig.find(`option[selected]`);
+          if (previous) {
+            previous.selected = false;
+          }
+
+          const current = rig.find(`option[value="${value}"]`);
+          //console.log("current:", current);
+          current.selected = true;
+
+          this.run(value);
         });
       }
 
@@ -162,6 +132,8 @@ export const setup = ({ prefix = "./tests/", report } = {}) => {
       }
 
       async run(key) {
+        updateUrl(`/${key}`);
+
         const load = this.tests[key];
         const loaded = await load();
         let test = loaded.default;
@@ -196,3 +168,15 @@ export const setup = ({ prefix = "./tests/", report } = {}) => {
     });
   };
 };
+
+function updateUrl(url) {
+  const previous = location.pathname;
+  //console.log('previous:', previous)
+  if (url === previous) {
+    return;
+  }
+  history.pushState({}, "", url);
+  //const current = location.pathname
+  //console.log('current:', current)
+  //console.dir(location)
+}

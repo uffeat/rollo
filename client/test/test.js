@@ -13,7 +13,6 @@ NOTE
 
 import "../src/use.js";
 
-
 document.querySelector("html").dataset.bsTheme = "dark";
 
 const STORAGE_KEY = "__test__";
@@ -38,9 +37,5 @@ window.addEventListener("keydown", async (event) => {
       const test = loaded.default;
       await test();
     }
-  }
-  /* Batch tests */
-  if (event.code === "KeyT" && event.shiftKey) {
-    //TODO
   }
 });

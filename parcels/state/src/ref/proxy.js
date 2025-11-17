@@ -9,7 +9,11 @@ export const ref = (...args) => {
   return new Proxy(() => {}, {
     get(target, key) {
       Exception.if(!(key in instance), `Invalid key: ${key}`);
-      return instance[key];
+      const value = instance[key];
+      if (typeof value === 'function') {
+        return value.bind(instance)
+      }
+      return value
     },
     set(target, key, value) {
       Exception.if(!(key in instance), `Invalid key: ${key}`);

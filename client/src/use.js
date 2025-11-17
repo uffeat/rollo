@@ -332,7 +332,7 @@ const assets = new (class Assets {
   async get(path, ...args) {
     const type = (value) => Object.prototype.toString.call(value).slice(8, -1);
     const options = { ...(args.find((a) => type(a) === "Object") || {}) };
-    const { timeout = 100 } = options;
+
     args = args.filter((a) => type(a) !== "Object");
     let result;
     /* Added assets */
@@ -347,12 +347,17 @@ const assets = new (class Assets {
       if (!this.sources.has(path.source)) {
         throw new Error(`Invalid source: ${path.source}`);
       }
-
-      const { promise, resolve, reject } = Promise.withResolvers();
-
-      const timer = setTimeout(() => {
-        const message = `Importing '${path.full}' took longer than ${timeout}ms.`;
-        const error = new Error(message);
+      /* XXX Not a fan of arbitrary timers, but here it's critical to capture
+      hanging imports. */
+      const timeout =
+        "timeout" in options ? options.timeout : this.meta.DEV ? 100 : 400;
+      
+        const { promise, resolve, reject } = Promise.withResolvers();
+      
+        const timer = setTimeout(() => {
+        const error = new Error(
+          `Importing '${path.full}' took longer than ${timeout}ms.`
+        );
         if (this.meta.DEV) {
           reject(error);
         }
@@ -429,7 +434,7 @@ use.sources.add(
       /* Rebuild native 'import' to prevent Vite from barking */
       import: Function("u", "return import(u)"),
     };
-    return async ({ options, owner, path }, ...args) => {
+    return async ({ options, owner, path }) => {
       const { as, inform, raw } = options;
       /* Global sheet by link (FOUC-free) */
       if (path.type === "css" && as === undefined && raw !== true) {
@@ -504,6 +509,7 @@ use.sources.add(
         }
         cache.set(path.full, result);
         resolve(result);
+        fetching.delete(path.full);
         return result;
       }
     };
@@ -530,7 +536,7 @@ use.sources.add(
   "@",
   (() => {
     const cache = new Map();
-    return async ({ options, owner, path }, ...args) => {
+    return async ({ path }) => {
       if (cache.has(path.full)) return cache.get(path.full);
       const probe = document.createElement("meta");
       document.head.append(probe);
@@ -597,7 +603,7 @@ if (
   const paths = JSON.stringify(Object.keys(loaders));
   use.add("@@/__paths__.json", paths);
 
-  use.sources.add("@@", async ({ options, owner, path }, ...args) => {
+  use.sources.add("@@", async ({ owner, path }) => {
     const { Exception } = await owner.get("@/tools/exception.js");
     Exception.if(!(path.path in loaders), `Invalid path:${path.full}`);
     if (path.type === "js" || path.type === "jsx") {
@@ -621,7 +627,7 @@ use.types
     "css",
     (() => {
       const cache = new Map();
-      return async (text, { options, owner, path }, ...args) => {
+      return async (text, { owner, path }) => {
         const { Sheet } = await owner.get("@/sheet.js");
         const key = path.full;
         if (cache.has(key)) return cache.get(key);
@@ -631,7 +637,7 @@ use.types
       };
     })()
   )
-  .processors.add("css", async (result, { options, owner, path }, ...args) => {
+  .processors.add("css", async (result, { owner }, ...args) => {
     const { type } = await owner.get("@/tools/type.js");
     const { Exception } = await owner.get("@/tools/exception.js");
     Exception.if(
@@ -659,7 +665,7 @@ use.types.add(
   "js",
   (() => {
     const cache = new Map();
-    return async (text, { options, owner, path }, ...args) => {
+    return async (text, { options, owner, path }) => {
       let result;
       const { as } = options;
       const key = as === "function" ? `${path.full}?${as}` : path.full;
@@ -686,9 +692,7 @@ use.types.add(
 - Text -> JS object.
 - Does not cache to avoid mutation issues. 
 */
-use.types.add("json", (result, { options, owner, path }, ...args) => {
-  return JSON.parse(result);
-});
+use.types.add("json", (result) => JSON.parse(result));
 
 /** Register out-of-the-box transformers and processors for synthetic types. */
 
@@ -700,7 +704,7 @@ to avoid Vercel-injections.
 */
 (() => {
   const cache = new Map();
-  const handler = async (result, { options, owner, path }, ...args) => {
+  const handler = async (result, { path }) => {
     if (cache.has(path.full)) return cache.get(path.full);
     const { extract } = await use("@/tools/html.js");
     const { assets, js } = extract(result);
