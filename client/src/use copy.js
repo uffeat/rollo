@@ -332,7 +332,6 @@ const assets = new (class Assets {
   async get(path, ...args) {
     const type = (value) => Object.prototype.toString.call(value).slice(8, -1);
     const options = { ...(args.find((a) => type(a) === "Object") || {}) };
-    const { timeout = 100 } = options;
     args = args.filter((a) => type(a) !== "Object");
     let result;
     /* Added assets */
@@ -347,34 +346,12 @@ const assets = new (class Assets {
       if (!this.sources.has(path.source)) {
         throw new Error(`Invalid source: ${path.source}`);
       }
-
-      const { promise, resolve, reject } = Promise.withResolvers();
-
-      const timer = setTimeout(() => {
-        const message = `Importing '${path.full}' took longer than ${timeout}ms.`;
-        const error = new Error(message);
-        if (this.meta.DEV) {
-          reject(error);
-        }
-        Object.assign(path.detail, { transform: false, process: false });
-        resolve(error);
-      }, timeout);
-
-      this.sources
-        .get(path.source)(
-          { options: { ...options }, owner: this, path },
-          ...args
-        )
-        .then((result) => {
-          clearTimeout(timer);
-          resolve(result);
-        });
-
-      result = await promise;
-
+      result = await this.sources.get(path.source)(
+        { options: { ...options }, owner: this, path },
+        ...args
+      );
       if (path.detail.escape) return result;
     }
-
     /* Raw */
     const { raw = false } = options;
     if (raw) return result;
@@ -717,3 +694,5 @@ to avoid Vercel-injections.
   use.processors.add("x.html", handler);
   use.processors.add("x.template", handler);
 })();
+
+
