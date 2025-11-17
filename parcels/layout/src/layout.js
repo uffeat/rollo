@@ -1,10 +1,10 @@
 import "../assets/layout.css";
 import shadow from "../assets/shadow.css?raw";
 
-const { app } = await use("@//app.js");
+const { app } = await use("@/app/");
 const icons = {
-  close: await use("/icons/close.svg"),
-  menu: await use("/icons/menu.svg"),
+  close: await use("@/icons/close.svg"),
+  menu: await use("@/icons/menu.svg"),
 };
 const { Sheet } = await use("@/sheet.js");
 const reboot = await use("@/bootstrap/reboot.css");

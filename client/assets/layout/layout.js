@@ -83,10 +83,10 @@ section._side button svg {\r
   --size: 24px;\r
   width: var(--size);\r
   height: var(--size);\r
-  fill: var(--bs-light);\r
+  fill: var(--bs-light);/*color instead?*/\r
 }\r
 section._side button:hover svg {\r
-  fill: var(--bs-gray-300);\r
+  fill: var(--bs-gray-500);\r
 }\r
 \r
 main {\r
@@ -122,9 +122,9 @@ footer {\r
 :host(._md._close) main {\r
   margin-left: calc(-1 * min(var(--width), 100%));\r
 }\r
-`, { app: d } = await use("@//app.js"), a = {
-  close: await use("/icons/close.svg"),
-  menu: await use("/icons/menu.svg")
+`, { app: d } = await use("@/app/"), a = {
+  close: await use("@/icons/close.svg"),
+  menu: await use("@/icons/menu.svg")
 }, { Sheet: l } = await use("@/sheet.js"), c = await use("@/bootstrap/reboot.css"), { Mixins: g, author: m, component: t, mix: u } = await use("@/component.js"), b = m(
   class extends u(
     HTMLElement,
