@@ -1,20 +1,15 @@
 import "../../../client/src/use.js";
 import * as parcel from "../index.js";
 
-const { app } = await use("@/app/");
-const { layout } = await use("@/layout/");
-
 /* Overload to use live parcel */
-use.add("@/state.js", ({ path }) => {
+use.add("@/router.js", ({ path }) => {
   path.detail.escape = true;
   return parcel;
 });
 
 document.documentElement.dataset.bsTheme = "dark";
-layout.close(false);
 
-//const icon = await use('/icons/upload.svg', {timeout: 1})
-//console.log('icon:', icon)
+const { layout } = await use("@/layout/");
 
 use.sources.add(
   "tests",
@@ -55,11 +50,9 @@ window.addEventListener(
       if (event.code === "KeyU" && event.shiftKey) {
         const path = prompt("Path:", localStorage.getItem(KEY) || "");
         localStorage.setItem(KEY, path);
-        history.pushState({}, "", path || "/");
         await run(path);
       }
       if (event.code === "KeyC" && event.shiftKey) {
-        history.pushState({}, "", "/");
         layout.clear();
         document.adoptedStyleSheets = [];
       }
@@ -67,8 +60,7 @@ window.addEventListener(
   })()
 );
 
-await run(location.pathname);
+//
+await run("/router.js");
 
-window.addEventListener("popstate", async (event) => {
-  await run(location.pathname);
-});
+

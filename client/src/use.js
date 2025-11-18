@@ -378,7 +378,6 @@ export const assets = new (class Assets {
         );
       }
     }
-
     /* Escape */
     if (path.detail.escape) return result;
     /* Error */

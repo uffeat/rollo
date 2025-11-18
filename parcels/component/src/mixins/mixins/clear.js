@@ -4,9 +4,10 @@ export default (parent, config) => {
     /* Clears content, optionally subject to selector. Chainable. */
     clear(selector) {
       if (selector) {
-        const elements = this.querySelectorAll(selector);
-        for (const element of elements) {
-          element.remove();
+        for (const child of Array.from(this.children)) {
+          if (child.matches(selector)) {
+            child.remove();
+          }
         }
       } else {
         /* Remove child elements in a memory-safe way. */

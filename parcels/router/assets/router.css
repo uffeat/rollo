@@ -1,0 +1,9 @@
+.nav-link {
+  font-size: 1.125rem;
+  cursor: pointer;
+}
+
+.nav-link.active {
+  font-weight: 500;
+  color: var(--bs-primary-text-emphasis) !important;
+}
