@@ -1,13 +1,15 @@
 /*
-reactive/map.js
+/reactive/map.js
 */
 
 
-
-const { layout } = await use("@//layout.js");
+const { component } = await use("@/component.js");
+const { layout } = await use("@/layout/");
 
 export default async ({ reactive }) => {
   layout.clear(":not([slot])");
+
+  component.h1({parent: layout, text: 'Testing map method'})
 
   const state = reactive({ foo: 2, bar: 3 }, (change, message) => {
     console.log("change:", change);

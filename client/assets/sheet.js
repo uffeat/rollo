@@ -28,8 +28,8 @@ class f {
   }
   /* Adds rules. */
   add(e) {
-    for (const [s, r] of Object.entries(e))
-      this.#t(this.owner, this.#i(s, r), r);
+    for (const [r, s] of Object.entries(e))
+      this.#t(this.owner, this.#n(r, s), s);
     return this;
   }
   /* Removes all rules. */
@@ -40,7 +40,7 @@ class f {
   }
   /* Returns rule. */
   find(e) {
-    return this.#r(this.owner, this.#i(e));
+    return this.#r(this.owner, this.#n(e));
   }
   /* Removes rules. */
   remove(...e) {
@@ -48,96 +48,96 @@ class f {
   }
   /* Updates or creates rules. */
   update(e) {
-    for (let [s, r] of Object.entries(e)) {
-      s = this.#i(s, r);
-      const t = this.#r(this.owner, s);
+    for (let [r, s] of Object.entries(e)) {
+      r = this.#n(r, s);
+      const t = this.#r(this.owner, r);
       if (t) {
         if (t instanceof CSSStyleRule)
-          this.#s(t, r);
+          this.#s(t, s);
         else if (t instanceof CSSMediaRule)
-          for (const [i, n] of Object.entries(r)) {
-            const u = this.#r(t, i);
-            u ? this.#s(u, n) : this.#t(t, i, n);
+          for (const [n, i] of Object.entries(s)) {
+            const u = this.#r(t, n);
+            u ? this.#s(u, i) : this.#t(t, n, i);
           }
         else if (t instanceof CSSKeyframesRule)
-          for (const [i, n] of Object.entries(r)) {
-            const u = t.findRule(`${i}%`);
-            u ? this.#s(u, n) : this.#t(t, selector, n);
+          for (const [n, i] of Object.entries(s)) {
+            const u = t.findRule(`${n}%`);
+            u ? this.#s(u, i) : this.#t(t, selector, i);
           }
       } else
-        this.#t(this.owner, s, r);
+        this.#t(this.owner, r, s);
     }
     return this;
   }
-  #t(e, s, r) {
+  #t(e, r, s) {
     (!("cssRules" in e) || !("insertRule" in e)) && l.raise(
       "Invalid container.",
       () => console.error("container:", e)
     );
-    const t = e.cssRules[e.insertRule(`${s} { }`, e.cssRules.length)];
+    const t = e.cssRules[e.insertRule(`${r} { }`, e.cssRules.length)];
     if (t instanceof CSSStyleRule)
-      return this.#s(t, r);
+      return this.#s(t, s);
     if (t instanceof CSSMediaRule) {
-      for (const [i, n] of Object.entries(r))
-        this.#t(t, i, n);
+      for (const [n, i] of Object.entries(s))
+        this.#t(t, n, i);
       return t;
     }
     if (t instanceof CSSKeyframesRule) {
-      for (const [i, n] of Object.entries(r))
-        t.appendRule(`${i}% { }`), this.#s(t.findRule(`${i}%`), n);
+      for (const [n, i] of Object.entries(s))
+        t.appendRule(`${n}% { }`), this.#s(t.findRule(`${n}%`), i);
       return t;
     }
   }
-  #r(e, s) {
+  #r(e, r) {
     "cssRules" in e || l.raise(
       "Invalid container.",
       () => console.error("container:", e)
     );
-    const r = Array.from(e.cssRules);
-    return s.startsWith(c) ? (s = s.slice(c.length).trim(), r.filter((t) => t instanceof CSSMediaRule).find((t) => t.conditionText === s) || null) : r.filter((t) => t instanceof CSSStyleRule).find((t) => t.selectorText === s) || null;
+    const s = Array.from(e.cssRules);
+    return r.startsWith(c) ? (r = r.slice(c.length).trim(), s.filter((t) => t instanceof CSSMediaRule).find((t) => t.conditionText === r) || null) : s.filter((t) => t instanceof CSSStyleRule).find((t) => t.selectorText === r) || null;
   }
-  #n(e) {
-    const s = Number(Object.keys(e)[0]);
-    return typeof s == "number" && !Number.isNaN(s);
+  #i(e) {
+    const r = Number(Object.keys(e)[0]);
+    return typeof r == "number" && !Number.isNaN(r);
   }
-  #i(e, s) {
-    return e.startsWith("max") ? `@media (width <= ${e.slice(3)}px)` : e.startsWith("min") ? `@media (width >= ${e.slice(3)}px)` : !e.startsWith("@keyframes") && s && this.#n(s) ? `@keyframes ${e}` : e;
+  #n(e, r) {
+    return e.startsWith("max") ? `@media (width <= ${e.slice(3)}px)` : e.startsWith("min") ? `@media (width >= ${e.slice(3)}px)` : !e.startsWith("@keyframes") && r && this.#i(r) ? `@keyframes ${e}` : e;
   }
-  #o(e, ...s) {
+  #o(e, ...r) {
     (!("cssRules" in e) || !("deleteRule" in e)) && l.raise(
       "Invalid container.",
       () => console.error("container:", e)
     );
-    const r = Array.from(e.cssRules);
-    for (let t of s) {
-      let i;
-      t.startsWith(c) ? (t = t.slice(c.length).trim(), i = r.filter((n) => n instanceof CSSMediaRule).findIndex((n) => n.conditionText === t)) : i = r.filter((n) => n instanceof CSSStyleRule).findIndex((n) => n.selectorText === t), i > -1 && e.deleteRule(i);
+    const s = Array.from(e.cssRules);
+    for (let t of r) {
+      let n;
+      t.startsWith(c) ? (t = t.slice(c.length).trim(), n = s.filter((i) => i instanceof CSSMediaRule).findIndex((i) => i.conditionText === t)) : n = s.filter((i) => i instanceof CSSStyleRule).findIndex((i) => i.selectorText === t), n > -1 && e.deleteRule(n);
     }
     return e;
   }
-  #s(e, s = {}) {
+  #s(e, r = {}) {
     e instanceof CSSRule || l.raise("Invalid rule.", () => console.error("rule:", e));
-    for (let [r, t] of Object.entries(s))
+    for (let [s, t] of Object.entries(r))
       if (t !== void 0) {
         if (R(t) === "Object") {
-          const [i, n] = Object.entries(t)[0];
-          t = `${n}${i}`;
+          const [n, i] = Object.entries(t)[0];
+          t = `${i}${n}`;
         }
-        if (r.startsWith("__") ? r = `--${r.slice(2)}` : r.startsWith("--") || (r = w(r.trim())), t === !1) {
-          e.style.removeProperty(r);
+        if (s.startsWith("__") ? s = `--${s.slice(2)}` : s.startsWith("--") || (s = w(s.trim())), t === !1) {
+          e.style.removeProperty(s);
           continue;
         }
-        if (!this.#u(r))
-          throw new Error(`Invalid key: ${r}`);
+        if (!this.#u(s))
+          throw new Error(`Invalid key: ${s}`);
         if (typeof t == "string") {
           t = t.trim(), t.endsWith("!important") ? e.style.setProperty(
-            r,
+            s,
             t.slice(0, -10),
             "important"
-          ) : e.style.setProperty(r, t);
+          ) : e.style.setProperty(s, t);
           continue;
         }
-        t === null && (t = "none"), e.style.setProperty(r, t);
+        t === null && (t = "none"), e.style.setProperty(s, t);
       }
     return e;
   }
@@ -171,9 +171,9 @@ class h {
   remove(e) {
     if (this.has(e)) {
       this.#e.registry.delete(e);
-      const s = e.adoptedStyleSheets;
-      for (let r = s.length - 1; r >= 0; r--)
-        s[r] === this.owner && s.splice(r, 1);
+      const r = e.adoptedStyleSheets;
+      for (let s = r.length - 1; s >= 0; s--)
+        r[s] === this.owner && r.splice(s, 1);
     }
   }
 }
@@ -184,9 +184,9 @@ class y extends CSSStyleSheet {
     detail: {}
   };
   constructor(...e) {
-    super(), this.#e.rules = f.create(this), this.#e.targets = h.create(this), this.#e.text = e.find((t, i) => !i && typeof t == "string"), this.#e.path = e.find((t, i) => i && typeof t == "string");
-    const s = e.find((t) => d(t) === "Object"), r = e.find((t) => d(t) === "Object" && t !== s);
-    this.text && this.replaceSync(this.text), s && this.rules.add(s), Object.assign(this.detail, r);
+    super(), this.#e.rules = f.create(this), this.#e.targets = h.create(this), this.#e.text = e.find((t, n) => !n && typeof t == "string"), this.#e.path = e.find((t, n) => n && typeof t == "string");
+    const r = e.find((t) => d(t) === "Object"), s = e.find((t) => d(t) === "Object" && t !== r);
+    this.text && this.replaceSync(this.text), r && this.rules.add(r), Object.assign(this.detail, s);
   }
   /* Returns detail for ad-hoc data. */
   get detail() {
@@ -210,23 +210,23 @@ class y extends CSSStyleSheet {
   /* Unadopts sheet from targets. */
   unuse(...e) {
     e.length || e.push(document);
-    for (const s of e) {
-      const r = s.shadowRoot || s;
-      this.targets.remove(r);
+    for (const r of e) {
+      const s = r.shadowRoot || r;
+      this.targets.remove(s);
     }
     return this;
   }
   /* Adopts sheet to targets. */
   use(...e) {
     e.length || e.push(document);
-    for (const s of e) {
-      const r = s.shadowRoot || s;
-      this.targets.add(r);
+    for (const r of e) {
+      const s = r.shadowRoot || r;
+      this.targets.add(s);
     }
     return this;
   }
 }
-const { camelToKebab: a } = await use("@/tools/case.js"), x = document.documentElement, p = new class {
+const { camelToKebab: a } = await use("@/tools/case.js"), $ = document.documentElement, p = new class {
   #e = {};
   constructor() {
     this.#e.color = new class {
@@ -257,7 +257,7 @@ const { camelToKebab: a } = await use("@/tools/case.js"), x = document.documentE
       {},
       {
         get(o, e) {
-          return getComputedStyle(x).getPropertyValue(`--${a(e, { numbers: !0 })}`).trim();
+          return getComputedStyle($).getPropertyValue(`--${a(e, { numbers: !0 })}`).trim();
         }
       }
     );
@@ -284,26 +284,69 @@ const { camelToKebab: a } = await use("@/tools/case.js"), x = document.documentE
   rotate(o) {
     return `rotate(${o})`;
   }
-}(), $ = new Proxy(() => {
+}(), j = new Proxy(() => {
 }, {
   get(o, e) {
     return e in p ? p[e] : e in g.style ? new Proxy(
       {},
       {
-        get(s, r) {
-          return { [e]: a(r, { numbers: !0 }) };
+        get(r, s) {
+          return { [e]: a(s, { numbers: !0 }) };
         }
       }
-    ) : (s) => (e === "pct" && (e = "%"), `${s}${e}`);
+    ) : (r) => (e === "pct" && (e = "%"), `${r}${e}`);
   },
-  apply(o, e, s) {
-    return s = s.map((r) => r === "!" ? "!important" : r), s.join(" ");
+  apply(o, e, r) {
+    return r = r.map((s) => s === "!" ? "!important" : s), r.join(" ");
   }
-}), j = (o) => `[uid="${o.uid}"]`;
+}), v = (o) => `[uid="${o.uid}"]`, { type: x } = await use("@/tools/type.js"), O = (o) => {
+  let e = "";
+  const r = new class {
+    attrs(t) {
+      for (const [n, i] of Object.entries(t))
+        i === !0 ? e += `[${n}]` : e += `[${n}="${i}"]`;
+    }
+    child(t) {
+      e += ` > ${t}`;
+    }
+    classes(...t) {
+      for (const n of t)
+        e += `.${n}`;
+    }
+    has(t) {
+      e += `:has(${descendant})`;
+    }
+    in(t) {
+      e += ` ${t}`;
+    }
+    is(t) {
+      e += `:is(${descendant})`;
+    }
+    not(t) {
+      e += `:not(${descendant})`;
+    }
+  }(), s = new Proxy(() => {
+  }, {
+    get(t, n) {
+      if (n in r) {
+        const i = r[n];
+        if (typeof i == "function")
+          return (...u) => (i(...u), s);
+      }
+      return n === "_" ? (e += " ", s) : (e += n, s);
+    },
+    apply(t, n, i) {
+      const u = i[0];
+      return x(u) === "Object" ? { [e]: u } : (e += u, s);
+    }
+  });
+  return s;
+};
 export {
   f as Rules,
   y as Sheet,
   h as Targets,
-  $ as css,
-  j as scope
+  j as css,
+  O as rule,
+  v as scope
 };

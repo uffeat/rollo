@@ -1,8 +1,8 @@
 /*
-ref/condition.js
+/ref/condition.js
 */
 const { component } = await use("@/component.js");
-const { layout } = await use("@//layout.js");
+const { layout } = await use("@/layout/");
 
 export default async ({ ref }) => {
   (() => {

@@ -1,9 +1,9 @@
 /*
-reactive/computed.js
+/reactive/computed.js
 */
 
 const { component } = await use("@/component.js");
-const { layout } = await use("@//layout.js");
+const { layout } = await use("@/layout/");
 
 export default async ({ reactive }) => {
   layout.clear(":not([slot])");

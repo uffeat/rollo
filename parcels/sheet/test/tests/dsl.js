@@ -4,7 +4,7 @@ dsl.js
 const { component } = await use("@/component.js");
 const { layout } = await use("@//layout.js");
 
-export default ({ Sheet, sheets, css, scope }) => {
+export default ({ Sheet, sheets, css, rule, scope }) => {
   layout.clear(":not([slot])");
 
   const sheet = Sheet.create().use(document);
@@ -23,4 +23,12 @@ export default ({ Sheet, sheets, css, scope }) => {
   });
 
   //console.log("text:", sheet.rules.text); ////
+
+  const r = rule()
+    .h1.classes("foo")
+    .attrs({ bar: true })
+    .child("div")
+    ._.h2({ color: "pink" });
+
+  console.log("r:", r);
 };

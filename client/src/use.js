@@ -5,7 +5,6 @@
   - Missing type: '@/layout/layout' -> '@/layout/layout.js'.
 NOTE 
 - Query support currently not used, but could be an alternative to option args.
-- export to enable testing.
 */
 export class Path {
   static create = (arg) => {
@@ -168,7 +167,7 @@ class Registry {
 - Supports a range of asset types from different sources out-of-the-box.
 - Can be extended with respect to sources, types and processors.
 */
-const assets = new (class Assets {
+export const assets = new (class Assets {
   #_ = {
     added: new Map(),
     detail: {},
@@ -194,10 +193,18 @@ const assets = new (class Assets {
           this.#_.base = `http://localhost:${PORT}`;
         }
         /* NOTE Port-aware base allows access to public when testing parcels. */
+        this.#_.VITE =
+          typeof import.meta !== "undefined" &&
+          typeof import.meta.env !== "undefined" &&
+          import.meta.env.MODE;
       }
 
       get DEV() {
         return this.#_.DEV;
+      }
+
+      get VITE() {
+        return this.#_.VITE;
       }
 
       get base() {
@@ -232,9 +239,9 @@ const assets = new (class Assets {
     })(this);
     /* Repackage 'assets' to global 'use' callable */
     Object.defineProperty(globalThis, "use", {
-      configurable: false,
+      configurable: assets.meta.DEV,
       enumerable: true,
-      writable: false,
+      writable: assets.meta.DEV,
       value: new Proxy(async () => {}, {
         get(target, key) {
           if (key === "assets") return assets;
@@ -332,57 +339,52 @@ const assets = new (class Assets {
   async get(path, ...args) {
     const type = (value) => Object.prototype.toString.call(value).slice(8, -1);
     const options = { ...(args.find((a) => type(a) === "Object") || {}) };
-
     args = args.filter((a) => type(a) !== "Object");
-    let result;
-    /* Added assets */
-    if (this.#_.added.has(path)) {
-      result = this.#_.added.get(path);
-      if (typeof result !== "string") return result;
-      /* Added asset is raw - subject to transformation and processing */
-    }
     path = Path.create(path);
-    /* Get assets from registered source (if nothing from added) */
-    if (result === undefined) {
+    let result;
+    /* Import */
+    if (this.#_.added.has(path.full)) {
+      /* Added assets */
+      result = this.#_.added.get(path.full);
+      result = (await result?.({ path })) ?? result;
+    } else {
+      /* Get assets from registered source (nothing from added) */
       if (!this.sources.has(path.source)) {
         throw new Error(`Invalid source: ${path.source}`);
       }
-      /* XXX Not a fan of arbitrary timers, but here it's critical to capture
-      hanging imports. */
-      const timeout =
-        "timeout" in options ? options.timeout : this.meta.DEV ? 100 : 400;
-      
+      const { timeout } = options;
+      if (timeout) {
         const { promise, resolve, reject } = Promise.withResolvers();
-      
         const timer = setTimeout(() => {
-        const error = new Error(
-          `Importing '${path.full}' took longer than ${timeout}ms.`
-        );
-        if (this.meta.DEV) {
-          reject(error);
-        }
-        Object.assign(path.detail, { transform: false, process: false });
-        resolve(error);
-      }, timeout);
-
-      this.sources
-        .get(path.source)(
+          const error = new Error(
+            `Importing '${path.full}' took longer than ${timeout}ms.`
+          );
+          this.meta.DEV ? reject(error) : resolve(error);
+        }, timeout);
+        this.sources
+          .get(path.source)(
+            { options: { ...options }, owner: this, path },
+            ...args
+          )
+          .then((result) => {
+            clearTimeout(timer);
+            resolve(result);
+          });
+        result = await promise;
+      } else {
+        result = await this.sources.get(path.source)(
           { options: { ...options }, owner: this, path },
           ...args
-        )
-        .then((result) => {
-          clearTimeout(timer);
-          resolve(result);
-        });
-
-      result = await promise;
-
-      if (path.detail.escape) return result;
+        );
+      }
     }
 
+    /* Escape */
+    if (path.detail.escape) return result;
+    /* Error */
+    if (result instanceof Error) return result;
     /* Raw */
-    const { raw = false } = options;
-    if (raw) return result;
+    if (options.raw) return result;
     /* Transform */
     if (path.detail.transform !== false && this.types.has(path.type)) {
       const transformer = this.types.get(path.type);
@@ -568,11 +570,7 @@ NOTE
 - Use for:
   - Assets that use build-integrated libs such as React and Tailwind.
 */
-if (
-  typeof import.meta !== "undefined" &&
-  typeof import.meta.env !== "undefined" &&
-  import.meta.env.MODE
-) {
+if (use.meta.VITE) {
   const START = "./assets".length;
   const loaders = Object.freeze(
     Object.fromEntries(
@@ -628,7 +626,7 @@ use.types
     (() => {
       const cache = new Map();
       return async (text, { owner, path }) => {
-        const { Sheet } = await owner.get("@/sheet.js");
+        const { Sheet } = await use("@/sheet.js");
         const key = path.full;
         if (cache.has(key)) return cache.get(key);
         const result = Sheet.create(text, key);
@@ -638,8 +636,8 @@ use.types
     })()
   )
   .processors.add("css", async (result, { owner }, ...args) => {
-    const { type } = await owner.get("@/tools/type.js");
-    const { Exception } = await owner.get("@/tools/exception.js");
+    const { type } = await use("@/tools/type.js");
+    const { Exception } = await use("@/tools/exception.js");
     Exception.if(
       type(result) !== "CSSStyleSheet",
       `Result is not a CSSStyleSheet`,
@@ -713,7 +711,7 @@ to avoid Vercel-injections.
       result =
         (await (
           await use.module(js, path.path)
-        )?.default?.call(assets, { path })) ?? assets;
+        )?.default?.call(assets, { path })) ?? null;
     }
     cache.set(path.full, result);
     return result;

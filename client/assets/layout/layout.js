@@ -126,11 +126,7 @@ footer {\r
   close: await use("@/icons/close.svg"),
   menu: await use("@/icons/menu.svg")
 }, { Sheet: l } = await use("@/sheet.js"), c = await use("@/bootstrap/reboot.css"), { Mixins: g, author: m, component: t, mix: u } = await use("@/component.js"), b = m(
-  class extends u(
-    HTMLElement,
-    {},
-    ...g()
-  ) {
+  class extends u(HTMLElement, {}, ...g()) {
     #t = {
       tree: {}
     };
@@ -252,14 +248,14 @@ footer {\r
     get tree() {
       return this.#t.tree;
     }
-    close() {
-      this.__.time = this.config.time, this.classes.add("_close");
+    close(e = !0) {
+      e && (this.__.time = this.config.time), this.classes.add("_close");
     }
-    open() {
-      this.__.time = this.config.time, this.classes.remove("_close");
+    open(e = !0) {
+      e && (this.__.time = this.config.time), this.classes.remove("_close");
     }
-    toggle() {
-      this.__.time = this.config.time, this.classes.toggle("_close");
+    toggle(e = !0) {
+      e && (this.__.time = this.config.time), this.classes.toggle("_close");
     }
   },
   "layout-component"

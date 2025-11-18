@@ -11,11 +11,7 @@ const reboot = await use("@/bootstrap/reboot.css");
 const { Mixins, author, component, mix } = await use("@/component.js");
 
 export const Layout = author(
-  class extends mix(
-    HTMLElement,
-    {},
-    ...Mixins()
-  ) {
+  class extends mix(HTMLElement, {}, ...Mixins()) {
     #_ = {
       tree: {},
     };
@@ -239,24 +235,29 @@ export const Layout = author(
       return this.#_.tree;
     }
 
-    close() {
-      this.__.time = this.config.time;
+    close(smooth = true) {
+      if (smooth) {
+        this.__.time = this.config.time;
+      }
+
       this.classes.add("_close");
     }
 
-    open() {
-      this.__.time = this.config.time;
+    open(smooth = true) {
+      if (smooth) {
+        this.__.time = this.config.time;
+      }
       this.classes.remove("_close");
     }
 
-    toggle() {
-      this.__.time = this.config.time;
+    toggle(smooth = true) {
+      if (smooth) {
+        this.__.time = this.config.time;
+      }
       this.classes.toggle("_close");
     }
   },
   "layout-component"
 );
 
-export const layout = Layout({id: 'layout', parent: app})
-
-
+export const layout = Layout({ id: "layout", parent: app });

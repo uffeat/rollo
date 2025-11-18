@@ -13,7 +13,7 @@ NOTE
 
 import "../src/use.js";
 
-document.querySelector("html").dataset.bsTheme = "dark";
+document.documentElement.dataset.bsTheme = "dark";
 
 const STORAGE_KEY = "__test__";
 const PREFIX = "./tests/";

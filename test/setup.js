@@ -6,14 +6,14 @@ export const setup = ({ prefix = "./tests/", report } = {}) => {
     const { app } = await use("@//app.js");
     const { component } = await use("@/component.js");
     const { Module } = await use("@/tools/module.js");
-    const { Sheet, css } = await use("@/sheet.js");
+    const { Sheet, css, rule } = await use("@/sheet.js");
     const { extract } = await use("@/tools/html.js");
     const { ref } = await use("@/state.js");
 
     const state = ref();
 
     const sheet = Sheet.create({
-      "[rig]": {
+      ...rule().attrs({ rig: true })({
         ...css.position.absolute,
         top: css.pct(30),
         right: 0,
@@ -21,24 +21,30 @@ export const setup = ({ prefix = "./tests/", report } = {}) => {
         width: css.rem(16),
         paddingRight: css.rem(0.5),
         transition: css("transform", css.ms(400), "ease-in-out"),
-      },
+      }),
 
-      "[rig][close]": {
-        transform: `translateX(${css.rem(16 - 2.5 + 0.5)})`,
-      },
+      ...rule().attrs({ rig: true, close: true })({
+        transform: `translateX(${css.rem(16 - 2.4 + 0.5)})`,
+      }),
 
-      "[rig][close] button": {
-        transform: css.rotate(css.turn(0.5)),
-      },
+      ...rule()
+        .attrs({ rig: true })
+        ._.button({
+          __size: css.rem(2.2),
+          padding: 0,
+          width: css.__.size,
+          height: css.__.size,
+        }),
 
-      "[rig] button": {
-        padding: 0,
-        width: css.rem(2.5),
-      },
-
-      "[rig] button svg": {
+      ...rule().attrs({ rig: true })._.button._.svg({
         color: css.__.bsLight,
-      },
+      }),
+
+      ...rule()
+        .attrs({ rig: true, close: true })
+        ._.button({
+          transform: css.rotate(css.turn(0.5)),
+        }),
     });
 
     sheet.use();
@@ -57,9 +63,9 @@ export const setup = ({ prefix = "./tests/", report } = {}) => {
         const rig = component.div(
           "d-flex.align-items-center.rounded-start.z-3",
           { parent: app },
-          component.button("btn.d-flex.justify-content-center", {
+          component.button("btn.btn-outline-secondary.d-flex.justify-content-center.align-items-center", {
             innerHTML: (update) => {
-              use("@/icons/chevron_left.svg").then(update);
+              use("@/icons/chevron_right.svg").then(update);
             },
           }),
           component.select(

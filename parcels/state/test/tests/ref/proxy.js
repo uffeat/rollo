@@ -2,7 +2,7 @@
 ref/proxy.js
 */
 const { component } = await use("@/component.js");
-const { layout } = await use("@//layout.js");
+const { layout } = await use("@/layout/");
 
 const STYLE = "color: green; font: bold 1em 'JetBrains Mono';";
 

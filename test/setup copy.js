@@ -5,29 +5,46 @@ export const setup = ({ prefix = "./tests/", report } = {}) => {
   return async (loaders, target) => {
     const { app } = await use("@//app.js");
     const { component } = await use("@/component.js");
-    const Module = await use("Module");
-    const { Sheet, css } = await use("@/sheet.js");
+    const { Module } = await use("@/tools/module.js");
+    const { Sheet, css, rule } = await use("@/sheet.js");
     const { extract } = await use("@/tools/html.js");
+    const { ref } = await use("@/state.js");
+
+    const state = ref();
 
     const sheet = Sheet.create({
-      "[rig]": {
-        position: "absolute",
+      ...rule().attrs({ rig: true })({
+        ...css.position.absolute,
         top: css.pct(30),
         right: 0,
-
-        backgroundColor: css.__.bsLight,
-        zIndex: 300,
-        margin: css.rem(1),
-      },
-
-      "[rig] select": {
+        backgroundColor: css.__.bsLightBgSubtle,
         width: css.rem(16),
-        margin: css.rem(1),
-      },
+        paddingRight: css.rem(0.5),
+        transition: css("transform", css.ms(400), "ease-in-out"),
+      }),
 
-      "[rig] button": {
-        //background: `url("${use.meta.base}/icons/menu.svg") no-repeat center / 1em`
-      },
+      ...rule().attrs({ rig: true, close: true })({
+        transform: `translateX(${css.rem(16 - 2.4 + 0.5)})`,
+      }),
+
+      ...rule()
+        .attrs({ rig: true })
+        ._.button({
+          __size: css.rem(2.2),
+          padding: 0,
+          width: css.__.size,
+          height: css.__.size,
+        }),
+
+      ...rule().attrs({ rig: true })._.button._.svg({
+        color: css.__.bsLight,
+      }),
+
+      ...rule()
+        .attrs({ rig: true, close: true })
+        ._.button({
+          transform: css.rotate(css.turn(0.5)),
+        }),
     });
 
     sheet.use();
@@ -41,32 +58,21 @@ export const setup = ({ prefix = "./tests/", report } = {}) => {
         );
 
         const keys = Object.keys(this.tests);
-        //console.log("keys:", keys);
 
+        /* Create rig component */
         const rig = component.div(
-          {
-            parent: app,
-          },
-          component.button(
-            "btn",
-            {
-              innerHTML: (update) => {
-                use("/icons/menu.svg").then(update);
-              },
-            }
-            /* Alternatively:
-            function() {
-              use("/icons/menu.svg").then((html) => this.innerHTML = html)
-            }
-            */
-            /* Alternatively:
-            component.img({ src: `${use.meta.base}/icons/menu.svg` }),
-            */
-          ),
+          "d-flex.align-items-center.rounded-start.z-3",
+          { parent: app },
+          component.button("btn.btn-outline-secondary.d-flex.justify-content-center.align-items-center", {
+            innerHTML: (update) => {
+              use("@/icons/chevron_right.svg").then(update);
+            },
+          }),
           component.select(
-            "form-select",
+            "form-select.flex-grow-1.my-2",
             { name: "tests", title: "tests" },
             component.option({ text: "Test" }),
+            /* Set options */
             function () {
               keys.forEach((k) => {
                 component.option({
@@ -78,42 +84,78 @@ export const setup = ({ prefix = "./tests/", report } = {}) => {
             }
           )
         );
+        /* For styling */
         rig.attribute.rig = true;
+
+        rig.on.click = (event) => {
+          if (
+            event.target.tagName === "BUTTON" ||
+            event.target.closest("button")
+          ) {
+            rig.attribute.close = !rig.attribute.close;
+          }
+        };
+
+        //
+        //rig.attribute.close = true
 
         //
 
-        /* User change */
+        /** State updaters */
+
+        /* User change -> state */
         rig.on.change = (event) => {
-          //console.log('key:', `${event.target.value}`)
-          this.run(`${event.target.value}`);
+          state(event.target.value);
         };
 
-        /* Initial */
+        /* Initial url -> state */
         if (location.pathname) {
-          //console.log('location.pathname:', location.pathname)
           const value = location.pathname.slice(1);
-
-          const selected = rig.find(`option[value="${value}"]`);
-          //console.log("selected:", selected);
-          selected.selected = true;
-
-          this.run(value);
+          state(value);
         }
 
-        /* User nav */
+        /** Effects */
+
+        /* state -> run test */
+        state.effects.add(
+          (current) => {
+            this.run(current);
+          },
+          (current) => !!current,
+          { run: false }
+        );
+
+        /* state -> update url */
+        state.effects.add(
+          (current) => {
+            history.pushState({}, "", `/${current}`);
+          },
+          (current) => !!current,
+          { run: false }
+        );
+
+        /* state -> update rig option */
+        state.effects.add(
+          (current, message) => {
+            /* Reset selected option */
+            const previous = rig.find(`option[selected]`);
+            if (previous) {
+              previous.selected = false;
+              previous.attribute.selected = false;
+            }
+            const selected = rig.find(`option[value="${current}"]`);
+            if (selected) {
+              selected.selected = true;
+              selected.attribute.selected = true;
+            }
+          },
+          (current) => !!current
+        );
+
+        /* User nav -> state */
         window.addEventListener("popstate", (event) => {
           const value = location.pathname.slice(1);
-
-          const previous = rig.find(`option[selected]`);
-          if (previous) {
-            previous.selected = false;
-          }
-
-          const current = rig.find(`option[value="${value}"]`);
-          //console.log("current:", current);
-          current.selected = true;
-
-          this.run(value);
+          state(value);
         });
       }
 
@@ -126,8 +168,6 @@ export const setup = ({ prefix = "./tests/", report } = {}) => {
       }
 
       async run(key) {
-        updateUrl(`/${key}`);
-
         const load = this.tests[key];
         const loaded = await load();
         let test = loaded.default;
@@ -162,15 +202,3 @@ export const setup = ({ prefix = "./tests/", report } = {}) => {
     });
   };
 };
-
-function updateUrl(url) {
-  const previous = location.pathname;
-  //console.log('previous:', previous)
-  if (url === previous) {
-    return;
-  }
-  history.pushState({}, "", url);
-  //const current = location.pathname
-  //console.log('current:', current)
-  //console.dir(location)
-}

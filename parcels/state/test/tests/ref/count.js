@@ -1,13 +1,15 @@
 /*
-ref/count.js
+/ref/count.js
 */
 
 
-import refMixin from "../../../src/ref/mixin.js";
+
 
 const { Mixins, author, component, mix } = await use("@/component.js");
-const { layout } = await use("@//layout.js");
+const { layout } = await use("@/layout/");
 const { Sheet, css, scope } = await use("@/sheet.js");
+
+const { refMixin } = await use("@/state.js");
 
 
 const sheet = Sheet.create();
