@@ -129,12 +129,11 @@ export class Path {
 class Registry {
   #_ = {
     detail: {},
+    registry: new Map(),
   };
 
-  constructor(owner, registry) {
+  constructor(owner) {
     this.#_.owner = owner;
-    /* Allow passed-in registry for extension flexibility */
-    this.#_.registry = registry ? registry : new Map();
   }
 
   get detail() {
@@ -204,12 +203,10 @@ export const assets = new (class Assets {
         return this.#_.DEV;
       }
 
-      /* Returns flag that indicates if run in Vite env. */
       get VITE() {
         return this.#_.VITE;
       }
 
-      /* Returns prefix for access to public. */
       get base() {
         return this.#_.base;
       }
@@ -223,29 +220,24 @@ export const assets = new (class Assets {
       }
     })();
     /* Compose sources */
-    this.#_.sources = new Registry(this);
-    /* Compose processors 
-    NOTE Extends Registry to allow registering multiple types in one go. */
-    this.#_.processors = new (class Processors extends Registry {
-      #_ = {};
+    this.#_.sources = new (class Sources extends Registry {
       constructor(owner) {
-        const registry = new Map();
-        super(owner, registry);
-        this.#_.registry = registry;
+        super(owner);
       }
-
-      add(...args) {
-        const value = args.pop();
-        for (const key of args) {
-          this.#_.registry.set(key, value);
-        }
-        return this.owner;
+    })(this);
+    /* Compose processors */
+    this.#_.processors = new (class Processors extends Registry {
+      constructor(owner) {
+        super(owner);
       }
     })(this);
     /* Compose types */
-    this.#_.types = new Registry(this);
-    /* Repackage 'assets' to global 'use' callable 
-    NOTE In DEV (only), global 'use' can be changed. */
+    this.#_.types = new (class Types extends Registry {
+      constructor(owner) {
+        super(owner);
+      }
+    })(this);
+    /* Repackage 'assets' to global 'use' callable */
     Object.defineProperty(globalThis, "use", {
       configurable: assets.meta.DEV,
       enumerable: true,
@@ -705,7 +697,7 @@ to avoid Vercel-injections.
 */
 (() => {
   const cache = new Map();
-  use.processors.add("x.html", "x.template", async (result, { path }) => {
+  const handler = async (result, { path }) => {
     /* Type guard */
     if (!(typeof result === "string")) return;
     if (cache.has(path.full)) return cache.get(path.full);
@@ -720,5 +712,7 @@ to avoid Vercel-injections.
     }
     cache.set(path.full, result);
     return result;
-  });
+  };
+  use.processors.add("x.html", handler);
+  use.processors.add("x.template", handler);
 })();

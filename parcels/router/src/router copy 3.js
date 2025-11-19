@@ -1,22 +1,22 @@
 const { Exception } = await use("@/tools/exception.js");
 const { type } = await use("@/tools/type.js");
-const { Reactive, ref, reactive } = await use("@/state.js");
+const { Reactive, Ref, ref, reactive } = await use("@/state.js");
 //const { app } = await use("@/app/");
-
-const config = {};
 
 const instance = new (class Router {
   #_ = {};
 
   constructor() {
-    this.#_.state = Reactive.create();
-    this.#_.state.effects.add((change, message) => {
-      console.log('change:', change)
-    });
-  }
-
-  get XXXstate() {
-    return this.#_.state;
+    this.#_.XXXstate = Reactive.create();
+    /* state -> url */
+    this.#_.XXXstate.effects.add(
+      ({ path }, message) => {
+        console.log("path:", path);
+        const pathname = path.slice(1, -3);
+        history.pushState({}, "", pathname);
+      },
+      ["path"]
+    );
   }
 
   /* */
@@ -25,14 +25,25 @@ const instance = new (class Router {
       return this;
     }
 
-    const mod = await use(path);
-    await mod.default();
+    const currentPage = path.slice(1, -3).split("/").at(1);
+    //console.log("currentPage:", currentPage); ////
 
-    const pathname = path.slice(1, -3);
+    const pathname = `/${currentPage}`;
+
     if (location.pathname !== pathname) {
       history.pushState({}, "", pathname);
       app.$({ path: location.pathname });
+
+      const previousPage = location.pathname.split("/").at(1);
+      //console.log('previousPage:', previousPage)///
+
+      const residual = path.slice(1, -3).split("/").slice(2).join("/");
+      //console.log("residual:", residual); ////
+
+      const mod = await use(`@/${currentPage}.js`);
+      await mod.default({ pathname, residual });
     }
+
     return this;
   }
 
@@ -49,7 +60,7 @@ window.addEventListener("popstate", async (event) => {
   await instance.set(path);
 });
 
-/* */
+/* Expose proxy version for a leaner syntax */
 export const router = new Proxy(() => {}, {
   get(target, key) {
     Exception.if(!(key in instance), `Invalid key: ${key}`);

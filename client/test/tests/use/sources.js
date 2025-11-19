@@ -8,7 +8,7 @@ Tests import of js, json and x.template assets from
 */
 const { Sheet, css, scope } = await use("@/sheet.js");
 const { component } = await use("@/component.js");
-const { layout } = await use("@//layout.js");
+const { layout } = await use("@/layout/");
 
 export default async () => {
   layout.clear(":not([slot])");
@@ -48,19 +48,19 @@ export default async () => {
     */
     /* x.template */
     /** Built */
-    //(await use("@/test/foo.x.template"))({ parent: container });
+    //(await use("@/test/foo.x.html"))({ parent: container });
     /** Unbuilt - for live testing */
-    use.assets.add(
-      "@/test/foo.x.template",
-      (await import("../../../assets/test/foo.x.template?raw")).default
+    use.add(
+      "@/test/foo.x.html",
+      (await import("../../../assets/test/foo.x.html?raw")).default
     );
-    (await use("@/test/foo.x.template"))({ parent: container });
+    (await use("@/test/foo.x.html"))({ parent: container });
   })();
 
   /* Import from src/assets (always live) */
   await (async () => {
     console.log("foo:", (await use("@@/test/foo.js")).foo);
     console.log("foo:", (await use("@@/test/foo.json")).foo);
-    (await use("@@/test/foo.x.template"))({ parent: container });
+    (await use("@@/test/foo.x.html"))({ parent: container });
   })();
 };

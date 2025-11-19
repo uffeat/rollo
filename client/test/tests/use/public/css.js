@@ -4,7 +4,7 @@ use/public/css.js
 
 const { Sheet, css, scope } = await use("@/sheet.js");
 const { component } = await use("@/component.js");
-const { layout } = await use("@//layout.js");
+const { layout } = await use("@/layout/");
 
 const sheet = await use("/test/bar.css", { as: "sheet" });
 

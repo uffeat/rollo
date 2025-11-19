@@ -1,16 +1,32 @@
 import "../../../client/src/use.js";
 import * as parcel from "../index.js";
-
 /* Overload to use live parcel */
-use.add("@/router.js", ({ path }) => {
-  path.detail.escape = true;
-  return parcel;
-});
+use.add("@/router.js", parcel);
 
 document.documentElement.dataset.bsTheme = "dark";
 
-const { layout } = await use("@/layout/");
+//const { layout } = await use("@/layout/");
 
+/* Add page modules to import engine */
+await (async () => {
+  const START = "./assets".length;
+  const entries = Object.entries({
+    ...import.meta.glob("./assets/**/*.js"),
+  });
+  for (const [k, v] of entries) {
+    use.add(`@${k.slice(START)}`, await v());
+  }
+})();
+
+//
+//
+//const { router } = await use("@/router.js");
+//await router.import(`/color.page`);
+
+//
+//
+
+/* Add 'tests' source to import engine */
 use.sources.add(
   "tests",
   (() => {
@@ -29,18 +45,19 @@ use.sources.add(
     return async ({ owner, path }) => {
       const { Exception } = await owner.get("@/tools/exception.js");
       Exception.if(!(path.path in loaders), `Invalid path:${path.full}`);
-      if (path.type === "js") Object.assign(path.detail, { escape: true });
       return await loaders[path.path]();
     };
   })()
 );
 
+/* Runs test. */
 const run = async (path) => {
   if (!path || path === "/") return;
   const asset = await use(`tests${path}`);
   await asset?.default(parcel);
 };
 
+/* Add test control */
 window.addEventListener(
   "keydown",
   (() => {
@@ -53,14 +70,14 @@ window.addEventListener(
         await run(path);
       }
       if (event.code === "KeyC" && event.shiftKey) {
-        layout.clear();
+        //layout.clear();
         document.adoptedStyleSheets = [];
+        history.pushState({}, "", "/"); //
       }
     };
   })()
 );
 
 //
-await run("/router.js");
-
-
+//
+await run("/basics.js");

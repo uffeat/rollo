@@ -96,7 +96,7 @@ export class Reactive {
       }
 
       /* TODO
-      - remove, size, etc. */
+      - Implement: remove, size, etc. */
     })();
 
     /* Compose config */

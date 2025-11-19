@@ -133,7 +133,6 @@ class Registry {
 
   constructor(owner, registry) {
     this.#_.owner = owner;
-    /* Allow passed-in registry for extension flexibility */
     this.#_.registry = registry ? registry : new Map();
   }
 
@@ -204,12 +203,10 @@ export const assets = new (class Assets {
         return this.#_.DEV;
       }
 
-      /* Returns flag that indicates if run in Vite env. */
       get VITE() {
         return this.#_.VITE;
       }
 
-      /* Returns prefix for access to public. */
       get base() {
         return this.#_.base;
       }
@@ -223,9 +220,12 @@ export const assets = new (class Assets {
       }
     })();
     /* Compose sources */
-    this.#_.sources = new Registry(this);
-    /* Compose processors 
-    NOTE Extends Registry to allow registering multiple types in one go. */
+    this.#_.sources = new (class Sources extends Registry {
+      constructor(owner) {
+        super(owner);
+      }
+    })(this);
+    /* Compose processors */
     this.#_.processors = new (class Processors extends Registry {
       #_ = {};
       constructor(owner) {
@@ -243,9 +243,12 @@ export const assets = new (class Assets {
       }
     })(this);
     /* Compose types */
-    this.#_.types = new Registry(this);
-    /* Repackage 'assets' to global 'use' callable 
-    NOTE In DEV (only), global 'use' can be changed. */
+    this.#_.types = new (class Types extends Registry {
+      constructor(owner) {
+        super(owner);
+      }
+    })(this);
+    /* Repackage 'assets' to global 'use' callable */
     Object.defineProperty(globalThis, "use", {
       configurable: assets.meta.DEV,
       enumerable: true,

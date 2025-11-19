@@ -7,11 +7,11 @@ const instance = new (class Router {
   #_ = {};
 
   constructor() {
-    this.#_.state = Reactive.create({}, { owner: this, name: "router" });
+    this.#_.state = Reactive.create({}, {owner: this, name: 'router'});
   }
 
   get effects() {
-    return this.#_.state.effects;
+    return  this.#_.state.effects
   }
 
   /* */
@@ -21,24 +21,10 @@ const instance = new (class Router {
   async replace(path) {}
 
   /* */
-  async import(path) {
-    if (path === "/" && this.#_.home) {
-      path = this.#_.home;
-    }
-    const current = `/${path.split("/").at(1)}`;
-    const residual = location.pathname.split("/").slice(2).join("/");
-    this.#_.state.update({ page: current, residual });
+  async import(path) {}
 
-    if (this.#_.previous === current) {
-      return this;
-    }
 
-    this.#_.previous = current;
 
-    const mod = await use(`@${current}.js`);
-    await mod.default({ current, residual, router: this });
-    return this;
-  }
 
   /* */
   async set(path, silent = false) {
@@ -48,19 +34,21 @@ const instance = new (class Router {
       path = this.#_.home;
     }
 
-    const current = `/${path.split("/").at(1)}`;
-    const residual = path.split("/").slice(2).join("/");
-
-    this.#_.state.update({ page: current, path, residual });
+    this.#_.state.update({ path });
 
     console.log("previous:", this.#_.previous); ////
+
+    const current = `/${path.split("/").at(1)}`;
+    this.#_.state.update({ page: current });
     console.log("current:", current); ////
+
+    const residual = path.split("/").slice(2).join("/");
+    this.#_.state.update({ residual });
     console.log("residual:", residual); ////
 
     if (this.#_.previous === current) {
-      //return this;
+      return this;
     }
-
     this.#_.previous = current;
 
     if (silent === false) {
@@ -68,14 +56,6 @@ const instance = new (class Router {
     }
 
     app.$({ path: current });
-
-
-
-
-
-
-
-
 
     const mod = await use(`@${current}.js`);
     await mod.default({ current, residual, router: this });
