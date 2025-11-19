@@ -574,6 +574,10 @@ NOTE
   - Assets that use build-integrated libs such as React and Tailwind.
 */
 if (use.meta.VITE) {
+
+  //console.log(`HERE`)////
+
+
   const START = "./assets".length;
   const loaders = Object.freeze(
     Object.fromEntries(
@@ -677,6 +681,7 @@ use.types.add(
           result = null;
         }
       } else {
+        //result = await owner.module(`export const __path__ = "${path.path}";${text}`, path.path);
         result = await owner.module(text, path.path);
       }
       cache.set(key, result);

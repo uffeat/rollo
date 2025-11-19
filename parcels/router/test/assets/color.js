@@ -2,11 +2,17 @@ const { component } = await use("@/component.js");
 const { layout } = await use("@/layout/");
 const { Reactive, Ref, ref, reactive } = await use("@/state.js");
 const { Sheet, css, scope } = await use("@/sheet.js");
-
 const { router } = await use("@/router.js");
 
-const _path = "/color.page";
-//console.log('meta:', import.meta.url)
+const __path__ = `/${import.meta.url.split("/").at(-1).split("?").at(0)}`;
+//const __path__ = `/${location.pathname.split("/").at(1)}.js`;
+//console.log('__path__:', __path__)
+
+const base = __path__.split(".").slice(0, -1).join(".");
+//const base = `/${location.pathname.split("/").at(1)}`;
+//console.log('base:', base)
+
+
 
 const state = Ref.create();
 
@@ -48,16 +54,14 @@ state.effects.add(
 /* state -> url */
 state.effects.add(
   (current) => {
-    //history.replaceState({}, "", `${_path}/${current}`);
-    history.pushState({}, "", `${_path}/${current}`);
+    history.replaceState({}, "", `${base}/${current}`);
   },
   (current) => !!current
 );
 
 export default ({ residual }) => {
-  console.log("Color page got residual:", residual); ////
+  //console.log("Color page got residual:", residual); ////
   state.update(residual);
-
   layout.clear(":not([slot])");
   layout.append(page);
 };

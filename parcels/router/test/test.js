@@ -7,7 +7,9 @@ document.documentElement.dataset.bsTheme = "dark";
 
 //const { layout } = await use("@/layout/");
 
-/* Add page modules to import engine */
+/* Add page modules to import engine for testing.
+NOTE Also demos, how non-@/ assets can be batch-converted to partake in 
+routing. */
 await (async () => {
   const START = "./assets".length;
   const entries = Object.entries({
@@ -18,13 +20,12 @@ await (async () => {
   }
 })();
 
-//
-//
-//const { router } = await use("@/router.js");
-//await router.import(`/color.page`);
-
-//
-//
+/* Demo how a single @@/ asset can be converted to partake in routing. */
+await (async () => {
+  use.add("@/bar.js", async () => {
+    return await use("@@/bar.js");
+  });
+})();
 
 /* Add 'tests' source to import engine */
 use.sources.add(
