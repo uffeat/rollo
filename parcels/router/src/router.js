@@ -1,13 +1,14 @@
-const { ref } = await use("@/state.js");
+const { app } = await use("@/app/");
+const { reactive, ref } = await use("@/state.js");
 const { Exception } = await use("@/tools/exception.js");
 
 export const Router = new (class Router {
   #_ = {
     path: {},
+    query: {},
     route: {},
     routes: null,
     session: 0,
-    states: {},
   };
 
   constructor() {
@@ -38,7 +39,9 @@ export const Router = new (class Router {
         registry: new Map(),
       };
 
-      constructor() {}
+      get size() {
+        return this.#_.registry.size;
+      }
 
       add(spec) {
         for (const [path, route] of Object.entries(spec)) {
@@ -53,9 +56,17 @@ export const Router = new (class Router {
       has(path) {
         return this.#_.registry.has(path);
       }
+
+      remove(path) {
+        return this.#_.registry.delete(path);
+      }
     })();
 
-    this.#_.states.path = ref({ owner: this, name: "router" });
+    //this.#_.states.path = ref({ owner: this, name: "router" });
+    this.#_.states = {
+      path: ref({ owner: this, name: "router" }),
+      query: reactive({}, { owner: this, name: "router" }),
+    };
 
     this.#_.effects = new Proxy(
       {},
@@ -80,12 +91,35 @@ export const Router = new (class Router {
     return this.#_.effects;
   }
 
+  /* Returns current and previous full path. */
+  get path() {
+    return Object.freeze({ ...this.#_.path });
+  }
+
+  /* Returns current and previous query. */
+  get query() {
+    return Object.freeze({ ...this.#_.query });
+  }
+
+  /* Returns current and previous route. */
+  get route() {
+    return Object.freeze({ ...this.#_.route });
+  }
+
+  /* Returns route registration controller. */
   get routes() {
     return this.#_.routes;
   }
 
-  async use(path, { silent = false } = {}) {
+  get session() {
+    return this.#_.session;
+  }
+
+  /* Invokes route. */
+  async use(path, { hash = false, search = false, silent = false } = {}) {
     if (path === this.#_.path.current) return;
+
+    /* Update internals */
     this.#_.session++;
     this.#_.path.previous = this.#_.path.current;
     this.#_.path.current = path;
@@ -94,13 +128,20 @@ export const Router = new (class Router {
       history.pushState({}, "", path);
     }
 
-    /* Update path state, so that external code can use effects to update 
+    const query = this.#query(path);
+    this.#_.query.previous = this.#_.query.current;
+    this.#_.query.current = query;
+
+    /* Update states, so that external code can use effects to update 
     active links etc. */
     this.#_.states.path(path);
+    this.#_.states.query({ query });
 
+    /* Parse path to extrat registered path and residual */
     const parsed = this.#parse(path);
-
+    /* Prepare message for route */
     const message = {
+      query,
       router: this,
       session: this.#_.session,
       silent,
@@ -111,28 +152,24 @@ export const Router = new (class Router {
       if (!this.config.error) {
         Exception.if(use.meta.DEV);
         console.warn(`Invalid path:`, path);
-        return;
+        return this;
       }
-
-      await this.config.error(
-        {
-          change: true,
-          path,
-          residual: path,
-          route: this.config.error,
-          ...message,
-        },
-      );
-      return;
+      await this.config.error({
+        change: true,
+        path,
+        residual: path,
+        route: this.config.error,
+        ...message,
+      });
+      return this;
     }
 
     /** Handle valid path */
-
     path = parsed.path;
+    /* Expose current path as app attr; can be used for styling */
+    app.$({ path });
     const route = this.routes.get(path);
-
     Object.assign(message, { path, residual: parsed.residual, route });
-
     /* Check if new route */
     if (route === this.#_.route.current) {
       /* route not new -> inform route that no change and provide tail for 
@@ -141,10 +178,11 @@ export const Router = new (class Router {
     } else {
       /* New route -> inform route that new and provide tail for 
       updates */
-      this.#_.route.previous = this.#_.path.current;
+      this.#_.route.previous = this.#_.route.current;
       this.#_.route.current = route;
       await route({ change: true, ...message });
     }
+    return this;
   }
 
   #parse(path) {
@@ -157,18 +195,33 @@ export const Router = new (class Router {
       }
     }
   }
-})();
 
-/* Proxy version with leaner syntax  */
-export const router = new Proxy(async () => {}, {
-  get(target, key) {
-    const value = Router[key];
-    if (typeof value === "function") {
-      return value.bind(Router);
-    }
-    return value;
-  },
-  apply(target, thisArg, args) {
-    return Router.use(...args);
-  },
-});
+  #query(path) {
+    const query = Object.freeze(
+      Object.fromEntries(
+        Array.from(new URLSearchParams(window.location.search), ([k, v]) => {
+          v = v.trim();
+          if (v === "") return [k, true];
+          const probe = Number(v);
+          return [k, Number.isNaN(probe) ? v : probe];
+        })
+      )
+    );
+    /* Or with helper:
+    const query = Object.freeze(
+      Object.fromEntries(
+        new URLSearchParams(window.location.search).entries().map(([k, v]) => {
+          v = v.trim();
+          if (v === "") return [k, true];
+          const probe = Number(v);
+          return [k, Number.isNaN(probe) ? v : probe];
+        })
+      )
+    );
+    console.log("query:", query);
+    
+
+    */
+    return query;
+  }
+})();

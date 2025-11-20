@@ -21,7 +21,12 @@
     this.sheet.use();
     layout.clear();
 
-    
+    router.effects.query.add(
+      (change, message) => {
+        console.log("query:", change);
+      },
+      (change) => Object.keys(change).length
+    );
 
     /* Define routes */
     [
@@ -38,14 +43,11 @@
     });
 
     router.routes.add({
-      "/bar": async(...args) => {
-        const result = await use('/test/pages/bar.x.html');
-        result(...args)
-      }
-
-    })
-
-
+      "/bar": async (...args) => {
+        const result = await use("/test/pages/bar.x.html");
+        result(...args);
+      },
+    });
 
     /* Create nav */
     const nav = component.nav(
@@ -53,7 +55,7 @@
       { slot: "side", parent: layout },
       ...[
         ["Home", "/"],
-        ["About", "/about"],
+        ["About", "/about?thing=42&baz&pink=pong"],
         ["Foo", "/foo"],
         ["Foo with args", "/foo/ding/dong"],
         ["Bar", "/bar/stuff"],
