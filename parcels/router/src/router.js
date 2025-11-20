@@ -186,6 +186,10 @@ export const Router = new (class Router {
   }
 
   #parse(path) {
+   
+    path = path.split('?').at(0)
+   
+
     const parts = path.slice(1).split("/");
     for (let index = parts.length - 1; index >= 0; index--) {
       path = `/${parts.slice(0, index + 1).join("/")}`;
@@ -197,6 +201,12 @@ export const Router = new (class Router {
   }
 
   #query(path) {
+
+    /* BUG
+    Fix: Use passed in path
+    */
+
+
     const query = Object.freeze(
       Object.fromEntries(
         Array.from(new URLSearchParams(window.location.search), ([k, v]) => {
