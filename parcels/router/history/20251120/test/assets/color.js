@@ -32,7 +32,6 @@ const menu = component.menu(
     component.button("btn.btn-primary", { text: "Green", _value: "green" }),
     component.button("btn.btn-primary", { text: "Blue", _value: "blue" })
   ),
-
   tag
 );
 

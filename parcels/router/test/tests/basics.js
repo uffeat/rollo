@@ -1,11 +1,10 @@
 /* 
 /basics.js
 */
+
 const { component } = await use("@/component.js");
 const { layout } = await use("@/layout/");
 const { Sheet, css, rule, scope } = await use("@/sheet.js");
-
-
 
 const sheet = Sheet.create({
   ".nav-link": {
@@ -21,50 +20,39 @@ const sheet = Sheet.create({
 export default async ({ router }) => {
   layout.clear();
 
-  await router.setup("/color.page");
-
-  await (async () => {
-    const { component } = await use("@/component.js");
-    const { layout } = await use("@/layout/");
-    const page = component.main("container", component.h1({ text: "Foo" }));
-
-    router.add("/foo", ({ current, residual, router }) => {
-      layout.clear(":not([slot])");
-      layout.append(page);
-    });
-  })();
+  router.routes.add({
+    "/foo": async (...args) => {
+      const mod = await use("/test/pages/foo.js");
+      mod.default(...args);
+    },
+    "/bar": async (...args) => {
+      const mod = await use("/test/pages/bar.js");
+      mod.default(...args);
+    },
+    "/color": async (...args) => {
+      const mod = await use("/test/pages/color.js");
+      mod.default(...args);
+    },
+  });
 
   const nav = component.nav(
     "nav.d-flex.flex-column",
     { slot: "side", parent: layout },
-    component.a("nav-link", { text: "About", $path: "/about" }),
-    component.a("nav-link", { text: "Color", $path: "/color" }),
-    component.a("nav-link", { text: "Home", $path: "/home" }),
+
     component.a("nav-link", { text: "Foo", $path: "/foo" }),
-    component.a("nav-link", { text: "Bar", $path: "/bar" }),
-   
+    component.a("nav-link", { text: "Foo with args", $path: "/foo/ding/dong" }),
+    component.a("nav-link", { text: "Bar", $path: "/bar/stuff" }),
+    component.a("nav-link", { text: "Color", $path: "/color" }),
+    component.a("nav-link", { text: "Color -> green", $path: "/color/green" })
   );
-
-  //nav.on._connected = (event) => sheet.use()
-  //nav.on._disconnected = (event) => sheet.unuse()
-
   nav.on.click = async (event) => {
     const target = event.target.closest(`[state-path]`);
     if (target) {
       event.preventDefault();
-      router(target.$.path);
+      router.use(target.$.path);
     }
     layout.close();
   };
 
-  router.effects.add((current) => {
-    let active = nav.find(`.active`);
-    if (active) {
-      active.classes.remove("active");
-    }
-    active = nav.find(`[state-path="${current}"]`);
-    if (active) {
-      active.classes.add("active");
-    }
-  });
+  await router.use(location.pathname, { silent: true });
 };

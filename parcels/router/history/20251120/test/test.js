@@ -3,24 +3,28 @@ import * as parcel from "../index.js";
 /* Overload to use live parcel */
 use.add("@/router.js", parcel);
 
-const { router } = await use("@/router.js");
-
 document.documentElement.dataset.bsTheme = "dark";
 
-/* Batch-register test routes. */
+//const { layout } = await use("@/layout/");
+
+/* Add page modules to import engine for testing.
+NOTE Also demos, how non-@/ assets can be batch-converted to partake in 
+routing. */
 await (async () => {
   const START = "./assets".length;
   const entries = Object.entries({
     ...import.meta.glob("./assets/**/*.js"),
   });
   for (const [k, v] of entries) {
-    router.routes.add({
-      [`${k.slice(START, -3)}`]: async (...args) => {
-        const mod = await v();
-        mod.default(...args);
-      },
-    });
+    use.add(`@${k.slice(START)}`, await v());
   }
+})();
+
+/* Demo how a single @@/ asset can be converted to partake in routing. */
+await (async () => {
+  use.add("@/bar.js", async () => {
+    return await use("@@/bar.js");
+  });
 })();
 
 /* Add 'tests' source to import engine */
@@ -67,6 +71,7 @@ window.addEventListener(
         await run(path);
       }
       if (event.code === "KeyC" && event.shiftKey) {
+        //layout.clear();
         document.adoptedStyleSheets = [];
         history.pushState({}, "", "/"); //
       }
@@ -76,4 +81,4 @@ window.addEventListener(
 
 //
 //
-await run("/basics.x.html");
+await run("/basics.js");

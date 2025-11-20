@@ -575,7 +575,8 @@ NOTE
 */
 if (use.meta.VITE) {
 
-  //console.log(`HERE`)////
+  /* NOTE Vite's HMR does not always work for globs. Toggle this line to trigger HMR */
+  use.meta.DEV && console.log(`Adding src/assets as source.`)////
 
 
   const START = "./assets".length;
@@ -727,3 +728,5 @@ to avoid Vercel-injections.
     return result;
   });
 })();
+
+

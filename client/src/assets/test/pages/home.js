@@ -1,7 +1,7 @@
 const { component } = await use("@/component.js");
 const { layout } = await use("@/layout/");
 
-const page = component.main("container", component.h1({ text: "About" }));
+const page = component.main("container", component.h1({ text: "Home" }));
 
 export default ({ change } = {}) => {
   if (change) {
@@ -9,4 +9,3 @@ export default ({ change } = {}) => {
     layout.append(page);
   }
 };
-
