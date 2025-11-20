@@ -3,7 +3,7 @@ import * as parcel from "../index.js";
 /* Overload to use live parcel */
 use.add("@/router.js", parcel);
 
-const { router } = await use("@/router.js");
+const { Router, router } = await use("@/router.js");
 
 document.documentElement.dataset.bsTheme = "dark";
 
@@ -14,7 +14,7 @@ await (async () => {
     ...import.meta.glob("./assets/**/*.js"),
   });
   for (const [k, v] of entries) {
-    router.routes.add({
+    Router.routes.add({
       [`${k.slice(START, -3)}`]: async (...args) => {
         const mod = await v();
         mod.default(...args);

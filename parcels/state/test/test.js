@@ -5,10 +5,7 @@ const { app } = await use("@/app/");
 const { layout } = await use("@/layout/");
 
 /* Overload to use live parcel */
-use.add("@/state.js", ({ path }) => {
-  path.detail.escape = true;
-  return parcel;
-});
+use.add("@/router.js", parcel);
 
 document.documentElement.dataset.bsTheme = "dark";
 layout.close(false);

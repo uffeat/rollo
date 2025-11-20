@@ -1,6 +1,7 @@
 import { Message } from "../tools/message.js";
 import { Ref } from "../ref/ref.js";
 
+const { Exception } = await use("@/tools/exception.js");
 const { type } = await use("@/tools/type.js");
 const { is } = await use("@/tools/is.js");
 
@@ -24,35 +25,38 @@ export class Reactive {
   };
 
   constructor(...args) {
-    const reactive = this;
+    const instance = this;
     /* Compose $ */
     this.#_.$ = new Proxy(() => {}, {
       get(target, key) {
-        /* Provide escape hatch for access to any reactive member;
-        useful for props. */
-        if (key === "_") {
-          return reactive;
+        /* Enable call of effects directly on proxy */
+        if (key === "effects") {
+          return instance.effects;
         }
         /* Enable call of reactive methods directly on proxy */
-        if (typeof reactive[key] === "function") {
-          return (...args) => reactive[key](...args);
-          /* Alternatively: */
-          return reactive[key].bind(reactive);
+        if (key in instance && typeof instance[key] === "function") {
+          return instance[key].bind(instance);
         }
-        return reactive.#_.current[key];
+        return instance.#_.current[key];
       },
       set(target, key, value) {
-        reactive.update({ [key]: value });
+        /* Create symmetry with 'get' */
+        Exception.if(
+          key === "effects" ||
+            (key in instance && typeof instance[key] === "function"),
+          `Reserved key: ${key}.`
+        );
+        instance.update({ [key]: value });
         return true;
       },
       apply(target, thisArg, args) {
-        return reactive.update(...args);
+        return instance.update(...args);
       },
       deleteProperty(target, key) {
-        reactive.update({ [key]: undefined });
+        instance.update({ [key]: undefined });
       },
       has(target, key) {
-        return key in reactive.#_.current;
+        return key in instance.#_.current;
       },
     });
 
@@ -74,9 +78,9 @@ export class Reactive {
           (a) => !is.arrow(a) && typeof a === "function"
         );
 
-        const ref = Ref.create({ owner: reactive });
+        const ref = Ref.create({ owner: instance });
 
-        const effect = reactive.effects.add(
+        const effect = instance.effects.add(
           (change, message) => {
             ref.update(reducer(change, message));
           },
@@ -354,10 +358,17 @@ export class Reactive {
     return Object.values(this.#_.current);
   }
 
-  /* Updates current reactively.
-  NOTE 
+  /* Updates current reactively. 
   - Option for updating silently, i.e., non-reactively. */
-  update(updates, { detail, silent = false } = {}) {
+  update(...args) {
+    let updates = args.find((a, i) => !i);
+    /* Fast 'this' return in service of proxy version */
+    if (!updates) {
+      return this
+    };
+    const { detail, silent = false } =
+      args.find((a, i) => i && type(a) === "Object") || {};
+    /* Interpret updates */
     if (Array.isArray(updates)) {
       /* Assume entries */
       updates = Object.fromEntries(updates);
@@ -366,6 +377,7 @@ export class Reactive {
     } else {
       updates = { ...updates };
     }
+    /* Update detail */
     if (detail) Object.assign(this.detail, { ...detail });
     /* Infer change and update stores */
     const change = {};
@@ -404,11 +416,9 @@ export class Reactive {
     /* Run effects */
     let index = 0;
     for (const [effect, detail] of this.#_.registry.entries()) {
-      /* Update message */
       message.detail = detail;
       message.effect = effect;
       message.index = index++;
-
       const { condition, once } = detail;
       if (!condition || condition(this.change, message)) {
         effect(this.change, message);

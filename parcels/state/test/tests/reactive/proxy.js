@@ -7,8 +7,9 @@ const { layout } = await use("@/layout/");
 export default async ({ reactive }) => {
   layout.clear(":not([slot])");
 
-  const state = reactive({ foo: 42 }, { detail: { count: 0 } }, function () {
-    this.effects.add(
+  const state = reactive({ foo: 42 }, { detail: { count: 0 } });
+
+  state.effects.add(
       (change, message) => {
         console.log("message:", message);
 
@@ -23,15 +24,12 @@ export default async ({ reactive }) => {
         message.owner.detail.count++;
 
         console.log("change:", change);
-
         console.log("session:", message.owner.session);
-
         console.log("detail.count:", message.owner.detail.count);
         console.log("data.count:", data.count);
       },
       { data: { count: 0 } }
     );
-  });
 
   //console.log('state:', state)
   //console.log('state.current:', state.current)
@@ -39,5 +37,12 @@ export default async ({ reactive }) => {
   state.foo = 42;
   state.foo++;
   state({ dong: "DONG" });
-  console.log("state._:", state._);
+  console.log("foo:", state.foo);
+
+  console.log("size:", state().size);
+  console.log("current:", state().current);
+
+
+  const clone = state.copy()
+ 
 };

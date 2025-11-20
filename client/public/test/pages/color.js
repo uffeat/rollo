@@ -1,11 +1,10 @@
 const { component } = await use("@/component.js");
 const { layout } = await use("@/layout/");
-const { Reactive, Ref, ref, reactive } = await use("@/state.js");
-const { Sheet, css, scope } = await use("@/sheet.js");
+const { ref } = await use("@/state.js");
+const { css } = await use("@/sheet.js");
 const { router } = await use("@/router.js");
 
-
-const state = Ref.create();
+const state = ref();
 
 const page = component.main("container", component.h1({ text: "Color" }));
 
@@ -35,29 +34,24 @@ const menu = component.menu(
 /* user -> state */
 menu.on.click = (event) => {
   if (event.target._value) {
-    state.update(event.target._value);
+    state(event.target._value);
   }
 };
 
 /* state -> tag and router */
-state.effects.add(
-  (current) => {
-    if (current) {
-      tag.update({ backgroundColor: current });
-      router.use(`/color/${current}`);
-    } else {
-      tag.update({ backgroundColor: "gray" });
-     
-    }
+state.effects.add((current) => {
+  if (current) {
+    tag.update({ backgroundColor: current });
+    router(`/color/${current}`);
+  } else {
+    tag.update({ backgroundColor: "gray" });
   }
-  
-);
+});
 
-export default ({ change } = {}, args) => {
+export default ({ change, residual }) => {
   if (change) {
     layout.clear(":not([slot])");
     layout.append(page);
   }
-
-  state.update(args);
+  state(residual);
 };

@@ -21,19 +21,12 @@
     this.sheet.use();
     layout.clear();
 
-    /* Define error route */
-    router.routes.add({
-      "*": async (...args) => {
-        const mod = await use("@@/test/pages/error.js");
-        mod.default(...args);
-      },
-    });
+    
 
     /* Define routes */
     [
       ["/", "@@/test/pages/home.js"],
       ["/foo", "/test/pages/foo.js"],
-      ["/bar", "/test/pages/bar.js"],
       ["/color", "/test/pages/color.js"],
     ].forEach(([path, usePath]) => {
       router.routes.add({
@@ -43,6 +36,16 @@
         },
       });
     });
+
+    router.routes.add({
+      "/bar": async(...args) => {
+        const result = await use('/test/pages/bar.x.html');
+        result(...args)
+      }
+
+    })
+
+
 
     /* Create nav */
     const nav = component.nav(
@@ -64,14 +67,13 @@
       const target = event.target.closest(`[state-path]`);
       if (target) {
         event.preventDefault();
-        router.use(target.$.path);
+        router(target.$.path);
       }
       //layout.close();
     };
 
     router.effects.path.add(
       (current, message) => {
-        //console.log('current:', current)////
         let active = nav.find(`.active`);
         if (active) {
           active.classes.remove("active");
@@ -84,7 +86,8 @@
       (current) => !!current
     );
 
-    /* Handle initial */
-    await router.use(location.pathname, { silent: true });
+    /* Handle initial
+    NOTE Do after complete setup */
+    await router(location.pathname, { silent: true });
   }
 </script>
