@@ -11,18 +11,16 @@ const page = component.main(
 const detail = component.p({ parent: page });
 
 /* state -> tag and router */
-state.effects.add((current) => {
-  if (current) {
-    detail.text = `Invalid path: ${current}.`;
+state.effects.add((path) => {
+  if (path) {
+    detail.text = `Invalid path: ${path}.`;
   } else {
     detail.clear();
   }
 });
 
-export default ({ change, path }) => {
-  if (change) {
-    layout.clear(":not([slot])");
-    layout.append(page);
-  }
+export default (path) => {
+  layout.clear(":not([slot])");
+  layout.append(page);
   state(path);
 };

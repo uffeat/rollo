@@ -9,8 +9,8 @@ const updates = component.p({ parent: page });
 
 const residualComponent = component.p({ parent: page });
 
-export default ({ change, residual }) => {
-  if (change) {
+export default (mode, query, ...args) => {
+  if (mode) {
     counts.load++;
     loads.text = `Times loaded: ${counts.load}`;
     layout.clear(":not([slot])");
@@ -20,8 +20,8 @@ export default ({ change, residual }) => {
     updates.text = `Times updated without load: ${counts.update}`;
   }
 
-  if (residual) {
-    residualComponent.text = `Got residual: ${residual}`;
+  if (args) {
+    residualComponent.text = `Got residual: ${args}`;
   } else {
     residualComponent.clear();
   }

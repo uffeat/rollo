@@ -48,10 +48,10 @@ state.effects.add((current) => {
   }
 });
 
-export default ({ change, residual }) => {
-  if (change) {
+export default (mode, query, ...args) => {
+  if (mode) {
     layout.clear(":not([slot])");
     layout.append(page);
   }
-  state(residual);
+  state(args);
 };

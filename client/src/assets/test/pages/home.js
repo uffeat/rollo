@@ -3,8 +3,8 @@ const { layout } = await use("@/layout/");
 
 const page = component.main("container", component.h1({ text: "Home" }));
 
-export default ({ change } = {}) => {
-  if (change) {
+export default (mode) => {
+  if (mode) {
     layout.clear(":not([slot])");
     layout.append(page);
   }

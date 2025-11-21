@@ -1,10 +1,10 @@
-const { typeName } = await use("@/tools/types.js");
+const { type } = await use("@/tools/type.js");
 
 /* Checks, if target and other contains the same entries. 
 NOTE
 - Intended for flat objects with primitive values. */
 export const match = (target, other) => {
-  if (typeName(target) !== "Object" || typeName(other) !== "Object") {
+  if (type(target) !== "Object" || type(other) !== "Object") {
     return false;
   }
   /* Remove items with undefined values */

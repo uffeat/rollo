@@ -14,8 +14,8 @@
   state.effects.add((change, message) => {});
 
   export default function () {
-    return ({ change }) => {
-      if (change) {
+    return (mode, query, ...args) => {
+      if (mode) {
         layout.clear(":not([slot])");
         layout.append(page);
       }

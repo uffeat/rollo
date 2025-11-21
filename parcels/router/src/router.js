@@ -1,14 +1,19 @@
+import { Url } from "./url.js";
+
 const { app } = await use("@/app/");
 const { reactive, ref } = await use("@/state.js");
 const { Exception } = await use("@/tools/exception.js");
+const { match } = await use("@/tools/object/match.js");
 
 export const Router = new (class Router {
   #_ = {
-    path: {},
-    query: {},
-    route: {},
-    routes: null,
+    path: "",
+    residual: [],
+    route: async () => {},
+    routes: new (class {})(),
     session: 0,
+    states: {},
+    url: null,
   };
 
   constructor() {
@@ -19,9 +24,9 @@ export const Router = new (class Router {
 
       constructor() {
         /* Default error route */
-        this.#_.error = async (...args) => {
+        this.#_.error = async (path) => {
           const mod = await use("/pages/error.js");
-          mod.default(...args);
+          mod.default(path);
         };
       }
 
@@ -62,10 +67,10 @@ export const Router = new (class Router {
       }
     })();
 
-    //this.#_.states.path = ref({ owner: this, name: "router" });
     this.#_.states = {
-      path: ref({ owner: this, name: "router" }),
-      query: reactive({}, { owner: this, name: "router" }),
+      path: ref({ owner: this, name: "path" }),
+      query: reactive({}, { owner: this, name: "query" }),
+      residual: ref({ owner: this, name: "residual" }),
     };
 
     this.#_.effects = new Proxy(
@@ -79,7 +84,9 @@ export const Router = new (class Router {
     );
 
     window.addEventListener("popstate", async (event) => {
-      await this.use(location.pathname, { silent: true });
+      await this.use(this.#specifier(), {
+        context: "pop",
+      });
     });
   }
 
@@ -91,19 +98,17 @@ export const Router = new (class Router {
     return this.#_.effects;
   }
 
-  /* Returns current and previous full path. */
   get path() {
-    return Object.freeze({ ...this.#_.path });
+    return this.#_.path;
   }
 
-  /* Returns current and previous query. */
-  get query() {
-    return Object.freeze({ ...this.#_.query });
+  get residual() {
+    return this.#_.residual;
   }
 
-  /* Returns current and previous route. */
+  /* Returns . */
   get route() {
-    return Object.freeze({ ...this.#_.route });
+    return this.#_.route;
   }
 
   /* Returns route registration controller. */
@@ -115,123 +120,110 @@ export const Router = new (class Router {
     return this.#_.session;
   }
 
-  /* Invokes route. */
-  async use(path, { hash = false, search = false, silent = false } = {}) {
-    if (path === this.#_.path.current) return;
+  get url() {
+    return this.#_.url;
+  }
 
-    /* Update internals */
-    this.#_.session++;
-    this.#_.path.previous = this.#_.path.current;
-    this.#_.path.current = path;
-
-    if (silent === false) {
-      history.pushState({}, "", path);
-    }
-
-    const query = this.#query(path);
-    this.#_.query.previous = this.#_.query.current;
-    this.#_.query.current = query;
-
-    /* Update states, so that external code can use effects to update 
-    active links etc. */
-    this.#_.states.path(path);
-    this.#_.states.query({ query });
-
-    /* Parse path to extrat registered path and residual */
-    const parsed = this.#parse(path);
-    /* Prepare message for route */
-    const message = {
-      query,
-      router: this,
-      session: this.#_.session,
-      silent,
-    };
-
-    /** Handle invalid path */
-    if (!parsed) {
-      if (!this.config.error) {
-        Exception.if(use.meta.DEV);
-        console.warn(`Invalid path:`, path);
-        return this;
-      }
-      await this.config.error({
-        change: true,
-        path,
-        residual: path,
-        route: this.config.error,
-        ...message,
+  async setup() {
+    if (!this.#_.initialized) {
+      await this.use(this.#specifier(), {
+        context: "setup",
       });
-      return this;
-    }
-
-    /** Handle valid path */
-    path = parsed.path;
-    /* Expose current path as app attr; can be used for styling */
-    app.$({ path });
-    const route = this.routes.get(path);
-    Object.assign(message, { path, residual: parsed.residual, route });
-    /* Check if new route */
-    if (route === this.#_.route.current) {
-      /* route not new -> inform route that no change and provide tail for 
-      updates */
-      await route({ change: false, ...message });
-    } else {
-      /* New route -> inform route that new and provide tail for 
-      updates */
-      this.#_.route.previous = this.#_.route.current;
-      this.#_.route.current = route;
-      await route({ change: true, ...message });
+      this.#_.initialized = true;
     }
     return this;
   }
 
-  #parse(path) {
-   
-    path = path.split('?').at(0)
-   
+  /* Invokes route. */
+  async use(specifier, { context } = {}) {
+    const url = Url.create(specifier);
+    /* Determine if push state */
+    if (this.url) {
+      if (
+        url.path !== this.url.path ||
+        url.hash !== this.url.hash ||
+        !match(url.query, this.url.query)
+      ) {
+        //console.log("Change!");////
+        this.#_.url = url;
+        if (!context) {
+          history.pushState({}, "", url.full);
+        }
+      } else {
+        /* No change -> abort */
+        return this;
+      }
+    } else {
+      //console.log("New!");////
+      this.#_.url = url;
+      if (!context) {
+        history.pushState({}, "", url.full);
+      }
+    }
 
+    this.#_.session++;
+
+    /* Deal with route */
+    const parsed = this.#parse(url.path);
+    //console.log('parsed:', parsed)////
+    if (parsed) {
+      const { path, residual } = parsed;
+
+      /* Expose current path as app attr; can be used for styling */
+      app.$({ path });
+
+      /* */
+      this.#_.path = path;
+      this.#_.residual = Object.freeze(residual);
+
+      /* */
+      this.#_.states.path(path);
+      this.#_.states.query(url.query);
+      this.#_.states.residual(residual);
+
+      const route = this.routes.get(path);
+      //console.log("route:", route); ////
+      if (route === this.route) {
+        /* Mode: update -> call route with null */
+        await route(null, url.query, ...residual);
+      } else {
+        /** Mode: new */
+        /* Call any previous route with false */
+        if (this.route) {
+          await this.route(false);
+        }
+        /* Call new route with true */
+        await route(true, url.query, ...residual);
+
+        this.#_.route = route;
+      }
+    } else {
+      // Invalid route
+      if (!this.config.error) {
+        Exception.if(use.meta.DEV, `Invalid path: ${url.path}`);
+        console.warn(`Invalid path: ${url.path}`);
+        return this;
+      }
+      await this.config.error(url.path);
+    }
+
+    return this;
+  }
+
+  #parse(path) {
     const parts = path.slice(1).split("/");
     for (let index = parts.length - 1; index >= 0; index--) {
       path = `/${parts.slice(0, index + 1).join("/")}`;
       if (this.routes.has(path)) {
-        const residual = `${parts.slice(index + 1).join("/")}`;
+        const residual = parts.slice(index + 1);
         return { path, residual };
       }
     }
   }
 
-  #query(path) {
-
-    /* BUG
-    Fix: Use passed in path
-    */
-
-
-    const query = Object.freeze(
-      Object.fromEntries(
-        Array.from(new URLSearchParams(window.location.search), ([k, v]) => {
-          v = v.trim();
-          if (v === "") return [k, true];
-          const probe = Number(v);
-          return [k, Number.isNaN(probe) ? v : probe];
-        })
-      )
-    );
-    /* Or with helper:
-    const query = Object.freeze(
-      Object.fromEntries(
-        new URLSearchParams(window.location.search).entries().map(([k, v]) => {
-          v = v.trim();
-          if (v === "") return [k, true];
-          const probe = Number(v);
-          return [k, Number.isNaN(probe) ? v : probe];
-        })
-      )
-    );
-    console.log("query:", query);
-    
-
-    */
-    return query;
+  #specifier() {
+    return location.search
+      ? `${location.pathname}${location.search}${location.hash}`
+      : `${location.pathname}${location.hash}`;
   }
 })();
