@@ -18,40 +18,48 @@ const menu = component.menu(
   { parent: page, role: "group" },
   component.div(
     "btn-group",
-    component.button("btn.btn-outline-primary", { text: "Red", _value: "red" }),
+    component.button(
+      "btn.btn-outline-primary",
+      { text: "Red", value: "red", "data.colorStuff": "red" },
+      function () {
+        this.dataset.colorStuff = 'red'
+      },
+    ),
     component.button("btn.btn-outline-primary", {
       text: "Green",
-      _value: "green",
+      value: "green",
     }),
     component.button("btn.btn-outline-primary", {
       text: "Blue",
-      _value: "blue",
+      value: "blue",
     })
   ),
   tag
 );
 
-/* user -> state */
+/* user -> router */
 menu.on.click = (event) => {
-  if (event.target._value) {
-    state(event.target._value);
+  if (event.target.value) {
+    router(`/color/${event.target.value}`);
   }
 };
 
-/* state -> tag and router */
+/* state -> tag */
 state.effects.add((current) => {
   if (current) {
     tag.update({ backgroundColor: current });
-    router(`/color/${current}`);
   } else {
     tag.update({ backgroundColor: "gray" });
   }
 });
 
 export default (mode, query, ...args) => {
-  if (mode) {
+  if (mode.enter) {
     layout.clear(":not([slot])");
     layout.append(page);
   }
-  state(args);
+  if (!mode.exit) {
+    /* router -> state */
+    state(args);
+  }
 };

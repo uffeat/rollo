@@ -1,5 +1,7 @@
 import { Query } from "./query.js";
 
+const { match } = await use("@/tools/object/match.js");
+
 export class Url {
   static create = (...args) => new Url(...args);
 
@@ -7,7 +9,7 @@ export class Url {
 
   constructor(specifier) {
     const url = new URL(specifier, location.origin);
-   
+
     this.#_.path = url.pathname;
     const search = url.search;
     this.#_.hash = url.hash;
@@ -32,5 +34,13 @@ export class Url {
 
   get query() {
     return this.#_.query;
+  }
+
+  match(url) {
+    return (
+      url.path === this.path &&
+      url.hash === this.hash &&
+      match(url.query, this.query)
+    );
   }
 }

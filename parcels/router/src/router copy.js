@@ -163,18 +163,18 @@ export const Router = new (class Router {
       }
     }
     /* Fallback to '.x.'-asset if no registered route found */
-
-    const { promise, resolve } = Promise.withResolvers();
-
-    try {
-      const route = await use(`/pages/${path}.x.html`);
-      resolve({ path, route, residual: [] });
-      return { path, route, residual: [] };
-    } catch (error) {
-     this.#_.route = null;
-      resolve({ path });
+    for (const source of ["/", "@/", "@@/"]) {
+      try {
+        const route = await use(`${source}pages/${path}.x.html`);
+        return { path, route, residual: [] };
+      } catch (error) {
+        // ignore and try next source
+      }
     }
-    return await promise
+
+    // if we get here, all fallbacks failed
+    this.#_.route = null;
+    return { path };
   }
 
   #pushState(url) {

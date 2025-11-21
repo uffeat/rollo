@@ -1,13 +1,11 @@
 import { Router } from "./router.js";
 const { Exception } = await use("@/tools/exception.js");
 
-
-
 /* Proxy version with leaner syntax  */
 export const router = new Proxy(async () => {}, {
   get(target, key) {
-    if (key === 'router') {
-      return Router
+    if (key === "router") {
+      return Router;
     }
     Exception.if(!(key in Router), `Invalid key: ${key}`);
     const value = Router[key];

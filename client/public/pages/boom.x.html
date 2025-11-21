@@ -1,0 +1,44 @@
+<style name="sheet">
+  h1._boom {
+    color: pink;
+  }
+</style>
+
+<script type="module">
+  const { component } = await use("@/component.js");
+  const { layout } = await use("@/layout/");
+  const { ref, reactive } = await use("@/state.js");
+
+  const states = {
+    mode: ref({name: 'mode'}),
+    query: reactive({}, {name: 'query'}),
+  };
+
+  //console.log('current:', states.mode.current)////
+  //console.log('current:', states.query().current);////
+
+  const page = component.main(
+    "container",
+    component.h1("_boom", { text: "Boom!" })
+  );
+
+  states.mode.effects.add(
+    (mode) => {
+      if (mode.enter) {
+        layout.clear(":not([slot])");
+        layout.append(page);
+      } else if (mode.exit) {
+        page.remove();
+      }
+    },
+    { run: false }
+  );
+
+  export default function () {
+    this.sheet.use()
+
+    return (mode, query, ...args) => {
+      states.mode(mode);
+    };
+  }
+</script>

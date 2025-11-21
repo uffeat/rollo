@@ -23,7 +23,7 @@
 
     router.effects.query.add(
       (change, message) => {
-        //console.log("query:", change);
+        //console.log("query:", change);////
       },
       (change) => Object.keys(change).length
     );
@@ -64,11 +64,11 @@
         states.mode.effects.add(
           (mode) => {
             const page = Page();
-            console.log("mode:", mode);
-            if (mode) {
+            //console.log("mode:", mode);////
+            if (mode.enter) {
               layout.clear(":not([slot])");
               layout.append(page);
-            } else if (mode === false) {
+            } else if (mode.exit) {
               page.remove();
             }
           },
@@ -80,7 +80,7 @@
           (query) => {
             const output = Page().detail.queryOutput;
             output.clear();
-            console.log("query:", query);
+            //console.log("query:", query);////
             for (const [key, value] of Object.entries(query)) {
               output.append(
                 component.p({ text: `Item: ${key}=${value}`, width: "100%" })
@@ -95,7 +95,7 @@
           (args) => {
             const output = Page().detail.argsOutput;
             output.clear();
-            console.log("args:", args);
+            //console.log("args:", args);////
             for (const arg of args) {
               output.append(
                 component.p({ text: `Arg: ${arg}`, width: "100%" })
@@ -106,6 +106,7 @@
         );
 
         return async (mode, query, ...args) => {
+          //console.log("mode:", mode);////
           states.mode(mode);
           states.query(query);
           states.args(args);
@@ -125,6 +126,15 @@
         },
       });
     });
+
+    router.routes.add({
+      "/bar": async (...args) => {
+        const result = await use("/test/pages/bar.x.html");
+        result(...args);
+      },
+    });
+
+
     /* Create nav */
     const nav = component.nav(
       "nav.d-flex.flex-column",
@@ -134,11 +144,13 @@
         ["About", "/about?thing=42&baz&pink=pong"],
         ["Foo", "/foo"],
         ["Foo with args", "/foo/ding/dong"],
-        ["About", "/about?thing=42&baz&pink=pong"],
+        ["Bar", "/bar"],
         ["Ding", "/ding/dong?foo=42"],
         ["Color", "/color"],
         ["Color -> green", "/color/green"],
         ["Bad", "/bad"],
+        ["Boom", "/boom"],
+
       ].map(([text, path]) => component.a("nav-link", { text, $path: path }))
     );
 

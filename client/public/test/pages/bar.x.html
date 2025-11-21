@@ -14,8 +14,12 @@
   state.effects.add((change, message) => {});
 
   export default function () {
+
+    const sheet = this.sheet
+
+
     return (mode, query, ...args) => {
-      if (mode) {
+      if (mode.enter) {
         layout.clear(":not([slot])");
         layout.append(page);
       }
