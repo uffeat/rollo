@@ -1,11 +1,23 @@
 export class UseError extends Error {
+  static raise = (message, callback) => {
+    callback?.();
+    throw new UseError(message);
+  };
+  static if = (predicate, message, callback) => {
+    if (typeof predicate === "function") {
+      predicate = predicate();
+    }
+    if (predicate) {
+      UseError.raise(message, callback);
+    }
+  };
   constructor(message) {
     super(message);
+    /* Hard-code name (rather than `this.name = this.constructor.name`) 
+    to avoid obfuscation by minification */
     this.name = "UseError";
   }
 }
-
-
 
 /* Utility for parsing path.
 - Supports shorthands:
@@ -369,13 +381,14 @@ export const assets = new (class Assets {
     } else {
       /* Get assets from registered source (nothing from added) */
       if (!this.sources.has(path.source)) {
-        throw new Error(`Invalid source: ${path.source}`);
+        UseError.raise(`Invalid source: ${path.source}`);
+        ////throw new Error(`Invalid source: ${path.source}`);
       }
       const { timeout } = options;
       if (timeout) {
         const { promise, resolve, reject } = Promise.withResolvers();
         const timer = setTimeout(() => {
-          const error = new Error(
+          const error = new UseError(
             `Importing '${path.full}' took longer than ${timeout}ms.`
           );
           this.meta.DEV ? reject(error) : resolve(error);
@@ -401,6 +414,8 @@ export const assets = new (class Assets {
     if (path.detail.escape) return result;
     /* Error */
     if (result instanceof Error) return result;
+
+    
     /* Raw */
     if (options.raw) return result;
     /* Transform */
@@ -455,7 +470,7 @@ use.sources.add(
       import: Function("u", "return import(u)"),
     };
     return async ({ options, owner, path }) => {
-      const { as, inform, raw } = options;
+      const { as, inform, raw, strict } = options;
       /* Global sheet by link (FOUC-free) */
       if (path.type === "css" && as === undefined && raw !== true) {
         const href = `${owner.meta.base}${path.path}`;
@@ -504,8 +519,10 @@ use.sources.add(
         return result;
       } else {
         inform?.(`Fetching: ${path.full}`);
+
         const { promise, resolve } = Promise.withResolvers();
         fetching.set(path.full, promise);
+
         const result = (
           await (
             await fetch(`${owner.meta.base}${path.path}`, { cache: "no-store" })
@@ -513,13 +530,16 @@ use.sources.add(
             //Alt: await fetch(`${owner.meta.base}${path.path}?d=${Date.now()}`)
             .text()
         ).trim();
+
         /* Invalid paths causes result to be index.html (with misc devtools 
         injected). Use custom index meta as indicator for invalid path, 
         since such an element should not be present in imported assets. */
         const tester = document.createElement("div");
         tester.innerHTML = result;
         if (tester.querySelector(`meta[index]`)) {
-          throw new Error(`Invalid path: ${path.full}`);
+          fetching.delete(path.full);
+          
+          UseError.raise(`Invalid path: ${path.full}`);
         }
         cache.set(path.full, result);
         resolve(result);
@@ -560,7 +580,8 @@ use.sources.add(
         .trim();
       probe.remove();
       if (!propertyValue) {
-        throw new Error(`Invalid path: ${path.full}`);
+        //throw new Error(`Invalid path: ${path.full}`);
+        UseError.raise(`Invalid path: ${path.full}`);
       }
       const result = atob(propertyValue.slice(1, -1));
       cache.set(path.full, result);
@@ -583,10 +604,9 @@ NOTE
   - Assets that use build-integrated libs such as React and Tailwind.
 */
 if (use.meta.VITE) {
-
   /* NOTE Vite's HMR does not always work for globs. Toggle this line to trigger HMR */
-  use.meta.DEV && console.log(`Adding src/assets as source.`)////
-
+  //use.meta.DEV && console.log(`Adding src/assets as source.`); ////
+  /* */
 
   const START = "./assets".length;
   const loaders = Object.freeze(
@@ -619,8 +639,9 @@ if (use.meta.VITE) {
   use.add("@@/__paths__.json", paths);
 
   use.sources.add("@@", async ({ owner, path }) => {
-    const { Exception } = await owner.get("@/tools/exception.js");
-    Exception.if(!(path.path in loaders), `Invalid path:${path.full}`);
+    //const { Exception } = await owner.get("@/tools/exception.js");
+    //Exception.if(!(path.path in loaders), `Invalid path:${path.full}`);
+    UseError.if(!(path.path in loaders), `Invalid path:${path.full}`);
     const load = loaders[path.path];
     const result = await load();
     return result;
@@ -710,7 +731,7 @@ use.types.add("json", (result) => {
   return JSON.parse(result);
 });
 
-/** Register out-of-the-box transformers and processors for synthetic types. */
+/** Register out-of-the-box transformers and processors for synthetic assets. */
 
 /* Add x.html/x.template support.
 - Enables hybrid css-html-js single-file assets.
@@ -737,5 +758,3 @@ to avoid Vercel-injections.
     return result;
   });
 })();
-
-

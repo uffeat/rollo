@@ -3,25 +3,11 @@ import * as parcel from "../index.js";
 /* Overload to use live parcel */
 use.add("@/router.js", parcel);
 
-const { Router, router } = await use("@/router.js");
+
 
 document.documentElement.dataset.bsTheme = "dark";
 
-/* Batch-register test routes. */
-await (async () => {
-  const START = "./assets".length;
-  const entries = Object.entries({
-    ...import.meta.glob("./assets/**/*.js"),
-  });
-  for (const [k, v] of entries) {
-    Router.routes.add({
-      [`${k.slice(START, -3)}`]: async (...args) => {
-        const mod = await v();
-        mod.default(...args);
-      },
-    });
-  }
-})();
+
 
 /* Add 'tests' source to import engine */
 use.sources.add(
@@ -51,7 +37,9 @@ use.sources.add(
 const run = async (path) => {
   if (!path || path === "/") return;
   const asset = await use(`tests${path}`);
-  await asset?.default(parcel);
+  const test = asset?.default ?? asset
+  await test(parcel)
+
 };
 
 /* Add test control */
@@ -76,4 +64,4 @@ window.addEventListener(
 
 //
 //
-await run("/basics.x.html");
+//await run("/basics.x.html");

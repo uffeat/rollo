@@ -32,28 +32,12 @@ export class Ref {
 
       add(effect, ...args) {
         /* Parse args */
-        const condition = (() => {
-          const condition = args.find((a) => typeof a === "function");
-          if (condition) {
-            return condition;
-          }
-          const keys = args.find((a) => Array.isArray(a));
-          if (keys) {
-            return (current) => {
-              return keys.includes(current);
-            };
-          }
-        })();
-
-        const {
-          data = {},
-          once,
-          run = true,
-        } = args.find((a, i) => !i && type(a) === "Object") || {};
+        const condition = args.find((a) => typeof a === "function");
+        const { data = {}, once, run = true } = (args.find((a, i) => !i && type(a) === "Object") || {});
         /* Create detail. 
         NOTE detail is kept mutable to enable dynamic reactive patterns. */
         const detail = (() => {
-          const detail = { data: { ...data } };
+          const detail = { data: {...data} };
           if (condition) {
             detail.condition = condition;
           }
@@ -93,14 +77,7 @@ export class Ref {
     /* Parse args */
     const current = args.find((a, i) => !i && type(a) !== "Object");
     const options = args.find((a) => type(a) === "Object") || {};
-    const {
-      detail,
-      match = function (other) {
-        return this.current === other;
-      },
-      name,
-      owner,
-    } = options;
+    const { detail, match = function(other) {return this.current === other}, name, owner } = options;
     const effects = args.filter((a) => is.arrow(a));
     const hooks = args.filter((a) => !is.arrow(a) && typeof a === "function");
     /* Use arguments */

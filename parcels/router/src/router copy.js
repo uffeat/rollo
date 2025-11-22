@@ -8,8 +8,6 @@ const { Exception } = await use("@/tools/exception.js");
 
 export const Router = new (class Router {
   #_ = {
-    path: "",
-    residual: [],
     route: async () => {},
     routes: null,
     session: 0,
@@ -25,6 +23,8 @@ export const Router = new (class Router {
     window.addEventListener("popstate", async (event) => {
       await this.use(this.#specifierFromLocation(), {
         context: "pop",
+
+        strict: false///
       });
     });
   }
@@ -36,16 +36,6 @@ export const Router = new (class Router {
   /* Returns multi-state effect controller. */
   get effects() {
     return this.#_.states.effects;
-  }
-
-  /* Returns current path without residual. */
-  get path() {
-    return this.#_.path;
-  }
-
-  /* Returns current residual. */
-  get residual() {
-    return this.#_.residual;
   }
 
   /* Returns current route. */
@@ -75,10 +65,13 @@ export const Router = new (class Router {
 
   /* Invokes route from initial location. 
   NOTE Should be called once router has been set up. */
-  async setup() {
+  async setup({ controller = true, strict = true } = {}) {
     if (!this.#_.initialized) {
       await this.use(this.#specifierFromLocation(), {
         context: "setup",
+        strict,
+
+        controller,
       });
       this.#_.initialized = true;
     }
@@ -86,12 +79,12 @@ export const Router = new (class Router {
   }
 
   /* Invokes route. */
-  async use(specifier, { context, strict = true } = {}) {
+  async use(specifier, { context, controller = true, strict = true } = {}) {
     const url = Url.create(specifier);
     /* Determine if need to push state */
     if (this.url) {
       if (!url.match(this.url)) {
-        //console.log("Change!");////
+        /* Change -> push */
         this.#_.url = url;
         if (!context) {
           this.#pushState(url);
@@ -101,52 +94,51 @@ export const Router = new (class Router {
         return this;
       }
     } else {
+      /* Initial -> push */
       this.#_.url = url;
       if (!context) {
+        console.log("initial"); ////
+
         this.#pushState(url);
       }
     }
     this.#_.session++;
 
-    const { path, route, residual } = await this.#getRoute(url.path);
-
-    if (route) {
-      /* Expose current path as app attr/reactive item; can be used for 
-      advanced dynamic styling */
-      app.$({ path });
-      /* Expose stuff that cannot be read from this.url and enable reactivity.
-      NOTE Not part the core routing, put provided as a service, e.g. to
-      manage active state in nav groups. */
-      this.#_.path = path;
-      this.#_.residual = Object.freeze(residual);
-      this.#_.states.path(path);
-      this.#_.states.query(url.query);
-      this.#_.states.residual(residual);
-
-      if (route === this.route) {
-        /* Mode: update -> call route with update */
-        await route({ update: true }, url.query, ...residual);
-      } else {
-        /** Mode: new */
-        /* Call any previous route with exit */
-        if (this.route) {
-          await this.route({ exit: true });
+    if (controller) {
+      const { path, residual, route } = (await this.#getRoute(url.path)) || {};
+      if (route) {
+        /* Enable external hooks etc. */
+        app.$({ path });
+        this.#_.states.path(path, {}, url.query);
+        if (route === this.route) {
+          /* Mode: update -> call route with update */
+          await route({ update: true }, url.query, ...residual);
+        } else {
+          /** Mode: new */
+          /* Call any previous route with exit */
+          if (this.route) {
+            await this.route({ exit: true });
+          }
+          /* Call new route with enter */
+          await route({ enter: true }, url.query, ...residual);
+          /* Expose active route */
+          this.#_.route = route;
         }
-        /* Call new route with enter */
-        await route({ enter: true }, url.query, ...residual);
-        /* Expose active route */
-        this.#_.route = route;
+      } else {
+        if (strict) {
+          this.#_.route = null;
+          if (!this.config.error) {
+            Exception.if(use.meta.DEV, `Invalid path: ${url.path}`);
+            console.warn(`Invalid path: ${url.path}`);
+            return this;
+          }
+          await this.config.error(url.path);
+        }
       }
     } else {
-      if (strict) {
-        this.#_.route = null;
-        if (!this.config.error) {
-          Exception.if(use.meta.DEV, `Invalid path: ${url.path}`);
-          console.warn(`Invalid path: ${url.path}`);
-          return this;
-        }
-        await this.config.error(url.path);
-      }
+      /* Enable external hooks etc. */
+      app.$({ path: url.path });
+      this.#_.states.path(url.path, {}, url.query);
     }
 
     return this;
@@ -168,13 +160,10 @@ export const Router = new (class Router {
         const route = await use(`${source}pages/${path}.x.html`);
         return { path, route, residual: [] };
       } catch (error) {
-        // ignore and try next source
+        /* Do nothing, so that next source can be tried */
       }
     }
-
-    // if we get here, all fallbacks failed
-    this.#_.route = null;
-    return { path };
+    /* If we get here, all fallbacks failed */
   }
 
   #pushState(url) {

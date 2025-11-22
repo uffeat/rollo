@@ -8,8 +8,8 @@ export class States {
 
   constructor(owner) {
     this.#_.path = ref({ owner, name: "path" });
-    this.#_.query = reactive({}, { owner, name: "query" });
-    this.#_.residual = ref({ owner, name: "residual" });
+  
+  
 
     this.#_.effects = new Proxy(this, {
       get(target, key) {
@@ -27,11 +27,7 @@ export class States {
     return this.#_.path;
   }
 
-  get query() {
-    return this.#_.query;
-  }
+  
 
-  get residual() {
-    return this.#_.residual;
-  }
+  
 }

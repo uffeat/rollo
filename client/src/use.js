@@ -382,7 +382,6 @@ export const assets = new (class Assets {
       /* Get assets from registered source (nothing from added) */
       if (!this.sources.has(path.source)) {
         UseError.raise(`Invalid source: ${path.source}`);
-        ////throw new Error(`Invalid source: ${path.source}`);
       }
       const { timeout } = options;
       if (timeout) {
@@ -526,16 +525,16 @@ use.sources.add(
             //Alt: await fetch(`${owner.meta.base}${path.path}?d=${Date.now()}`)
             .text()
         ).trim();
+
         /* Invalid paths causes result to be index.html (with misc devtools 
         injected). Use custom index meta as indicator for invalid path, 
         since such an element should not be present in imported assets. */
         const tester = document.createElement("div");
         tester.innerHTML = result;
         if (tester.querySelector(`meta[index]`)) {
-          if (strict === false) {
-            return null
-          }
-          //throw new Error(`Invalid path: ${path.full}`);
+          /* NOTE Critical to remove from fetching on error!
+          ... challenged my sanity before I found out... */
+          fetching.delete(path.full);
           UseError.raise(`Invalid path: ${path.full}`);
         }
         cache.set(path.full, result);
@@ -577,7 +576,6 @@ use.sources.add(
         .trim();
       probe.remove();
       if (!propertyValue) {
-        //throw new Error(`Invalid path: ${path.full}`);
         UseError.raise(`Invalid path: ${path.full}`);
       }
       const result = atob(propertyValue.slice(1, -1));
@@ -603,7 +601,7 @@ NOTE
 if (use.meta.VITE) {
   /* NOTE Vite's HMR does not always work for globs. Toggle this line to trigger HMR */
   //use.meta.DEV && console.log(`Adding src/assets as source.`); ////
-  /* */
+  //
 
   const START = "./assets".length;
   const loaders = Object.freeze(
@@ -636,8 +634,6 @@ if (use.meta.VITE) {
   use.add("@@/__paths__.json", paths);
 
   use.sources.add("@@", async ({ owner, path }) => {
-    //const { Exception } = await owner.get("@/tools/exception.js");
-    //Exception.if(!(path.path in loaders), `Invalid path:${path.full}`);
     UseError.if(!(path.path in loaders), `Invalid path:${path.full}`);
     const load = loaders[path.path];
     const result = await load();
@@ -709,8 +705,10 @@ use.types.add(
           result = null;
         }
       } else {
-        //result = await owner.module(`export const __path__ = "${path.path}";${text}`, path.path);
-        result = await owner.module(text, path.path);
+        result = await owner.module(
+          `export const __path__ = "${path.path}";${text}`,
+          path.path
+        );
       }
       cache.set(key, result);
       return result;
@@ -732,7 +730,7 @@ use.types.add("json", (result) => {
 
 /* Add x.html/x.template support.
 - Enables hybrid css-html-js single-file assets.
-- Asset as result of any default method.
+- Asset as default method.
 NOTE Use the html-associated file type 'template' for html public assets 
 to avoid Vercel-injections.
 */
@@ -746,10 +744,13 @@ to avoid Vercel-injections.
     const { assets, js } = extract(result);
     result = assets;
     if (js) {
-      result =
-        (await (
-          await use.module(js, path.path)
-        )?.default?.call(assets, { path })) ?? null;
+      const mod = await use.module(`export const __path__ = "${path.path}";${js}`, path.path);
+      const context = Object.freeze({ assets, self: mod });
+      if (mod.default) {
+        result = mod.default.bind(context);
+      } else {
+        result = Object.freeze({ assets, ...mod });
+      }
     }
     cache.set(path.full, result);
     return result;
