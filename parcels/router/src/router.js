@@ -159,7 +159,7 @@ export const Router = new (class Router {
     /* Fallback to '.x.'-asset if no registered route found */
     for (const source of ["/", "@/", "@@/"]) {
       try {
-        const route = await use(`${source}pages/${path}.x.html`);
+        const route = (await use(`${source}pages/${path}.x.html`))();
         return { path, route, residual: [] };
       } catch (error) {
         if (error.name !== 'UseError') {
