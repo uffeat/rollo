@@ -1,11 +1,24 @@
 import { Button } from "../catalyst/button.jsx";
+import { useState } from "react";
 
+export const Foo = ({ state }) => {
+  const [count, setCount] = useState(0);
 
-export const Foo = () => {
   return (
     <div>
       <h1>Foo</h1>
-      <Button outline>Save changes</Button>
+      <Button
+        outline
+        onClick={(event) => {
+          setCount(prev => {
+            const next = prev + 1;
+            state({ count: next });  // send the updated value
+            return next;
+          });
+        }}
+      >
+        Bump
+      </Button>
     </div>
   );
 };
