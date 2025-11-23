@@ -1,5 +1,5 @@
 /* Activate Tailwind */
-import "./main.css";
+//import "./main.css";
 /* Initialize import engine */
 import "./use.js";
 

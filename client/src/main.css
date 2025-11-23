@@ -3,6 +3,10 @@
 
 @tailwind utilities;
 
+body {
+  font-size: 16px;
+}
+
 
 button {
   @apply rounded;
