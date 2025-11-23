@@ -1,5 +1,5 @@
-import { Button } from "../../catalyst/button.jsx";
-//const { Button } = await use("@@/catalyst/button.jsx");
+import { Button } from "../catalyst/button.jsx";
+
 
 export const Foo = () => {
   return (
