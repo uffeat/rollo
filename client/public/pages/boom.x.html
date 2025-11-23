@@ -1,6 +1,8 @@
 <style name="sheet">
-  h1._boom {
-    color: pink;
+  [path="/pages/boom.x.html"] {
+    h1 {
+      color: pink;
+    }
   }
 </style>
 
@@ -9,36 +11,32 @@
   const { layout } = await use("@/layout/");
   const { ref, reactive } = await use("@/state.js");
 
-  const states = {
-    mode: ref({name: 'mode'}),
-    query: reactive({}, {name: 'query'}),
-  };
+  const state = ref({ name: "mode" });
+  const page = component.main("container", component.h1({ text: "Boom!" }));
+  page.attribute.path = __path__;
 
-  //console.log('current:', states.mode.current)////
-  //console.log('current:', states.query().current);////
-
-  const page = component.main(
-    "container",
-    component.h1("_boom", { text: "Boom!" })
+  state.effects.add(
+    () => {
+      layout.clear(":not([slot])");
+      layout.append(page);
+    },
+    { run: false },
+    ["enter"]
   );
 
-  states.mode.effects.add(
-    (mode) => {
-      if (mode.enter) {
-        layout.clear(":not([slot])");
-        layout.append(page);
-      } else if (mode.exit) {
-        page.remove();
-      }
+  state.effects.add(
+    () => {
+      page.remove();
     },
-    { run: false }
+    { run: false },
+    ["exit"]
   );
 
   export default function () {
-    this.assets.sheet.use()
+    this.assets.sheet.use();
 
     return (mode, query, ...args) => {
-      states.mode(mode);
+      state(Object.keys(mode)[0]);
     };
   }
 </script>

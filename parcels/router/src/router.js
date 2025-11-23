@@ -3,7 +3,7 @@ import { States } from "./states.js";
 import { Url } from "./url.js";
 
 const { app } = await use("@/app/");
-const { Exception } = await use("@/tools/exception.js");
+
 
 export const Router = new (class Router {
   #_ = {
@@ -120,9 +120,11 @@ export const Router = new (class Router {
         return;
       }
       return async () => {
+
         /* Enable external hooks etc. */
         app.$({ path });
         this.#_.states.path(path, {}, url.query);
+
         if (route === this.route) {
           /* Mode: update -> call route with update */
           await route({ update: true }, url.query, ...residual);
@@ -145,12 +147,12 @@ export const Router = new (class Router {
         if (!this.#_.config.error) {
           this.#_.config.error = (await use("/pages/error.js")).default;
         }
-
-        //this.#_.session++;
+         this.#_.session++;
         pusher();
-
         this.#_.route = null;
-
+        /* Enable external hooks etc. */
+        app.$({ path: url.path });
+        this.#_.states.path(url.path, {}, url.query);
         await this.#_.config.error(url.path);
       }
 
@@ -158,9 +160,9 @@ export const Router = new (class Router {
     }
 
     this.#_.session++;
+
     pusher();
     await controller();
-
     return this;
   }
 
@@ -177,7 +179,7 @@ export const Router = new (class Router {
     /* Fallback to '.x.'-asset if no registered route found */
     for (const source of ["/", "@/", "@@/"]) {
       try {
-        const route = (await use(`${source}pages/${path}.x.html`))();
+        const route = (await use(`${source}pages${path}.x.html`))();
         return { path, route, residual: [] };
       } catch (error) {
         if (error.name !== "UseError") {

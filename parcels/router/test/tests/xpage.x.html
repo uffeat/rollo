@@ -2,8 +2,10 @@
 /xpage.x.html
 
 About
-- Explicit routes registration of '.x.'-type assets.
-- Use of NavLink.
+Demo of 'x'-assets as routes. 
+
+Points
+- Since 'x'-assets are functions, these can be registered as routes in a very lean way.
 -->
 <style name="sheet"></style>
 
@@ -13,9 +15,6 @@ About
   const { NavLink, router } = await use("@/router.js");
 
   export default async function () {
-    //history.pushState({}, "", "/"); //
-    //history.replaceState({}, "", "/"); //
-
     this.assets.sheet.use();
     layout.clear();
 
@@ -31,11 +30,9 @@ About
       { slot: "side", parent: layout },
       NavLink({ text: "Foo", path: "/foo" }),
       NavLink({ text: "Bar", path: "/bar" }),
-      NavLink({ text: "Bad", path: "/bad" }),
+      NavLink({ text: "Bad", path: "/bad" })
     );
 
-    await router.setup({
-      strict: true,
-    });
+    await router.setup({ strict: false });
   }
 </script>
