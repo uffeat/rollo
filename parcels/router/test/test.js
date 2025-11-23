@@ -3,7 +3,9 @@ import * as parcel from "../index.js";
 /* Overload to use live parcel */
 use.add("@/router.js", parcel);
 
+const { NavLink, router } = await use("@/router.js");
 
+const navLink = NavLink()
 
 document.documentElement.dataset.bsTheme = "dark";
 

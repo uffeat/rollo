@@ -19,14 +19,6 @@ export const Router = new (class Router {
     this.#_.config = new Config();
     this.#_.routes = new Routes();
     this.#_.states = new States(this);
-    /* Enable back/forward navigation */
-    window.addEventListener("popstate", async (event) => {
-      await this.use(this.#specifierFromLocation(), {
-        context: "pop",
-
-        strict: false///
-      });
-    });
   }
 
   get config() {
@@ -67,12 +59,22 @@ export const Router = new (class Router {
   NOTE Should be called once router has been set up. */
   async setup({ controller = true, strict = true } = {}) {
     if (!this.#_.initialized) {
+      /* Enable back/forward navigation */
+      window.addEventListener("popstate", async (event) => {
+        await this.use(this.#specifierFromLocation(), {
+          context: "pop",
+          controller,
+          strict
+        });
+      });
+
+      /* Handle initial */
       await this.use(this.#specifierFromLocation(), {
         context: "setup",
         strict,
-
         controller,
       });
+
       this.#_.initialized = true;
     }
     return this;
@@ -97,7 +99,7 @@ export const Router = new (class Router {
       /* Initial -> push */
       this.#_.url = url;
       if (!context) {
-        console.log("initial"); ////
+        //console.log("initial"); ////
 
         this.#pushState(url);
       }
@@ -157,10 +159,13 @@ export const Router = new (class Router {
     /* Fallback to '.x.'-asset if no registered route found */
     for (const source of ["/", "@/", "@@/"]) {
       try {
-        const route = await use(`${source}pages/${path}.x.html`);
+        const route = (await use(`${source}pages/${path}.x.html`))();
         return { path, route, residual: [] };
       } catch (error) {
-        /* Do nothing, so that next source can be tried */
+        if (error.name !== 'UseError') {
+          throw error
+        }
+        /* Do nothing; move on to next source */
       }
     }
     /* If we get here, all fallbacks failed */

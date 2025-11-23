@@ -56,8 +56,8 @@ export const Router = new (class Router {
 
   /* Invokes route from initial location. 
   NOTE Should be called once router has been set up. */
-  async setup({ error, strict = true } = {}) {
-    this.#_.config.error = error;
+  async setup({ controller = true, strict = true } = {}) {
+    this.#_.config.controller = controller;
     this.#_.config.strict = strict;
 
     if (!this.#_.initialized) {
@@ -79,7 +79,9 @@ export const Router = new (class Router {
   }
 
   /* Invokes route. */
-  async use(specifier, { context, strict } = {}) {
+  async use(specifier, { context, controller, strict } = {}) {
+    controller =
+      controller === undefined ? this.#_.config.controller : controller;
     strict = strict === undefined ? this.#_.config.strict : strict;
 
     const url = Url.create(specifier);
@@ -89,11 +91,13 @@ export const Router = new (class Router {
         if (!url.match(this.url)) {
           /* Change */
           this.#_.url = url;
-          return () => {
-            if (!context) {
+          if (context) {
+            return () => {};
+          } else {
+            return () => {
               history.pushState({}, "", url.full);
-            }
-          };
+            };
+          }
         } else {
           /* No change */
           return;
@@ -101,25 +105,28 @@ export const Router = new (class Router {
       } else {
         /* Initial */
         this.#_.url = url;
-        return () => {
-          if (!context) {
+        if (context) {
+          return () => {};
+        } else {
+          //console.log("initial"); ////
+          return () => {
             history.pushState({}, "", url.full);
-          }
-        };
+          };
+        }
       }
     })();
 
-    /* Abort if no change */
     if (!pusher) {
-      return this;
+      return
     }
+    
+    pusher()
 
-    const controller = await (async () => {
+    this.#_.session++;
+
+    if (controller) {
       const { path, residual, route } = (await this.#getRoute(url.path)) || {};
-      if (!route) {
-        return;
-      }
-      return async () => {
+      if (route) {
         /* Enable external hooks etc. */
         app.$({ path });
         this.#_.states.path(path, {}, url.query);
@@ -137,29 +144,22 @@ export const Router = new (class Router {
           /* Expose active route */
           this.#_.route = route;
         }
-      };
-    })();
-
-    if (!controller) {
-      if (strict) {
-        if (!this.#_.config.error) {
-          this.#_.config.error = (await use("/pages/error.js")).default;
+      } else {
+        if (strict) {
+          this.#_.route = null;
+          if (!this.config.error) {
+            Exception.if(use.meta.DEV, `Invalid path: ${url.path}`);
+            console.warn(`Invalid path: ${url.path}`);
+            return this;
+          }
+          await this.config.error(url.path);
         }
-
-        //this.#_.session++;
-        pusher();
-
-        this.#_.route = null;
-
-        await this.#_.config.error(url.path);
       }
-
-      return this;
+    } else {
+      /* Enable external hooks etc. */
+      app.$({ path: url.path });
+      this.#_.states.path(url.path, {}, url.query);
     }
-
-    this.#_.session++;
-    pusher();
-    await controller();
 
     return this;
   }
@@ -187,6 +187,10 @@ export const Router = new (class Router {
       }
     }
     /* If we get here, all fallbacks failed */
+  }
+
+  #pushState(url) {
+    history.pushState({}, "", url.full);
   }
 
   #specifierFromLocation() {
