@@ -1,1 +1,15 @@
 @import "tailwindcss";
+
+
+@tailwind utilities;
+
+
+button {
+  @apply rounded;
+}
+
+
+iframe {
+  width: 100%;
+  height: 100%;
+}

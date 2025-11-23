@@ -13,7 +13,7 @@ component inside the shadow root to `dark`!
 const { component } = await use("@/component.js");
 const { layout } = await use("@//layout.js");
 
-const sheet = await use("/assets/bootstrap/bootstrap.css");
+const sheet = await use("/assets/bootstrap/main.css");
 
 export default async ({ bootstrap }) => {
   layout.clear(":not([slot])");

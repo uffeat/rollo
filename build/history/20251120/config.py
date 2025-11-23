@@ -9,13 +9,11 @@ class config:
                 )
             ),
             # Specify non-parcel sheets to be included in main sheet
-            main=(
-                "/bootstrap/reboot.css",
-                "/main.css",
-            ),
-            # Aggregation order for main sheet (default: 0)
-            priorities=({"/bootstrap/reboot.css": -5}),
-            # Assets not to be copied to public (only relevant for types copied by default)
+            main=("/main.css",),
+            # Specify aggregation order for main sheet
+            priorities=({"/bootstrap/bootstrap.css": -5}),
+            # Specify assets not to be copied to public
+            # NOTE Only relevant for types that are copied to public by default
             private=("/app/app.css", "/layout/layout.css"),
         )
 
@@ -23,3 +21,5 @@ class config:
 config = config()
 
 
+if __name__ == "__main__":
+    print("config:", config())

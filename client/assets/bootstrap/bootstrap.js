@@ -3268,8 +3268,7 @@ const ul = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   Tab: gt,
   Toast: Qt,
   Tooltip: vt
-}, Symbol.toStringTag, { value: "Module" })), hl = () => 42;
+}, Symbol.toStringTag, { value: "Module" }));
 export {
-  ul as bootstrap,
-  hl as modal
+  ul as bootstrap
 };

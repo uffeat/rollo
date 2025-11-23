@@ -27,7 +27,11 @@ class build(Files, Minify):
         self.build_assets()
         self.build_main()
 
-    
+    @property
+    def parcels(self):
+        """Returns dir iterator for parcels."""
+        # NOTE 'parcels' cannot be reused, therefore return new at each call
+        return (Path.cwd() / "parcels").glob("*/")
 
     def build_assets(self):
         """Builds asset-carrier sheet."""
@@ -67,6 +71,9 @@ class build(Files, Minify):
             paths.append(path)
             # Process
             if file.suffix == ".css":
+                # Ignore global sheets
+                if path in main:
+                    continue
                 minified = self.minify_css(text)
                 encoded = encode(minified)
                 rules.append(self.create_asset_rule(path, encoded))
