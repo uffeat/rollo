@@ -28,10 +28,13 @@ if (use.meta.DEV) {
 const tests = (() => {
   const START = "./tests".length;
   return Object.fromEntries(
-    Object.entries(import.meta.glob("./tests/**/*.js")).map(([k, v]) => [
-      k.slice(START),
-      v,
-    ])
+    Object.entries({
+      ...import.meta.glob("./tests/**/*.js"),
+      ...import.meta.glob("./tests/**/*.html", {
+        import: "default",
+        query: "?raw",
+      }),
+    }).map(([k, v]) => [k.slice(START), v])
   );
 })();
 
@@ -46,6 +49,7 @@ const tests = (() => {
         localStorage.setItem(KEY, path);
         const load = tests[path];
         const loaded = await load();
+
         const test = loaded.default;
         await test();
       }

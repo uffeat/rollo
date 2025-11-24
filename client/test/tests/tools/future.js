@@ -1,5 +1,5 @@
 /*
-tools/future.js
+/tools/future.js
 */
 
 import {

@@ -1,5 +1,5 @@
 /*
-use/meta.js
+/use/meta.js
 */
 const { Sheet, css, scope } = await use("@/sheet.js");
 const { component } = await use("@/component.js");

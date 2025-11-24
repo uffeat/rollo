@@ -1,12 +1,7 @@
 @import "tailwindcss";
 
-
 @tailwind utilities;
-
-
 
 .foo {
   @apply bg-amber-600;
 }
-
-

@@ -9,31 +9,10 @@
 </template>
 
 <script type="module">
-  export default async function ({ path }) {
-    const { Sheet, css, scope } = await use("@/sheet.js");
-    const { component, factory } = await use("@/component.js");
-    return (...args) => {
-      /* Creates lifecycle sheets and returns component factory */
-
-      const element = component.div({ innerHTML: this.template });
-
-      const sheet = Sheet.create({
-        [scope(element)]: {
-          border: `${css.px(1)} solid ${css.__.bsOrange}`,
-        },
-      });
-
-      element.on._connect = (event) => {
-        this.sheet.use();
-        sheet.use();
-      };
-
-      element.on._disconnect = (event) => {
-        this.sheet.unuse();
-        sheet.unuse();
-      };
-
-      return factory(element)(...args);
-    };
+   const { component } = await use("@/component.js");
+  export default function () {
+    this.assets.sheet.use();
+    const element = component.div({ innerHTML: this.assets.template });
+    return element;
   }
 </script>

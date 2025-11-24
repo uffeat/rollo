@@ -4,7 +4,6 @@ import { Url } from "./url.js";
 
 const { app } = await use("@/app/");
 
-
 export const Router = new (class Router {
   #_ = {
     config: {},
@@ -57,6 +56,7 @@ export const Router = new (class Router {
   /* Invokes route from initial location. 
   NOTE Should be called once router has been set up. */
   async setup({ error, strict = true } = {}) {
+    
     this.#_.config.error = error;
     this.#_.config.strict = strict;
 
@@ -120,7 +120,6 @@ export const Router = new (class Router {
         return;
       }
       return async () => {
-
         /* Enable external hooks etc. */
         app.$({ path });
         this.#_.states.path(path, {}, url.query);
@@ -147,7 +146,7 @@ export const Router = new (class Router {
         if (!this.#_.config.error) {
           this.#_.config.error = (await use("/pages/error.js")).default;
         }
-         this.#_.session++;
+        this.#_.session++;
         pusher();
         this.#_.route = null;
         /* Enable external hooks etc. */

@@ -1,24 +1,18 @@
-/* Initialize import engine */
 import "../../../client/src/use.js";
 
 
 
-
-
-/* Overload to use live parcel */
 import * as parcel from "../index.js";
+/* Overload to use live parcel */
 use.add("@/router.js", parcel);
 
+const { NavLink, router } = await use("@/router.js");
 
+const navLink = NavLink()
 
 document.documentElement.dataset.bsTheme = "dark";
 
-/* Load global sheets */
-await use("/assets/bootstrap/main.css");
-await use("/main.css");
-if (use.meta.DEV) {
-  await use("/dev.css");
-}
+
 
 /* Add 'tests' source to import engine */
 use.sources.add(
@@ -37,7 +31,7 @@ use.sources.add(
       })
     );
     return async ({ owner, path }) => {
-      const { Exception } = await use("@/tools/exception.js");
+      const { Exception } = await owner.get("@/tools/exception.js");
       Exception.if(!(path.path in loaders), `Invalid path:${path.full}`);
       return await loaders[path.path]();
     };
@@ -48,8 +42,9 @@ use.sources.add(
 const run = async (path) => {
   if (!path || path === "/") return;
   const asset = await use(`tests${path}`);
-  const test = asset?.default ?? asset;
-  await test(parcel);
+  const test = asset?.default ?? asset
+  await test(parcel)
+
 };
 
 /* Add test control */

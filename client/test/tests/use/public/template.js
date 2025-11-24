@@ -1,14 +1,14 @@
 /*
-use/public/template.js
+/use/public/template.js
 */
 
-const { Sheet, css, scope } = await use("@/sheet.js");
+const { css } = await use("@/sheet.js");
 const { component } = await use("@/component.js");
 const { layout } = await use("@/layout/");
 
 export default async () => {
   layout.clear(":not([slot])");
- 
+
   const container = component.main("container.mt-3", {
     parent: layout,
     ...css.display.flex,
@@ -16,9 +16,7 @@ export default async () => {
     ...css.alignItems.end,
   });
 
-  
+  const element = (await use("/test/foo.x.template"))();
 
-  container.insert.beforeend(await use("/test/foo.template"));
-
- 
+  container.insert.beforeend(element);
 };

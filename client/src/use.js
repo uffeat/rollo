@@ -467,9 +467,15 @@ use.sources.add(
       import: Function("u", "return import(u)"),
     };
     return async ({ options, owner, path }) => {
-      const { as, inform, raw, strict } = options;
+      const { as, inform, raw } = options;
       /* Global sheet by link (FOUC-free) */
       if (path.type === "css" && as === undefined && raw !== true) {
+        /* NOTE 'error' event does not fire reliably, therefore attempt raw 
+        import, which will throw for invalid paths; it carries a small perf
+        penalty, so only do in DEV. */
+        if (use.meta.DEV) {
+          await use(path.path, { raw: true });
+        }
         const href = `${owner.meta.base}${path.path}`;
         let link = document.head.querySelector(
           `link[rel="stylesheet"][href="${href}"]`
@@ -479,7 +485,13 @@ use.sources.add(
         link.rel = "stylesheet";
         link.href = href;
         const { promise, resolve } = Promise.withResolvers();
-        link.addEventListener("load", (event) => resolve(link), { once: true });
+        link.addEventListener(
+          "load",
+          (event) => {
+            resolve(link);
+          },
+          { once: true }
+        );
         document.head.append(link);
         return await promise;
       }
@@ -563,7 +575,7 @@ NOTE
     which provides build tool integration and encapsulated authoring/testing.
 */
 await (async () => {
-  await use('/assets.css')
+  await use("/assets.css");
   const cache = new Map();
 
   use.sources.add("@", async ({ path }) => {

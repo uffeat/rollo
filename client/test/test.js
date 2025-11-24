@@ -21,31 +21,51 @@ document.documentElement.dataset.bsTheme = "dark";
 /* Load global sheets */
 await use("/assets/bootstrap/main.css");
 await use("/main.css");
+if (use.meta.DEV) {
+  await use("/dev.css");
+}
 
-const tests = (() => {
+/* Add 'tests' source to import engine */
+await (async () => {
+  const { Exception } = await use("@/tools/exception.js");
   const START = "./tests".length;
-  return Object.fromEntries(
-    Object.entries(import.meta.glob("./tests/**/*.js")).map(([k, v]) => [
-      k.slice(START),
-      v,
-    ])
+  const loaders = Object.fromEntries(
+    Object.entries({
+      ...import.meta.glob("./tests/**/*.js"),
+     
+    }).map(([k, v]) => {
+      return [k.slice(START), v];
+    })
   );
-})();
-
-(() => {
-  const KEY = "__test__";
-
-  window.addEventListener("keydown", async (event) => {
-    /* Unit tests */
-    if (event.code === "KeyU" && event.shiftKey) {
-      const path = prompt("Path:", localStorage.getItem(KEY) || "");
-      if (path) {
-        localStorage.setItem(KEY, path);
-        const load = tests[path];
-        const loaded = await load();
-        const test = loaded.default;
-        await test();
-      }
-    }
+  use.sources.add("tests", async ({ owner, path }) => {
+    Exception.if(!(path.path in loaders), `Invalid path:${path.full}`);
+    return await loaders[path.path]();
   });
 })();
+
+/* Runs test. */
+const run = async (path) => {
+  if (!path || path === "/") return;
+  const asset = await use(`tests${path}`);
+  await asset.default();
+};
+
+/* Add test control */
+window.addEventListener(
+  "keydown",
+  (() => {
+    const KEY = "__test__";
+    return async (event) => {
+      /* Unit tests */
+      if (event.code === "KeyU" && event.shiftKey) {
+        const path = prompt("Path:", localStorage.getItem(KEY) || "");
+        localStorage.setItem(KEY, path);
+        await run(path);
+      }
+      if (event.code === "KeyC" && event.shiftKey) {
+        document.adoptedStyleSheets = [];
+        history.pushState({}, "", "/"); //
+      }
+    };
+  })()
+);

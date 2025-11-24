@@ -1,5 +1,5 @@
 /*
-use/public/css.js
+/use/public/css.js
 */
 
 const { Sheet, css, scope } = await use("@/sheet.js");

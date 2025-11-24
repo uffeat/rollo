@@ -1,5 +1,5 @@
 /*
-use/sources.js
+/use/sources.js
 
 Tests import of js, json and x.template assets from
 - public
@@ -24,43 +24,34 @@ export default async () => {
   await (async () => {
     console.log("foo:", (await use("/test/foo.js")).foo);
     console.log("foo:", (await use("/test/foo.json")).foo);
-    (await use("/test/foo.x.template"))({ parent: container });
+    const element = (await use("/test/foo.x.template"))();
+    container.append(element)
   })();
 
   /* Import from assets (out-of-the-box NOT live, but can be made live) */
   await (async () => {
-    /* js */
-    /** Built */
-    //console.log("foo:", (await use("@/test/foo.js")).foo);
-    /** Unbuilt - for live testing */
+    /** js */
+    /* Unbuilt - for live testing */
     console.log("foo:", (await import("../../../assets/test/foo.js")).foo);
-    /* json */
-    /** Built */
-    //console.log("foo:", (await use("@/test/foo.json")).foo);
-    /** Unbuilt - for live testing */
+    /** json */
+    /* Unbuilt - for live testing */
     console.log("foo:", (await import("../../../assets/test/foo.json")).foo);
-    /** Alternatively
-    use.assets.add(
-      "@/test/foo.json",
-      (await import("../../../assets/test/foo.json?raw")).default
-    );
-    console.log("foo:", (await use("@/test/foo.json")).foo);
-    */
-    /* x.template */
-    /** Built */
-    //(await use("@/test/foo.x.html"))({ parent: container });
-    /** Unbuilt - for live testing */
+    /** x.html */
+    /* Unbuilt - for live testing */
     use.add(
       "@/test/foo.x.html",
       (await import("../../../assets/test/foo.x.html?raw")).default
     );
-    (await use("@/test/foo.x.html"))({ parent: container });
+    const element = (await use("@/test/foo.x.html"))();
+    container.append(element)
   })();
 
   /* Import from src/assets (always live) */
   await (async () => {
     console.log("foo:", (await use("@@/test/foo.js")).foo);
     console.log("foo:", (await use("@@/test/foo.json")).foo);
-    (await use("@@/test/foo.x.html"))({ parent: container });
+    const element = (await use("@@/test/foo.x.html"))();
+    container.append(element)
+   
   })();
 };

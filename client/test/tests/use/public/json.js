@@ -1,5 +1,5 @@
 /*
-use/public/json.js
+/use/public/json.js
 */
 
 const { component } = await use("@/component.js");

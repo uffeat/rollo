@@ -1,5 +1,5 @@
 /*
-path/shortcuts.js
+/path/shortcuts.js
 */
 
 import { Path } from "../../../src/use.js";
