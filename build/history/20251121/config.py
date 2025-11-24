@@ -10,10 +10,11 @@ class config:
             ),
             # Specify non-parcel sheets to be included in main sheet
             main=(
+                "/bootstrap/reboot.css",
                 "/main.css",
             ),
             # Aggregation order for main sheet (default: 0)
-            priorities=({"/main.css": -1}),
+            priorities=({"/bootstrap/reboot.css": -5}),
             # Assets not to be copied to public (only relevant for types copied by default)
             private=("/app/app.css", "/layout/layout.css"),
         )
