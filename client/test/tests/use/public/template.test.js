@@ -1,5 +1,5 @@
 /*
-/use/public/template.js
+/use/public/template.test.js
 */
 
 const { css } = await use("@/sheet.js");

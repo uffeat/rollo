@@ -1,5 +1,5 @@
 /*
-/router/x.js
+/router/x.test.js
 */
 
 /* Overload to use live parcel */
@@ -10,11 +10,7 @@ const { component } = await use("@/component.js");
 const { layout } = await use("@/layout/");
 const { NavLink, router } = await use("@/router.js");
 
-console.dir(location);
-
 const base = "/test/test.html";
-
-console.log("base:", base);
 
 export default async () => {
   layout.clear();

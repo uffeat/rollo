@@ -1,5 +1,5 @@
 /*
-/use/public/js.js
+/use/public/js.test.js
 */
 
 const { component } = await use("@/component.js");

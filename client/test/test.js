@@ -4,11 +4,12 @@ Runs on:
 http://localhost:3869/test/test.html
 
 NOTE 
-- Test scripts can access
-  - unbuilt parcels
-  - built parcels
-  - public assets
-  - assets
+- Test scripts can access:
+  - parcel modules (unbuilt)
+  - client/parcel assets (built/directly authored)
+  - client/public assets
+  - client/src assets
+- Nothing in client/test hits the bundle.
 */
 
 /* Initialize import engine */
@@ -31,13 +32,12 @@ await (async () => {
   const START = "./tests".length;
   const loaders = Object.fromEntries(
     Object.entries({
-      ...import.meta.glob("./tests/**/*.js"),
-     
+      ...import.meta.glob("./tests/**/*.test.js"),
     }).map(([k, v]) => {
       return [k.slice(START), v];
     })
   );
-  use.sources.add("tests", async ({ owner, path }) => {
+  use.sources.add("tests", async ({ path }) => {
     Exception.if(!(path.path in loaders), `Invalid path:${path.full}`);
     return await loaders[path.path]();
   });
@@ -45,27 +45,33 @@ await (async () => {
 
 /* Runs test. */
 const run = async (path) => {
-  if (!path || path === "/") return;
   const asset = await use(`tests${path}`);
   await asset.default();
 };
 
 /* Add test control */
-window.addEventListener(
-  "keydown",
-  (() => {
-    const KEY = "__test__";
-    return async (event) => {
-      /* Unit tests */
-      if (event.code === "KeyU" && event.shiftKey) {
-        const path = prompt("Path:", localStorage.getItem(KEY) || "");
-        localStorage.setItem(KEY, path);
-        await run(path);
-      }
-      if (event.code === "KeyC" && event.shiftKey) {
-        document.adoptedStyleSheets = [];
-        history.pushState({}, "", "/"); //
-      }
-    };
-  })()
-);
+await (async () => {
+  const { layout } = await use("@/layout/");
+
+  const BASE = "/test/test.html";
+  const KEY = "__test__";
+
+  window.addEventListener(
+    "keydown",
+    (() => {
+      return async (event) => {
+        /* Unit tests */
+        if (event.code === "KeyU" && event.shiftKey) {
+          const path = prompt("Path:", localStorage.getItem(KEY) || "");
+          localStorage.setItem(KEY, path);
+          await run(path);
+        }
+        if (event.code === "KeyC" && event.shiftKey) {
+          layout.clear();
+          document.adoptedStyleSheets = [];
+          history.pushState({}, "", BASE);
+        }
+      };
+    })()
+  );
+})();

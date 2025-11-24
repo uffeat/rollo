@@ -1,5 +1,5 @@
 /*
-/tools/case.js
+/tools/case.test.js
 */
 
 import {

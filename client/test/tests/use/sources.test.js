@@ -1,5 +1,5 @@
 /*
-/use/sources.js
+/use/sources.test.js
 
 Tests import of js, json and x.template assets from
 - public

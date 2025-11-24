@@ -21,7 +21,8 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         external: (path) =>
           (path.includes("/assets/") && !path.includes("/src/")) ||
-          (path.includes("/test/") && !path.includes("/src/")),
+          (path.includes("/test/") && !path.includes("/src/")) ||
+          path.endsWith(".test.js"),
       },
     },
 
@@ -41,5 +42,3 @@ export default defineConfig(({ mode }) => {
     ],
   };
 });
-
-

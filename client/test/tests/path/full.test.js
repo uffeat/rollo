@@ -1,5 +1,5 @@
 /*
-/path/full.js
+/path/full.test.js
 */
 
 import { Path } from "../../../src/use.js";

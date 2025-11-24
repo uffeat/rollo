@@ -2,30 +2,20 @@
 /noreg.x.html
 -->
 
-
 <script type="module">
   const { component } = await use("@/component.js");
   const { layout } = await use("@/layout/");
   const { NavLink, router } = await use("@/router.js");
 
   export default async function () {
-  
     layout.clear();
 
-    
-
-    
-
-   
     const nav = component.nav(
       "nav.d-flex.flex-column",
       { slot: "side", parent: layout },
       NavLink({ text: "Boom", path: "/boom" }),
-      NavLink({ text: "Pow", path: "/pow" }),
-      
+      NavLink({ text: "Pow", path: "/pow" })
     );
-
-    
 
     await router.setup();
   }
