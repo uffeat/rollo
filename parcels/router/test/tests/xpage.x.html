@@ -7,32 +7,32 @@ Demo of 'x'-assets as routes.
 Points
 - Since 'x'-assets are functions, these can be registered as routes in a very lean way.
 -->
-<style name="sheet"></style>
+
 
 <script type="module">
   const { component } = await use("@/component.js");
   const { layout } = await use("@/layout/");
-  const { NavLink, router } = await use("@/router.js");
+  const { NavLink, router } = await use("@/router/");
 
   export default async function () {
-    this.assets.sheet.use();
+   
     layout.clear();
 
     /* Define routes */
     router.routes.add({
-      "/bar": (await use("/test/pages/bar.x.html"))(),
-      "/foo": (await use("/test/pages/foo.x.html"))(),
+      "/boom": (await use("/pages/boom.x.html"))(),
+      "/pow": (await use("/pages/pow.x.html"))(),
     });
 
     /* Create nav */
     const nav = component.nav(
       "nav.d-flex.flex-column",
       { slot: "side", parent: layout },
-      NavLink({ text: "Foo", path: "/foo" }),
-      NavLink({ text: "Bar", path: "/bar" }),
+      NavLink({ text: "Boom", path: "/boom" }),
+      NavLink({ text: "Pow", path: "/pow" }),
       NavLink({ text: "Bad", path: "/bad" })
     );
 
-    await router.setup({ strict: false });
+    await router.setup();
   }
 </script>

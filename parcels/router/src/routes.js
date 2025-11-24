@@ -1,3 +1,5 @@
+import "../use.js";
+
 export class Routes {
   static create = (...args) => new Routes(...args);
 

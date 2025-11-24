@@ -182,6 +182,10 @@ class Registry {
   has(key) {
     return this.#_.registry.has(key);
   }
+
+  keys() {
+    return this.#_.registry.keys();
+  }
 }
 
 /* Import engine. 
@@ -365,18 +369,20 @@ export const assets = new (class Assets {
     - Path-specific asset injected, which ignores source handlers;
       useful for testing.
   */
-  async get(path, ...args) {
+  async get(specifier, ...args) {
+    //console.log('specifier:', specifier)///
+
     const type = (value) => Object.prototype.toString.call(value).slice(8, -1);
     const options = { ...(args.find((a) => type(a) === "Object") || {}) };
     args = args.filter((a) => type(a) !== "Object");
-    path = Path.create(path);
+    const path = Path.create(specifier);
     let result;
     /* Import */
     if (this.#_.added.has(path.full)) {
       /* Added assets */
       result = this.#_.added.get(path.full);
       if (typeof result === "function") {
-        result = await result?.({ path });
+        result = await result({ path });
       }
     } else {
       /* Get assets from registered source (nothing from added) */
@@ -576,6 +582,9 @@ NOTE
 */
 await (async () => {
   await use("/assets.css");
+
+  //console.log('Assets sheet loaded')////
+
   const cache = new Map();
 
   use.sources.add("@", async ({ path }) => {
@@ -594,6 +603,8 @@ await (async () => {
     cache.set(path.full, result);
     return result;
   });
+
+  //console.log('@ source created')////
 })();
 
 /* Register src/assets as source (@@/).
@@ -770,3 +781,5 @@ to avoid Vercel-injections.
     return result;
   });
 })();
+
+window.dispatchEvent(new CustomEvent("_use"));

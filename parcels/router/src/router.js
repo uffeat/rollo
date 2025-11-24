@@ -1,3 +1,4 @@
+import "../use.js";
 import { Routes } from "./routes.js";
 import { States } from "./states.js";
 import { Url } from "./url.js";
@@ -56,7 +57,6 @@ export const Router = new (class Router {
   /* Invokes route from initial location. 
   NOTE Should be called once router has been set up. */
   async setup({ error, strict = true } = {}) {
-    
     this.#_.config.error = error;
     this.#_.config.strict = strict;
 
@@ -82,8 +82,14 @@ export const Router = new (class Router {
   async use(specifier, { context, strict } = {}) {
     strict = strict === undefined ? this.#_.config.strict : strict;
 
+    //console.log("specifier:", specifier);////
+
     const url = Url.create(specifier);
 
+    //console.log("url.query:", url.query);////
+
+    /* Returns a function that pushes state.
+    NOTE Provides control over when the state-pushing should take place. */
     const pusher = (() => {
       if (this.url) {
         if (!url.match(this.url)) {
@@ -142,16 +148,20 @@ export const Router = new (class Router {
     })();
 
     if (!controller) {
+      this.#_.session++;
+      pusher();
+      this.#_.route = null;
+      /* Enable external hooks etc. */
+      app.$({ path: url.path });
+
+      //console.log("url.query:", url.query);////
+
+      this.#_.states.path(url.path, {}, url.query);
+
       if (strict) {
         if (!this.#_.config.error) {
           this.#_.config.error = (await use("/pages/error.js")).default;
         }
-        this.#_.session++;
-        pusher();
-        this.#_.route = null;
-        /* Enable external hooks etc. */
-        app.$({ path: url.path });
-        this.#_.states.path(url.path, {}, url.query);
         await this.#_.config.error(url.path);
       }
 

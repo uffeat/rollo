@@ -4,11 +4,14 @@ const START = "./pages".length;
 export const pages = (() => {
   return Object.fromEntries(
     Object.entries(import.meta.glob("./pages/**/*.js")).map(([k, load]) => {
-      let path = `${BASE}${k.slice(START, -3)}`;
-      if (path.endsWith("_")) {
-        path = path.slice(0, -2);
-      }
+      const path = `${BASE}${k.slice(START, -3)}`;
       return [path, load];
     })
   );
 })();
+
+const home = pages[`${BASE}/home`]
+if (home) {
+  pages[`${BASE}`] = home
+}
+

@@ -1,8 +1,8 @@
 .nav-link {
-    font-size: 1.25rem;
-    cursor: pointer;
-  }
+  font-size: 1.125rem !important;
+  cursor: pointer;
+}
 
-  .nav-link.active {
-    font-weight: 700;
-  }
+.nav-link.active {
+  font-weight: 600;
+}

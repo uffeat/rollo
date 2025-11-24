@@ -190,7 +190,7 @@ export class Ref {
 
       const { condition, once } = detail;
       if (!condition || condition(this.current, message, ...args)) {
-        effect(this.current, message);
+        effect(this.current, message, ...args);
         if (once) {
           this.effects.remove(effect, ...args);
         }

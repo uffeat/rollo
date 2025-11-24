@@ -1,4 +1,6 @@
+import "../use.js";
 import { Router } from "./router.js";
+
 const { Exception } = await use("@/tools/exception.js");
 
 /* Proxy version with leaner syntax  */

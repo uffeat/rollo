@@ -1,3 +1,5 @@
+import "../use.js";
+
 const { reactive, ref } = await use("@/state.js");
 const { Exception } = await use("@/tools/exception.js");
 
@@ -8,8 +10,6 @@ export class States {
 
   constructor(owner) {
     this.#_.path = ref({ owner, name: "path" });
-  
-  
 
     this.#_.effects = new Proxy(this, {
       get(target, key) {
@@ -26,8 +26,4 @@ export class States {
   get path() {
     return this.#_.path;
   }
-
-  
-
-  
 }

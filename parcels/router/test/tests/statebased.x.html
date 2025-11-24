@@ -1,207 +1,50 @@
 <!--
 /statebased.x.html
--->
-<style name="sheet">
-  .nav-link {
-    font-size: 1.25rem;
-    cursor: pointer;
-  }
 
-  .nav-link.active {
-    font-weight: 700;
-  }
-</style>
+Demo intent
+- Routing can be done without registering any routes, but instead using the
+  'path' effect.
+- State-based routing even captures queries, but not residuals.
+- Queries can be set on NavLinks as object using the 'query' prop.
+-->
 
 <script type="module">
   const { component } = await use("@/component.js");
   const { layout } = await use("@/layout/");
-  const { router } = await use("@/router.js");
+  const { router, NavLink } = await use("@/router/");
+
+  const heading = component.h1();
+  const page = component.main("container", heading);
+
+  const Effect = () => {
+    return (current, message, query) => {
+
+     
+      console.log('query:', query);
+
+
+      layout.clear(":not([slot])");
+      heading.text = `${current.at(1).toUpperCase()}${current.slice(2)}`;
+      layout.append(page);
+    };
+  };
 
   export default async function () {
-    this.sheet.use();
     layout.clear();
-
-    /* Define routes */
-    router.routes.add({
-      "/ding": await (async () => {
-        const { component } = await use("@/component.js");
-        const { layout } = await use("@/layout/");
-        const { reactive, ref } = await use("@/state.js");
-
-        const Page = (() => {
-          let page;
-          return () => {
-            if (page) {
-              return page;
-            }
-            page = component.main("container", component.h1({ text: "Ding" }));
-            page.detail.queryOutput = component.output({
-              parent: page,
-              width: "100%",
-            });
-            page.detail.argsOutput = component.output({
-              parent: page,
-              width: "100%",
-            });
-            return page;
-          };
-        })();
-
-        const states = {
-          mode: ref(),
-          query: reactive(),
-          args: ref(),
-        };
-
-        /* Effect to control page display */
-        states.mode.effects.add(
-          (mode) => {
-            const page = Page();
-            //console.log("mode:", mode);////
-            if (mode.enter) {
-              layout.clear(":not([slot])");
-              layout.append(page);
-            } else if (mode.exit) {
-              page.remove();
-            }
-          },
-          { run: false }
-        );
-
-        /* Effect to control query display */
-        states.query.effects.add(
-          (query) => {
-            const output = Page().detail.queryOutput;
-            output.clear();
-            //console.log("query:", query);////
-            for (const [key, value] of Object.entries(query)) {
-              output.append(
-                component.p({ text: `Item: ${key}=${value}`, width: "100%" })
-              );
-            }
-          },
-          { run: false }
-        );
-
-        /* Effect to control args display */
-        states.args.effects.add(
-          (args) => {
-            const output = Page().detail.argsOutput;
-            output.clear();
-            //console.log("args:", args);////
-            for (const arg of args) {
-              output.append(
-                component.p({ text: `Arg: ${arg}`, width: "100%" })
-              );
-            }
-          },
-          { run: false }
-        );
-
-        return async (mode, query, ...args) => {
-          //console.log("mode:", mode);////
-          states.mode(mode);
-          states.query(query);
-          states.args(args);
-        };
-      })(),
-    });
-
-    [
-      ["/", "@@/test/pages/home.js"],
-      ["/foo", "/test/pages/foo.js"],
-      ["/color", "/test/pages/color.js"],
-    ].forEach(([path, usePath]) => {
-      router.routes.add({
-        [path]: async (...args) => {
-          const mod = await use(usePath);
-          mod.default(...args);
-        },
-      });
-    });
-
-    router.routes.add({
-      "/bar": async (...args) => {
-        const result = await use("/test/pages/bar.x.html");
-        result(...args);
-      },
-    });
+    router.effects.path.add(Effect(), { run: false }, ["/foo"]);
+    router.effects.path.add(Effect(), { run: false }, ["/bar"]);
 
     /* Create nav */
-    const nav = component.nav(
+    component.nav(
       "nav.d-flex.flex-column",
       { slot: "side", parent: layout },
       ...[
-        ["Home", "/"],
-        ["About", "/about?thing=42&baz&pink=pong"],
-        ["Foo", "/foo"],
-        ["Foo with args", "/foo/ding/dong"],
-        ["Bar", "/bar"],
-        ["Ding", "/ding/dong?foo=42"],
-        ["Color", "/color"],
-        ["Color -> green", "/color/green"],
-        ["Bad", "/bad"],
-        ["Boom", "/boom"],
-      ].map(([text, path]) => component.a("nav-link", { text, $path: path }))
+        ["Bar", "/bar", {dong: 'DONG'}],
+        ["Foo", "/foo", {ding: 42}],
+      ].map(([text, path, query]) => NavLink({ text, path, query }))
     );
 
-    nav.on.click = async (event) => {
-      const target = event.target.closest(`[state-path]`);
-      if (target) {
-        event.preventDefault();
-        router(target.$.path);
-      }
-      //layout.close();
-    };
-
-    router.effects.path.add(
-      (current, message) => {
-        let active = nav.find(`.active`);
-        if (active) {
-          active.classes.remove("active");
-        }
-        active = nav.find(`[state-path="${current}"]`);
-        if (active) {
-          active.classes.add("active");
-        }
-      },
-      (current) => !!current
-    );
-
-    await (async () => {
-      const { component } = await use("@/component.js");
-      const { layout } = await use("@/layout/");
-      const { reactive, ref } = await use("@/state.js");
-
-      const page = component.main(
-        "container",
-        component.h1({ text: "No controller" })
-      );
-
-      router.effects.path.add(
-        (path, message, query) => {
-          //console.log("path:", path);////
-          layout.clear(":not([slot])");
-          layout.append(page);
-        },
-        { run: false },
-        (path) => ["/statebased"]
-      );
-
-      const link = component.a("nav-link", {
-        text: "No controller",
-        parent: layout,
-        slot: "side",
-      });
-
-      link.on.click = async (event) => {
-        event.preventDefault();
-        await router("/statebased", { controller: false });
-      };
-    })();
-
-    /* Handle initial
-    NOTE Do after complete setup */
-    await router.setup({ controller: false });
+    /* Setup */
+    await router.setup({ strict: false });
   }
 </script>

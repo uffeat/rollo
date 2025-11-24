@@ -2,7 +2,9 @@ const { component } = await use("@/component.js");
 const { layout } = await use("@/layout/");
 const { ref } = await use("@/state.js");
 const { css } = await use("@/sheet.js");
-const { router } = await use("@/router.js");
+const { router } = await use("@/router/");
+
+
 
 const state = ref();
 
@@ -22,8 +24,8 @@ const menu = component.menu(
       "btn.btn-outline-primary",
       { text: "Red", value: "red", "data.colorStuff": "red" },
       function () {
-        this.dataset.colorStuff = 'red'
-      },
+        this.dataset.colorStuff = "red";
+      }
     ),
     component.button("btn.btn-outline-primary", {
       text: "Green",

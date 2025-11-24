@@ -1,7 +1,9 @@
+import "../use.js";
 import "../assets/router.css";
+import { Query } from "./query.js";
 import { router } from "./proxy.js";
 
-const { Mixins, author, component, mix } = await use("@/component.js");
+const { Mixins, author, mix } = await use("@/component.js");
 const { stateMixin } = await use("@/state.js");
 
 const TAG = "a";
@@ -26,10 +28,10 @@ export const NavLink = author(
             for (const element of nav.querySelectorAll("a.nav-link")) {
               element.classList.remove("active");
             }
-            
           }
           this.classes.add("active");
-            await router(this.path);
+          const specifier = this.#_.query ? this.path + Query.stringify(this.#_.query) : this.path
+          await router(specifier);
         }
       };
     }
@@ -40,6 +42,16 @@ export const NavLink = author(
 
     set path(path) {
       this.attribute.path = path;
+    }
+
+    get query() {
+      if (this.#_.query) {
+        return Object.freeze({ ...this.#_.query });
+      }
+    }
+
+    set query(query) {
+      this.#_.query = query;
     }
   },
   "nav-link",

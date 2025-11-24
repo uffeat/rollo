@@ -1,40 +1,20 @@
 <!--
 /adhoc.x.html
 -->
-<style name="sheet">
-  .nav-link {
-    font-size: 1.25rem;
-    cursor: pointer;
-  }
-
-  .nav-link.active {
-    font-weight: 700;
-  }
-</style>
 
 <script type="module">
   const { component } = await use("@/component.js");
   const { layout } = await use("@/layout/");
-  const { router } = await use("@/router.js");
-
-  console.log('__path__:', __path__)
+  const { reactive, ref } = await use("@/state.js");
+  const { router, NavLink } = await use("@/router/");
 
   export default async function () {
-
-    console.log('this:', this)
-
-
-
-    this.assets.sheet.use();
     layout.clear();
 
-    /* Define routes */
+    /* Define routes 
+    NOTE NOT the way to do it (but possible) */
     router.routes.add({
       "/ding": await (async () => {
-        const { component } = await use("@/component.js");
-        const { layout } = await use("@/layout/");
-        const { reactive, ref } = await use("@/state.js");
-
         const Page = (() => {
           let page;
           return () => {
@@ -114,46 +94,14 @@
       })(),
     });
 
-   
-
     /* Create nav */
-    const nav = component.nav(
+    component.nav(
       "nav.d-flex.flex-column",
       { slot: "side", parent: layout },
-      ...[
-        
-        ["Ding", "/ding/dong?foo=42"],
-       
-      ].map(([text, path]) => component.a("nav-link", { text, $path: path }))
+      NavLink({ text: "Ding", path: "/ding/dong?foo=42" })
     );
 
-    nav.on.click = async (event) => {
-      const target = event.target.closest(`[state-path]`);
-      if (target) {
-        event.preventDefault();
-        router(target.$.path);
-      }
-      //layout.close();
-    };
-
-    router.effects.path.add(
-      (current, message) => {
-        let active = nav.find(`.active`);
-        if (active) {
-          active.classes.remove("active");
-        }
-        active = nav.find(`[state-path="${current}"]`);
-        if (active) {
-          active.classes.add("active");
-        }
-      },
-      (current) => !!current
-    );
-
-    
-
-    /* Handle initial
-    NOTE Do after complete setup */
-    await router.setup();
+    /* Setup */
+    await router.setup({strict: false});
   }
 </script>

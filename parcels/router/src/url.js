@@ -1,3 +1,4 @@
+import "../use.js";
 import { Query } from "./query.js";
 
 const { match } = await use("@/tools/object/match.js");

@@ -27,11 +27,8 @@ class build(Files, Minify):
         self.build_assets()
         self.build_main()
 
-    
-
     def build_assets(self):
         """Builds asset-carrier sheet."""
-        
 
         _config: dict = config()
         main: tuple = _config.get("main", tuple())
@@ -123,7 +120,9 @@ class build(Files, Minify):
             if f.parent.name != "meta"
         ]
         content_paths = json.dumps(content_paths)
-        rules.append(self.create_asset_rule("/__content_paths__.json", encode(content_paths)))
+        rules.append(
+            self.create_asset_rule("/__content_paths__.json", encode(content_paths))
+        )
         self.write(
             "client/public/content/meta/paths.json",
             content_paths,
@@ -142,8 +141,6 @@ class build(Files, Minify):
             "client/public/data/meta/paths.json",
             data_paths,
         )
-
-
 
         ## paths
         paths = json.dumps(paths)
