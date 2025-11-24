@@ -11,31 +11,41 @@ NOTE
   - assets
 */
 
+/* Initialize import engine */
 import "../src/use.js";
+/* Activate Tailwind */
+import "../src/main.css";
 
 document.documentElement.dataset.bsTheme = "dark";
 
-const STORAGE_KEY = "__test__";
-const PREFIX = "./tests/";
+/* Load global sheets */
+await use("/assets/bootstrap/main.css");
+await use("/main.css");
 
-const tests = Object.fromEntries(
-  Object.entries(import.meta.glob("./tests/**/*.js")).map(([k, v]) => [
-    k.slice(PREFIX.length),
-    v,
-  ])
-);
+const tests = (() => {
+  const START = "./tests".length;
+  return Object.fromEntries(
+    Object.entries(import.meta.glob("./tests/**/*.js")).map(([k, v]) => [
+      k.slice(START),
+      v,
+    ])
+  );
+})();
 
-window.addEventListener("keydown", async (event) => {
-  /* Unit tests */
-  if (event.code === "KeyU" && event.shiftKey) {
-    const path = prompt("Path:", localStorage.getItem(STORAGE_KEY) || "");
-    if (path) {
-      localStorage.setItem(STORAGE_KEY, path);
+(() => {
+  const KEY = "__test__";
 
-      const load = tests[path];
-      const loaded = await load();
-      const test = loaded.default;
-      await test();
+  window.addEventListener("keydown", async (event) => {
+    /* Unit tests */
+    if (event.code === "KeyU" && event.shiftKey) {
+      const path = prompt("Path:", localStorage.getItem(KEY) || "");
+      if (path) {
+        localStorage.setItem(KEY, path);
+        const load = tests[path];
+        const loaded = await load();
+        const test = loaded.default;
+        await test();
+      }
     }
-  }
-});
+  });
+})();

@@ -562,27 +562,35 @@ NOTE
   - Leverages the (module-federation-like) 'parcel' architecture, 
     which provides build tool integration and encapsulated authoring/testing.
 */
-await (async () => {
-  await use('/assets.css')
-  const cache = new Map();
+use.sources.add(
+  "@",
+  (() => {
 
-  use.sources.add("@", async ({ path }) => {
-    if (cache.has(path.full)) return cache.get(path.full);
-    const probe = document.createElement("meta");
-    document.head.append(probe);
-    probe.setAttribute("__path__", path.path);
-    const propertyValue = getComputedStyle(probe)
-      .getPropertyValue("--__asset__")
-      .trim();
-    probe.remove();
-    if (!propertyValue) {
-      UseError.raise(`Invalid path: ${path.full}`);
-    }
-    const result = atob(propertyValue.slice(1, -1));
-    cache.set(path.full, result);
-    return result;
-  });
-})();
+
+    const cache = new Map();
+    return async ({ path }) => {
+
+      
+
+
+
+      if (cache.has(path.full)) return cache.get(path.full);
+      const probe = document.createElement("meta");
+      document.head.append(probe);
+      probe.setAttribute("__path__", path.path);
+      const propertyValue = getComputedStyle(probe)
+        .getPropertyValue("--__asset__")
+        .trim();
+      probe.remove();
+      if (!propertyValue) {
+        UseError.raise(`Invalid path: ${path.full}`);
+      }
+      const result = atob(propertyValue.slice(1, -1));
+      cache.set(path.full, result);
+      return result;
+    };
+  })()
+);
 
 /* Register src/assets as source (@@/).
 NOTE 
@@ -743,10 +751,7 @@ to avoid Vercel-injections.
     const { assets, js } = extract(result);
     result = assets;
     if (js) {
-      const mod = await use.module(
-        `export const __path__ = "${path.path}";${js}`,
-        path.path
-      );
+      const mod = await use.module(`export const __path__ = "${path.path}";${js}`, path.path);
       const context = Object.freeze({ assets, self: mod });
       if (mod.default) {
         result = mod.default.bind(context);
