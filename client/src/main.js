@@ -3,7 +3,7 @@ import "./use.js";
 /* Activate Tailwind */
 import "./main.css";
 
-import { d3 } from "../assets/d3.js";
+
 
 document.documentElement.dataset.bsTheme = "dark";
 
