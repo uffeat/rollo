@@ -164,9 +164,7 @@ export const Router = new (class Router {
 
     if (!controller) {
       pusher();
-
       this.#signal(url.path, url.query);
-
       if (strict) {
         if (!this.#_.config.error) {
           this.#_.config.error = (await use("/pages/error.js")).default;
@@ -175,16 +173,10 @@ export const Router = new (class Router {
       }
       return this;
     }
-
+    
     pusher();
     await controller();
     return this;
-  }
-
-  /* Enables external hooks etc. */
-  #signal(path, query, ...residual) {
-    app.$({ path });
-    this.#_.states.path(path, {}, query, ...residual);
   }
 
   async #getRoute(path) {
@@ -210,6 +202,12 @@ export const Router = new (class Router {
       }
     }
     /* If we get here, all fallbacks failed */
+  }
+
+  /* Enables external hooks etc. */
+  #signal(path, query, ...residual) {
+    app.$({ path });
+    this.#_.states.path(path, {}, query, ...residual);
   }
 
   #specifierFromLocation() {

@@ -1,1 +1,1 @@
-.nav-link{font-size:1.125rem!important;cursor:pointer}.nav-link.active{font-weight:600}
+.nav-link[path]{font-size:1.125rem;cursor:pointer}.nav-link[path].active{font-weight:600}

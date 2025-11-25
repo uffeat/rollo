@@ -3,8 +3,6 @@ import "./use.js";
 /* Activate Tailwind */
 import "./main.css";
 
-
-
 document.documentElement.dataset.bsTheme = "dark";
 
 /* Load global sheets */
@@ -18,6 +16,36 @@ if (use.meta.DEV) {
 
 const { layout } = await use("@/layout/");
 const { component } = await use("@/component.js");
+const { router, NavLink } = await use("@/router/");
 
-component.button("rounded bg-sky-500 foo", { parent: layout, text: "Tester" });
-component.button("btn.btn-primary", { parent: layout, text: "Tester" });
+/* Define routes */
+router.routes.add({
+  "/": (await use("/pages/home.x.html"))(),
+  "/about": (await use("/pages/about.x.html"))(),
+});
+
+//NavLink({ text: "Home", path: "/", slot: 'home', parent: layout })
+
+component.a(
+  { slot: "home", parent: layout, cursor: "pointer" },
+
+  async function () {
+    component.span({ parent: this, innerHTML: await use("/vite.svg") });
+
+    this.on.click = async (event) => {
+      await router("/");
+    };
+  }
+);
+
+/* Create nav */
+component.nav(
+  "nav.d-flex.flex-column",
+  { slot: "side", parent: layout },
+  NavLink({ text: "About", path: "/about" })
+);
+
+await router.setup();
+
+//component.button("rounded bg-sky-500 foo", { parent: layout, text: "Tester" });
+//component.button("btn.btn-primary", { parent: layout, text: "Tester" });
