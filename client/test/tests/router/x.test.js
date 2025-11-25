@@ -6,11 +6,11 @@
 import "./assets.js";
 /* Overload to use live parcel */
 import * as parcel from "../../../../parcels/router/index.js";
-use.add("@/router.js", parcel);
+use.add("@/router/router.js", parcel);
 
 const { component } = await use("@/component.js");
 const { layout } = await use("@/layout/");
-const { NavLink, router } = await use("@/router.js");
+const { NavLink, router } = await use("@/router/");
 
 const BASE = "/test/test.html";
 

@@ -1,1 +1,1 @@
-export { Select } from "./src/textinput.js";
+export { TextInput } from "./src/textinput.js";

@@ -11,13 +11,27 @@ export default (parent, config) => {
           return owner.classList;
         }
 
-        /* Adds classes. Chainable with respect to component. */
-        add(classes) {
-          classes && owner.classList.add(...classes.split("."));
+        /* Adds classes. */
+        add(...args) {
+          for (const arg of args) {
+            if (arg) {
+              if (arg.includes(" ")) {
+                owner.classList.add(
+                  ...arg
+                    .split(" ")
+                    .map((v) => v.trim())
+                    .filter((v) => !!v)
+                );
+              } else {
+                owner.classList.add(...arg.split("."));
+              }
+            }
+          }
+
           return owner;
         }
 
-        /* Removes all classes. Chainable with respect to component. */
+        /* Removes all classes. */
         clear() {
           for (const c of Array.from(owner.classList)) {
             owner.classList.remove(c);
@@ -35,20 +49,19 @@ export default (parent, config) => {
           return true;
         }
 
-        /* Adds/removes classes according to condition. Chainable with respect 
-        to component. */
+        /* Adds/removes classes according to condition. */
         if(condition, classes) {
           this[!!condition ? "add" : "remove"](classes);
           return owner;
         }
 
-        /* Removes classes. Chainable with respect to component. */
+        /* Removes classes. */
         remove(classes) {
           classes && owner.classList.remove(...classes.split("."));
           return owner;
         }
 
-        /* Replaces classes with substitutes. Chainable with respect to component.
+        /* Replaces classes with substitutes. 
         NOTE
         - If mismatch between 'classes' and 'substitutes' sizes are (intentionally) 
         silently ignored. */
@@ -66,7 +79,7 @@ export default (parent, config) => {
           return owner;
         }
 
-        /* Toggles classes. Chainable with respect to component. */
+        /* Toggles classes. */
         toggle(classes, force) {
           for (const c of classes.split(".")) {
             owner.classList.toggle(c, force);
@@ -76,7 +89,7 @@ export default (parent, config) => {
       })();
     }
 
-    /* Returns constroller for managing CSS classes from '.'-separated strings. */
+    /* Returns controller for managing CSS classes from '.'-separated strings. */
     get classes() {
       return this.#_.classes;
     }
@@ -85,7 +98,7 @@ export default (parent, config) => {
     update(updates = {}) {
       super.update?.(updates);
 
-      for (let [key, value] of Object.entries(updates)) {
+      for (const [key, value] of Object.entries(updates)) {
         /* Ignore, if not special syntax */
         if (!key.startsWith(".")) {
           continue;
@@ -93,13 +106,11 @@ export default (parent, config) => {
         /* Ignore undefined/'...' values, e.g., for efficient use of iife's.
         NOTE '...' is used as a proxy for undefined to enable use from Python, 
         which does not support undefined */
-        if (value === undefined || value === '...') {
+        if (value === undefined || value === "...") {
           continue;
         }
-        /* Adjust for special syntax */
-        key = key.slice(".".length);
-        /* Update */
-        this.classes[value ? "add" : "remove"](key);
+        /* Adjust for special syntax and update */
+        this.classes[value ? "add" : "remove"](key.slice(".".length));
       }
       return this;
     }

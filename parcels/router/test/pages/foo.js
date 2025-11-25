@@ -1,4 +1,4 @@
-const { component } = await use("@/component.js");
+const { component } = await use("@/component");
 const { layout } = await use("@/layout/");
 
 const counts = { load: 0, update: 0 };

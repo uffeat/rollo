@@ -1,6 +1,4 @@
-/* TODO
-- Refactor run dir, so that an actual event is created. See py code 
- */
+
 
 export class Handlers {
   #_ = {};

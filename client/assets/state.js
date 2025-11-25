@@ -34,7 +34,7 @@ class $ {
     this.#t.stopped = !0;
   }
 }
-const { type: k } = await use("@/tools/type.js"), { is: W } = await use("@/tools/is.js");
+const { type: W } = await use("@/tools/type.js"), { is: k } = await use("@/tools/is.js");
 class z {
   static create = (...t) => new z(...t);
   #t = {
@@ -66,7 +66,7 @@ class z {
           data: d = {},
           once: w,
           run: v = !0
-        } = n.find((l, y) => !y && k(l) === "Object") || {}, b = (() => {
+        } = n.find((l, y) => !y && W(l) === "Object") || {}, b = (() => {
           const l = { data: { ...d } };
           return s && (l.condition = s), w && (l.once = w), l;
         })();
@@ -86,18 +86,18 @@ class z {
         this.#e.registry.delete(p);
       }
     }(this, this.#t.registry);
-    const e = t.find((u, p) => !p && k(u) !== "Object"), r = t.find((u) => k(u) === "Object") || {}, {
+    const e = t.find((u, p) => !p && W(u) !== "Object"), r = t.find((u) => W(u) === "Object") || {}, {
       detail: i,
-      match: f = function(u) {
+      match: a = function(u) {
         return this.current === u;
       },
       name: g,
       owner: m
-    } = r, o = t.filter((u) => W.arrow(u)), a = t.filter((u) => !W.arrow(u) && typeof u == "function");
-    this.match = f, this.#t.name = g, this.#t.owner = m, Object.assign(this.detail, i), this.update(e);
+    } = r, o = t.filter((u) => k.arrow(u)), f = t.filter((u) => !k.arrow(u) && typeof u == "function");
+    this.match = a, this.#t.name = g, this.#t.owner = m, Object.assign(this.detail, i), this.update(e);
     for (const u of o)
       this.effects.add(u);
-    for (const u of a)
+    for (const u of f)
       u.call(this);
   }
   get current() {
@@ -138,12 +138,12 @@ class z {
     if (this.match(t)) return this;
     if (this.#t.previous = this.#t.current, this.#t.current = t, this.#t.session++, r) return this;
     if (!this.effects.size) return this;
-    const f = $.create(this);
+    const a = $.create(this);
     let g = 0;
     for (const [m, o] of this.#t.registry.entries()) {
-      f.detail = o, f.effect = m, f.index = g++;
-      const { condition: a, once: u } = o;
-      if ((!a || a(this.current, f, ...i)) && (m(this.current, f, ...i), u && this.effects.remove(m, ...i), f.stopped))
+      a.detail = o, a.effect = m, a.index = g++;
+      const { condition: f, once: u } = o;
+      if ((!f || f(this.current, a, ...i)) && (m(this.current, a, ...i), u && this.effects.remove(m, ...i), a.stopped))
         break;
     }
     return this;
@@ -269,8 +269,8 @@ class O {
     }(this, this.#t.registry);
     const r = {
       ...t.find((n, s) => !s && x(n) === "Object") || {}
-    }, i = t.find((n, s) => s && x(n) === "Object") || {}, { config: f = {}, detail: g, name: m, owner: o } = i, { match: a } = f, u = t.filter((n) => A.arrow(n)), p = t.filter((n) => !A.arrow(n) && typeof n == "function");
-    this.#t.owner = o, this.#t.name = m, Object.assign(this.detail, g), this.config.match = a, this.update(r);
+    }, i = t.find((n, s) => s && x(n) === "Object") || {}, { config: a = {}, detail: g, name: m, owner: o } = i, { match: f } = a, u = t.filter((n) => A.arrow(n)), p = t.filter((n) => !A.arrow(n) && typeof n == "function");
+    this.#t.owner = o, this.#t.name = m, Object.assign(this.detail, g), this.config.match = f, this.update(r);
     for (const n of u)
       this.effects.add(n);
     for (const n of p)
@@ -331,8 +331,8 @@ class O {
   }
   filter(t, e = !1) {
     const r = {};
-    for (const [i, f] of this.entries())
-      t([i, f]) || (r[i] = void 0);
+    for (const [i, a] of this.entries())
+      t([i, a]) || (r[i] = void 0);
     return this.update(r, { silent: e });
   }
   forEach(t) {
@@ -370,28 +370,28 @@ class O {
   /* Updates current reactively. 
   - Option for updating silently, i.e., non-reactively. */
   update(...t) {
-    let e = t.find((o, a) => !a);
+    let e = t.find((o, f) => !f);
     if (!e)
       return this;
-    const { detail: r, silent: i = !1 } = t.find((o, a) => a && x(o) === "Object") || {};
+    const { detail: r, silent: i = !1 } = t.find((o, f) => f && x(o) === "Object") || {};
     Array.isArray(e) ? e = Object.fromEntries(e) : e instanceof O ? e = e.current : e = { ...e }, r && Object.assign(this.detail, { ...r });
-    const f = {};
-    for (const [o, a] of Object.entries(e))
-      if (!this.config.match(a, this.#t.current[o])) {
-        if (a === void 0) {
-          o in this.#t.current && (f[o] = a, this.#t.previous[o] = this.#t.current[o], delete this.#t.current[o]);
+    const a = {};
+    for (const [o, f] of Object.entries(e))
+      if (!this.config.match(f, this.#t.current[o])) {
+        if (f === void 0) {
+          o in this.#t.current && (a[o] = f, this.#t.previous[o] = this.#t.current[o], delete this.#t.current[o]);
           continue;
         }
-        f[o] = a, this.#t.previous[o] = this.#t.current[o], this.#t.current[o] = a;
+        a[o] = f, this.#t.previous[o] = this.#t.current[o], this.#t.current[o] = f;
       }
-    if (!Object.keys(f).length) return this;
-    if (this.#t.change = Object.freeze(f), this.#t.session++, i) return this;
+    if (!Object.keys(a).length) return this;
+    if (this.#t.change = Object.freeze(a), this.#t.session++, i) return this;
     if (!this.effects.size) return this;
     const g = $.create(this);
     let m = 0;
-    for (const [o, a] of this.#t.registry.entries()) {
-      g.detail = a, g.effect = o, g.index = m++;
-      const { condition: u, once: p } = a;
+    for (const [o, f] of this.#t.registry.entries()) {
+      g.detail = f, g.effect = o, g.index = m++;
+      const { condition: u, once: p } = f;
       if ((!u || u(this.change, g)) && (o(this.change, g), p && this.effects.remove(o), g.stopped))
         break;
     }
@@ -422,7 +422,7 @@ const D = (...j) => O.create(...j).$, { Exception: M } = await use("@/tools/exce
       (t, e) => {
         this.update(t);
         const r = Object.fromEntries(
-          Object.entries(t).filter(([i, f]) => !(i in this && !i.startsWith("_")) && !(i in this.style) && !i.startsWith("[") && !i.startsWith(".") && !i.startsWith("__") && !i.startsWith("@")).map(([i, f]) => [`state-${i}`, f])
+          Object.entries(t).filter(([i, a]) => !(i in this && !i.startsWith("_")) && !(i in this.style) && !i.startsWith("[") && !i.startsWith("data.") && !i.startsWith(".") && !i.startsWith("__") && !i.startsWith("@")).map(([i, a]) => [`state-${i}`, a])
         );
         this.attributes.update(r);
       },

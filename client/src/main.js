@@ -15,7 +15,7 @@ if (use.meta.DEV) {
 }
 
 const { layout } = await use("@/layout/");
-const { component } = await use("@/component.js");
+const { component } = await use("@/component");
 const { router, NavLink } = await use("@/router/");
 
 /* Define routes */
@@ -24,13 +24,13 @@ router.routes.add({
   "/about": (await use("/pages/about.x.html"))(),
 });
 
-//NavLink({ text: "Home", path: "/", slot: 'home', parent: layout })
 
 component.a(
-  { slot: "home", parent: layout, cursor: "pointer" },
+  { parent: layout,slot: "home", title: 'Home',  cursor: "pointer" },
 
   async function () {
-    component.span({ parent: this, innerHTML: await use("/vite.svg") });
+    this.innerHTML = await use("/vite.svg")
+  
 
     this.on.click = async (event) => {
       await router("/");
@@ -47,5 +47,3 @@ component.nav(
 
 await router.setup();
 
-//component.button("rounded bg-sky-500 foo", { parent: layout, text: "Tester" });
-//component.button("btn.btn-primary", { parent: layout, text: "Tester" });

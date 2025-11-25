@@ -1,9 +1,10 @@
+import "../use.js";
 import { factory } from "./tools/factory.js";
 import { mix } from "./tools/mix.js";
 import { Mixins, mixins } from "./mixins/mixins.js";
 import { registry } from "./tools/registry.js";
 
-const { stateMixin } = await use("@/state.js");
+const { stateMixin } = await use("@/state");
 
 /* Registers native web component from tag and returns component class. */
 const create = (tag) => {

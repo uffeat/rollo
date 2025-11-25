@@ -25,6 +25,7 @@ export default (parent) => {
                 !(k in this && !k.startsWith("_")) &&
                 !(k in this.style) &&
                 !k.startsWith("[") &&
+                !k.startsWith("data.") &&
                 !k.startsWith(".") &&
                 !k.startsWith("__") &&
                 !k.startsWith("@")

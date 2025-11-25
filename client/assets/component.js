@@ -27,7 +27,7 @@ class p {
     return this.#t.updates === void 0 && (this.#t.updates = this.#t.args.find((n, t) => d(n) === "Object") || {}), this.#t.updates;
   }
 }
-const a = (r) => (...n) => {
+const l = (r) => (...n) => {
   n = new p(n);
   const t = typeof r == "function" ? new r(n) : r;
   if (t.constructor.__new__?.call(t, n), t.__new__?.(n), t.classes && t.classes.add(n.classes), t.update?.(n.updates), n.text && t.insertAdjacentText("afterbegin", n.text), t.append?.(...n.children), t.__init__?.(n), t.constructor.__init__?.call(t, n), n.hooks) {
@@ -55,7 +55,7 @@ const a = (r) => (...n) => {
   prepend(...t) {
     return super.prepend(...t), this;
   }
-}, { camelToKebab: l } = await use("@/tools/case.js"), m = (r, n) => class extends r {
+}, { camelToKebab: a } = await use("@/tools/case.js"), m = (r, n) => class extends r {
   static __name__ = "attrs";
   #t = {};
   constructor() {
@@ -82,14 +82,14 @@ const a = (r) => (...n) => {
       }
       /* Returns attribute value. */
       get(i) {
-        if (i = l(i), !t.hasAttribute(i))
+        if (i = a(i), !t.hasAttribute(i))
           return null;
         const o = t.getAttribute(i);
         return this.#e(o);
       }
       /* Checks, if attribute set. */
       has(i) {
-        return i = l(i), t.hasAttribute(i);
+        return i = a(i), t.hasAttribute(i);
       }
       /* Returns attribute keys (names). */
       keys() {
@@ -97,7 +97,7 @@ const a = (r) => (...n) => {
       }
       /* Sets one or more attribute values. Chainable with respect to component. */
       set(i, o) {
-        if (i = l(i), o === void 0 || o === "...")
+        if (i = a(i), o === void 0 || o === "...")
           return t;
         const c = this.#e(t.getAttribute(i));
         return o === c || ([!1, null].includes(o) ? t.removeAttribute(i) : o === !0 || !["number", "string"].includes(typeof o) ? t.setAttribute(i, "") : t.setAttribute(i, o), t.dispatchEvent(
@@ -165,11 +165,15 @@ const a = (r) => (...n) => {
       get list() {
         return t.classList;
       }
-      /* Adds classes. Chainable with respect to component. */
-      add(e) {
-        return e && t.classList.add(...e.split(".")), t;
+      /* Adds classes. */
+      add(...e) {
+        for (const s of e)
+          s && (s.includes(" ") ? t.classList.add(
+            ...s.split(" ").map((i) => i.trim()).filter((i) => !!i)
+          ) : t.classList.add(...s.split(".")));
+        return t;
       }
-      /* Removes all classes. Chainable with respect to component. */
+      /* Removes all classes. */
       clear() {
         for (const e of Array.from(t.classList))
           t.classList.remove(e);
@@ -182,16 +186,15 @@ const a = (r) => (...n) => {
             return !1;
         return !0;
       }
-      /* Adds/removes classes according to condition. Chainable with respect 
-      to component. */
+      /* Adds/removes classes according to condition. */
       if(e, s) {
         return this[e ? "add" : "remove"](s), t;
       }
-      /* Removes classes. Chainable with respect to component. */
+      /* Removes classes. */
       remove(e) {
         return e && t.classList.remove(...e.split(".")), t;
       }
-      /* Replaces classes with substitutes. Chainable with respect to component.
+      /* Replaces classes with substitutes. 
       NOTE
       - If mismatch between 'classes' and 'substitutes' sizes are (intentionally) 
       silently ignored. */
@@ -205,7 +208,7 @@ const a = (r) => (...n) => {
         }
         return t;
       }
-      /* Toggles classes. Chainable with respect to component. */
+      /* Toggles classes. */
       toggle(e, s) {
         for (const i of e.split("."))
           t.classList.toggle(i, s);
@@ -213,33 +216,18 @@ const a = (r) => (...n) => {
       }
     }();
   }
-  /* Returns constroller for managing CSS classes from '.'-separated strings. */
+  /* Returns controller for managing CSS classes from '.'-separated strings. */
   get classes() {
     return this.#t.classes;
   }
   /* Updates CSS classes from '.'-syntax. Chainable. */
   update(t = {}) {
     super.update?.(t);
-    for (let [e, s] of Object.entries(t))
-      e.startsWith(".") && (s === void 0 || s === "..." || (e = e.slice(1), this.classes[s ? "add" : "remove"](e)));
+    for (const [e, s] of Object.entries(t))
+      e.startsWith(".") && (s === void 0 || s === "..." || this.classes[s ? "add" : "remove"](e.slice(1)));
     return this;
   }
 }, y = (r, n) => class extends r {
-  static __name__ = "clear";
-  /* Clears content, optionally subject to selector. Chainable. */
-  clear(t) {
-    if (t) {
-      const e = this.querySelectorAll(t);
-      for (const s of e)
-        s.remove();
-    } else {
-      for (; this.firstElementChild; )
-        this.firstElementChild.remove();
-      this.innerHTML = "";
-    }
-    return this;
-  }
-}, v = (r, n) => class extends r {
   static __name__ = "clear";
   /* Clears content, optionally subject to selector. Chainable. */
   clear(t) {
@@ -253,7 +241,7 @@ const a = (r) => (...n) => {
     }
     return this;
   }
-}, w = (r, n) => class extends r {
+}, v = (r, n) => class extends r {
   static __name__ = "connect";
   connectedCallback() {
     super.connectedCallback?.(), this.dispatchEvent(new CustomEvent("_connect"));
@@ -261,7 +249,32 @@ const a = (r) => (...n) => {
   disconnectedCallback() {
     super.disconnectedCallback?.(), this.dispatchEvent(new CustomEvent("_disconnect"));
   }
-}, j = (r, n) => class extends r {
+}, j = 5, w = (r, n) => class extends r {
+  static __name__ = "data";
+  #t = {};
+  constructor() {
+    super(), this.#t.data = new Proxy(this, {
+      get(t, e) {
+        return t.attributes.get(`data-${e}`);
+      },
+      set(t, e, s) {
+        return t.attributes.set(`data-${e}`, s), !0;
+      }
+    });
+  }
+  /* Provides access to single data attribute without use of strings. */
+  get data() {
+    return this.#t.data;
+  }
+  /* Updates attributes from 'data.'-syntax. */
+  update(t = {}) {
+    return super.update?.(t), this.attributes.update(
+      Object.fromEntries(
+        Object.entries(t).filter(([e, s]) => e.startsWith("data.")).map(([e, s]) => [`data-${e.slice(j)}`, s])
+      )
+    ), this;
+  }
+}, E = (r, n) => class extends r {
   static __name__ = "detail";
   #t = {
     detail: {}
@@ -270,7 +283,7 @@ const a = (r) => (...n) => {
   get detail() {
     return this.#t.detail;
   }
-}, E = (r, n) => class extends r {
+}, A = (r, n) => class extends r {
   static __name__ = "find";
   /* Unified alternative to 'querySelector' and 'querySelectorAll' 
   with a leaner syntax. */
@@ -283,7 +296,7 @@ const a = (r) => (...n) => {
     if (e)
       return e.values();
   }
-}, A = (r, n) => class extends r {
+}, L = (r, n) => class extends r {
   static __name__ = "for_";
   /* Returns 'for' attribute. */
   get for_() {
@@ -294,7 +307,7 @@ const a = (r) => (...n) => {
     t ? this.setAttribute("for", t) : this.removeAttribute("for");
   }
 };
-class C {
+class O {
   #t = {};
   constructor(n) {
     this.#t.owner = n, this.#t.on = new Proxy(this, {
@@ -323,11 +336,11 @@ class C {
     }), this.#t.owner;
   }
 }
-const L = (r, n) => class extends r {
+const C = (r, n) => class extends r {
   static __name__ = "handlers";
   #t = {};
   constructor() {
-    super(), this.#t.handlers = new C(this);
+    super(), this.#t.handlers = new O(this);
   }
   /* Returns controller for managing event handlers. */
   get handlers() {
@@ -338,7 +351,7 @@ const L = (r, n) => class extends r {
     return this.#t.handlers.on;
   }
   addEventListener(t, e, s) {
-    return super.addEventListener(t, e, s), O(e) ? e : this;
+    return super.addEventListener(t, e, s), k(e) ? e : this;
   }
   removeEventListener(t, e, ...s) {
     return super.removeEventListener(t, e, ...s), this;
@@ -352,10 +365,10 @@ const L = (r, n) => class extends r {
     ), this;
   }
 };
-function O(r) {
+function k(r) {
   return r.toString().includes("=>");
 }
-class k {
+class P {
   #t = {};
   constructor(n) {
     this.#t.owner = n;
@@ -385,11 +398,11 @@ class k {
     }), this.#t.owner;
   }
 }
-const P = (r, n, ...t) => class extends r {
+const $ = (r, n, ...t) => class extends r {
   static __name__ = "insert";
   #t = {};
   __new__() {
-    super.__new__?.(), this.#t.insert = new k(this);
+    super.__new__?.(), this.#t.insert = new P(this);
   }
   /* Inserts elements. 
   Syntactical alternative to insertAdjacentElement with a leaner syntax and 
@@ -439,7 +452,7 @@ const P = (r, n, ...t) => class extends r {
   __init__() {
     super.__init__?.(), this.__parent__ && (this.parent = this.__parent__);
   }
-}, $ = (r, n) => class extends r {
+}, H = (r, n) => class extends r {
   static __name__ = "props";
   /* Updates accessor props. Chainable. */
   update(t = {}) {
@@ -448,7 +461,7 @@ const P = (r, n, ...t) => class extends r {
       e.startsWith("__") || !(e in this) && !e.startsWith("_") || s === void 0 || s === "..." || this[e] !== s && (typeof s == "function" ? s((i) => this[e] = i) : this[e] = s);
     return this;
   }
-}, H = (r, n) => class extends r {
+}, S = (r, n) => class extends r {
   static __name__ = "send";
   /* Dispatches event with additional options and a leaner syntax. */
   send(t, { detail: e, trickle: s, ...i } = {}) {
@@ -460,7 +473,7 @@ const P = (r, n, ...t) => class extends r {
     }
     return o;
   }
-}, S = (r, n) => class extends r {
+}, z = (r, n) => class extends r {
   static __name__ = "style";
   /* Updates style props. Chainable. */
   update(t = {}) {
@@ -469,7 +482,7 @@ const P = (r, n, ...t) => class extends r {
       e in this || e in this.style && (s === void 0 || s === "..." || (s === null ? s = "none" : s === 0 && (s = "0"), this.style[e] !== s && (this.style[e] = s)));
     return this;
   }
-}, q = (r, n, ...t) => class extends r {
+}, N = (r, n, ...t) => class extends r {
   static __name__ = "super_";
   #t = {};
   __new__() {
@@ -490,7 +503,7 @@ const P = (r, n, ...t) => class extends r {
   get super_() {
     return this.#t.super_;
   }
-}, z = (r, n) => class extends r {
+}, q = (r, n) => class extends r {
   static __name__ = "tab";
   /* Returns tabindex. */
   get tab() {
@@ -500,7 +513,7 @@ const P = (r, n, ...t) => class extends r {
   set tab(t) {
     [!1, null].includes(t) ? this.removeAttribute("tabindex") : this.setAttribute("tabindex", t);
   }
-}, N = (r, n) => class extends r {
+}, V = (r, n) => class extends r {
   static __name__ = "text";
   /* Returns text content. */
   get text() {
@@ -511,11 +524,11 @@ const P = (r, n, ...t) => class extends r {
     this.textContent = t;
   }
 };
-let V = 0;
-const D = (r, n) => class extends r {
+let D = 0;
+const R = (r, n) => class extends r {
   static __name__ = "uid";
   constructor() {
-    super(), this.setAttribute("uid", `uid${V++}`);
+    super(), this.setAttribute("uid", `uid${D++}`);
   }
   /* Returns uid. */
   get uid() {
@@ -561,43 +574,43 @@ const D = (r, n) => class extends r {
       e.endsWith("__") || e.startsWith("__") && (this.__[e.slice(2)] = s);
     return this;
   }
-}, I = 9, K = -3, _ = Object.freeze(
+}, I = 9, K = -3, u = Object.freeze(
   Object.fromEntries(
     Object.entries(
       /* @__PURE__ */ Object.assign({
         "./mixins/append.js": b,
         "./mixins/attrs.js": m,
         "./mixins/classes.js": x,
-        "./mixins/clear copy.js": y,
-        "./mixins/clear.js": v,
-        "./mixins/connect.js": w,
-        "./mixins/detail.js": j,
-        "./mixins/find.js": E,
-        "./mixins/for_.js": A,
-        "./mixins/handlers.js": L,
-        "./mixins/insert.js": P,
+        "./mixins/clear.js": y,
+        "./mixins/connect.js": v,
+        "./mixins/data.js": w,
+        "./mixins/detail.js": E,
+        "./mixins/find.js": A,
+        "./mixins/for_.js": L,
+        "./mixins/handlers.js": C,
+        "./mixins/insert.js": $,
         "./mixins/novalidation.js": T,
         "./mixins/owner.js": W,
         "./mixins/parent.js": M,
-        "./mixins/props.js": $,
-        "./mixins/send.js": H,
-        "./mixins/style.js": S,
-        "./mixins/super_.js": q,
-        "./mixins/tab.js": z,
-        "./mixins/text.js": N,
-        "./mixins/uid.js": D,
+        "./mixins/props.js": H,
+        "./mixins/send.js": S,
+        "./mixins/style.js": z,
+        "./mixins/super_.js": N,
+        "./mixins/tab.js": q,
+        "./mixins/text.js": V,
+        "./mixins/uid.js": R,
         "./mixins/vars.js": F
       })
     ).map(([r, n]) => [r.slice(I, K), n])
   )
-), R = (...r) => {
+), U = (...r) => {
   const n = r.filter(
     (i) => typeof i == "string" && !i.startsWith("!")
   ), t = r.filter((i) => typeof i == "string" && i.startsWith("!")).map((i) => i.slice(1)), e = r.filter((i) => typeof i == "function");
   t.push("for_", "novalidation");
-  const s = Object.entries(_).filter(([i, o]) => n.includes(i) ? !0 : !t.includes(i)).map(([i, o]) => o);
+  const s = Object.entries(u).filter(([i, o]) => n.includes(i) ? !0 : !t.includes(i)).map(([i, o]) => o);
   return s.push(...e), s;
-}, u = new class {
+}, _ = new class {
   #t = {
     registry: /* @__PURE__ */ new Map()
   };
@@ -625,15 +638,15 @@ const D = (r, n) => class extends r {
   values() {
     return this.#t.registry.values();
   }
-}(), { stateMixin: U } = await use("@/state.js"), B = (r) => {
+}(), { stateMixin: B } = await use("@/state.js"), G = (r) => {
   const n = `x-${r}`;
-  if (u.has(n))
-    return u.get(n);
+  if (_.has(n))
+    return _.get(n);
   const t = document.createElement(r), e = t.constructor;
   if (e === HTMLUnknownElement)
     throw new Error(`'${r}' is not native.`);
-  const s = R("!text", U);
-  return "textContent" in t && s.push(_.text), r === "form" && s.push(_.novalidation), r === "label" && s.push(_.for_), u.add(
+  const s = U("!text", B);
+  return "textContent" in t && s.push(u.text), r === "form" && s.push(u.novalidation), r === "label" && s.push(u.for_), _.add(
     class extends g(e, {}, ...s) {
       static __key__ = n;
       static __native__ = r;
@@ -643,27 +656,27 @@ const D = (r, n) => class extends r {
     }
   );
 }, f = (r) => {
-  const n = B(r), t = new n();
-  return a(t);
-}, J = (r, ...n) => {
+  const n = G(r), t = new n();
+  return l(t);
+}, Q = (r, ...n) => {
   const [t, ...e] = r.split("."), s = f(t);
   return e.length ? s(`${e.join(".")}`, ...n) : s(...n);
-}, Q = new Proxy(
+}, X = new Proxy(
   {},
   {
     get(r, n) {
       return f(n);
     }
   }
-), X = (r, n, t) => a(u.add(r, n, t));
+), Y = (r, n, t) => l(_.add(r, n, t));
 export {
-  J as Component,
+  Q as Component,
   f as Factory,
-  R as Mixins,
-  X as author,
-  Q as component,
-  a as factory,
+  U as Mixins,
+  Y as author,
+  X as component,
+  l as factory,
   g as mix,
-  _ as mixins,
-  u as registry
+  u as mixins,
+  _ as registry
 };

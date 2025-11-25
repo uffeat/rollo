@@ -1,0 +1,3 @@
+- Refactor NavLink:
+   - Create NavGroup and rely on this for active state.
+   - Ensure that it works on forward/back and initial

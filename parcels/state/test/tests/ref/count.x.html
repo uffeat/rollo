@@ -15,16 +15,12 @@
 </style>
 
 <script type="module">
-  const { Mixins, author, component, mix } = await use("@/component.js");
+  const { Mixins, author, component, mix } = await use("@/component");
   const { layout } = await use("@/layout/");
-  const { refMixin } = await use("@/state.js");
-
-  
-
+  const { refMixin } = await use("@/state");
 
   export default async function () {
-    const sheet = this.sheet
-
+    const sheet = this.sheet;
 
     const RefComponent = author(
       class extends mix(HTMLElement, {}, ...Mixins(refMixin)) {},
@@ -32,8 +28,6 @@
     );
 
     layout.clear(":not([slot])");
-
-   
 
     const state = RefComponent(
       "btn.btn-primary",
@@ -48,5 +42,5 @@
         layout.append(this);
       }
     );
-  };
+  }
 </script>

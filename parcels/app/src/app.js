@@ -1,7 +1,8 @@
+import "../use.js";
 import "../assets/app.css";
 
-const { Mixins, author, component, mix } = await use("@/component.js");
-const { stateMixin } = await use("@/state.js");
+const { Mixins, author, component, mix } = await use("@/component");
+const { stateMixin } = await use("@/state");
 
 const TAG = "div";
 

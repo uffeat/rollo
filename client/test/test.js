@@ -19,6 +19,21 @@ import "../src/main.css";
 
 document.documentElement.dataset.bsTheme = "dark";
 
+//
+//import * as parcel from "../../parcels/component/index.js";
+//use.add("@/component.js", parcel);
+//
+
+const parcels = Object.fromEntries(Object.entries({
+  ...import.meta.glob("../../parcels/*/index.js"),
+}).map(([path, load])=> {
+  return [path.slice(14, -9), load]})) 
+
+
+console.log("parcels:", parcels);
+
+
+
 /* Load global sheets */
 await use("/assets/bootstrap/main.css");
 await use("/main.css");
@@ -46,7 +61,7 @@ await (async () => {
 /* Runs test. */
 const run = async (path) => {
   const asset = await use(`tests${path}`);
-  await asset.default();
+  await asset.default(parcels);
 };
 
 /* Add test control */

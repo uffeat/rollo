@@ -1,3 +1,7 @@
+/* Initialize import engine */
+import "../use.js";
+/* Activate Tailwind */
+import "./test.css";
 /* Overload to use live parcel */
 import * as parcel from "../index.js";
 use.add("@/router/router.js", parcel);
@@ -61,10 +65,10 @@ await (async () => {
 
 /* Runs test. */
 const run = async (path) => {
-  if (!path || path === "/") return;
+  if (!path) return;
   const asset = await use(`tests${path}`);
   const test = asset?.default ?? asset;
-  await test({pages});
+  await test({ pages });
 };
 
 /* Add test control */

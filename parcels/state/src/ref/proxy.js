@@ -1,6 +1,6 @@
 import { Ref } from "./ref.js";
 
-const { Exception } = await use("@/tools/exception.js");
+const { Exception } = await use("@/tools/exception");
 
 /* Proxy version of Ref with a leaner syntax: Update/access to current happens 
 via direct function call. */

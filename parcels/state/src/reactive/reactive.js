@@ -1,9 +1,9 @@
 import { Message } from "../tools/message.js";
 import { Ref } from "../ref/ref.js";
 
-const { Exception } = await use("@/tools/exception.js");
-const { type } = await use("@/tools/type.js");
-const { is } = await use("@/tools/is.js");
+const { Exception } = await use("@/tools/exception");
+const { type } = await use("@/tools/type");
+const { is } = await use("@/tools/is");
 
 /* Reactive ADT for flat key-value collections.
 NOTE

@@ -1,7 +1,7 @@
 import { Message } from "../tools/message.js";
 
-const { type } = await use("@/tools/type.js");
-const { is } = await use("@/tools/is.js");
+const { type } = await use("@/tools/type");
+const { is } = await use("@/tools/is");
 
 export class Ref {
   static create = (...args) => new Ref(...args);

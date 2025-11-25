@@ -1,7 +1,6 @@
+import "../../use.js";
 
-
-const { type } = await use("@/tools/type.js");
-
+const { type } = await use("@/tools/type");
 
 /* Utility for parsing args in component factory functions. */
 export class Parse {

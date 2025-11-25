@@ -1,4 +1,4 @@
-const { component } = await use("@/component.js");
+const { component } = await use("@/component");
 const { layout } = await use("@/layout/");
 
 const page = component.main("container", component.h1({ text: "Home" }));

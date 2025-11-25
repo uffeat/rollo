@@ -1,6 +1,6 @@
-const { component } = await use("@/component.js");
+const { component } = await use("@/component");
 const { layout } = await use("@/layout/");
-const { reactive } = await use("@/state.js");
+const { reactive } = await use("@/state");
 
 const state = reactive();
 

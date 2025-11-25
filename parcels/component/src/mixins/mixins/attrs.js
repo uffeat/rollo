@@ -1,4 +1,6 @@
-const { camelToKebab } = await use("@/tools/case.js");
+import "../../../use.js";
+
+const { camelToKebab } = await use("@/tools/case");
 
 export default (parent, config) => {
   return class extends parent {

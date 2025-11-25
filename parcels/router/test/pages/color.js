@@ -1,7 +1,7 @@
-const { component } = await use("@/component.js");
+const { component } = await use("@/component");
 const { layout } = await use("@/layout/");
-const { ref } = await use("@/state.js");
-const { css } = await use("@/sheet.js");
+const { ref } = await use("@/state");
+const { css } = await use("@/sheet");
 const { router } = await use("@/router/");
 
 
