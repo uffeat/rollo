@@ -1,2 +1,2 @@
-/*2025-11-24 23:58:07*/
+/*2025-11-25 00:39:23*/
 img{max-width:100%}input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;appearance:none;margin:0}input[type=number]{appearance:none;box-sizing:border-box}#app{flex-direction:column;height:100vh;display:flex;position:relative;overflow-x:hidden;& img{max-width:100%}& [slot=data]{display:none}}layout-component{height:100%;display:block}.nav-link{cursor:pointer;font-size:1.125rem!important}.nav-link.active{font-weight:600}

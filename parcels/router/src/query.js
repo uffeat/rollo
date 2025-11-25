@@ -8,15 +8,20 @@ export const Query = new (class Query {
         Array.from(new URLSearchParams(search), ([k, v]) => {
           v = v.trim();
           if (v === "") return [k, true];
+          if (v === "true") return [k, true];
           const probe = Number(v);
           return [k, Number.isNaN(probe) ? v : probe];
-        })
+        }).filter(([k, v])=> !['false', 'null', 'undefined'].includes(v))
       )
     );
   }
 
   stringify(query) {
-    const result = new URLSearchParams(query).toString();
-    return  "?" + result;
+    query = Object.fromEntries(
+      Object.entries(query).filter(
+        ([k, v]) => ![false, null, undefined].includes(v)
+      )
+    );
+    return "?" + new URLSearchParams(query).toString().replaceAll("=true", "");
   }
 })();

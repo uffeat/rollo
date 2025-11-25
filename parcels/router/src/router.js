@@ -88,7 +88,7 @@ export const Router = new (class Router {
 
     //console.log("url.query:", url.query);////
 
-    /* Returns a function that pushes state.
+    /* Returns undefined if no url change, otherwise a function that pushes state.
     NOTE Provides control over when the state-pushing should take place. */
     const pusher = (() => {
       if (this.url) {
@@ -120,43 +120,52 @@ export const Router = new (class Router {
       return this;
     }
 
+    this.#_.session++;
+
+    /* Returns undefined if no route found, otherwise a function that handles the route.
+    NOTE Provides control over when the route should be handled. */
     const controller = await (async () => {
       const { path, residual, route } = (await this.#getRoute(url.path)) || {};
       if (!route) {
+        this.#_.route = null;
         return;
       }
       return async () => {
-        /* Enable external hooks etc. */
-        app.$({ path });
-        this.#_.states.path(path, {}, url.query);
-
+        this.#signal(path, url.query, ...residual);
         if (route === this.route) {
-          /* Mode: update -> call route with update */
-          await route({ update: true }, url.query, ...residual);
-        } else {
-          /** Mode: new */
-          /* Call any previous route with exit */
-          if (this.route) {
-            await this.route({ exit: true });
+          /* Route update */
+          if (route.update) {
+            await route.update(url.query, ...residual);
+          } else {
+            await route({ update: true }, url.query, ...residual);
           }
-          /* Call new route with enter */
-          await route({ enter: true }, url.query, ...residual);
-          /* Expose active route */
+        } else {
+          /* Route change */
+          if (this.route) {
+            /* Route exit */
+            if (this.route.exit) {
+              await this.route.exit();
+            } else {
+              await this.route({ exit: true });
+            }
+          }
+          /* Route enter */
+          if (route.enter) {
+            await route.enter(url.query, ...residual);
+          } else {
+            await route({ enter: true }, url.query, ...residual);
+          }
+
+          /* Update active route */
           this.#_.route = route;
         }
       };
     })();
 
     if (!controller) {
-      this.#_.session++;
       pusher();
-      this.#_.route = null;
-      /* Enable external hooks etc. */
-      app.$({ path: url.path });
 
-      //console.log("url.query:", url.query);////
-
-      this.#_.states.path(url.path, {}, url.query);
+      this.#signal(url.path, url.query);
 
       if (strict) {
         if (!this.#_.config.error) {
@@ -164,15 +173,18 @@ export const Router = new (class Router {
         }
         await this.#_.config.error(url.path);
       }
-
       return this;
     }
-
-    this.#_.session++;
 
     pusher();
     await controller();
     return this;
+  }
+
+  /* Enables external hooks etc. */
+  #signal(path, query, ...residual) {
+    app.$({ path });
+    this.#_.states.path(path, {}, query, ...residual);
   }
 
   async #getRoute(path) {

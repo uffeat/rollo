@@ -18,10 +18,7 @@ Demo intent
 
   const Effect = () => {
     return (current, message, query) => {
-
-     
-      console.log('query:', query);
-
+      console.log("query:", query);
 
       layout.clear(":not([slot])");
       heading.text = `${current.at(1).toUpperCase()}${current.slice(2)}`;
@@ -39,8 +36,8 @@ Demo intent
       "nav.d-flex.flex-column",
       { slot: "side", parent: layout },
       ...[
-        ["Bar", "/bar", {dong: 'DONG'}],
-        ["Foo", "/foo", {ding: 42}],
+        ["Bar", "/bar", { dong: "DONG" }],
+        ["Foo", "/foo", { ding: 42, stuff: true, thing: true }],
       ].map(([text, path, query]) => NavLink({ text, path, query }))
     );
 

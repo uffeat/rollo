@@ -1,8 +1,8 @@
-.nav-link {
-  font-size: 1.125rem !important;
+.nav-link[path] {
+  font-size: 1.125rem;
   cursor: pointer;
 }
 
-.nav-link.active {
+.nav-link[path].active {
   font-weight: 600;
 }
