@@ -1,7 +1,7 @@
 import "../use.js";
 import { Router } from "./router.js";
 
-const { Exception } = await use("@/tools/exception.js");
+const { Exception } = await use("@/tools/exception");
 
 /* Proxy version with leaner syntax  */
 export const router = new Proxy(async () => {}, {

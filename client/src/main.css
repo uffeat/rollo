@@ -2,3 +2,7 @@
 
 @tailwind utilities;
 
+.foo {
+  @apply bg-amber-600;
+  border: 4px solid green;
+}

@@ -48,10 +48,7 @@ How we go from a user action to calling `router()` is technically not part of th
 - A way to go from click to `router()`
 - A way to manage active state in nav groups.
 
-This can be wired up manually (with or without using router-emitted "signals"), but to avoid this, the parcel also exposes a NavLink component with two special props: `path` and `query`. Clicking a NavLink component does two things:
-
-1. Invokes `router()` with a specifier contructed from the component's `path` and `query`.
-2. Resets the `active` state of sibling NavLinks (NavLink in the same nav group) and sets its own `active` state.
+This can be wired up manually (with or without using router-emitted "signals"), but to avoid this, the parcel also exposes a Nav function and a NavLink component with two special props: `path` and `query`. Clicking a NavLink component invokes `router()` with a specifier contructed from the component's `path` and `query`. The Nav function accepts and returns a nav component. The function hooks into the router signal to manage the selected state of contained NavLinks. In this way, NavLink selected states are correctly handled not only at click, but also initially and during forward/back navigation.
 
 NavLinks play well with Bootstrap, but do not require Bootstrap.
 

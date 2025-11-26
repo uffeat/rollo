@@ -2,7 +2,6 @@
 import "../use.js";
 /* Activate Tailwind */
 import "./test.css";
-
 /* Overload to use live parcel */
 import * as parcel from "../index.js";
 use.add("@/component.js", parcel);

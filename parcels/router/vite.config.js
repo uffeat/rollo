@@ -16,6 +16,6 @@ export default defineConfig({
       fileName: () => "router.js",
       formats: ["es"],
     },
-    plugins: [tailwindcss()],
   },
+  plugins: [tailwindcss()],
 });

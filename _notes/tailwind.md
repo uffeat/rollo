@@ -1,16 +1,12 @@
-npm install tailwindcss @tailwindcss/vite
+# Tailwind
+`npm install tailwindcss @tailwindcss/vite`
 
 In `vite.config.js`:
-
-```
-import tailwindcss from '@tailwindcss/vite'
-...
-  plugins: [
-    tailwindcss(),
-  ],
-...
-```
+`import tailwindcss from '@tailwindcss/vite'`
+and then
+`plugins: [tailwindcss(),],`
 
 
-npm install @headlessui/react motion clsx
-npm install @heroicons/react
+# Tailwind UI
+`npm install @headlessui/react motion clsx`
+`npm install @heroicons/react`

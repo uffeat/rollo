@@ -161,10 +161,6 @@ const { app: $ } = await use("@/app/"), n = new class {
     })();
     return h ? (u(), await h(), this) : (u(), this.#e(r.path, r.query), e && (this.#t.config.error || (this.#t.config.error = (await use("/pages/error.js")).default), await this.#t.config.error(r.path)), this);
   }
-  /* Enables external hooks etc. */
-  #e(t, s, ...e) {
-    $.$({ path: t }), this.#t.states.path(t, {}, s, ...e);
-  }
   async #r(t) {
     const s = t.slice(1).split("/");
     for (let e = s.length - 1; e >= 0; e--) {
@@ -182,6 +178,10 @@ const { app: $ } = await use("@/app/"), n = new class {
         if (r.name !== "UseError")
           throw r;
       }
+  }
+  /* Enables external hooks etc. */
+  #e(t, s, ...e) {
+    $.$({ path: t }), this.#t.states.path(t, {}, s, ...e);
   }
   #s() {
     return location.search ? `${location.pathname}${location.search}${location.hash}` : `${location.pathname}${location.hash}`;

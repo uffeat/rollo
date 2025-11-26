@@ -26,12 +26,14 @@ Points
 
     /* Create nav */
     const nav = component.nav(
-      "nav.d-flex.flex-column",
+      "flex flex-col gap-x-8  gap-y-8 foo",
       { slot: "side", parent: layout },
       NavLink({ text: "Boom", path: "/boom" }),
       NavLink({ text: "Pow", path: "/pow" }),
       NavLink({ text: "Bad", path: "/bad" })
     );
+
+   
 
     await router.setup();
   }

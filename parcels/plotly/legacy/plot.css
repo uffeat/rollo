@@ -1,0 +1,34 @@
+/* Plot */
+/* Placement */
+#main:has(> .anvil-plot) {
+  display: flex !important;
+}
+#main .anvil-plot {
+  max-height: var(--height) !important;
+  margin: 0 auto !important;
+}
+#main .anvil-plot > .plotly {
+  display: flex !important;
+  justify-content: center !important;
+}
+@media (width >= 768px) {
+  #main .anvil-plot {
+    max-width: 80% !important;
+  }
+}
+/* Background */
+#main .anvil-plot .main-svg {
+  background: transparent !important;
+}
+/* Mode bar */
+#main .anvil-plot .modebar-container {
+  top: 8px !important;
+  right: 8px !important;
+}
+#main .anvil-plot .modebar-group {
+  background-color: transparent !important;
+}
+/* Legend */
+#main .anvil-plot .legend .bg {
+  fill: transparent !important;
+}

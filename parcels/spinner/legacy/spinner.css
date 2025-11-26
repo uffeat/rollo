@@ -1,0 +1,44 @@
+/* Spinner */
+.anvil-spinner {
+  /* Anvil calculates spinner position from 'var(--anvil-spinner-size)'.
+  Therefore, define spinner size by overloading '--anvil-spinner-size' */
+  --anvil-spinner-size: 10rem;
+  --color: var(--color);
+  /* Define new (Bootstrap 5 replica) */
+  width: var(--anvil-spinner-size);
+  height: var(--anvil-spinner-size);
+  color: var(--primary);
+  vertical-align: text-bottom;
+  border: 0.25em solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+  /* Hide default */
+  background-color: transparent;
+  box-shadow: none;
+  * {
+    display: none;
+  }
+}
+.anvil-spinner[invisible] {
+  --anvil-spinner-size: 0;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (height <= 16rem) {
+  /* Anvil's default '1/3-positioning' risks pushing the spinner out of 
+  the viewport. To avoid this, the 16rem breakpoint is chosen as a comfortable 
+  distance from 10rem. */
+  .anvil-spinner {
+    /* Ensure that spinner never exceeds viewport (vertically) */
+    --anvil-spinner-size: min(8rem, 100vh);
+    top: calc(50% - var(--anvil-spinner-size) / 2);
+  }
+}
+/* Prevent spinner flickering */
+body:has(.anvil-spinner) {
+  position: relative;
+}

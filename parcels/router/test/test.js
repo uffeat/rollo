@@ -97,4 +97,6 @@ await (async () => {
 
 //
 //
-//await run("/basics.x.html");
+await run("/nav.test.js");
+
+

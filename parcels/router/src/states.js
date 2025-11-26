@@ -1,7 +1,7 @@
 import "../use.js";
 
-const { reactive, ref } = await use("@/state.js");
-const { Exception } = await use("@/tools/exception.js");
+const { ref } = await use("@/state");
+const { Exception } = await use("@/tools/exception");
 
 export class States {
   static create = (...args) => new States(...args);

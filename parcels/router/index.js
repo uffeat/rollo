@@ -1,4 +1,5 @@
+export { Nav } from "./src/nav.js";
+export { NavLink } from "./src/link.js";
 export { Query } from "./src/query.js";
-export { NavLink } from "./src/nav_link.js";
 export { Router } from "./src/router.js";
 export { router } from "./src/proxy.js";

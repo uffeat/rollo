@@ -1,4 +1,4 @@
-const { Mixins: c, author: d, component: t, mix: p } = await use("@/component.js"), { stateMixin: r } = await use("@/state.js"), s = "div", h = d(
+const { Mixins: c, author: d, component: t, mix: p } = await use("@/component"), { stateMixin: r } = await use("@/state"), s = "div", h = d(
   class extends p(document.createElement(s).constructor, {}, ...c(r)) {
     #t = {};
     constructor() {
