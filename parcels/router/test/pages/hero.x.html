@@ -1,0 +1,30 @@
+<script type="module">
+  const { component } = await use("@/component");
+  const { layout } = await use("@/layout/");
+  const { reactive } = await use("@/state");
+
+  //const state = reactive();
+
+  const hero = component.p();
+  const page = component.main(
+    "container",
+    component.h1({ text: "Hero" }),
+    hero
+  );
+
+  export default function () {
+    return (mode, query) => {
+      //console.log("query:", query);////
+      if (query?.name) {
+        hero.text = `${query.name.at(0).toUpperCase()}${query.name.slice(1)}`;
+      } else {
+        hero.text = "No hero";
+      }
+
+      if (mode.enter) {
+        layout.clear(":not([slot])");
+        layout.append(page);
+      }
+    };
+  }
+</script>

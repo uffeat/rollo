@@ -1,9 +1,8 @@
-
-.nav-link[path] {
+[nav-link] {
   font-size: var(--fontSize, 1.125rem);
   cursor: pointer;
 }
 
-.nav-link[path][selected] {
+[nav-link][selected] {
   font-weight: var(--fontWeight, 600);
 }

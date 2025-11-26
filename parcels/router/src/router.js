@@ -1,37 +1,28 @@
 import "../use.js";
 import { Routes } from "./routes.js";
-import { States } from "./states.js";
 import { Url } from "./url.js";
 
 const { app } = await use("@/app/");
+const { ref } = await use("@/state");
 
 export const Router = new (class Router {
   #_ = {
-    config: {},
-    route: async () => {},
-    routes: null,
+    config: { redirect: {} },
+
     session: 0,
-    states: {},
-    url: null,
   };
 
   constructor() {
     this.#_.routes = new Routes();
-    this.#_.states = new States(this);
+
+    this.#_.states = {
+      path: ref({ owner: this, name: "path" }),
+    };
   }
 
-  get config() {
-    return Object.freeze({ ...this.#_.config });
-  }
-
-  /* Returns multi-state effect controller. */
+  /* Returns effects controller. */
   get effects() {
-    return this.#_.states.effects;
-  }
-
-  /* Returns current route. */
-  get route() {
-    return this.#_.route;
+    return this.#_.states.path.effects;
   }
 
   /* Returns route registration controller. */
@@ -39,26 +30,16 @@ export const Router = new (class Router {
     return this.#_.routes;
   }
 
-  /* Returns session uid. */
-  get session() {
-    return this.#_.session;
-  }
-
-  /* Returns info about current: 
-  - path: pathname
-  - query: search as object
-  - hash: hash
-  - full: href without host
-  */
-  get url() {
-    return this.#_.url;
-  }
-
   /* Invokes route from initial location. 
   NOTE Should be called once router has been set up. */
-  async setup({ error, strict = true } = {}) {
+  async setup({ error, redirect, routes, strict = true } = {}) {
     this.#_.config.error = error;
     this.#_.config.strict = strict;
+    Object.assign(this.#_.config.redirect, redirect);
+
+    if (routes) {
+      this.routes.add({ ...routes });
+    }
 
     if (!this.#_.initialized) {
       /* Enable back/forward navigation */
@@ -80,6 +61,10 @@ export const Router = new (class Router {
 
   /* Invokes route. */
   async use(specifier, { context, strict } = {}) {
+    if (specifier in this.#_.config.redirect) {
+      specifier = this.#_.config.redirect[specifier];
+    }
+
     strict = strict === undefined ? this.#_.config.strict : strict;
 
     //console.log("specifier:", specifier);////
@@ -91,8 +76,8 @@ export const Router = new (class Router {
     /* Returns undefined if no url change, otherwise a function that pushes state.
     NOTE Provides control over when the state-pushing should take place. */
     const pusher = (() => {
-      if (this.url) {
-        if (!url.match(this.url)) {
+      if (this.#_.url) {
+        if (!url.match(this.#_.url)) {
           /* Change */
           this.#_.url = url;
           return () => {
@@ -132,28 +117,44 @@ export const Router = new (class Router {
       }
       return async () => {
         this.#signal(path, url.query, ...residual);
-        if (route === this.route) {
+        if (route === this.#_.route) {
           /* Route update */
           if (route.update) {
-            await route.update(url.query, ...residual);
+            await route.update(
+              { session: this.#_.session },
+              url.query,
+              ...residual
+            );
           } else {
-            await route({ update: true }, url.query, ...residual);
+            await route(
+              { mode: 'update', session: this.#_.session,  update: true },
+              url.query,
+              ...residual
+            );
           }
         } else {
           /* Route change */
-          if (this.route) {
+          if (this.#_.route) {
             /* Route exit */
-            if (this.route.exit) {
-              await this.route.exit();
+            if (this.#_.route.exit) {
+              await this.#_.route.exit({ session: this.#_.session });
             } else {
-              await this.route({ exit: true });
+              await this.#_.route({ exit: true, mode: 'exit', session: this.#_.session });
             }
           }
           /* Route enter */
           if (route.enter) {
-            await route.enter(url.query, ...residual);
+            await route.enter(
+              { session: this.#_.session },
+              url.query,
+              ...residual
+            );
           } else {
-            await route({ enter: true }, url.query, ...residual);
+            await route(
+              { enter: true, mode: 'enter', session: this.#_.session },
+              url.query,
+              ...residual
+            );
           }
 
           /* Update active route */
@@ -173,7 +174,7 @@ export const Router = new (class Router {
       }
       return this;
     }
-    
+
     pusher();
     await controller();
     return this;

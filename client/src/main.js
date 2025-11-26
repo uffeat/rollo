@@ -16,7 +16,7 @@ if (use.meta.DEV) {
 
 const { layout } = await use("@/layout/");
 const { component } = await use("@/component");
-const { router, NavLink } = await use("@/router/");
+const { router, Nav, NavLink } = await use("@/router/");
 
 /* Define routes */
 router.routes.add({
@@ -24,26 +24,24 @@ router.routes.add({
   "/about": (await use("/pages/about.x.html"))(),
 });
 
-
-component.a(
-  { parent: layout,slot: "home", title: 'Home',  cursor: "pointer" },
-
-  async function () {
-    this.innerHTML = await use("/vite.svg")
-  
-
-    this.on.click = async (event) => {
-      await router("/");
-    };
-  }
-);
-
 /* Create nav */
-component.nav(
-  "nav.d-flex.flex-column",
-  { slot: "side", parent: layout },
-  NavLink({ text: "About", path: "/about" })
+Nav(
+  component.nav(
+    "nav flex flex-col gap-y-1 p-1",
+    { slot: "side", parent: layout },
+    NavLink("nav-link",{ text: "About", path: "/about", title: "About" })
+  ),
+  /* Pseudo-argument for code organization */
+    NavLink(
+      { path: "/", parent: layout, slot: "home", title: "Home" },
+      async function () {
+        this.innerHTML = await use("/vite.svg");
+      }
+    )
 );
+
+
+
+
 
 await router.setup();
-

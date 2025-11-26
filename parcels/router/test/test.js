@@ -25,20 +25,7 @@ Object.entries({
   use.add(`${k.slice(1)}`, load);
 });
 
-const pages = (() => {
-  const START = "./pages".length;
-  const pages = Object.fromEntries(
-    Object.entries(import.meta.glob("./pages/**/*.js")).map(([k, load]) => {
-      const path = `${k.slice(START, -3)}`;
-      return [path, load];
-    })
-  );
-  const home = pages[`/home`];
-  if (home) {
-    pages["/"] = home;
-  }
-  return pages;
-})();
+
 
 //console.log("pages:", pages);
 
@@ -68,7 +55,7 @@ const run = async (path) => {
   if (!path) return;
   const asset = await use(`tests${path}`);
   const test = asset?.default ?? asset;
-  await test({ pages });
+  await test();
 };
 
 /* Add test control */
@@ -97,6 +84,6 @@ await (async () => {
 
 //
 //
-await run("/nav.test.js");
+//await run("/nav.test.js");
 
 

@@ -17,8 +17,8 @@ export const NavLink = author(
     #_ = {};
     constructor() {
       super();
-      this.classes.add("nav-link");
       this.attribute.webComponent = true;
+      this.attribute[this.constructor.__key__] = true;
 
       this.on.click = async (event) => {
         if (this.path) {
