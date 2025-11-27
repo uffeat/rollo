@@ -1,3 +1,5 @@
+> v.1.0
+
 # About
 
 History-based browser router and related tools. The router is a singleton and is exposed in two versions: `Router` and `router`. The latter offers a leaner syntax.
@@ -59,4 +61,3 @@ NavLinks play well with Bootstrap, but do not require Bootstrap.
 - For non-trivial cases, use reactive tools (`@/state.js`) to setup reactions to `enter/update/exit` and to `query`.
 - Register simple non-nested paths.
 - For aux data, prefer query over residuals.
-

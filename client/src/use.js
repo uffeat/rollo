@@ -767,14 +767,14 @@ to avoid Vercel-injections.
     if (!(typeof result === "string")) return;
     if (cache.has(path.full)) return cache.get(path.full);
     const { extract } = await use("@/tools/html.js");
-    const { assets, js } = extract(result);
+    const { assets, fragment, js } = extract(result);
     result = assets;
     if (js) {
       const mod = await use.module(
         `export const __path__ = "${path.path}";${js}`,
         path.path
       );
-      const context = Object.freeze({ assets, self: mod });
+      const context = Object.freeze({ assets, fragment, self: mod });
       if (mod.default) {
         result = mod.default.bind(context);
       } else {

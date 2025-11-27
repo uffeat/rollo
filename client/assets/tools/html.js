@@ -1,21 +1,31 @@
-const { component } = await use("@/component.js");
-const { Sheet } = await use("@/sheet.js");
+const { component } = await use("@/component");
+const { Sheet } = await use("@/sheet");
 
 export const extract = (html) => {
-  const temp = component.div({ innerHTML: html });
+  const fragment = component.div({ innerHTML: html });
   const assets = Object.freeze(
     Object.fromEntries([
-      ...Array.from(temp.querySelectorAll(`style[name]`), (e) => [
-        e.getAttribute("name"),
-        Sheet.create(e.textContent.trim()),
-      ]),
-      ...Array.from(temp.querySelectorAll(`template[name]`), (e) => [
+      ...Array.from(fragment.querySelectorAll(`style`), (e) => {
+        const sheet = Sheet.create(e.textContent.trim());
+        if (e.hasAttribute("global")) {
+          sheet.use();
+        }
+        const name = e.hasAttribute("name") ? e.getAttribute("name") : "sheet";
+        return [name, sheet];
+      }),
+      ...Array.from(fragment.querySelectorAll(`template[name]`), (e) => [
         e.getAttribute("name"),
         e.innerHTML.trim(),
       ]),
     ])
   );
-  const js = temp.querySelector('script')?.textContent.trim()
-  return Object.freeze({assets, js})
 
+  const result = { assets, fragment };
+
+  const js = fragment.find("script")?.textContent.trim();
+  if (js) {
+    result.js = js;
+  }
+
+  return Object.freeze(result);
 };

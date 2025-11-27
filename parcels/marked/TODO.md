@@ -1,2 +1,4 @@
 npm install marked
-npm i marked-base-url@1.0.7
+
+npm i marked-base-url
+npm i marked-directive

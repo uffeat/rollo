@@ -22,6 +22,7 @@ const { router, Nav, NavLink } = await use("@/router/");
 router.routes.add({
   "/": (await use("/pages/home.x.html"))(),
   "/about": (await use("/pages/about.x.html"))(),
+  "/blog": (await use("/pages/blog.x.html"))(),
 });
 
 /* Create nav */
@@ -29,7 +30,8 @@ Nav(
   component.nav(
     "nav flex flex-col gap-y-1 p-1",
     { slot: "side", parent: layout },
-    NavLink("nav-link",{ text: "About", path: "/about", title: "About" })
+    NavLink("nav-link",{ text: "About", path: "/about", title: "About" }),
+    NavLink("nav-link",{ text: "Blog", path: "/blog", title: "Blog" }),
   ),
   /* Pseudo-argument for code organization */
     NavLink(
@@ -41,7 +43,6 @@ Nav(
 );
 
 
-
-
-
 await router.setup();
+
+console.log('Router set up')

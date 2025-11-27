@@ -1,0 +1,89 @@
+<style global>
+  [page="blog"] {
+    --basis: 100%;
+  }
+
+  #app[state-md] [page="blog"] {
+    --gap: 0.5rem;
+    --basis: calc(50% - var(--gap));
+  }
+</style>
+
+<script type="module">
+  const { component } = await use("@/component");
+  const { layout } = await use("@/layout/");
+  const { reactive, ref } = await use("@/state");
+  const { marked } = await use("@/marked");
+  const { YAML } = await use("@/yaml");
+  const { Sheet, css } = await use("@/sheet");
+
+  const items = component.div(
+    "w-full flex justify-between flex-wrap gap-y-3 gap-x-(--gap)",
+    {}
+  );
+  items.attribute.items = true;
+
+  const page = component.main(
+    "container",
+    component.h1({ text: "Blog" }),
+    items
+  );
+  page.attribute.page = "blog";
+
+  const Item = (meta, html) => {
+    //const item = component.div();
+    const card = component.div(
+      "card h-full basis-(--basis)",
+      {
+        parent: items,
+
+        //
+
+        ///
+      },
+      component.img("card-img-top", { src: `${use.meta.base}${meta.image}` }),
+      component.div(
+        "card-body nav flex flex-col",
+        {},
+        component.a(
+          "nav-link cursor-pointer",
+
+          component.h1("card-title", { text: meta.title })
+        ),
+        component.p("card-text", { text: meta.abstract })
+      ),
+      component.div("card-footer", { minHeight: css.rem(2) })
+    );
+  };
+
+  const paths = (await use("/content/meta/paths.json")).filter((p) =>
+    p.startsWith("/blog/")
+  );
+
+  ////console.log("paths:", paths);////
+
+  for (const path of paths) {
+    use(`/content${path}`).then((text) => {
+      const [yaml, md] = text.split("---").slice(1);
+
+      //console.log("yaml:", yaml);
+      //console.log("md:", md);
+
+      const meta = YAML.parse(yaml);
+      //console.log("meta:", meta);////
+
+      const html = marked.parse(md);
+      //console.log("html:", html);////
+      Item(meta, html);
+    });
+  }
+
+  export default function () {
+    return (mode) => {
+      if (mode.enter) {
+        layout.clear(":not([slot])");
+        layout.append(page);
+      }
+    };
+  }
+</script>
