@@ -1,11 +1,15 @@
 <style global>
-  [page="blog"] {
+  /* Controls cards per row*/
+  #app[state-path="/blog"] [page] {
     --basis: 100%;
   }
-
-  #app[state-md] [page="blog"] {
+  #app[state-md][state-path="/blog"] [page] {
     --gap: 0.5rem;
-    --basis: calc(50% - var(--gap));
+    --items: 2;
+    --basis: calc(calc(100% / var(--items)) - var(--gap));
+  }
+  #app[state-xl][state-path="/blog"] [page] {
+    --items: 3;
   }
 </style>
 
@@ -16,6 +20,11 @@
   const { marked } = await use("@/marked");
   const { YAML } = await use("@/yaml");
   const { Sheet, css } = await use("@/sheet");
+  const { router, Nav, NavLink } = await use("@/router/");
+
+  const START = "/content".length - 2;
+  const END = ".md".length;
+  const LINK = "a.nav-link"
 
   const items = component.div(
     "w-full flex justify-between flex-wrap gap-y-3 gap-x-(--gap)",
@@ -24,22 +33,18 @@
   items.attribute.items = true;
 
   const page = component.main(
-    "container",
-    component.h1({ text: "Blog" }),
+    "container mt-3 mb-3",
     items
   );
-  page.attribute.page = "blog";
+  page.attribute.page = true;
 
-  const Item = (meta, html) => {
-    //const item = component.div();
+  const building = new Map();
+
+  const Item = ({ html, meta, path, resolve }) => {
     const card = component.div(
       "card h-full basis-(--basis)",
       {
         parent: items,
-
-        //
-
-        ///
       },
       component.img("card-img-top", { src: `${use.meta.base}${meta.image}` }),
       component.div(
@@ -47,42 +52,94 @@
         {},
         component.a(
           "nav-link cursor-pointer",
-
           component.h1("card-title", { text: meta.title })
         ),
         component.p("card-text", { text: meta.abstract })
       ),
-      component.div("card-footer", { minHeight: css.rem(2) })
+      ////
+      component.div("card-footer min-h-8")
     );
+    card.attribute.card = path;
+    const post = component.div("hidden", { innerHTML: html });
+    post.attribute.post = path;
+
+    card.detail.post = post;
+
+    card.on.click = (event) => {
+      if (
+        event.target.matches(LINK) ||
+        event.target.closest(LINK)
+      ) {
+        //console.log("Clicked!"); ////
+        //console.log('path:', path)////
+        router("/blog" + path);
+      }
+    };
+    resolve(card);
+    building.delete(path);
   };
 
   const paths = (await use("/content/meta/paths.json")).filter((p) =>
     p.startsWith("/blog/")
   );
 
-  ////console.log("paths:", paths);////
-
+  /* Build items without blocking */
   for (const path of paths) {
+    const { promise, resolve } = Promise.withResolvers();
+    const _path = "/" + path.slice(START, -END).toLowerCase();
+    building.set(_path, promise);
     use(`/content${path}`).then((text) => {
       const [yaml, md] = text.split("---").slice(1);
-
-      //console.log("yaml:", yaml);
-      //console.log("md:", md);
-
       const meta = YAML.parse(yaml);
-      //console.log("meta:", meta);////
-
       const html = marked.parse(md);
-      //console.log("html:", html);////
-      Item(meta, html);
+      Item({ html, meta, path: _path, resolve });
     });
   }
 
   export default function () {
-    return (mode) => {
-      if (mode.enter) {
-        layout.clear(":not([slot])");
-        layout.append(page);
+    return async (mode, query, ...residuals) => {
+      if (mode.enter || mode.update) {
+        if (mode.enter) {
+          layout.clear(":not([slot])");
+          layout.append(page);
+        }
+
+        //console.log('residuals:', residuals)
+        if (residuals.length) {
+          const path = "/" + residuals.at(0);
+          console.log("path:", path); ////
+          let card = page.find(`[card="${path}"]`);
+          //console.log("card:", card);////
+          if (!card) {
+            const promise = building.get(path);
+            card = await promise;
+          }
+
+          const previous = page.find(`[page="${path}"]`);
+          if (previous) {
+            previous.classes.remove("hidden");
+          }
+
+          const post = card.detail.post;
+          //console.log("post:", post);////
+          items.classes.add("hidden");
+          post.classes.remove("hidden");
+          page.append(post);
+
+          //items.replaceWith(post);
+        } else {
+          if (mode.update) {
+            const previous = page.find(`[post]:not(.hidden)`);
+            if (previous) {
+              previous.classes.add("hidden");
+            }
+
+            items.classes.remove("hidden");
+          }
+        }
+      } else {
+        /* exit */
+        page.remove();
       }
     };
   }

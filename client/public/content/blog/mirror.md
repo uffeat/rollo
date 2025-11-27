@@ -1,0 +1,13 @@
+---
+title: Mirror
+image: /images/mirror.jpg
+abstract: Portland lo-fi pitchfork laboris cold-pressed. Pok pok 90's food truck waistcoat, vibecession literally af keffiyeh yes plz bespoke brunch sriracha. Aliquip twee portland leggings ascot franzen ethical sint prism iPhone pop-up aliqua vexillologist direct trade.
+---
+
+# Gastropub intelligentsia
+
+Street art bushwick hot chicken unicorn quinoa taiyaki. Migas gentrify yr subway tile skateboard. Hexagon portland fit occupy, VHS ennui bruh gentrify activated charcoal kale chips. Sartorial mlkshk listicle jianbing everyday carry tattooed same. Helvetica banjo blackbird spyplane butcher pork belly, occupy squid intelligentsia pop-up marfa copper mug portland everyday carry edison bulb truffaut.
+
+# Blue bottle small batch
+
+Helvetica, keytar cloud bread semiotics banjo cliche XOXO. Bicycle rights same slow-carb vexillologist master cleanse banh mi neutral milk hotel hoodie gatekeep bodega boys schlitz blackbird spyplane marxism post-ironic waistcoat. Semiotics lomo mlkshk VHS scenester thundercats mukbang chambray salvia offal ascot hammock lo-fi. Yuccie pok pok blue bottle fingerstache bushwick Brooklyn mumblecore godard hella kinfolk succulents.
