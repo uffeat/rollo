@@ -39,12 +39,12 @@ Nav(
     NavLink(
       { path: "/", parent: layout, slot: "home", title: "Home" },
       async function () {
-        this.innerHTML = await use("/vite.svg");
+        this.innerHTML = await use("/favicon.svg");
       }
     )
 );
 
 
-await router.setup({auto: false});
+await router.setup();
 
 console.log('Router set up')
