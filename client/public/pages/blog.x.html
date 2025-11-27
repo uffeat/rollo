@@ -95,6 +95,12 @@
     const { promise, resolve } = Promise.withResolvers();
     const _path = "/" + path.slice(START, -END).toLowerCase();
     building.set(_path, promise);
+
+   
+    console.log(' About to import:', _path)////
+
+
+
     use(`/content${path}`).then((text) => {
       const [yaml, md] = text.split("---").slice(1);
       const meta = YAML.parse(yaml);
