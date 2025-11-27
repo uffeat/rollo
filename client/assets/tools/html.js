@@ -22,9 +22,9 @@ export const extract = (html) => {
 
   const result = { assets, fragment };
 
-  const js = fragment.find("script")?.textContent.trim();
-  if (js) {
-    result.js = js;
+  const script = fragment.find("script");
+  if (script) {
+    result.js = script.textContent.trim();
   }
 
   return Object.freeze(result);
