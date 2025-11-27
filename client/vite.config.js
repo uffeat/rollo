@@ -8,7 +8,8 @@ import react from "@vitejs/plugin-react";
 export default defineConfig(({ mode }) => {
   return {
     /* Set base URL for dev and production (accessible from code as import.meta.env.BASE_URL) */
-    base: mode === "production" ? "./" : "/",
+    //base: mode === "production" ? "./" : "/",
+    base: mode ="/",
     define: {
       /* Enable use of import.meta.env.VERCEL_ENV */
       "import.meta.env.VERCEL_ENV": JSON.stringify(process.env.VERCEL_ENV),
