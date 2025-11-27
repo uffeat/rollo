@@ -29,7 +29,7 @@ History-based browser router and related tools. The router is a singleton and is
       1.  If we have a route change any previous route is called with `route({ exit: true })` and the new route is called with `route({ enter: true }, url.query, ...residual)`. Alternatively, if the previous route is not a function, but an object with an `exit` method this method is called. Similarly, if the new route is not a function, but an object with an `enter` method this method is called.
       2.  If we do not have a route change, the current route is called with `route({ update: true }, url.query, ...residual)`. Alternatively, if the current route is not a function, but an object with an `update` method this method is called.
   5.  If a registered route is not found, looks for a matching `x.html`-type asset in `/pages`, `@/pages` and `@@/pages` and uses this asset as fallback route. This means that the router can be used without any explicit route registration at all. However, residuals cannot be used for fallback routes.
-  6.  If neither a registered nor a fallback route is found, the router moves on to error handling. If the router has been set up with or if the invokation is made with `{strict: true}` (default), the router displays an error page (default or custom).
+  6.  If neither a registered nor a fallback route is found, the router moves on to error handling. If the router has been set up with or if the invocation is made with `{strict: true}` (default), the router displays an error page (default or custom).
 
 ### pushState
 
@@ -50,7 +50,7 @@ How we go from a user action to calling `router()` is technically not part of th
 - A way to go from click to `router()`
 - A way to manage active state in nav groups.
 
-This can be wired up manually (with or without using router-emitted "signals"), but to avoid this, the parcel also exposes a Nav function and a NavLink component with two special props: `path` and `query`. Clicking a NavLink component invokes `router()` with a specifier contructed from the component's `path` and `query`. The Nav function accepts and returns a nav component. The function hooks into the router signal to manage the selected state of contained NavLinks. In this way, NavLink selected states are correctly handled not only at click, but also initially and during forward/back navigation.
+This can be wired up manually (with or without using router-emitted "signals"), but to avoid this, the parcel also exposes a Nav function and a NavLink component with two special props: `path` and `query`. Clicking a NavLink component invokes `router()` with a specifier constructed from the component's `path` and `query`. The Nav function accepts and returns a nav component. The function hooks into the router signal to manage the selected state of contained NavLinks. In this way, NavLink selected states are correctly handled not only at click, but also initially and during forward/back navigation.
 
 NavLinks play well with Bootstrap, but do not require Bootstrap.
 

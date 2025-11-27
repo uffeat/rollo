@@ -1,7 +1,7 @@
 import "../use.js";
 import { Routes } from "./routes.js";
 import { Url } from "./url.js";
-import defaultError from './error.js'
+import error from './error.js'
 
 
 const { app } = await use("@/app/");
@@ -32,13 +32,9 @@ export const Router = new (class Router {
     return this.#_.routes;
   }
 
-  error(...args) {
-    return this.#_.config.error(...args)
-  }
-
   /* Invokes route from initial location. 
   NOTE Should be called once router has been set up. */
-  async setup({ auto = true, error = defaultError, redirect, routes, strict = true } = {}) {
+  async setup({ auto = true, error, redirect, routes, strict = true } = {}) {
     this.#_.config.auto = auto;
     this.#_.config.error = error;
     this.#_.config.strict = strict;
@@ -174,7 +170,10 @@ export const Router = new (class Router {
       pusher();
       this.#signal(url.path, url.query);
       if (strict) {
-        this.#_.config.error(url.path);
+        if (!this.#_.config.error) {
+          this.#_.config.error = (await use("/pages/error.js")).default;
+        }
+        await this.#_.config.error(url.path);
       }
       return this;
     }

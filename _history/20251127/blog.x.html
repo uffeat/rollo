@@ -144,30 +144,26 @@
           layout.append(page);
         }
         if (residuals.length) {
-          const path = "/" + residuals.at(0).toLowerCase();
-
+          const path = "/" + residuals.at(0);
+          console.log("path:", path); ////
           let card = page.find(`[card="${path}"]`);
           if (!card) {
+            /* Card not yet ready -> wait for it */
             const promise = building.get(path);
-            if (promise) {
-              card = await promise;
-            } else {
-              // no such post, let router error handler deal with it
-              // or early-return here
-              router.error(path)
-              return;
-            }
+            card = await promise;
           }
-
-          // hide any currently visible post
-          const previous = page.find(`[post]:not(.hidden)`);
+          /* Entering or updating with residuals: Hide any previous post, hide 
+          items and show new post */
+          const previous = page.find(`[page="${path}"]`);
           if (previous) {
-            previous.classes.add("hidden");
+            previous.classes.remove("hidden");
           }
-
           const post = card.detail.post;
           items.classes.add("hidden");
           post.classes.remove("hidden");
+
+          /* NOTE Using `.parent =...` rather than `.append(..` avoids the 
+          risk of redundant DOM i/o */
           post.parent = page;
           toTop(post);
         } else {
