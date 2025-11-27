@@ -32,7 +32,8 @@ export const Router = new (class Router {
 
   /* Invokes route from initial location. 
   NOTE Should be called once router has been set up. */
-  async setup({ error, redirect, routes, strict = true } = {}) {
+  async setup({ auto = true, error, redirect, routes, strict = true } = {}) {
+    this.#_.config.auto = auto;
     this.#_.config.error = error;
     this.#_.config.strict = strict;
     Object.assign(this.#_.config.redirect, redirect);
@@ -60,11 +61,12 @@ export const Router = new (class Router {
   }
 
   /* Invokes route. */
-  async use(specifier, { context, strict } = {}) {
+  async use(specifier, { auto, context, strict } = {}) {
     if (specifier in this.#_.config.redirect) {
       specifier = this.#_.config.redirect[specifier];
     }
 
+    auto = auto === undefined ? this.#_.config.auto : auto;
     strict = strict === undefined ? this.#_.config.strict : strict;
 
     //console.log("specifier:", specifier);////
@@ -127,7 +129,7 @@ export const Router = new (class Router {
             );
           } else {
             await route(
-              { mode: 'update', session: this.#_.session,  update: true },
+              { mode: "update", session: this.#_.session, update: true },
               url.query,
               ...residual
             );
@@ -139,7 +141,11 @@ export const Router = new (class Router {
             if (this.#_.route.exit) {
               await this.#_.route.exit({ session: this.#_.session });
             } else {
-              await this.#_.route({ exit: true, mode: 'exit', session: this.#_.session });
+              await this.#_.route({
+                exit: true,
+                mode: "exit",
+                session: this.#_.session,
+              });
             }
           }
           /* Route enter */
@@ -151,7 +157,7 @@ export const Router = new (class Router {
             );
           } else {
             await route(
-              { enter: true, mode: 'enter', session: this.#_.session },
+              { enter: true, mode: "enter", session: this.#_.session },
               url.query,
               ...residual
             );
@@ -190,19 +196,21 @@ export const Router = new (class Router {
         return { path: probe, route, residual };
       }
     }
-    /* Fallback to '.x.'-asset if no registered route found */
-    for (const source of ["/", "@/", "@@/"]) {
-      try {
-        const route = (await use(`${source}pages${path}.x.html`))();
-        return { path, route, residual: [] };
-      } catch (error) {
-        if (error.name !== "UseError") {
-          throw error;
+    if (this.#_.config.auto) {
+      /* Fallback to '.x.'-asset if no registered route found */
+      for (const source of ["/", "@/", "@@/"]) {
+        try {
+          const route = (await use(`${source}pages${path}.x.html`))();
+          return { path, route, residual: [] };
+        } catch (error) {
+          if (error.name !== "UseError") {
+            throw error;
+          }
+          /* Do nothing; move on to next source */
         }
-        /* Do nothing; move on to next source */
       }
+      /* If we get here, all fallbacks failed */
     }
-    /* If we get here, all fallbacks failed */
   }
 
   /* Enables external hooks etc. */

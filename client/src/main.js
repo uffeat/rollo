@@ -43,6 +43,6 @@ Nav(
 );
 
 
-await router.setup();
+await router.setup({auto: false});
 
 console.log('Router set up')
