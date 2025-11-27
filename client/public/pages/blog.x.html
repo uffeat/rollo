@@ -3,13 +3,20 @@
   #app[state-path="/blog"] [page] {
     --basis: 100%;
   }
-  #app[state-md][state-path="/blog"] [page] {
+  #app[state-path="/blog"][state-md] [page] {
     --gap: 0.5rem;
     --items: 2;
     --basis: calc(calc(100% / var(--items)) - var(--gap));
   }
-  #app[state-xl][state-path="/blog"] [page] {
+  #app[state-path="/blog"][state-xl] [page] {
     --items: 3;
+  }
+
+  /* Images in post */
+  #app[state-path="/blog"] [post] p:has(>img) {
+    display: flex;
+    justify-content: center;
+
   }
 </style>
 
@@ -21,6 +28,7 @@
   const { YAML } = await use("@/yaml");
   const { Sheet, css } = await use("@/sheet");
   const { router, Nav, NavLink } = await use("@/router/");
+  const { toTop } = await use("@/tools/scroll");
 
   const START = "/content".length - 2;
   const END = ".md".length;
@@ -56,7 +64,6 @@
         ),
         component.p("card-text", { text: meta.abstract })
       ),
-      ////
       component.div("card-footer min-h-8")
     );
     card.attribute.card = path;
@@ -125,6 +132,7 @@
           items.classes.add("hidden");
           post.classes.remove("hidden");
           page.append(post);
+          toTop(post);
 
           //items.replaceWith(post);
         } else {

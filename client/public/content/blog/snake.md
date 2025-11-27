@@ -1,0 +1,16 @@
+---
+title: Snake
+image: /images/bevel.jpg
+abstract: Bodega boys polaroid. Cronut Brooklyn locavore yes plz wolf offal. Solarpunk chambray meditation intelligentsia ugh tote bag pop-up unicorn synth messenger bag yuccie pabst subway tile pok pok butcher lo-fi coloring book.
+created: 2025-06-09 17:25
+---
+
+# Activated charcoal
+
+Chia irony craft beer trust fund, poke williamsburg drinking vinegar tilde activated charcoal sus wayfarers crucifix hammock pop-up. Ramps drinking vinegar yes plz copper mug. Meh everyday carry +1, af 8-bit kitsch bodega boys yes plz tbh big mood snackwave meditation. Street art locavore taiyaki twee chillwave hot chicken ethical jawn coloring book. Chartreuse selfies gatekeep vibecession meh disrupt messenger bag pork belly paleo godard.
+
+![Snake](/images/snake.jpg)
+
+# Freegan post-ironic
+
+Keytar master cleanse cliche small batch chartreuse synth. Farm-to-table austin freegan post-ironic, cloud bread art party iceland kombucha cornhole +1 single-origin coffee semiotics ascot microdosing. Roof party irony microdosing food truck big mood polaroid edison bulb celiac ugh try-hard chillwave pok pok raclette solarpunk beard. Echo park ascot whatever YOLO biodiesel chambray. Artisan lomo jianbing whatever solarpunk 8-bit food truck. Deep v mumblecore tilde pour-over meditation.
