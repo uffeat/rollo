@@ -32,6 +32,8 @@ Nav(
     { slot: "side", parent: layout },
     NavLink("nav-link",{ text: "About", path: "/about", title: "About" }),
     NavLink("nav-link",{ text: "Blog", path: "/blog", title: "Blog" }),
+
+    NavLink("nav-link",{ text: "Bad, bad...", path: "/bad/bad" }),
   ),
   /* Pseudo-argument for code organization */
     NavLink(
