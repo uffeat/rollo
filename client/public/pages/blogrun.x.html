@@ -1,6 +1,8 @@
 <!--
 * About
 - Blog route based on non-blocking rendering from static data.
+- Frontmatter -> meta + html takes place at runtime. 
+- The frontmatter -> meta + html split is quite primitive, but it works!
 - Primarily styled with Tailwind, but
   - uses in-module sheet for more advanced stuff
   - uses Bootstrap for card-stuff.
@@ -17,38 +19,45 @@ done directly in the route, but I want this route to be a beacon of best
 practices that can inspire other routes.
 
 * TODO
-** Client
 - Pagination. Create a sep 'paginator' tool with logic and an optional component.
 - Search feature. Perhaps a sep tool.
+- Consider relegating frontmatter-parsing to build process. The current
+  runtime solution is pretty fast, but since I do run a custom build process...
+  If I do this, the build process should transpile each blog item to a single 
+  file with both card and post data. This file could be
+  - an .html file with card data in one or more meta tags
+  - a .json file with an 'html' item that contains the transpiled html 
+    (perhaps base64 encoded?).
 - Consider using progressive images... and/or perhaps placeholders. Already 
   not critical and even less so with pagination, but could be good practice.
-
-** Build tool
-- Tags (keywords) in additional manifest-like json files.
 -->
 
 <style global>
   /* Cards per row */
-  #app[state-path="/blog"] [page] {
+  #app[state-path="/blogrun"] [page] {
     --basis: 100%;
   }
-  #app[state-path="/blog"][state-md] [page] {
+  #app[state-path="/blogrun"][state-md] [page] {
     --gap: 0.5rem;
     --items: 2;
     --basis: calc(calc(100% / var(--items)) - var(--gap));
   }
-  #app[state-path="/blog"][state-xl] [page] {
+  #app[state-path="/blogrun"][state-xl] [page] {
     --items: 3;
   }
 
   /** Post */
   /* Images */
-  #app[state-path="/blog"] [post] p:has(> img) {
+  #app[state-path="/blogrun"] [post] p:has(> img) {
     display: flex;
     justify-content: center;
   }
-  #app[state-path="/blog"] [post] img {
+  #app[state-path="/blogrun"] [post] img {
     min-width: 80%;
+  }
+  /* Links */
+  #app[state-path="/blogrun"] [post] a {
+    text-decoration: none;
   }
 </style>
 
@@ -56,6 +65,8 @@ practices that can inspire other routes.
   const { component } = await use("@/component");
   const { layout } = await use("@/layout/");
   const { ref } = await use("@/state");
+  const { marked } = await use("@/marked");
+  const { YAML } = await use("@/yaml");
   const { NavLink, router } = await use("@/router/");
   const { toTop } = await use("@/tools/scroll");
   const { Exception } = await use("@/tools/exception");
@@ -70,8 +81,9 @@ practices that can inspire other routes.
 
   const page = component.main("container mt-3 mb-3", cards);
   page.attribute.page = true;
-  /* Card click -> post view (via router) */
   const stem = __path__.split("/").at(-1).slice(0, -".x.html".length);
+  ////console.log("stem:", stem); ////
+  /* Card click -> post view (via router) */
   page.on.click = async (event) => {
     const LINK = "a.nav-link";
     if (event.target.matches(LINK) || event.target.closest(LINK)) {
@@ -134,11 +146,10 @@ practices that can inspire other routes.
 
   const view = await (async () => {
     const manifest = await use("/content/meta/blog.json");
-    /* NOTE manifest comes date-sorted (newest first), but contains timestamps
-    (shape: "2024-05-09 17:25") that can be used for date filtering etc. If this 
-    becomes relevant, remember that the Temporal polyfill has been installed. */
+    ////console.log('manifest:', manifest); ////
 
     const paths = manifest.map(([path, timestamp]) => `${path}`);
+    //console.log("paths:", paths); ////
 
     const START = "/content".length - 2;
     const toRouterPath = (path) => {
@@ -175,8 +186,8 @@ practices that can inspire other routes.
           if (result instanceof HTMLElement) {
             this.#_.post = result;
           } else {
-            const { promise } = result;
-            this.#_.post = await promise;
+            const { promise, resolve } = result;
+            this.#_.post = (await promise)();
             this.#_.posts.set(path, this.#_.post);
           }
           cards.classes.add("hidden");
@@ -186,6 +197,7 @@ practices that can inspire other routes.
           /* Back to cards view */
           this.#_.post?.remove();
           this.#_.post = null;
+
           cards.classes.remove("hidden");
         }
       }
@@ -197,20 +209,36 @@ practices that can inspire other routes.
         }
         const path = toRouterPath(_path);
 
-        use(`/content/built${_path}.json`)
-          .then((result) => {
-            const { html, meta } = result;
-            /* Handle card component */
+        use(`/content/src${_path}.md`)
+          .then((text) => {
+            const [yaml, md] = text.split("---").slice(1);
+
+
+            //console.log("path:", path); ////
+
+
+
+            /** Handle card component */
+            const meta = YAML.parse(yaml);
             cards.append(Card({ path, ...meta }));
             /* Handle post component */
             const { promise, resolve } = this.#_.posts.get(path);
-            const post = Post({ path, html });
-            resolve(post);
-            /* NOTE index as pseudo argument */
+            /* NOTE MD-parsing can be expensive, so resolve to a post factory 
+            rather than to a post component rendered here */
+            resolve(() => {
+              const html = marked.parse(md);
+              return Post({ path, html });
+            });
+
+
+          
+
+
+
+
             this.#create(this.#_.index++);
           })
           .catch((error) => {
-            this.#_.posts.delete(path);
             Exception.raise(
               `Failed to load: ${path}`,
               console.error("error:", error)

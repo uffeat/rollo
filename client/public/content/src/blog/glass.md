@@ -1,7 +1,7 @@
 ---
 title: Glass
 image: /images/glass.jpg
-abstract: baby jean shorts stumptown enim lumbersexual, pork belly magna post-ironic humblebrag roof party waistcoat iceland. Vexillologist adipisicing voluptate. Kogi single-origin coffee enamel pin, kitsch dolore food truck gentrify shoreditch farm-to-table YOLO.
+abstract: Baby jean shorts stumptown enim lumbersexual, pork belly magna post-ironic humblebrag roof party waistcoat iceland. Vexillologist adipisicing voluptate. Kogi single-origin coffee enamel pin, kitsch dolore food truck gentrify shoreditch farm-to-table YOLO.
 created: 2025-11-09 17:25
 ---
 

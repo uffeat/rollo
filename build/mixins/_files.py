@@ -5,8 +5,6 @@ import shutil
 UTF_8 = "utf-8"
 
 
-
-
 class Files:
 
     @staticmethod
@@ -15,17 +13,14 @@ class Files:
         if isinstance(target, str):
             target = Path.cwd() / target
 
-        
-
         if target.exists():
             for item in target.iterdir():
                 if item.is_dir():
-                    shutil.rmtree(item)
+                    ...
+                    ###shutil.rmtree(item)
                 else:
-                    if not item.stem.startswith(".") and not (
-                        item.stem.startswith("__") and item.stem.endswith("__")
-                    ):
-                        item.unlink()
+                    item.unlink()
+                      
 
     @staticmethod
     def read(path: str) -> str:
