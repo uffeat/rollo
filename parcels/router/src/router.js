@@ -139,7 +139,8 @@ export const Router = new (class Router {
         } else {
           /* Route change */
           if (this.#_.route) {
-            /* Route exit */
+            /* Route exit 
+            NOTE Never residual on exit */
             if (this.#_.route.exit) {
               await this.#_.route.exit({ session: this.#_.session });
             } else {
