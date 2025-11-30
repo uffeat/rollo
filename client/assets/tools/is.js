@@ -1,4 +1,4 @@
-const { type } = await use("@/tools/type.js");
+const { type } = await use("@/tools/type");
 
 export const is = new (class {
   arrow = (value) => {

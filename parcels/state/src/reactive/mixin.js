@@ -28,7 +28,7 @@ export default (parent) => {
                 !k.startsWith("data.") &&
                 !k.startsWith(".") &&
                 !k.startsWith("__") &&
-                !k.startsWith("@")
+                !k.startsWith("on.")
               );
             }).map(([k, v]) => [`state-${k}`, v])
           );

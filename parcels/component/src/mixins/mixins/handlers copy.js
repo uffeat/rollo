@@ -54,24 +54,23 @@ export default (parent, config) => {
       super();
       const component = this;
 
-      this.#_.handlers = TaggedSets.create();
+      this.#_.handlers = TaggedSets.create()
 
       this.#_.on = new Proxy(() => {}, {
         /* "point-of-truth" event registration */
         get(_, type) {
+
+
+          
           return (...args) => {
-            const { once, remove, run } =
+            const { once, run } =
               args.find((a) => typeName(a) === "Object") || {};
             const handler = args.find((a) => typeName(a) !== "Object");
-            if (!remove) {
-              component.addEventListener(type, handler, { once });
-              if (run) {
-                handler({});
-              }
-              return handler;
+            component.addEventListener(type, handler, { once });
+            if (run) {
+              handler({});
             }
-            component.removeEventListener(type, handler);
-
+            return handler;
           };
         },
         set(_, arg, handler) {
@@ -100,17 +99,13 @@ export default (parent, config) => {
       return this.#_.on;
     }
 
-    addEventListener(type, handler, {once= false} = {}) {
-      if (this.#_.handlers.has(type, handler)) {
-        // TODO reg handling when once
-        
-      }
-      super.addEventListener(type, handler, {once});
+    addEventListener(type, handler, ...args) {
+      super.addEventListener(type, handler, ...args);
       return this;
     }
 
-    removeEventListener(type, handler) {
-      super.removeEventListener(type, handler);
+    removeEventListener(type, handler, ...args) {
+      super.removeEventListener(type, handler, ...args);
       return this;
     }
 

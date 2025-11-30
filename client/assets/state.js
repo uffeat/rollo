@@ -34,7 +34,7 @@ class $ {
     this.#t.stopped = !0;
   }
 }
-const { type: W } = await use("@/tools/type.js"), { is: k } = await use("@/tools/is.js");
+const { type: W } = await use("@/tools/type"), { is: k } = await use("@/tools/is");
 class z {
   static create = (...t) => new z(...t);
   #t = {
@@ -149,7 +149,7 @@ class z {
     return this;
   }
 }
-const { Exception: C } = await use("@/tools/exception.js"), { type: x } = await use("@/tools/type.js"), { is: A } = await use("@/tools/is.js");
+const { Exception: C } = await use("@/tools/exception"), { type: x } = await use("@/tools/type"), { is: A } = await use("@/tools/is");
 class O {
   static create = (...t) => new O(...t);
   #t = {
@@ -398,7 +398,7 @@ class O {
     return this;
   }
 }
-const D = (...j) => O.create(...j).$, { Exception: M } = await use("@/tools/exception.js"), F = (...j) => {
+const D = (...j) => O.create(...j).$, { Exception: M } = await use("@/tools/exception"), F = (...j) => {
   const t = z.create(...j);
   return new Proxy(() => {
   }, {
@@ -422,7 +422,7 @@ const D = (...j) => O.create(...j).$, { Exception: M } = await use("@/tools/exce
       (t, e) => {
         this.update(t);
         const r = Object.fromEntries(
-          Object.entries(t).filter(([i, a]) => !(i in this && !i.startsWith("_")) && !(i in this.style) && !i.startsWith("[") && !i.startsWith("data.") && !i.startsWith(".") && !i.startsWith("__") && !i.startsWith("@")).map(([i, a]) => [`state-${i}`, a])
+          Object.entries(t).filter(([i, a]) => !(i in this && !i.startsWith("_")) && !(i in this.style) && !i.startsWith("[") && !i.startsWith("data.") && !i.startsWith(".") && !i.startsWith("__") && !i.startsWith("on.")).map(([i, a]) => [`state-${i}`, a])
         );
         this.attributes.update(r);
       },

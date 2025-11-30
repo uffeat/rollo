@@ -42,7 +42,7 @@ Nav(
       this.innerHTML = await use("/favicon.svg");
     }
   )
-);
+)
 
 await router.setup();
 
