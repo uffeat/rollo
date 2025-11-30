@@ -4,7 +4,7 @@
 
 import {
   Future,
-} from "../../../../assets/tools/future.js";
+} from "../../../assets/tools/future.js";
 
 const { component } = await use("@/component.js");
 const { layout } = await use("@//layout.js");

@@ -30,7 +30,7 @@ const parcels = Object.fromEntries(Object.entries({
   return [path.slice(14, -9), load]})) 
 
 
-console.log("parcels:", parcels);
+//console.log("parcels:", parcels);////
 
 
 

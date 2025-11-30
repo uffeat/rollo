@@ -10,7 +10,7 @@ import {
   kebabToSnake,
   pascalToCamel,
   pascalToKebab,
-} from "../../../../assets/tools/case.js";
+} from "../../../assets/tools/case.js";
 
 export default async () => {
   function test(expected, actual) {

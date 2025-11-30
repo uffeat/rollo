@@ -1,21 +1,47 @@
-export const on = (target) => {
+/* TODO
+Specific unuse in component also
+*/
+
+export const on = (target, { run, ...options } = {}) => {
   return new Proxy(() => {}, {
-    get(_, key) {},
-    set(_, type, handler) {},
+    get(_, key) {
+      const type = key;
+      return new Proxy(() => {}, {
+        get(_, key) {
+          return (...args) => {
+            const handler = Handler(run, args);
+            if (key === "use") {
+              target.addEventListener(type, handler, options);
+              return handler;
+            }
+            if (key === "unuse") {
+              target.removeEventListener(type, handler, options);
+              return target;
+            }
+            throw new Error(`Invalid key: ${key}`);
+          };
+        },
+        apply(_, thisArg, args) {
+          const handler = Handler(run, args);
+          target.addEventListener(type, handler, options);
+          return handler;
+        },
+      });
+    },
+    set(_, type, handler) {
+      if (run) {
+        handler();
+      }
+      target.addEventListener(type, handler, options);
+      return true;
+    },
   });
 };
 
-on(document, { once: true }).click((event) => console.log("Clicked"));
-
-on(document).click = (event) => console.log("Clicked");
-
-component.update({
-  "on.click.run": (event) => console.log("Clicked"),
-});
-
-// getter
-component.on.click({ once: true }, (event) => console.log("Clicked"));
-
-// setter
-component.on.click = (event) => console.log("Clicked");
-component.on["click.run"] = (event) => console.log("Clicked");
+function Handler(run, args) {
+  const handler = args.find((a) => typeof a === "function");
+  if (run) {
+    handler();
+  }
+  return handler;
+}
