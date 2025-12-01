@@ -33,14 +33,9 @@ const create = (tag) => {
   }
 
   return registry.add(
-    class Component extends mix(base, {}, ..._mixins) {
+    class extends mix(base, {}, ..._mixins) {
       static __key__ = key;
       static __native__ = tag;
-
-      static create = (...args) => {
-        const instance = new Component();
-        return factory(instance)(...args);
-      };
 
       constructor() {
         super();

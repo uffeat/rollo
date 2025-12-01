@@ -10,6 +10,7 @@ export const on = (target, { run, ...options } = {}) => {
         get(_, key) {
           return (...args) => {
             const handler = Handler(run, args);
+            
             if (key === "use") {
               target.addEventListener(type, handler, options);
               return handler;

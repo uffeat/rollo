@@ -1,8 +1,6 @@
 import "../../../use.js";
-
 const { type: typeName } = await use("@/tools/type");
 const { TaggedSets } = await use("@/tools/stores");
-const { defineValue } = await use("@/tools/define");
 
 const START = "on.".length;
 
@@ -91,14 +89,9 @@ export default (parent, config) => {
                 const handler = args.find((a) => typeof a === "function");
                 const options =
                   args.find((a) => typeName(a) === "Object") || {};
-
-                if (key === "use") {
-                  return component.addEventListener(type, handler, options);
-                }
-                if (key === "unuse") {
-                  return component.removeEventListener(type, handler, options);
-                }
-                throw new Error(`Invalid key: ${key}`);
+                return component[
+                  key === "use" ? "addEventListener" : "removeEventListener"
+                ](type, handler, options);
               };
             },
             apply(_, thisArg, args) {
@@ -141,7 +134,6 @@ export default (parent, config) => {
     addEventListener(...args) {
       const [type, handler] =
         typeof args[0] === "string" ? args : Object.entries(args[0])[0];
-
       const {
         once = false,
         run = false,
@@ -154,56 +146,22 @@ export default (parent, config) => {
         this.#_.registry.add(type, handler);
       }
       super.addEventListener(type, handler, { once, ...options });
-
-      const result = {
+      /* NOTE If once AND run the handler will run twice */
+      if (run) {
+        handler();
+      }
+      return {
+        self: this,
         handler,
         once,
         remove: () => {
           /* NOTE 'track' option included. */
           this.removeEventListener(type, handler, { track });
         },
-        run,
-        target: this,
         track,
         type,
         ...options,
       };
-
-      /* 
-      
-      NOTE If 'once' AND 'run', the handler will run twice */
-      if (run) {
-
-
-        //const element = document.createElement(this.tagName.toLowerCase());
-        const element = this.constructor.create();
-
-        console.log("element:", element);////
-
-
-        element.addEventListener(
-          type,
-          (event) => {
-            defineValue(event, "currentTarget", this);
-            defineValue(event, "target", this);
-            defineValue(event, "noevent", true);
-            handler(event);
-          },
-          { once: true }
-        );
-        
-        if (type in element && typeof element[type] === "function") {
-          element[type]();
-        } else {
-          if (type.startsWith('_') || type.includes('-')) {
-            element.dispatchEvent(new CustomEvent(type));
-          } else {
-             element.dispatchEvent(new Event(type));
-          }
-         
-        }
-      }
-      return result;
     }
 
     /* Deregisters event handler.

@@ -33,4 +33,7 @@ export default async () => {
       console.log("Clicked 5");
     },
   });
+
+  /* Explicit getter/apply-style */
+  button.on.click.use((event) => console.log("Clicked 6"));
 };
