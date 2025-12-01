@@ -42,8 +42,8 @@ const create = (tag) => {
         return factory(instance)(...args);
       };
 
-      constructor() {
-        super();
+      __new__(...args) {
+        super.__new__?.(...args);
         this.setAttribute("web-component", "");
       }
     }

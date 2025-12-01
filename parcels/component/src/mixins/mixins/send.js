@@ -3,7 +3,6 @@ export default (parent, config) => {
     static __name__ = "send";
     /* Dispatches event with additional options and a leaner syntax. */
     send(type, { detail, trickle, ...options } = {}) {
-      
       const event =
         detail === undefined
           ? new Event(type, options)

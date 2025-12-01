@@ -14,6 +14,3 @@
 - `mixins/classes.js`: 
    - Add `class` prop: Proxy that sets a single class Perhaps func target for setting multiple.
 
-- `mixins/handlers.js`: 
-   - Refactor run dir, so that an actual event is created. See py code.
-   - Perhaps "default-dict-like" structure to store and track handlers (I've done it before...)

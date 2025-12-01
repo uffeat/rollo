@@ -1,4 +1,5 @@
 import "../../../use.js";
+import { registry } from "../../tools/registry.js";
 
 const { type: typeName } = await use("@/tools/type");
 const { TaggedSets } = await use("@/tools/stores");
@@ -60,7 +61,9 @@ export default (parent, config) => {
       const component = this;
       this.#_.registry = new Registry(this);
 
-      /* Public version of this.#_.registry */
+      /* Public version of this.#_.registry.
+      NOTE Exposing this.#_.registry directly would give access to 'add' and 
+      'remove', which could mess up tracking. */
       const registry = new (class {
         get types() {
           return component.#_.registry.types;
@@ -81,17 +84,31 @@ export default (parent, config) => {
 
       this.#_.on = new Proxy(() => {}, {
         get(_, key) {
+          /* Enable access to handler registry, e.g.:
+          console.log("Number of click handlers:", button.on.registry.size("click"));
+          button.on.registry.clear("click");
+          */
           if (key === "registry") {
             return registry;
           }
           const type = key;
           return new Proxy(() => {}, {
+            /* Enable syntax like:
+            button.on.click((event) => console.log("Clicked"));
+            button.on.click({ once: true }, (event) => console.log("Clicked"));
+            button.on.click.use((event) => console.log("Clicked"));
+            button.on.click.unuse((event) => console.log("Clicked"));
+            NOTE
+            `button.on.click()` and `button.on.click.use()` do exactly the same 
+            thing ans as such the 'use' part is redundant. However, does create 
+            symmetry with respect to handler by 'unuse':
+            `button.on.click.unuse()`
+            */
             get(_, key) {
               return (...args) => {
                 const handler = args.find((a) => typeof a === "function");
                 const options =
                   args.find((a) => typeName(a) === "Object") || {};
-
                 if (key === "use") {
                   return component.addEventListener(type, handler, options);
                 }
@@ -108,6 +125,10 @@ export default (parent, config) => {
             },
           });
         },
+        /* Enable syntax like:
+        button.on.click((event) => console.log("Clicked"));
+        button.on['click.run']((event) => console.log("Clicked"));
+        */
         set(_, arg, handler) {
           const [type, ...rest] = arg.split(".");
           component.addEventListener(
@@ -117,31 +138,35 @@ export default (parent, config) => {
           );
           return true;
         },
+        /* Enable syntax like:
+        button.on({ click: (event) => console.log("Clicked") });
+        button.on({ once: true }, { click: (event) => console.log("Clicked") });
+        button.on("click", (event) => console.log("Clicked"));
+        button.on("click", (event) => console.log("Clicked"), { once: true });
+        */
         apply(_, thisArg, args) {
           return component.addEventListener(...args);
         },
       });
     }
 
-    /* Adds event handler with the special on-syntax.
-    Examples:
-    button.on.click.use({ once: true }, handler);
-    button.on["click.once"] = handler;
-    button.on("click", { once: true }, handler);
-    */
+    /* Adds event handler with the special on-syntax. */
     get on() {
       return this.#_.on;
     }
 
     /* Registers event handler.
     Overloads original 'addEventListener'. Does not break original API, but 
-    handles additional options and returns an object that can be used for later 
-    dereg or chaining.
-    NOTE "point-of-truth" event handler registration. */
+    handles additional options, returns an object that can be used for later 
+    dereg or chaining and enables object-based args. "Point-of-truth" event 
+    handler registration.
+    NOTE 
+    - If 'once' AND 'run', the handler will run twice.
+    - Attempts to track once-handlers are silently ignored
+    */
     addEventListener(...args) {
       const [type, handler] =
         typeof args[0] === "string" ? args : Object.entries(args[0])[0];
-
       const {
         once = false,
         run = false,
@@ -149,7 +174,7 @@ export default (parent, config) => {
         ...options
       } = args.find((a, i) => i && typeName(a) === "Object") || {};
 
-      /* NOTE Attempts to track once-handlers are silently ignored */
+      /* Track */
       if (track && !once) {
         this.#_.registry.add(type, handler);
       }
@@ -169,38 +194,49 @@ export default (parent, config) => {
         ...options,
       };
 
-      /* 
-      
-      NOTE If 'once' AND 'run', the handler will run twice */
+      /* Run handler (ii-handler).
+      We obviously do not readily have an event to pass into the handler, but 
+      we can create one by simulation... Mostly as a cool little vanity 
+      feature. */
       if (run) {
-
-
-        //const element = document.createElement(this.tagName.toLowerCase());
-        const element = this.constructor.create();
-
-        console.log("element:", element);////
-
-
-        element.addEventListener(
+        /* Create replica component for event harvesting
+        ... alt:
+        const replica = new (registry.get(this.constructor.__key__))();
+        const replica = document.createElement(this.tagName.toLowerCase());
+        */
+        const replica = this.constructor.create();
+        /* Set up listener to harvest event and call ii handler */
+        replica.addEventListener(
           type,
           (event) => {
+            /* Overwrite target props */
             defineValue(event, "currentTarget", this);
             defineValue(event, "target", this);
+            /* Add 'noevent' prop as a means to inform the ii handler that is has 
+            not been invoked by an actual event (the 'result' arg also does that) */
             defineValue(event, "noevent", true);
-            handler(event);
+            /* Pass in result to enable advanced dynamic patterns. */
+            handler(event, result);
           },
           { once: true }
         );
-        
-        if (type in element && typeof element[type] === "function") {
-          element[type]();
+        /* Trigger replica's event listener */
+        if (type.startsWith("_") || type.includes("-")) {
+          /* Custom event */
+          replica.dispatchEvent(new CustomEvent(type));
         } else {
-          if (type.startsWith('_') || type.includes('-')) {
-            element.dispatchEvent(new CustomEvent(type));
+          /* For browser-native events we only get a truthful event simulation, 
+          if we trigger the event programmatically */
+          if (
+            `on${type}` in replica &&
+            type in replica &&
+            typeof replica[type] === "function"
+          ) {
+            replica[type]();
           } else {
-             element.dispatchEvent(new Event(type));
+            /* Handle other cases */
+            replica.dispatchEvent(new Event(type));
           }
-         
         }
       }
       return result;
@@ -208,13 +244,14 @@ export default (parent, config) => {
 
     /* Deregisters event handler.
     Overloads original 'removeEventListener'. Does not break original API, but 
-    handles additional options and is chainable.
-    NOTE "point-of-truth" event handler deregistration. */
+    handles additional options makes chainable and enables object-based args.
+    "Point-of-truth" event handler deregistration. */
     removeEventListener(...args) {
       const [type, handler] =
         typeof args[0] === "string" ? args : Object.entries(args[0])[0];
       const { track = false, ...options } =
         args.find((a, i) => i && typeName(a) === "Object") || {};
+      /* Untrack */
       if (track) {
         this.#_.registry.remove(type, handler);
       }

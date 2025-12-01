@@ -53,8 +53,8 @@ export default (parent, config, ...mixins) => {
     static __name__ = "insert";
     #_ = {};
 
-    __new__() {
-      super.__new__?.();
+    __new__(...args) {
+      super.__new__?.(...args);
       this.#_.insert = new Insert(this);
     }
 

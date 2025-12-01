@@ -4,8 +4,8 @@ export default (parent, config) => {
   return class extends parent {
     static __name__ = "uid";
 
-    constructor() {
-      super();
+    __new__(...args) {
+      super.__new__?.(...args);
       this.setAttribute("uid", `uid${count++}`);
     }
 

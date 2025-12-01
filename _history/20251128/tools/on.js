@@ -1,11 +1,15 @@
 export const on = (target, { run, ...options } = {}) => {
   return new Proxy(() => {}, {
-    get(_, type) {
+    get(_, key) {
+      const type = key;
       return new Proxy(() => {}, {
         get(_, key) {
-          return (handler) => {
+          return (...args) => {
+            const handler = Handler(run, args);
+
             if (key === "use") {
-              return on(target, { run, ...options })[type](handler);
+              target.addEventListener(type, handler, options);
+              return handler;
             }
             if (key === "unuse") {
               target.removeEventListener(type, handler, options);
@@ -15,38 +19,26 @@ export const on = (target, { run, ...options } = {}) => {
           };
         },
         apply(_, thisArg, args) {
-          const handler = args[0];
-          const result = {
-            handler,
-            remove: () => target.removeEventListener(type, handler),
-            run,
-            target,
-            type,
-            ...options,
-          };
-
-          if (run) {
-            handler({ noevent: true, ...result });
-          }
-
+          const handler = Handler(run, args);
           target.addEventListener(type, handler, options);
-          return result;
+          return handler;
         },
       });
     },
     set(_, type, handler) {
       if (run) {
-        handler({
-          noevent: true,
-          handler,
-          run,
-          target,
-          type,
-          ...options,
-        });
+        handler();
       }
       target.addEventListener(type, handler, options);
       return true;
     },
   });
 };
+
+function Handler(run, args) {
+  const handler = args.find((a) => typeof a === "function");
+  if (run) {
+    handler();
+  }
+  return handler;
+}

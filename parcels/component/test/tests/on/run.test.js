@@ -33,11 +33,7 @@ export default async () => {
     },
   });
 
-  console.log("button.constructor.create:", button.constructor.create); //
-  const button2 = button.constructor.create("btn.btn-success", {
-    text: "Button2",
-    parent: layout,
-  });
+  
 
   button.on.click({ run: true }, (event) => {
     if (event.noevent) {
@@ -79,6 +75,10 @@ export default async () => {
     width: "300px",
     backgroundColor: "pink",
   });
+
+
+  const special3 = document.createElement('special-component')
+  console.log("special3:", special3); //
 
 
 
