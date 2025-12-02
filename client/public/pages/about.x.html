@@ -1,10 +1,31 @@
+<style for="page">
+  h1 {
+    color: pink;
+  }
+</style>
+
+<style name="foo">
+  .foo {
+    color: green;
+  }
+</style>
+
+<template>
+  <h1>Template</h1>
+</template>
+
 <script type="module">
   const { component } = await use("@/component");
   const { layout } = await use("@/layout/");
 
-  const page = component.main("container", component.h1({ text: "About" }));
+  export const page = component.main(
+    "container",
+    component.h1({ text: "About" })
+  );
 
-  export default function () {
+  export default async function () {
+    console.log("this.sheets:", this.sheets); ////
+
     return (mode) => {
       if (mode.enter) {
         layout.clear(":not([slot])");

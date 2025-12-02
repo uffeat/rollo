@@ -2,7 +2,7 @@
 import "./use.js";
 /* Activate Tailwind */
 import "./main.css";
-import router from './router.js'
+import router from "./router.js";
 
 document.documentElement.dataset.bsTheme = "dark";
 
@@ -15,10 +15,24 @@ if (use.meta.DEV) {
   await use("/dev.css");
 }
 
-await router()
+const { layout } = await use("@/layout/");
+const { component } = await use("@/component");
+
+
+const _default = await (await use("/pages/about.x.html")).default
+console.log('result:', await _default())
+
+const _default2 = await (await use("/pages/about.x.html")).default
+console.log('result:', await _default2())
+
+//const {page} = await use("/pages/about.x.html")
+//console.log('page:', page)
+//layout.append(page)
+//component.h1({parent: layout}, 'Test')
 
 
 
-//const { layout } = await use("@/layout/");
-//const { component } = await use("@/component");
+//await router();
+
+
 

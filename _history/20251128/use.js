@@ -766,63 +766,20 @@ to avoid Vercel-injections.
     /* Type guard */
     if (!(typeof result === "string")) return;
     if (cache.has(path.full)) return cache.get(path.full);
-    const { Sheet } = await use("@/sheet");
-    const { extract } = await use("/tools/html");
-    const { forStyles, fragment, script, namedStyles, namedTemplates } =
-      extract(result);
-
-    const js = script.textContent.trim();
-
-    const mod = await use.module(
-      `export const __path__ = "${path.path}";${js}`,
-      path.path
-    );
-
-    const components = Object.fromEntries(
-      Object.entries(mod).filter(([k, v]) => {
-        return v instanceof HTMLElement;
-      })
-    );
-
-    //console.log('components:', components)////
-    //console.log('forStyles:', forStyles)////
-
-    for (const [target, style] of Object.entries(forStyles)) {
-      //console.log('target:', target)////
-      //console.log('style:', style)////
-      const uid = components[target].uid;
-      //console.log('uid:', uid)////
-      let css = style.textContent.trim();
-      css = `[uid="${uid}"] { ${css} }`;
-      //console.log('css:', css)////
-      Sheet.create(css).use();
-    }
-
-    //console.log('namedStyles:', namedStyles)////
-
-    const sheets = Object.freeze(
-      Object.fromEntries(
-        Object.entries(namedStyles).map(([name, style]) => {
-          return [name, Sheet.create(style.textContent.trim())];
-        })
-      )
-    );
-
-    console.log("sheets:", sheets); ////
-
-    if (mod.default) {
-      const context = Object.freeze({ sheets, fragment });
-
-      let defaultResult
-      const _default = async (...args) => {
-
-
+    const { extract } = await use("@/tools/html.js");
+    const { assets, fragment, js } = extract(result);
+    result = assets;
+    if (js) {
+      const mod = await use.module(
+        `export const __path__ = "${path.path}";${js}`,
+        path.path
+      );
+      const context = Object.freeze({ assets, fragment, self: mod });
+      if (mod.default) {
+        result = mod.default.bind(context);
+      } else {
+        result = Object.freeze({ assets, ...mod });
       }
-
-      result = { ...mod };
-      result.default = mod.default.bind(context);
-    } else {
-      result = Object.freeze({ sheets, ...mod });
     }
     cache.set(path.full, result);
     return result;

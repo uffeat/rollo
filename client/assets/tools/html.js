@@ -7,9 +7,13 @@ export const extract = (html) => {
     Object.fromEntries([
       ...Array.from(fragment.querySelectorAll(`style`), (e) => {
         const sheet = Sheet.create(e.textContent.trim());
+        //
+        //
         if (e.hasAttribute("global")) {
           sheet.use();
         }
+        //
+        //
         const name = e.hasAttribute("name") ? e.getAttribute("name") : "sheet";
         return [name, sheet];
       }),
