@@ -12,10 +12,10 @@ export default async () => {
 
   /* Define routes */
   router.routes.add({
-    "/": await use("/pages/home.x.html"),
-    "/about": await use("/pages/about.x.html"),
-    "/blog": await use("/pages/blog.x.html"),
-    "/blogrun": await use("/pages/blogrun.x.html"),
+    "/": (await use("/pages/home.x.html"))(),
+    "/about": (await use("/pages/about.x.html"))(),
+    "/blog": (await use("/pages/blog.x.html"))(),
+    "/blogrun": (await use("/pages/blogrun.x.html"))(),
   });
 
   /* Create nav */

@@ -681,9 +681,7 @@ use.types
       return async (text, { path }) => {
         /* Type guard */
         if (!(typeof text === "string")) return;
-
-        const { Sheet } = await use("@/sheet");
-
+        const { Sheet } = await use("@/sheet.js");
         const key = path.full;
         if (cache.has(key)) return cache.get(key);
         const result = Sheet.create(text, key);
@@ -693,7 +691,7 @@ use.types
     })()
   )
   .processors.add("css", async (result, options, ...args) => {
-    const { type } = await use("@/tools/type");
+    const { type } = await use("@/tools/type.js");
     /* Type guard */
     if (type(result) !== "CSSStyleSheet") return;
     const targets = args.filter(
@@ -757,6 +755,8 @@ use.types.add("json", (result) => {
 /** Register out-of-the-box transformers and processors for synthetic assets. */
 
 /* Add x.html/x.template support.
+- Enables hybrid css-html-js single-file assets.
+- Asset as default method.
 NOTE Use the html-associated file type 'template' for html public assets 
 to avoid Vercel-injections.
 */
@@ -766,13 +766,8 @@ to avoid Vercel-injections.
     /* Type guard */
     if (!(typeof result === "string")) return;
     if (cache.has(path.full)) return cache.get(path.full);
-
     const { Sheet } = await use("@/sheet");
-    /* TODO Convert to @/ asset */
     const { extract } = await use("/tools/html");
-    const { type } = await use("@/tools/type");
-    const { Exception } = await use("@/tools/exception");
-
     const { forStyles, fragment, script, namedStyles, namedTemplates } =
       extract(result);
 
@@ -783,20 +778,28 @@ to avoid Vercel-injections.
       path.path
     );
 
-    /* Get exposed components */
     const components = Object.fromEntries(
       Object.entries(mod).filter(([k, v]) => {
         return v instanceof HTMLElement;
       })
     );
-    /* Construct and adopt sheets scoped to exposed components */
+
+    //console.log('components:', components)////
+    //console.log('forStyles:', forStyles)////
+
     for (const [target, style] of Object.entries(forStyles)) {
-      Sheet.create(
-        `[uid="${components[target].uid}"] { ${style.textContent.trim()} }`
-      ).use();
+      //console.log('target:', target)////
+      //console.log('style:', style)////
+      const uid = components[target].uid;
+      //console.log('uid:', uid)////
+      let css = style.textContent.trim();
+      css = `[uid="${uid}"] { ${css} }`;
+      //console.log('css:', css)////
+      Sheet.create(css).use();
     }
 
-    /* Create context */
+    //console.log('namedStyles:', namedStyles)////
+
     const sheets = Object.freeze(
       Object.fromEntries(
         Object.entries(namedStyles).map(([name, style]) => {
@@ -804,46 +807,29 @@ to avoid Vercel-injections.
         })
       )
     );
-    const templates = Object.freeze(
-      Object.fromEntries(
-        Object.entries(namedTemplates).map(([name, template]) => {
-          return [name, template.innerHTML.trim()];
-        })
-      )
-    );
-    const context = Object.freeze({ fragment, sheets, templates });
 
-    /* Build pseudo module */
-    const pseudo = {};
-    for (const [key, value] of Object.entries(mod)) {
-      if (typeof value === "function") {
-        if (key === "setup") {
-          /* Do not include any 'setup' function member,
-          but call immediately with context. 
-          NOTE 'setup' functions are useful for doing one-off init that 
-          requires context awareness. */
-          const result = await value.call(context, context);
-          /* If setup result is an Object, add items to pseudo module.
-          NOTE Reserved for special cases. */
-          if (result !== undefined) {
-            Exception.if(
-              type(result) !== "Object",
-              `Invalid setup result`,
-              console.error("'setup' result:", result)
-            );
-            Object.assign(pseudo, result)
-          }
-          continue;
+    //console.log("sheets:", sheets); ////
+
+    if (mod.default) {
+      const context = Object.freeze({ sheets, fragment });
+
+      let memoized;
+      const memo = async function () {
+        if (memoized) {
+          return memoized;
         }
-        /* Bind function members to context */
-        pseudo[key] = value.bind(context);
-        continue;
-      }
-      pseudo[key] = value;
-    }
+        memoized = await mod.default.call(context);
+        return memoized;
+      };
 
-    cache.set(path.full, Object.freeze(pseudo));
-    return pseudo;
+      result = { ...mod };
+      result.default = memo;
+      Object.freeze(result);
+    } else {
+      result = Object.freeze({ sheets, ...mod });
+    }
+    cache.set(path.full, result);
+    return result;
   });
 })();
 

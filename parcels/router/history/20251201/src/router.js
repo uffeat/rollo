@@ -191,7 +191,7 @@ export const Router = new (class Router {
       const probe = `/${parts.slice(0, index + 1).join("/")}`;
       if (this.routes.has(probe)) {
         const residual = parts.slice(index + 1);
-        const route = await this.routes.get(probe);
+        const route = this.routes.get(probe);
         return { path: probe, route, residual };
       }
     }
@@ -199,7 +199,7 @@ export const Router = new (class Router {
       /* Fallback to '.x.html'-asset if no registered route found */
       for (const source of ["/", "@/", "@@/"]) {
         try {
-          const route = await (await use(`${source}pages${path}.x.html`)).default();
+          const route = (await use(`${source}pages${path}.x.html`))();
           return { path, route, residual: [] };
         } catch (error) {
           if (error.name !== "UseError") {

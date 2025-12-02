@@ -4,6 +4,15 @@ import "./use.js";
 import "./main.css";
 import router from "./router.js";
 
+const { type } = await use("@/tools/type");
+
+async function foo() {}
+const bar = async () => {}
+
+console.log(type(foo))
+console.log(type(bar))
+
+
 document.documentElement.dataset.bsTheme = "dark";
 
 /* Load global sheets */
@@ -18,12 +27,15 @@ if (use.meta.DEV) {
 const { layout } = await use("@/layout/");
 const { component } = await use("@/component");
 
+/*
+const default1 = await (await use("/pages/about.x.html")).default
+console.log('result:', await default1())
 
-const _default = await (await use("/pages/about.x.html")).default
-console.log('result:', await _default())
+const default2 = await (await use("/pages/about.x.html")).default
+console.log('result:', await default2())
 
-const _default2 = await (await use("/pages/about.x.html")).default
-console.log('result:', await _default2())
+*/
+
 
 //const {page} = await use("/pages/about.x.html")
 //console.log('page:', page)
@@ -32,7 +44,7 @@ console.log('result:', await _default2())
 
 
 
-//await router();
+await router();
 
 
 

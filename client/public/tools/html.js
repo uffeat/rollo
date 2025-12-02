@@ -15,7 +15,6 @@ export const extract = (html) => {
   const forStyles = Object.freeze(
     Object.fromEntries(
       Array.from(fragment.querySelectorAll(`style[for]`), (e) => {
-       
         return [e.getAttribute("for"), e];
       })
     )
