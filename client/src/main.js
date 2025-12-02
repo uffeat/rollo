@@ -2,6 +2,7 @@
 import "./use.js";
 /* Activate Tailwind */
 import "./main.css";
+import router from './router.js'
 
 document.documentElement.dataset.bsTheme = "dark";
 
@@ -14,36 +15,10 @@ if (use.meta.DEV) {
   await use("/dev.css");
 }
 
-const { layout } = await use("@/layout/");
-const { component } = await use("@/component");
-const { router, Nav, NavLink } = await use("@/router/");
+await router()
 
-/* Define routes */
-router.routes.add({
-  "/": (await use("/pages/home.x.html"))(),
-  "/about": (await use("/pages/about.x.html"))(),
-  "/blog": (await use("/pages/blog.x.html"))(),
-  "/blogrun": (await use("/pages/blogrun.x.html"))(),
-});
 
-/* Create nav */
-Nav(
-  component.nav(
-    "nav flex flex-col gap-y-1 p-1",
-    { slot: "side", parent: layout },
-    NavLink("nav-link", { text: "About", path: "/about", title: "About" }),
-    NavLink("nav-link", { text: "Blog", path: "/blog", title: "Blog" }),
-    NavLink("nav-link", { text: "Blog (runtime)", path: "/blogrun", title: "Blog" }),
-  ),
-  /* Pseudo-argument for code organization */
-  NavLink(
-    { path: "/", parent: layout, slot: "home", title: "Home" },
-    async function () {
-      this.innerHTML = await use("/favicon.svg");
-    }
-  )
-)
 
-await router.setup();
+//const { layout } = await use("@/layout/");
+//const { component } = await use("@/component");
 
-console.log("Router set up");

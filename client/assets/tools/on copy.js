@@ -1,15 +1,4 @@
-const { type: typeName } = await use("@/tools/type");
-
-/* Registers/deregisters event handlers on target.
-Supports:
-- Immediately run handlers
-- Binding
-- Return values for dereg and chaining.
-*/
-export function on(...args) {
-  const target = args.find((a) => a instanceof EventTarget) || this;
-  const { run, ...options } = args.find((a) => typeName(a) === "Object") || {};
-
+export const on = (target, { run, ...options } = {}) => {
   return new Proxy(() => {}, {
     get(_, type) {
       return new Proxy(() => {}, {
@@ -60,4 +49,4 @@ export function on(...args) {
       return true;
     },
   });
-}
+};

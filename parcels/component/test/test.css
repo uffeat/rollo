@@ -2,6 +2,6 @@
 
 @tailwind utilities;
 
-.foo {
-  @apply bg-amber-600;
+.bar {
+  @apply m-8;
 }

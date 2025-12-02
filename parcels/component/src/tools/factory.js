@@ -2,14 +2,14 @@ import { Parse } from "./parse.js";
 
 /* Returns instance factory function.
 NOTE
-- cls can be a component class (or other constructor function) or a component 
+- target can be a component class (or other constructor function) or a component 
 instance. */
-export const factory = (cls) => {
+export const factory = (target) => {
   return (...args) => {
     /* Parse args */
     args = new Parse(args);
 
-    const instance = typeof cls === "function" ? new cls(args) : cls;
+    const instance = typeof target === "function" ? new target(args) : target;
 
     /* Call '__new__' to invoke pre-config actions */
     instance.constructor.__new__?.call(instance, args);

@@ -1,7 +1,12 @@
 /* Initialize import engine */
 import "../use.js";
-/* Activate Tailwind */
+/* Activate global Tailwind */
 import "./test.css";
+/* Activate local Tailwind */
+import "../../../client/src/main.css"
+
+
+
 /* Overload to use live parcel */
 import * as parcel from "../index.js";
 use.add("@/component.js", parcel);
