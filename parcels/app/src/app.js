@@ -42,9 +42,14 @@ export const breakpoints = Object.freeze({
 for (const [key, value] of Object.entries(breakpoints)) {
   const query = window.matchMedia(`(width >= ${value}px)`);
   /* Handle initial */
-  app.$[key] = query.matches
+  const match = query.matches
+  app.$[key] = match
+  app.send(`_break_${key}`, {detail: match})
   query.addEventListener("change", (event) => {
-    app.$[key] = event.matches
+    const match = query.matches
+    app.$[key] = match
+
+    app.send(`_break_${key}`, {detail: match})
   });
 }
 

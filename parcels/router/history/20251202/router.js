@@ -1,7 +1,8 @@
 import "../use.js";
 import { Routes } from "./routes.js";
 import { Url } from "./url.js";
-import defaultError from "./error.js";
+import defaultError from './error.js'
+
 
 const { app } = await use("@/app/");
 const { ref } = await use("@/state");
@@ -30,13 +31,8 @@ export const Router = new (class Router {
     return this.#_.routes;
   }
 
-  /* Set route registration controller. */
-  set routes(routes) {
-    this.#_.routes = routes;
-  }
-
   error(...args) {
-    return this.#_.config.error(...args);
+    return this.#_.config.error(...args)
   }
 
   /* Invokes route from initial location. 
@@ -74,13 +70,14 @@ export const Router = new (class Router {
       specifier = this.#_.config.redirect[specifier];
     }
 
+    
     strict = strict === undefined ? this.#_.config.strict : strict;
 
     const url = Url.create(specifier);
 
     /* Returns undefined if no url change, otherwise a function that pushes state.
-    NOTE Provides control over when state-pushing should take place. */
-    const push = (() => {
+    NOTE Provides control over when the state-pushing should take place. */
+    const pusher = (() => {
       if (this.#_.url) {
         if (!url.match(this.#_.url)) {
           /* Change */
@@ -106,7 +103,7 @@ export const Router = new (class Router {
     })();
 
     /* Abort if no change */
-    if (!push) {
+    if (!pusher) {
       return this;
     }
 
@@ -114,7 +111,7 @@ export const Router = new (class Router {
 
     /* Returns undefined if no route found, otherwise a function that handles the route.
     NOTE Provides control over when the route should be handled. */
-    const control = await (async () => {
+    const controller = await (async () => {
       const { path, residual, route } = (await this.#getRoute(url.path)) || {};
       if (!route) {
         this.#_.route = null;
@@ -172,8 +169,8 @@ export const Router = new (class Router {
       };
     })();
 
-    if (!control) {
-      push();
+    if (!controller) {
+      pusher();
       this.#signal(url.path, url.query);
       if (strict) {
         this.#_.config.error(url.path);
@@ -181,8 +178,8 @@ export const Router = new (class Router {
       return this;
     }
 
-    push();
-    await control();
+    pusher();
+    await controller();
     return this;
   }
 
@@ -196,6 +193,7 @@ export const Router = new (class Router {
         return { path: probe, route, residual };
       }
     }
+   
   }
 
   /* Enables external hooks etc. */

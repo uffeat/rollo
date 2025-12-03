@@ -32,43 +32,36 @@ practices that can inspire other routes.
   not critical and even less so with pagination, but could be good practice.
 -->
 
-<style for="page">
-  /** Cards */
-  [cards] {
-    --gap: 0rem;
-    --items: 1;
+<style global>
+  /* Cards per row */
+  #app[state-path="/blogrun"] [page] {
+    --basis: 100%;
   }
-  [cards][md] {
-    --gap: 0.25rem;
-    --items: 2;
-  }
-  [cards][xl] {
+  #app[state-path="/blogrun"][state-md] [page] {
     --gap: 0.5rem;
-    --items: 3;
+    --items: 2;
+    --basis: calc(calc(100% / var(--items)) - var(--gap));
   }
-
-  /* Card */
-  [cards] .card {
-    width: calc(calc(100% / var(--items)) - var(--gap));
+  #app[state-path="/blogrun"][state-xl] [page] {
+    --items: 3;
   }
 
   /** Post */
   /* Images */
-  [post] p:has(> img) {
+  #app[state-path="/blogrun"] [post] p:has(> img) {
     display: flex;
     justify-content: center;
   }
-  [post] img {
+  #app[state-path="/blogrun"] [post] img {
     min-width: 80%;
   }
   /* Links */
-  [post] a {
+  #app[state-path="/blogrun"] [post] a {
     text-decoration: none;
   }
 </style>
 
 <script type="module">
-  const { app } = await use("@/app/");
   const { component } = await use("@/component");
   const { layout } = await use("@/layout/");
   const { ref } = await use("@/state");
@@ -81,48 +74,28 @@ practices that can inspire other routes.
   /** Prepare components and component factories */
 
   const cards = component.div(
-    "w-full flex justify-between flex-wrap gap-y-3 hidden",
+    "w-full flex justify-between flex-wrap gap-y-3 gap-x-(--gap) hidden",
     {}
   );
   cards.attribute.cards = true;
 
-  export const page = component.main("container mt-3 mb-3", cards);
+  const page = component.main("container mt-3 mb-3", cards);
   page.attribute.page = true;
-
+  const stem = __path__.split("/").at(-1).slice(0, -".x.html".length);
+  ////console.log("stem:", stem); ////
   /* Card click -> post view (via router) */
-  (() => {
-    const stem = __path__.split("/").at(-1).split(".").at(0);
-    page.on.click = async (event) => {
-      const LINK = "a.nav-link";
-      if (event.target.matches(LINK) || event.target.closest(LINK)) {
-        const card = event.target.closest(`[card]`);
-        const path = card.attribute.card;
-        await router(`/${stem}${path}`);
-      }
-    };
-  })();
-
-  /* Mirror app breakpoint state onto cards */
-  app.$.effects.add(
-    (change) => {
-      cards.attribute.md = app.$.md;
-      cards.attribute.xl = app.$.xl;
-    },
-    ["md", "xl"]
-  );
-  /* Alt:
-  app.on._break_md({ run: true }, (event) => {
-    cards.attribute.md = event.detail ?? app.$.md
-  });
-  app.on._break_xl({ run: true }, (event) => {
-    cards.attribute.xl = event.detail ?? app.$.xl
-  });
-  ... or with media queries in css
-  */
+  page.on.click = async (event) => {
+    const LINK = "a.nav-link";
+    if (event.target.matches(LINK) || event.target.closest(LINK)) {
+      const card = event.target.closest(`[card]`);
+      const path = card.attribute.card;
+      await router(`/${stem}${path}`);
+    }
+  };
 
   const Card = ({ abstract, image, path, title }) => {
     const card = component.div(
-      "card h-full",
+      "card h-full basis-(--basis)",
       {},
       component.img("card-img-top", { src: `${use.meta.base}${image}` }),
       component.div(
@@ -173,7 +146,11 @@ practices that can inspire other routes.
 
   const view = await (async () => {
     const manifest = await use("/content/meta/blog.json");
+    ////console.log('manifest:', manifest); ////
+
     const paths = manifest.map(([path, timestamp]) => `${path}`);
+    //console.log("paths:", paths); ////
+
     const START = "/content".length - 2;
     const toRouterPath = (path) => {
       return "/" + path.slice(START).toLowerCase();
@@ -220,6 +197,7 @@ practices that can inspire other routes.
           /* Back to cards view */
           this.#_.post?.remove();
           this.#_.post = null;
+
           cards.classes.remove("hidden");
         }
       }
@@ -234,6 +212,12 @@ practices that can inspire other routes.
         use(`/content/src${_path}.md`)
           .then((text) => {
             const [yaml, md] = text.split("---").slice(1);
+
+
+            //console.log("path:", path); ////
+
+
+
             /** Handle card component */
             const meta = YAML.parse(yaml);
             cards.append(Card({ path, ...meta }));
@@ -245,6 +229,13 @@ practices that can inspire other routes.
               const html = marked.parse(md);
               return Post({ path, html });
             });
+
+
+          
+
+
+
+
             this.#create(this.#_.index++);
           })
           .catch((error) => {
@@ -262,7 +253,7 @@ practices that can inspire other routes.
   })();
 
   export default function () {
-    /* Route */
+    /** Route */
     return async (mode, query, ...residuals) => {
       mount(!mode.exit);
       /* NOTE Never residuals on exit */

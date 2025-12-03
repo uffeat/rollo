@@ -27,7 +27,7 @@ practices that can inspire other routes.
 - Tags (keywords) in additional manifest-like json files.
 -->
 
-<style global>
+<style name="page">
   /* Cards per row */
   #app[state-path="/blog"] [page] {
     --basis: 100%;
@@ -225,6 +225,11 @@ practices that can inspire other routes.
   })();
 
   export default function () {
+
+    console.log("this.sheets.page:", this.sheets.page); ////
+    this.sheets.page.use()
+
+
     /** Route */
     return async (mode, query, ...residuals) => {
       mount(!mode.exit);

@@ -5,20 +5,28 @@ const { component } = await use("@/component");
 const { layout } = await use("@/layout/");
 const { Sheet, css } = await use("@/sheet");
 const { Plotly } = await use("@/plotly");
+const { app } = await use("@/app/");
 
 const sheet = Sheet.create({
   ".plotly .modebar": {
-    backgroundColor: css.important('pink'),
-   
+    backgroundColor: css.important("pink"),
+
     boxShadow: css.important(null),
   },
 });
 
-sheet.use()
+sheet.use();
 
-export default async ({ app, breakpoints }) => {
+export default async ({ breakpoints }) => {
   layout.clear(":not([slot])");
   layout.close();
+
+ 
+  app.on._break_sm({ run: true }, (event) => {
+    console.log("sm satisfied:", event.detail ?? app.$.sm);
+  });
+
+  
 
   const plotContainer = document.createElement("div");
 

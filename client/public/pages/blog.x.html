@@ -27,28 +27,38 @@ practices that can inspire other routes.
 - Tags (keywords) in additional manifest-like json files.
 -->
 
-<style name="page">
-  /* Cards per row */
-  #app[state-path="/blog"] [page] {
-    --basis: 100%;
+<style for="page">
+  /** Cards */
+  [cards] {
+    --gap: 0rem;
+    --items: 1;
   }
-  #app[state-path="/blog"][state-md] [page] {
-    --gap: 0.5rem;
+  [cards][md] {
+    --gap: 0.25rem;
     --items: 2;
-    --basis: calc(calc(100% / var(--items)) - var(--gap));
   }
-  #app[state-path="/blog"][state-xl] [page] {
+  [cards][xl] {
+    --gap: 0.5rem;
     --items: 3;
+  }
+
+  /* Card */
+  [cards] .card {
+    width: calc(calc(100% / var(--items)) - var(--gap));
   }
 
   /** Post */
   /* Images */
-  #app[state-path="/blog"] [post] p:has(> img) {
+  [post] p:has(> img) {
     display: flex;
     justify-content: center;
   }
-  #app[state-path="/blog"] [post] img {
+  [post] img {
     min-width: 80%;
+  }
+  /* Links */
+  [post] a {
+    text-decoration: none;
   }
 </style>
 
@@ -63,27 +73,48 @@ practices that can inspire other routes.
   /** Prepare components and component factories */
 
   const cards = component.div(
-    "w-full flex justify-between flex-wrap gap-y-3 gap-x-(--gap) hidden",
+    "w-full flex justify-between flex-wrap gap-y-3 hidden",
     {}
   );
   cards.attribute.cards = true;
 
-  const page = component.main("container mt-3 mb-3", cards);
+  export const page = component.main("container mt-3 mb-3", cards);
   page.attribute.page = true;
+
   /* Card click -> post view (via router) */
-  const stem = __path__.split("/").at(-1).slice(0, -".x.html".length);
-  page.on.click = async (event) => {
-    const LINK = "a.nav-link";
-    if (event.target.matches(LINK) || event.target.closest(LINK)) {
-      const card = event.target.closest(`[card]`);
-      const path = card.attribute.card;
-      await router(`/${stem}${path}`);
-    }
-  };
+  (() => {
+    const stem = __path__.split("/").at(-1).split(".").at(0);
+    page.on.click = async (event) => {
+      const LINK = "a.nav-link";
+      if (event.target.matches(LINK) || event.target.closest(LINK)) {
+        const card = event.target.closest(`[card]`);
+        const path = card.attribute.card;
+        await router(`/${stem}${path}`);
+      }
+    };
+  })();
+
+  /* Mirror app breakpoint state onto cards */
+  app.$.effects.add(
+    (change) => {
+      cards.attribute.md = app.$.md;
+      cards.attribute.xl = app.$.xl;
+    },
+    ["md", "xl"]
+  );
+  /* Alt:
+  app.on._break_md({ run: true }, (event) => {
+    cards.attribute.md = event.detail ?? app.$.md
+  });
+  app.on._break_xl({ run: true }, (event) => {
+    cards.attribute.xl = event.detail ?? app.$.xl
+  });
+  ... or with media queries in css
+  */
 
   const Card = ({ abstract, image, path, title }) => {
     const card = component.div(
-      "card h-full basis-(--basis)",
+      "card h-full",
       {},
       component.img("card-img-top", { src: `${use.meta.base}${image}` }),
       component.div(
@@ -225,12 +256,7 @@ practices that can inspire other routes.
   })();
 
   export default function () {
-
-    console.log("this.sheets.page:", this.sheets.page); ////
-    this.sheets.page.use()
-
-
-    /** Route */
+    /* Route */
     return async (mode, query, ...residuals) => {
       mount(!mode.exit);
       /* NOTE Never residuals on exit */

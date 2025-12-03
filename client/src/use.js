@@ -817,22 +817,12 @@ to avoid Vercel-injections.
     const pseudo = {};
     for (const [key, value] of Object.entries(mod)) {
       if (typeof value === "function") {
-        if (key === "setup") {
-          /* Do not include any 'setup' function member,
+        if (key === "__init__") {
+          /* Do not include any '__init__' function member,
           but call immediately with context. 
-          NOTE 'setup' functions are useful for doing one-off init that 
+          NOTE '__init__' functions are useful for doing one-off init that 
           requires context awareness. */
-          const result = await value.call(context, context);
-          /* If setup result is an Object, add items to pseudo module.
-          NOTE Reserved for special cases. */
-          if (result !== undefined) {
-            Exception.if(
-              type(result) !== "Object",
-              `Invalid setup result`,
-              console.error("'setup' result:", result)
-            );
-            Object.assign(pseudo, result)
-          }
+          await value.call(context, context);
           continue;
         }
         /* Bind function members to context */
