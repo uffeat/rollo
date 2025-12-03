@@ -21,7 +21,7 @@ markdown = (
 )
 
 SRC = Path.cwd() / "client/public/content/src"
-DIST = "client/public/content/built"
+DIST = "client/public/content/dst"
 UTF_8 = "utf-8"
 
 timestamp = get_timestamp()

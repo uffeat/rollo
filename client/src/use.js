@@ -540,6 +540,15 @@ use.sources.add(
         inform?.(`Fetching: ${path.full}`);
         const { promise, resolve } = Promise.withResolvers();
         fetching.set(path.full, promise);
+
+
+
+        //console.log('path:', `${owner.meta.base}${path.path}`)////
+
+
+
+
+
         const result = (
           await (
             await fetch(`${owner.meta.base}${path.path}`, { cache: "no-store" })
@@ -547,6 +556,10 @@ use.sources.add(
             //Alt: await fetch(`${owner.meta.base}${path.path}?d=${Date.now()}`)
             .text()
         ).trim();
+
+
+        //console.log('result:', result)////
+        //console.log('result:', result)////
 
 
 

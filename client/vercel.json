@@ -15,17 +15,10 @@
       "destination": "/content/:match*"
     },
 
-
-
     {
       "source": "/data/:match*",
       "destination": "/data/:match*"
     },
-
-
-
-
-
 
     {
       "source": "/images/:match*",
