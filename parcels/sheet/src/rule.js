@@ -1,4 +1,6 @@
-const { type } = await use("@/tools/type.js");
+import "../use.js";
+
+const { type } = await use("@/tools/type");
 
 export const rule = (media) => {
   let selector = "";

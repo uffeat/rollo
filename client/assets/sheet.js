@@ -4,7 +4,7 @@ const m = class extends HTMLElement {
   }
 };
 customElements.define("sheet-reference", m);
-const g = new m(), { Exception: l } = await use("@/tools/exception.js"), { camelToKebab: w } = await use("@/tools/case.js"), { truncate: S } = await use("@/tools/truncate.js"), { type: R } = await use("@/tools/type.js"), c = "@media";
+const g = new m(), { Exception: l } = await use("@/tools/exception"), { camelToKebab: w } = await use("@/tools/case"), { truncate: S } = await use("@/tools/truncate"), { type: R } = await use("@/tools/type"), c = "@media";
 class f {
   static create = (...e) => new f(...e);
   #e = {};
@@ -177,7 +177,7 @@ class h {
     }
   }
 }
-const { type: d } = await use("@/tools/type.js");
+const { type: d } = await use("@/tools/type");
 class y extends CSSStyleSheet {
   static create = (...e) => new y(...e);
   #e = {
@@ -207,6 +207,12 @@ class y extends CSSStyleSheet {
   get text() {
     return this.#e.text;
   }
+  disable() {
+    return this.disabled = !0, this;
+  }
+  enable() {
+    return this.disabled = !1, this;
+  }
   /* Unadopts sheet from targets. */
   unuse(...e) {
     e.length || e.push(document);
@@ -226,7 +232,7 @@ class y extends CSSStyleSheet {
     return this;
   }
 }
-const { camelToKebab: a } = await use("@/tools/case.js"), $ = document.documentElement, p = new class {
+const { camelToKebab: a } = await use("@/tools/case"), $ = document.documentElement, p = new class {
   #e = {};
   constructor() {
     this.#e.color = new class {
@@ -284,7 +290,7 @@ const { camelToKebab: a } = await use("@/tools/case.js"), $ = document.documentE
   rotate(o) {
     return `rotate(${o})`;
   }
-}(), j = new Proxy(() => {
+}(), v = new Proxy(() => {
 }, {
   get(o, e) {
     return e in p ? p[e] : e in g.style ? new Proxy(
@@ -299,7 +305,7 @@ const { camelToKebab: a } = await use("@/tools/case.js"), $ = document.documentE
   apply(o, e, r) {
     return r = r.map((s) => s === "!" ? "!important" : s), r.join(" ");
   }
-}), v = (o) => `[uid="${o.uid}"]`, { type: x } = await use("@/tools/type.js"), O = (o) => {
+}), { type: b } = await use("@/tools/type"), j = (o) => {
   let e = "";
   const r = new class {
     attrs(t) {
@@ -337,16 +343,16 @@ const { camelToKebab: a } = await use("@/tools/case.js"), $ = document.documentE
     },
     apply(t, n, i) {
       const u = i[0];
-      return x(u) === "Object" ? { [e]: u } : (e += u, s);
+      return b(u) === "Object" ? { [e]: u } : (e += u, s);
     }
   });
   return s;
-};
+}, O = (o) => `[uid="${o.uid}"]`;
 export {
   f as Rules,
   y as Sheet,
   h as Targets,
-  j as css,
-  O as rule,
-  v as scope
+  v as css,
+  j as rule,
+  O as scope
 };

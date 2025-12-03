@@ -90,12 +90,15 @@ class build(Files, Minify):
         path: str = file.relative_to(SRC).as_posix()[: -len(".md")]
         entry: dict = Frontmatter.read_file(file)
 
-        meta: dict = entry["attributes"] or {}  ##
+        meta: dict = entry["attributes"]
 
-        ##print('entry:', entry)##
         if not entry["body"]:
+            """NOTE No body -> Pure MD
+            - meta as empty dict -> triggers 'created' processing
+            - reload text from file and inject into entry as 'body'
+            """
+            meta = {}
             text = file.read_text(encoding=UTF_8)
-            ##print('text:', text)##
             entry["body"] = text
             entry.pop("frontmatter", None)
 
@@ -109,12 +112,7 @@ class build(Files, Minify):
         # data into template
         template = meta.pop("template", None)
         if template:
-
-            ##
-            ## TODO
-            content = render(
-                f"build_code/content/templates/{template}", content=content, **meta
-            )
+            content = render(f"build/templates/{template}", content=content, **meta)
         content = self.minify_html(content)
         return path, meta, content
 

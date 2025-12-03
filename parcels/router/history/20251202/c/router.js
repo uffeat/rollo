@@ -1,6 +1,7 @@
 import "../use.js";
 import { Routes } from "./routes.js";
 import { Url } from "./url.js";
+import defaultError from "./error.js";
 
 const { app } = await use("@/app/");
 const { ref } = await use("@/state");
@@ -15,13 +16,13 @@ export const Router = new (class Router {
     this.#_.routes = new Routes();
 
     this.#_.states = {
-      path: ref({ owner: this, name: "path" }),
+      url: ref({ owner: this, name: "url" }),
     };
   }
 
   /* Returns effects controller. */
   get effects() {
-    return this.#_.states.path.effects;
+    return this.#_.states.url.effects;
   }
 
   /* Returns route registration controller. */
@@ -40,7 +41,7 @@ export const Router = new (class Router {
 
   /* Invokes route from initial location. 
   NOTE Should be called once router has been set up. */
-  async setup({ error, redirect, routes, strict = true } = {}) {
+  async setup({ error = defaultError, redirect, routes, strict = true } = {}) {
     this.#_.config.error = error;
     this.#_.config.strict = strict;
     Object.assign(this.#_.config.redirect, redirect);
@@ -120,7 +121,7 @@ export const Router = new (class Router {
         return;
       }
       return async () => {
-        this.#signal(path, url.query, ...residual);
+        this.#signal(url.full);
         if (route === this.#_.route) {
           /* Route update */
           if (route.update) {
@@ -129,7 +130,7 @@ export const Router = new (class Router {
               url.query,
               ...residual
             );
-          } else if (typeof route === "function") {
+          } else {
             await route(
               { mode: "update", session: this.#_.session, update: true },
               url.query,
@@ -143,7 +144,7 @@ export const Router = new (class Router {
             NOTE Never residual on exit */
             if (this.#_.route.exit) {
               await this.#_.route.exit({ session: this.#_.session });
-            } else if (typeof this.#_.route === "function") {
+            } else {
               await this.#_.route({
                 exit: true,
                 mode: "exit",
@@ -158,7 +159,7 @@ export const Router = new (class Router {
               url.query,
               ...residual
             );
-          } else if (typeof route === "function") {
+          } else {
             await route(
               { enter: true, mode: "enter", session: this.#_.session },
               url.query,
@@ -173,14 +174,9 @@ export const Router = new (class Router {
 
     if (!control) {
       push();
-      this.#signal(url.path, url.query);
+      this.#signal(url.full);
       if (strict) {
-        const message = `Invalid path: ${url.path}`;
-        if (this.#_.config.error) {
-          this.#_.config.error(message);
-        } else {
-          throw new Error(message);
-        }
+        this.#_.config.error(url.path);
       }
       return this;
     }
@@ -203,12 +199,11 @@ export const Router = new (class Router {
   }
 
   /* Enables external hooks etc. */
-  #signal(path, query, ...residual) {
-    if (residual.length) {
-      path = `${path}/${residual.join("/")}`;
-    }
-    app.$({ path });
-    this.#_.states.path(path, {}, query, ...residual);
+  #signal(url) {
+    app.$({ url });
+     this.#_.states.url(url);
+
+
   }
 
   #specifierFromLocation() {

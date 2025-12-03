@@ -374,8 +374,6 @@ export const assets = new (class Assets {
       useful for testing.
   */
   async get(specifier, ...args) {
-    //console.log('specifier:', specifier)///
-
     const type = (value) => Object.prototype.toString.call(value).slice(8, -1);
     const options = { ...(args.find((a) => type(a) === "Object") || {}) };
     args = args.filter((a) => type(a) !== "Object");
@@ -540,29 +538,12 @@ use.sources.add(
         inform?.(`Fetching: ${path.full}`);
         const { promise, resolve } = Promise.withResolvers();
         fetching.set(path.full, promise);
-
-
-
-        //console.log('path:', `${owner.meta.base}${path.path}`)////
-
-
-
-
-
         const result = (
           await (
             await fetch(`${owner.meta.base}${path.path}`, { cache: "no-store" })
-          )
-            //Alt: await fetch(`${owner.meta.base}${path.path}?d=${Date.now()}`)
-            .text()
+          ).text()
         ).trim();
-
-
-        //console.log('result:', result)////
-        //console.log('result:', result)////
-
-
-
+        //Alt: await fetch(`${owner.meta.base}${path.path}?d=${Date.now()}`)
         /* Invalid paths causes result to be index.html (with misc devtools 
         injected). Use custom index meta as indicator for invalid path, 
         since such an element should not be present in imported assets. */
@@ -574,9 +555,6 @@ use.sources.add(
           fetching.delete(path.full);
           UseError.raise(`Invalid path: ${path.full}`);
         }
-
-
-        
         cache.set(path.full, result);
         resolve(result);
         fetching.delete(path.full);
@@ -786,65 +764,72 @@ to avoid Vercel-injections.
     if (cache.has(path.full)) return cache.get(path.full);
 
     const { Sheet } = await use("@/sheet");
-    /* TODO Convert to @/ asset */
-    const { extract } = await use("/tools/html");
-    const { type } = await use("@/tools/type");
-    const { Exception } = await use("@/tools/exception");
+    const { component } = await use("@/component");
 
-    const { forStyles, fragment, script, namedStyles, namedTemplates } =
-      extract(result);
-
-    const js = script.textContent.trim();
+    const fragment = component.div({ innerHTML: result });
 
     const mod = await use.module(
-      `export const __path__ = "${path.path}";${js}`,
+      `export const __path__ = "${path.path}";${fragment
+        .querySelector("script")
+        .textContent.trim()}`,
       path.path
     );
-
     /* Get exposed components */
     const components = Object.fromEntries(
       Object.entries(mod).filter(([k, v]) => {
         return v instanceof HTMLElement;
       })
     );
-    /* Construct and adopt sheets scoped to exposed components */
-    for (const [target, style] of Object.entries(forStyles)) {
-      Sheet.create(
-        `[uid="${components[target].uid}"] { ${style.textContent.trim()} }`
-      ).use();
-    }
 
     /* Create context */
-    const sheets = Object.freeze(
-      Object.fromEntries(
-        Object.entries(namedStyles).map(([name, style]) => {
-          return [name, Sheet.create(style.textContent.trim())];
-        })
-      )
-    );
-    const templates = Object.freeze(
-      Object.fromEntries(
-        Object.entries(namedTemplates).map(([name, template]) => {
-          return [name, template.innerHTML.trim()];
-        })
-      )
-    );
-    const context = Object.freeze({ fragment, sheets, templates });
+    const assets = {};
+
+    /* Parse styles */
+    for (const element of fragment.querySelectorAll(`style`)) {
+      /* Construct and adopt sheet scoped to exposed component */
+      if (element.hasAttribute("for")) {
+        const target = element.getAttribute("for");
+        Sheet.create(
+          `[uid="${components[target].uid}"] { ${element.textContent.trim()} }`
+        ).use();
+        continue;
+      }
+      /* Construct and adopt global sheet and if named add to context */
+      if (element.hasAttribute("global")) {
+        const sheet = Sheet.create(element.textContent.trim()).use();
+        if (element.hasAttribute("name")) {
+          assets[element.getAttribute("name")] = sheet;
+        }
+      } else {
+        /* Construct named sheet and add to context */
+        assets[
+          element.hasAttribute("name") ? element.getAttribute("name") : "sheet"
+        ] = Sheet.create(element.textContent.trim());
+      }
+    }
+
+    /* Parse templates */
+    for (const element of fragment.querySelectorAll(`template`)) {
+      assets[
+        element.hasAttribute("name") ? element.getAttribute("name") : "template"
+      ] = element.innerHTML.trim();
+    }
+
+    Object.freeze(assets);
 
     /* Build pseudo module */
-    const pseudo = {};
+    const pseudo = {'__type__': 'Module', assets};
     for (const [key, value] of Object.entries(mod)) {
       if (typeof value === "function") {
         if (key === "__init__") {
-          /* Do not include any '__init__' function member,
-          but call immediately with context. 
-          NOTE '__init__' functions are useful for doing one-off init that 
-          requires context awareness. */
-          await value.call(context, context);
+          /* Do not include any '__init__' function member, but call 
+          immediately with context. 
+          NOTE Useful for one-off init that requires context awareness. */
+          await value.call(assets, assets);
           continue;
         }
         /* Bind function members to context */
-        pseudo[key] = value.bind(context);
+        pseudo[key] = value.bind(assets);
         continue;
       }
       pseudo[key] = value;

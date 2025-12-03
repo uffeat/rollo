@@ -1,6 +1,12 @@
-[data-base="/terms"] [data-sub] {
-  h1 {
-    font-size: 1.5rem;
+[data-base="/terms"] {
+  .nav-link.active {
+    
+    color: var(--bs-link-color);
   }
 
+  [data-sub] {
+    h1 {
+      font-size: 1.5rem;
+    }
+  }
 }

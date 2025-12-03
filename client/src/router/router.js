@@ -1,4 +1,5 @@
-import error from './error.js'
+import '../use.js'
+import error from "./error.js";
 let ran;
 
 export default async () => {
@@ -10,76 +11,6 @@ export default async () => {
   const { layout } = await use("@/layout/");
   const { component } = await use("@/component");
   const { router, Nav, NavLink } = await use("@/router/");
-
-
-  //
-  //
-  /* highjack for dev */
-  const { Exception } = await use("@/tools/exception");
-  const { type } = await use("@/tools/type");
-
-  const types = Object.freeze(new Set(["AsyncFunction", "Function", "Module", "Object"]));
-
-  const routes = new (class {
-    #_ = {
-      registry: new Map(),
-    };
-
-    get size() {
-      return this.#_.registry.size;
-    }
-
-    add(spec) {
-      for (const [path, route] of Object.entries(spec)) {
-        /* Type check */
-        const _type = type(route);
-        Exception.if(!types.has(_type), `Invalid route type: ${_type}`);
-        Exception.if(
-          (_type === "Module" || _type === "Object") &&
-            route.default &&
-            typeof route.default !== "function",
-          `Invalid default member (expected a function; got type: ${_type})`,
-          () => console.error(`default:`, route.default)
-        );
-        /* Register */
-        this.#_.registry.set(path, { route });
-      }
-    }
-
-    async get(path) {
-      const detail = this.#_.registry.get(path);
-      if (typeof detail.route === "function") {
-        return detail.route;
-      }
-      /* Module or Object route -> run any setup and use default as route function */
-      if (!detail.setup && typeof detail.route.setup === "function") {
-        /* ensure that setup only runs once */
-        detail.setup = true
-        await detail.route.setup(path);
-      }
-      if (typeof detail.route.default === "function") {
-        /* Replace registered route
-        NOTE Done by mutating detail - faster and cleaner than tinkering 
-        with registry */
-        detail.route = await detail.route.default();
-        return detail.route;
-      }
-      return detail.route;
-    }
-
-    has(path) {
-      return this.#_.registry.has(path);
-    }
-
-    remove(path) {
-      return this.#_.registry.delete(path);
-    }
-  })();
-
-  router.routes = routes
-
-  //
-  //
 
   /* Define routes */
   router.routes.add({
@@ -93,7 +24,7 @@ export default async () => {
   /* Create nav */
   Nav(
     component.nav(
-      "nav flex flex-col gap-y-1 p-1",
+      "nav router flex flex-col gap-y-1 p-1",
       { slot: "side", parent: layout },
       NavLink("nav-link", {
         text: "About",
@@ -106,7 +37,7 @@ export default async () => {
         path: "/blogrun",
         title: "Blog",
       }),
-      NavLink("nav-link", { text: "Terms", path: "/terms", title: "Terms" }),
+      NavLink("nav-link", { text: "Terms", path: "/terms", title: "Terms" })
     ),
     /* Pseudo-argument for code organization */
     NavLink(
@@ -117,7 +48,7 @@ export default async () => {
     )
   );
 
-  await router.setup({error});
+  await router.setup({ error });
 
   console.log("Router set up");
 };

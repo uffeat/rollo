@@ -1,5 +1,6 @@
+import "../use.js";
 import { reference } from "./reference.js";
-const { camelToKebab } = await use("@/tools/case.js");
+const { camelToKebab } = await use("@/tools/case");
 
 const root = document.documentElement;
 

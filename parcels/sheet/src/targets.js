@@ -1,3 +1,5 @@
+import "../use.js";
+
 /* Utility for sheet adoption control. */
 export class Targets {
   static create = (...args) => new Targets(...args);

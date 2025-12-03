@@ -3,11 +3,11 @@ import "../use.js";
 const { Exception } = await use("@/tools/exception");
 const { type } = await use("@/tools/type");
 
-const types = new Set(["AsyncFunction", "Function", "Module", "Object"]);
+const types = Object.freeze(
+  new Set(["AsyncFunction", "Function", "Module", "Object"])
+);
 
 export class Routes {
-  static create = (...args) => new Routes(...args);
-
   #_ = {
     registry: new Map(),
   };
@@ -38,11 +38,20 @@ export class Routes {
     if (typeof detail.route === "function") {
       return detail.route;
     }
-    /* Module or Object route -> use default as route function */
+    /* Module or Object route -> run any setup and use default as route function */
+    if (!detail.setup && typeof detail.route.setup === "function") {
+      /* ensure that setup only runs once */
+      detail.setup = true;
+      await detail.route.setup(path);
+    }
     if (typeof detail.route.default === "function") {
+      /* Replace registered route
+        NOTE Done by mutating detail - faster and cleaner than tinkering 
+        with registry */
       detail.route = await detail.route.default();
       return detail.route;
     }
+    return detail.route;
   }
 
   has(path) {

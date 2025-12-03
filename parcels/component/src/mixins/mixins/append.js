@@ -4,7 +4,11 @@ export default (parent, config) => {
 
     /* Appends children. Chainable. */
     append(...children) {
-      super.append(...children);
+      if (Array.isArray(children.at(0))) {
+        super.append(...children.at(0));
+      } else {
+        super.append(...children);
+      }
       return this;
     }
 

@@ -1,7 +1,8 @@
+import "../use.js";
 import { Rules } from "./rules.js";
 import { Targets } from "./targets.js";
 
-const { type } = await use("@/tools/type.js");
+const { type } = await use("@/tools/type");
 
 /* CSSStyleSheet extension with controlled adoption and light-weight dynamic 
 rule control. */
@@ -50,6 +51,16 @@ export class Sheet extends CSSStyleSheet {
   /* Returns text representation of original sheet. */
   get text() {
     return this.#_.text;
+  }
+
+  disable() {
+    this.disabled = true;
+    return this;
+  }
+
+  enable() {
+    this.disabled = false;
+    return this;
   }
 
   /* Unadopts sheet from targets. */

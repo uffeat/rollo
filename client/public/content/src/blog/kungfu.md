@@ -1,6 +1,6 @@
 ---
 title: Wing Chun
-image: https://unsplash.com/photos/man-in-black-jacket-and-black-pants-sitting-on-brown-wooden-bench-5QgIuuBxKwM
+image: /images/wingchun.png
 abstract: Compact Southern Chinese kung fu system emphasizing economy of motion, centerline theory, and relaxed structure.
 created: 2025-11-09 17:25
 ---
@@ -10,7 +10,7 @@ created: 2025-11-09 17:25
 
 Wing Chun is a compact Southern Chinese kung fu system built on economy of motion, centerline theory, and relaxed structure. It favors short, direct techniques that intercept rather than clash, using timing, positioning, and sensitivity to control the exchange.
 
-![Kung Fu training photo](https://unsplash.com/photos/man-in-black-jacket-and-black-pants-sitting-on-brown-wooden-bench-5QgIuuBxKwM)
+![Kung Fu training](/images/wingchun.png)
 
 Core ideas:
 

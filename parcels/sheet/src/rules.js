@@ -1,9 +1,10 @@
+import "../use.js";
 import { reference } from "./reference.js";
 
-const { Exception } = await use("@/tools/exception.js");
-const { camelToKebab } = await use("@/tools/case.js");
-const { truncate } = await use("@/tools/truncate.js");
-const { type } = await use("@/tools/type.js");
+const { Exception } = await use("@/tools/exception");
+const { camelToKebab } = await use("@/tools/case");
+const { truncate } = await use("@/tools/truncate");
+const { type } = await use("@/tools/type");
 
 const MEDIA = "@media";
 

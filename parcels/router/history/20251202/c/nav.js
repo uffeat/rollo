@@ -2,19 +2,29 @@ import "../use.js";
 import "../assets/router.css";
 import { router } from "./proxy.js";
 
+
+
 export const Nav = (nav) => {
   router.effects.add(
-    (path) => {
+    (url) => {
+      
+
+
+
       const previous = nav.find(`.active`);
       if (previous) {
         previous.classes.remove('active');
       }
-      const current = nav.find(`[path="${path}"]`);
+
+
+
+
+      const current = nav.find(`[path="${url}"]`);
       if (current) {
         current.classes.add('active');
       }
     },
-    (path) => !!path
+    (url) => !!url
   );
   return nav;
 };
