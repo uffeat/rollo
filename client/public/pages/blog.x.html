@@ -28,7 +28,7 @@ practices that can inspire other routes.
 -->
 
 <style for="page">
-  /** Cards */
+  /* Cards per row */
   [cards] {
     --gap: 0rem;
     --items: 1;
@@ -41,14 +41,11 @@ practices that can inspire other routes.
     --gap: 0.5rem;
     --items: 3;
   }
-
-  /* Card */
   [cards] .card {
     width: calc(calc(100% / var(--items)) - var(--gap));
   }
 
-  /** Post */
-  /* Images */
+  /* Post images */
   [post] p:has(> img) {
     display: flex;
     justify-content: center;
@@ -56,7 +53,8 @@ practices that can inspire other routes.
   [post] img {
     min-width: 80%;
   }
-  /* Links */
+
+  /* Post links */
   [post] a {
     text-decoration: none;
   }
@@ -80,19 +78,6 @@ practices that can inspire other routes.
 
   export const page = component.main("container mt-3 mb-3", cards);
   page.attribute.page = true;
-
-  /* Card click -> post view (via router) */
-  (() => {
-    const stem = __path__.split("/").at(-1).split(".").at(0);
-    page.on.click = async (event) => {
-      const LINK = "a.nav-link";
-      if (event.target.matches(LINK) || event.target.closest(LINK)) {
-        const card = event.target.closest(`[card]`);
-        const path = card.attribute.card;
-        await router(`/${stem}${path}`);
-      }
-    };
-  })();
 
   /* Mirror app breakpoint state onto cards */
   app.$.effects.add(
@@ -169,7 +154,7 @@ practices that can inspire other routes.
     (shape: "2024-05-09 17:25") that can be used for date filtering etc. If this 
     becomes relevant, remember that the Temporal polyfill has been installed. */
 
-    const paths = manifest.map(([path, timestamp]) => `${path}`);
+    const paths = manifest.map(([path, timestamp]) => path);
 
     const START = "/content".length - 2;
     const toRouterPath = (path) => {
@@ -244,7 +229,7 @@ practices that can inspire other routes.
             this.#_.posts.delete(path);
             Exception.raise(
               `Failed to load: ${path}`,
-              console.error("error:", error)
+              () => console.error("error:", error)
             );
           });
       }
@@ -255,6 +240,22 @@ practices that can inspire other routes.
     };
   })();
 
+  export function setup(stem) {
+    /* Card click -> post view (via router) 
+    NOTE Alt, handler could be reg outside 'setup' by using:
+    const stem = `/${__path__.split("/").at(-1).split(".").at(0)}`;
+    */
+    const LINK = "a.nav-link";
+    page.on.click = async (event) => {
+      if (event.target.matches(LINK) || event.target.closest(LINK)) {
+        const card = event.target.closest(`[card]`);
+        const path = card.attribute.card;
+        await router(`${stem}${path}`);
+      }
+    };
+  }
+
+  /* Returns route. */
   export default function () {
     /* Route */
     return async (mode, query, ...residuals) => {

@@ -200,6 +200,9 @@ export const Router = new (class Router {
 
   /* Enables external hooks etc. */
   #signal(path, query, ...residual) {
+    if (residual.length) {
+      path = `${path}/${residual.join("/")}`;
+    }
     app.$({ path });
     this.#_.states.path(path, {}, query, ...residual);
   }

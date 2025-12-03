@@ -548,6 +548,8 @@ use.sources.add(
             .text()
         ).trim();
 
+
+
         /* Invalid paths causes result to be index.html (with misc devtools 
         injected). Use custom index meta as indicator for invalid path, 
         since such an element should not be present in imported assets. */
@@ -559,6 +561,9 @@ use.sources.add(
           fetching.delete(path.full);
           UseError.raise(`Invalid path: ${path.full}`);
         }
+
+
+        
         cache.set(path.full, result);
         resolve(result);
         fetching.delete(path.full);

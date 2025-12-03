@@ -18,7 +18,7 @@ export default async () => {
   const { Exception } = await use("@/tools/exception");
   const { type } = await use("@/tools/type");
 
-  const types = new Set(["AsyncFunction", "Function", "Module", "Object"]);
+  const types = Object.freeze(new Set(["AsyncFunction", "Function", "Module", "Object"]));
 
   const routes = new (class {
     #_ = {
@@ -51,14 +51,20 @@ export default async () => {
       if (typeof detail.route === "function") {
         return detail.route;
       }
-      /* Module or Object route -> use default as route function */
+      /* Module or Object route -> run any setup and use default as route function */
+      if (!detail.setup && typeof detail.route.setup === "function") {
+        /* ensure that setup only runs once */
+        detail.setup = true
+        await detail.route.setup(path);
+      }
       if (typeof detail.route.default === "function") {
-
-
-
+        /* Replace registered route
+        NOTE Done by mutating detail - faster and cleaner than tinkering 
+        with registry */
         detail.route = await detail.route.default();
         return detail.route;
       }
+      return detail.route;
     }
 
     has(path) {
@@ -81,6 +87,7 @@ export default async () => {
     "/about": await use("/pages/about.x.html"),
     "/blog": await use("/pages/blog.x.html"),
     "/blogrun": await use("/pages/blogrun.x.html"),
+    "/terms": await use("/pages/terms/"),
   });
 
   /* Create nav */
@@ -98,7 +105,8 @@ export default async () => {
         text: "Blog (runtime)",
         path: "/blogrun",
         title: "Blog",
-      })
+      }),
+      NavLink("nav-link", { text: "Terms", path: "/terms", title: "Terms" }),
     ),
     /* Pseudo-argument for code organization */
     NavLink(
@@ -109,7 +117,7 @@ export default async () => {
     )
   );
 
-  await router.setup();
+  await router.setup({error});
 
   console.log("Router set up");
 };

@@ -173,7 +173,7 @@ practices that can inspire other routes.
 
   const view = await (async () => {
     const manifest = await use("/content/meta/blog.json");
-    const paths = manifest.map(([path, timestamp]) => `${path}`);
+    const paths = manifest.map(([path, timestamp]) => path);
     const START = "/content".length - 2;
     const toRouterPath = (path) => {
       return "/" + path.slice(START).toLowerCase();
@@ -250,7 +250,7 @@ practices that can inspire other routes.
           .catch((error) => {
             Exception.raise(
               `Failed to load: ${path}`,
-              console.error("error:", error)
+              () => console.error("error:", error)
             );
           });
       }

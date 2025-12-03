@@ -8,13 +8,13 @@ class l {
     return this.#t.registry.size;
   }
   add(t) {
-    for (const [e, r] of Object.entries(t)) {
-      const s = j(r);
-      p.if(!O.has(s), `Invalid route type: ${s}`), p.if(
-        (s === "Module" || s === "Object") && r.default && typeof r.default != "function",
-        `Invalid default member (expected a function; got type: ${s})`,
-        () => console.error("default:", r.default)
-      ), this.#t.registry.set(e, { route: r });
+    for (const [e, s] of Object.entries(t)) {
+      const i = j(s);
+      p.if(!O.has(i), `Invalid route type: ${i}`), p.if(
+        (i === "Module" || i === "Object") && s.default && typeof s.default != "function",
+        `Invalid default member (expected a function; got type: ${i})`,
+        () => console.error("default:", s.default)
+      ), this.#t.registry.set(e, { route: s });
     }
   }
   async get(t) {
@@ -36,19 +36,19 @@ const m = new class {
     const e = t.split("?").at(-1);
     return Object.freeze(
       Object.fromEntries(
-        Array.from(new URLSearchParams(e), ([r, s]) => {
-          if (s = s.trim(), s === "") return [r, !0];
-          if (s === "true") return [r, !0];
-          const n = Number(s);
-          return [r, Number.isNaN(n) ? s : n];
-        }).filter(([r, s]) => !["false", "null", "undefined"].includes(s))
+        Array.from(new URLSearchParams(e), ([s, i]) => {
+          if (i = i.trim(), i === "") return [s, !0];
+          if (i === "true") return [s, !0];
+          const n = Number(i);
+          return [s, Number.isNaN(n) ? i : n];
+        }).filter(([s, i]) => !["false", "null", "undefined"].includes(i))
       )
     );
   }
   stringify(t) {
     return t = Object.fromEntries(
       Object.entries(t).filter(
-        ([e, r]) => ![!1, null, void 0].includes(r)
+        ([e, s]) => ![!1, null, void 0].includes(s)
       )
     ), "?" + new URLSearchParams(t).toString().replaceAll("=true", "");
   }
@@ -59,8 +59,8 @@ class f {
   constructor(t) {
     const e = new URL(t, location.origin);
     this.#t.path = e.pathname;
-    const r = e.search;
-    this.#t.hash = e.hash, this.#t.query = m.parse(r), this.#t.full = r ? `${this.path}${r}${this.hash}` : `${this.path}${this.hash}`;
+    const s = e.search;
+    this.#t.hash = e.hash, this.#t.query = m.parse(s), this.#t.full = s ? `${this.path}${s}${this.hash}` : `${this.path}${this.hash}`;
   }
   get full() {
     return this.#t.full;
@@ -78,15 +78,15 @@ class f {
     return t.path === this.path && t.hash === this.hash && v(t.query, this.query);
   }
 }
-const { component: c } = await use("@/component"), { layout: d } = await use("@/layout/"), { ref: E } = await use("@/state"), b = E(), x = c.main(
+const { component: c } = await use("@/component"), { layout: d } = await use("@/layout/"), { ref: E } = await use("@/state"), b = E(), $ = c.main(
   "container",
   c.h1({ text: "Page not found" })
-), y = c.p({ parent: x });
-b.effects.add((i) => {
-  i ? y.text = `Invalid path: ${i}.` : y.clear();
+), y = c.p({ parent: $ });
+b.effects.add((r) => {
+  r ? y.text = `Invalid path: ${r}.` : y.clear();
 });
-const _ = (i) => {
-  d.clear(":not([slot])"), d.append(x), b(i);
+const _ = (r) => {
+  d.clear(":not([slot])"), d.append($), b(r);
 }, { app: z } = await use("@/app/"), { ref: L } = await use("@/state"), o = new class {
   #t = {
     config: { redirect: {} },
@@ -114,8 +114,8 @@ const _ = (i) => {
   }
   /* Invokes route from initial location. 
   NOTE Should be called once router has been set up. */
-  async setup({ error: t = _, redirect: e, routes: r, strict: s = !0 } = {}) {
-    return this.#t.config.error = t, this.#t.config.strict = s, Object.assign(this.#t.config.redirect, e), r && this.routes.add({ ...r }), this.#t.initialized || (window.addEventListener("popstate", async (n) => {
+  async setup({ error: t = _, redirect: e, routes: s, strict: i = !0 } = {}) {
+    return this.#t.config.error = t, this.#t.config.strict = i, Object.assign(this.#t.config.redirect, e), s && this.routes.add({ ...s }), this.#t.initialized || (window.addEventListener("popstate", async (n) => {
       await this.use(this.#s(), {
         context: "pop"
       });
@@ -124,30 +124,30 @@ const _ = (i) => {
     }), this.#t.initialized = !0), this;
   }
   /* Invokes route. */
-  async use(t, { context: e, strict: r } = {}) {
-    t in this.#t.config.redirect && (t = this.#t.config.redirect[t]), r = r === void 0 ? this.#t.config.strict : r;
-    const s = f.create(t), n = this.#t.url ? s.match(this.#t.url) ? void 0 : (this.#t.url = s, () => {
-      e || history.pushState({}, "", s.full);
-    }) : (this.#t.url = s, () => {
-      e || history.pushState({}, "", s.full);
+  async use(t, { context: e, strict: s } = {}) {
+    t in this.#t.config.redirect && (t = this.#t.config.redirect[t]), s = s === void 0 ? this.#t.config.strict : s;
+    const i = f.create(t), n = this.#t.url ? i.match(this.#t.url) ? void 0 : (this.#t.url = i, () => {
+      e || history.pushState({}, "", i.full);
+    }) : (this.#t.url = i, () => {
+      e || history.pushState({}, "", i.full);
     });
     if (!n)
       return this;
     this.#t.session++;
     const h = await (async () => {
-      const { path: q, residual: u, route: a } = await this.#r(s.path) || {};
+      const { path: q, residual: u, route: a } = await this.#i(i.path) || {};
       if (!a) {
         this.#t.route = null;
         return;
       }
       return async () => {
-        this.#e(q, s.query, ...u), a === this.#t.route ? a.update ? await a.update(
+        this.#e(q, i.query, ...u), a === this.#t.route ? a.update ? await a.update(
           { session: this.#t.session },
-          s.query,
+          i.query,
           ...u
         ) : await a(
           { mode: "update", session: this.#t.session, update: !0 },
-          s.query,
+          i.query,
           ...u
         ) : (this.#t.route && (this.#t.route.exit ? await this.#t.route.exit({ session: this.#t.session }) : await this.#t.route({
           exit: !0,
@@ -155,64 +155,64 @@ const _ = (i) => {
           session: this.#t.session
         })), a.enter ? await a.enter(
           { session: this.#t.session },
-          s.query,
+          i.query,
           ...u
         ) : await a(
           { enter: !0, mode: "enter", session: this.#t.session },
-          s.query,
+          i.query,
           ...u
         ), this.#t.route = a);
       };
     })();
-    return h ? (n(), await h(), this) : (n(), this.#e(s.path, s.query), r && this.#t.config.error(s.path), this);
+    return h ? (n(), await h(), this) : (n(), this.#e(i.path, i.query), s && this.#t.config.error(i.path), this);
   }
-  async #r(t) {
+  async #i(t) {
     const e = t.slice(1).split("/");
-    for (let r = e.length - 1; r >= 0; r--) {
-      const s = `/${e.slice(0, r + 1).join("/")}`;
-      if (this.routes.has(s)) {
-        const n = e.slice(r + 1), h = await this.routes.get(s);
-        return { path: s, route: h, residual: n };
+    for (let s = e.length - 1; s >= 0; s--) {
+      const i = `/${e.slice(0, s + 1).join("/")}`;
+      if (this.routes.has(i)) {
+        const n = e.slice(s + 1), h = await this.routes.get(i);
+        return { path: i, route: h, residual: n };
       }
     }
   }
   /* Enables external hooks etc. */
-  #e(t, e, ...r) {
-    z.$({ path: t }), this.#t.states.path(t, {}, e, ...r);
+  #e(t, e, ...s) {
+    s.length && (t = `${t}/${s.join("/")}`), z.$({ path: t }), this.#t.states.path(t, {}, e, ...s);
   }
   #s() {
     return location.search ? `${location.pathname}${location.search}${location.hash}` : `${location.pathname}${location.hash}`;
   }
-}(), { Exception: g } = await use("@/tools/exception"), $ = new Proxy(async () => {
+}(), { Exception: g } = await use("@/tools/exception"), x = new Proxy(async () => {
 }, {
-  get(i, t) {
+  get(r, t) {
     if (t === "router")
       return o;
     g.if(!(t in o), `Invalid key: ${t}`);
     const e = o[t];
     return typeof e == "function" ? e.bind(o) : e;
   },
-  set(i, t, e) {
+  set(r, t, e) {
     return g.if(!(t in o), `Invalid key: ${t}`), o[t] = e, !0;
   },
-  apply(i, t, e) {
+  apply(r, t, e) {
     return o.use(...e);
   },
-  deleteProperty(i, t) {
+  deleteProperty(r, t) {
     o.routes.remove(t);
   },
-  has(i, t) {
+  has(r, t) {
     return o.routes.has(t);
   }
-}), P = (i) => ($.effects.add(
+}), P = (r) => (x.effects.add(
   (t) => {
-    const e = i.find("[selected]");
+    const e = r.find("[selected]");
     e && (e.selected = !1);
-    const r = i.find(`[path="${t}"]`);
-    r && (r.selected = !0);
+    const s = r.find(`[path="${t}"]`);
+    s && (s.selected = !0);
   },
   (t) => !!t
-), i), { Mixins: N, author: R, mix: S } = await use("@/component"), { stateMixin: A } = await use("@/state"), w = "a", F = R(
+), r), { Mixins: N, author: R, mix: S } = await use("@/component"), { stateMixin: A } = await use("@/state"), w = "a", F = R(
   class extends S(
     document.createElement(w).constructor,
     {},
@@ -220,32 +220,32 @@ const _ = (i) => {
   ) {
     #t = {};
     constructor() {
-      super(), this.attribute.webComponent = !0, this.attribute[this.constructor.__key__] = !0, this.on.click = async (i) => {
+      super(), this.attribute.webComponent = !0, this.attribute[this.constructor.__key__] = !0, this.on.click = async (r) => {
         if (this.path) {
-          i.preventDefault();
+          r.preventDefault();
           const t = this.#t.query ? this.path + m.stringify(this.#t.query) : this.path;
-          await $(t);
+          await x(t);
         }
       };
     }
     get path() {
       return this.attribute.path;
     }
-    set path(i) {
-      this.attribute.path = i;
+    set path(r) {
+      this.attribute.path = r;
     }
     get query() {
       if (this.#t.query)
         return Object.freeze({ ...this.#t.query });
     }
-    set query(i) {
-      this.#t.query = i;
+    set query(r) {
+      this.#t.query = r;
     }
     get selected() {
       return this.attribute.selected || !1;
     }
-    set selected(i) {
-      this.attribute.selected = i;
+    set selected(r) {
+      this.attribute.selected = r;
     }
   },
   "nav-link",
@@ -258,5 +258,5 @@ export {
   o as Router,
   l as Routes,
   f as Url,
-  $ as router
+  x as router
 };

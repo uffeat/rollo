@@ -39,15 +39,8 @@ class build(Files, Minify):
         except Exception as error:
             print(f"Clearing of '{DIST}' failed. Error:", error)
 
-            
-
-        
-       
-
         # Mutable to avoid 'global' keyword, when updating.
         count = dict(count=0)
-
-        
 
         for publication in SRC.glob("*/"):
 
@@ -69,8 +62,6 @@ class build(Files, Minify):
                 created = meta.get("created")
                 manifest.append([f"/{path}", created])
 
-                
-
             manifest = sorted(
                 manifest,
                 key=lambda item: datetime.datetime.strptime(item[1], TIME_FORMAT),
@@ -84,13 +75,12 @@ class build(Files, Minify):
                 shape = [["/blog/sprocket", "2025-10-01 10:10"], ...]
                 print("manifest:", manifest)
 
-            
-
             # Handle publication meta
-            self.write(f"client/public/content/meta/{publication.stem}.json", json.dumps(manifest))
-            
+            self.write(
+                f"client/public/content/meta/{publication.stem}.json",
+                json.dumps(manifest),
+            )
 
-       
         count = count["count"]
         message = f"Processed {count} content item{plural(count)}."
         print(message)
@@ -99,7 +89,16 @@ class build(Files, Minify):
         """Returns path, meta data and html content."""
         path: str = file.relative_to(SRC).as_posix()[: -len(".md")]
         entry: dict = Frontmatter.read_file(file)
-        meta: dict = entry["attributes"]
+
+        meta: dict = entry["attributes"] or {}  ##
+
+        ##print('entry:', entry)##
+        if not entry["body"]:
+            text = file.read_text(encoding=UTF_8)
+            ##print('text:', text)##
+            entry["body"] = text
+            entry.pop("frontmatter", None)
+
         # If meta data does not declare 'created', use file creation timestamp.
         meta["created"] = meta.get(
             "created",
@@ -112,25 +111,16 @@ class build(Files, Minify):
         if template:
 
             ##
-            ##
+            ## TODO
             content = render(
                 f"build_code/content/templates/{template}", content=content, **meta
             )
         content = self.minify_html(content)
         return path, meta, content
 
-    
-
     def write_json(self, content=None, meta=None, path=None) -> None:
         """Writes transpiled result to json."""
-        self.write(
-            f"{DIST}/{path}.json",
-            json.dumps(dict(html=content, meta=meta))
-        )
-
-    
-    
-    
+        self.write(f"{DIST}/{path}.json", json.dumps(dict(html=content, meta=meta)))
 
 
 build = build()
