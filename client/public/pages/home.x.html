@@ -16,7 +16,7 @@
   export function __init__() {
     /* Lifecycle-bound use/unuse can be expensive, therefore enable/disable 
     instead. */
-    this.sheet.disable().use()
+    this.__sheet__.disable().use()
     page.on._connect((event) => this.sheet.enable())
     page.on._disconnect((event) => this.sheet.disable())
     /* NOTE Alternative to lifecycle-binding: enable/disable in 

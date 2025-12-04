@@ -809,7 +809,7 @@ to avoid Vercel-injections.
       } else {
         /* Construct named sheet and add to context */
         assets[
-          element.hasAttribute("name") ? element.getAttribute("name") : "sheet"
+          element.hasAttribute("name") ? element.getAttribute("name") : "__sheet__"
         ] = Sheet.create(element.textContent.trim());
       }
     }
@@ -817,7 +817,7 @@ to avoid Vercel-injections.
     /* Parse templates */
     for (const element of fragment.querySelectorAll(`template`)) {
       assets[
-        element.hasAttribute("name") ? element.getAttribute("name") : "template"
+        element.hasAttribute("name") ? element.getAttribute("name") : "__template__"
       ] = element.innerHTML.trim();
     }
 
