@@ -33,18 +33,21 @@ practices that can inspire other routes.
     --gap: 0rem;
     --items: 1;
   }
+
   @media (width >= 768px) {
     [cards] {
       --gap: 0.25rem;
       --items: 2;
     }
   }
+
   @media (width >= 1200px) {
     [cards] {
       --gap: 0.5rem;
       --items: 3;
     }
   }
+
   [cards] .card {
     width: calc(calc(100% / var(--items)) - var(--gap));
   }
@@ -83,6 +86,8 @@ practices that can inspire other routes.
   export const page = component.main("container mt-3 mb-3", cards);
   page.attribute.page = true;
 
+  
+
   const Card = ({ abstract, image, path, title }) => {
     const card = component.div(
       "card h-full",
@@ -116,21 +121,35 @@ practices that can inspire other routes.
     return post;
   };
 
-  /** Render and create interface for router */
+  /** Render and create interface for route */
+
+  const mount = (() => {
+    const state = ref();
+    state.effects.add(
+      (current) => {
+        if (current) {
+          layout.clear(":not([slot])");
+          layout.append(page);
+        } else {
+          page.remove();
+        }
+      },
+      { run: false }
+    );
+    return state;
+  })();
 
   const view = await (async () => {
     const manifest = await use("/content/meta/blog.json");
-    /* NOTE Build tools creates a date-sorted (newest first) manifest array that contains items comes date-sorted (newest first), but contains timestamps
+    /* NOTE manifest comes date-sorted (newest first), but contains timestamps
     (shape: "2024-05-09 17:25") that can be used for date filtering etc. If this 
     becomes relevant, remember that the Temporal polyfill has been installed. */
-    
-    () => ["/blog/decor", "2025-10-10 22:10"]
 
     const paths = manifest.map(([path, timestamp]) => path);
 
     const START = "/content".length - 2;
     const toRouterPath = (path) => {
-      return "/" + path.slice(START);
+      return "/" + path.slice(START).toLowerCase();
     };
 
     /* Controller for non-blocking rendering */
@@ -206,14 +225,14 @@ practices that can inspire other routes.
       }
     })();
 
-    return async (paths) => {
-      await items.view(paths.at(0));
+    return async (residuals) => {
+      await items.view(residuals.at(0));
     };
   })();
 
   export function setup(stem) {
     /* Card click -> post view (via router) 
-    NOTE Done here to use 'stem'. Could be done outside 'setup' by using:
+    NOTE Alt, handler could be reg outside 'setup' by using:
     const stem = `/${__path__.split("/").at(-1).split(".").at(0)}`;
     */
     const LINK = "a.nav-link";
@@ -226,17 +245,13 @@ practices that can inspire other routes.
     };
   }
 
-  export async function enter(meta, query, ...paths) {
-    layout.clear(":not([slot])");
-    layout.append(page);
-    await view(paths);
-  }
-
-  export async function update(meta, query, ...paths) {
-    await view(paths);
-  }
-
-  export function exit(meta, query) {
-    page.remove();
+  /* Returns route. */
+  export default function () {
+    /* Route */
+    return async (mode, query, ...residuals) => {
+      mount(!mode.exit);
+      /* NOTE Never residuals on exit */
+      await view(residuals);
+    };
   }
 </script>

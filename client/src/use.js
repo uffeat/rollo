@@ -789,9 +789,15 @@ to avoid Vercel-injections.
       /* Construct and adopt sheet scoped to exposed component */
       if (element.hasAttribute("for")) {
         const target = element.getAttribute("for");
-        Sheet.create(
+        const sheet = Sheet.create(
           `[uid="${components[target].uid}"] { ${element.textContent.trim()} }`
-        ).use();
+        );
+        if (element.hasAttribute("global")) {
+          sheet.use()
+        }
+        if (element.hasAttribute("name")) {
+          assets[element.getAttribute("name")] = sheet;
+        }
         continue;
       }
       /* Construct and adopt global sheet and if named add to context */
