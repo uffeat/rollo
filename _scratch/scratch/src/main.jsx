@@ -39,11 +39,11 @@ root.$.effects.add(
 
 await wrap(root);
 
-root.$.foo = 0;
+root.$.bump = 0;
 
 const bumper = component.button("btn.btn-primary", { parent: container }, "Bump");
 bumper.on.click = (event) => {
-  root.$.foo++;
+  root.$.bump++;
 };
 
 

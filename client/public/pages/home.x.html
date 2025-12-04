@@ -17,8 +17,8 @@
     /* Lifecycle-bound use/unuse can be expensive, therefore enable/disable 
     instead. */
     this.__sheet__.disable().use()
-    page.on._connect((event) => this.sheet.enable())
-    page.on._disconnect((event) => this.sheet.disable())
+    page.on._connect((event) => this.__sheet__.enable())
+    page.on._disconnect((event) => this.__sheet__.disable())
     /* NOTE Alternative to lifecycle-binding: enable/disable in 
     enter/exit. */
 

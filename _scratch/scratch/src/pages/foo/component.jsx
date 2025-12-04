@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import reactLogo from "/react.svg";
 import viteLogo from "/vite.svg";
-import "./App.css";
+import "./sheet.css";
 import { Use } from "../use.js";
 
-export function App({ root }) {
+export function Foo({ root }) {
 
   /* root -> React component */
   const [bump, setBump] = useState();

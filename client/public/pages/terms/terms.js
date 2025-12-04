@@ -42,7 +42,12 @@ state.effects.add(
 );
 
 async function setup(base) {
-  const link = await use(`/pages${base.repeat(2)}.css`);
+  //const link = await use(`/pages${base.repeat(2)}.css`);
+
+  console.log('base:', base)
+
+
+  const link = await use(`/pages//terms.css`);
 
   page.data.base = base;
   const manifest = await use(`/content/meta/terms.json`);
@@ -129,7 +134,6 @@ async function setup(base) {
         const input = component.input(
           "btn-check",
           { parent: this, type: "radio", name: "enabled" },
-          "No style"
         );
         input.id = input.uid;
         component.label(
