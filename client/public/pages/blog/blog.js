@@ -35,6 +35,10 @@ const Card = ({ html, path }) => {
   return card;
 };
 
+
+/* TODO
+- convert to Map
+*/
 const posts = {};
 
 /* Returns post component rendered from html and with any internal links 
@@ -57,21 +61,30 @@ const state = ref();
 state.effects.add(
   (current, message) => {
     console.log("current:", current); ////
+    const previous = message.owner.previous
+    console.log("previous:", previous); ////
 
     if (current) {
+
+      
+
+
+
       console.log("Post view"); ////
       page.attribute.hide = true;
       const post = posts[`/${current}`];
       page.append(post);
     } else {
       console.log("Cards view"); ////
-      //const post = page.find(`[post="/${current}"]`);
-      const post = posts[`/${current}`];
 
-      console.log("posts:", posts); ////
 
-      console.log("post:", post); ////
-      post?.remove();
+      if (previous) {
+        const post = posts[`/${previous}`];
+        post?.remove();
+        
+      }
+      //const post = page.find(`[post]`);
+      //post?.remove();
       page.attribute.hide = false;
     }
   },
