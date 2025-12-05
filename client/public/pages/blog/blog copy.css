@@ -1,0 +1,59 @@
+/* Cards per row */
+[page][base-path="/blogmod"] {
+  --gap: 0rem;
+  --items: 1;
+}
+@media (width >= 768px) {
+  [page][base-path="/blogmod"] {
+    --gap: 0.25rem;
+    --items: 2;
+  }
+}
+@media (width >= 1200px) {
+  [page][base-path="/blogmod"] {
+    --gap: 0.5rem;
+    --items: 3;
+  }
+}
+
+[page][base-path="/blogmod"] :has(.card) {
+  border: 2px solid blue;
+  display: inline-flex;
+  width: fit-content;
+}
+
+[page][base-path="/blogmod"] :has(.card) {
+  /*border: 2px solid red;*/
+  width: calc(calc(100% / var(--items)) - var(--gap));
+}
+
+/* Card links */
+[page][base-path="/blogmod"] .card .nav-link:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+}
+
+/* Post headings */
+[page][base-path="/blogmod"] > [post] :is(h1, h2, h3, h4, h5, h6) {
+  color: var(--bs-link-color);
+}
+
+/* Post links */
+[page][base-path="/blogmod"] > [post] a:hover {
+  text-decoration: underline;
+}
+@media (width >= 768px) {
+  [page][base-path="/blogmod"] > [post] a {
+    font-size: 1.125rem;
+  }
+}
+
+/* Post images */
+[page][base-path="/blogmod"] > [post] p:has(> img) {
+  display: flex;
+  justify-content: center;
+}
+
+[page][base-path="/blogmod"] > [post] img {
+  min-width: 80%;
+}

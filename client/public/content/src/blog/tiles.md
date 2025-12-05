@@ -3,6 +3,7 @@ title: Tiles
 image: /images/tiles.jpg
 abstract: Keffiyeh irony nisi reprehenderit art party yes plz coloring book ipsum dolore truffaut. Blue bottle etsy fam, mollit umami 3 wolf moon veniam kitsch cupidatat duis disrupt intelligentsia.
 created: 2024-09-03 17:25
+template: /blog/card.jinja
 ---
 
 # Officia biodiesel

@@ -2,6 +2,7 @@
 title: Mirror
 image: /images/mirror.jpg
 abstract: Portland lo-fi pitchfork laboris cold-pressed. Pok pok 90's food truck waistcoat, vibecession literally af keffiyeh yes plz bespoke brunch sriracha. Aliquip twee portland leggings ascot franzen ethical sint prism iPhone pop-up aliqua vexillologist direct trade.
+template: /blog/card.jinja
 ---
 
 # Gastropub intelligentsia

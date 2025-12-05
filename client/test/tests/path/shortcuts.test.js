@@ -4,62 +4,107 @@
 
 import { Path } from "../../../src/use.js";
 
+
 export default async () => {
-
   (() => {
-    const path = Path.create("@/foo//bar.css");
-    console.log("full:", path.full);
-    console.log("path:", path.path);
-    console.log("source:", path.source);
+    const path = Path.create("@/foo/bar.js?ding&dong=42&ping=pong");
+
+    console.log("specifier:", path.specifier);
     console.log("file:", path.file);
+    console.log("full:", path.full);
+    console.log("parts:", path.parts);
+    console.log("path:", path.path);
+    console.log("query:", path.query);
+    console.log("source:", path.source);
     console.log("stem:", path.stem);
     console.log("type:", path.type);
     console.log("types:", path.types);
-  })();
 
-
-
-  (() => {
-    const path = Path.create("@/layout/");
-    console.log("full:", path.full);
-    console.log("path:", path.path);
-    console.log("source:", path.source);
-    console.log("file:", path.file);
-    console.log("stem:", path.stem);
-    console.log("type:", path.type);
-    console.log("types:", path.types);
+    console.log(" ");
   })();
 
   (() => {
-    const path = Path.create("@//layout.js");
-    console.log("full:", path.full);
-    console.log("path:", path.path);
-    console.log("source:", path.source);
+    const path = Path.create("/foo//bar.css");
+
+    console.log("specifier:", path.specifier);
     console.log("file:", path.file);
+    console.log("full:", path.full);
+    console.log("parts:", path.parts);
+    console.log("path:", path.path);
+    console.log("query:", path.query);
+    console.log("source:", path.source);
     console.log("stem:", path.stem);
     console.log("type:", path.type);
     console.log("types:", path.types);
+
+    console.log(" ");
   })();
 
   (() => {
-    const path = Path.create("@/test/foo");
-    console.log("full:", path.full);
-    console.log("path:", path.path);
-    console.log("source:", path.source);
+    const path = Path.create("@/foo/");
+
+    console.log("specifier:", path.specifier);
     console.log("file:", path.file);
+    console.log("full:", path.full);
+    console.log("parts:", path.parts);
+    console.log("path:", path.path);
+    console.log("query:", path.query);
+    console.log("source:", path.source);
     console.log("stem:", path.stem);
     console.log("type:", path.type);
     console.log("types:", path.types);
+
+    console.log(" ");
   })();
 
   (() => {
-    const path = Path.create("/test/foo.x.js");
-    console.log("full:", path.full);
-    console.log("path:", path.path);
-    console.log("source:", path.source);
+    const path = Path.create("@//foo.js");
+
+    console.log("specifier:", path.specifier);
     console.log("file:", path.file);
+    console.log("full:", path.full);
+    console.log("parts:", path.parts);
+    console.log("path:", path.path);
+    console.log("query:", path.query);
+    console.log("source:", path.source);
     console.log("stem:", path.stem);
     console.log("type:", path.type);
     console.log("types:", path.types);
+
+    console.log(" ");
+  })();
+
+  (() => {
+    const path = Path.create("@/foo/bar");
+
+    console.log("specifier:", path.specifier);
+    console.log("file:", path.file);
+    console.log("full:", path.full);
+    console.log("parts:", path.parts);
+    console.log("path:", path.path);
+    console.log("query:", path.query);
+    console.log("source:", path.source);
+    console.log("stem:", path.stem);
+    console.log("type:", path.type);
+    console.log("types:", path.types);
+
+    console.log(" ");
+  })();
+
+  (() => {
+    const path = Path.create("/foo/bar.x.js");
+
+    console.log("specifier:", path.specifier);
+    console.log("file:", path.file);
+    console.log("full:", path.full);
+    console.log("parts:", path.parts);
+    console.log("path:", path.path);
+    console.log("query:", path.query);
+    console.log("source:", path.source);
+    console.log("stem:", path.stem);
+    console.log("type:", path.type);
+    console.log("types:", path.types);
+
+    console.log(" ");
   })();
 };

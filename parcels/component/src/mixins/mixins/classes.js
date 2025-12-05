@@ -13,6 +13,10 @@ class Classes {
     return this.owner.classList;
   }
 
+  get size() {
+    // TODO
+  }
+
   /* Adds classes. */
   add(arg) {
     const values = this.#toArray(arg);
@@ -78,6 +82,10 @@ class Classes {
       this.owner.classList.toggle(value, force);
     }
     return this.owner;
+  }
+
+  values() {
+    // TODO
   }
 
   #toArray(arg) {

@@ -3,6 +3,7 @@ title: Snake
 image: /images/snake.jpg
 abstract: Bodega boys polaroid. Cronut Brooklyn locavore yes plz wolf offal. Solarpunk chambray meditation intelligentsia ugh tote bag pop-up unicorn synth messenger bag yuccie pabst subway tile pok pok butcher lo-fi coloring book.
 created: 2025-06-09 17:25
+template: /blog/card.jinja
 ---
 
 # Activated charcoal

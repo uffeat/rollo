@@ -3,6 +3,7 @@ title: Egyptian
 image: /images/egyptian.jpg
 abstract: Ramps stumptown, biodiesel gochujang gorpcore literally vibecession ipsum retro street art echo park. Ugh palo santo etsy pinterest forage wolf sartorial plaid narwhal. Normcore nostrud aliquip cupidatat.
 created: 2024-11-01 17:25
+template: /blog/card.jinja
 ---
 
 # Prism occaecat

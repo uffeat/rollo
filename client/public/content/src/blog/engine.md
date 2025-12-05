@@ -2,6 +2,7 @@
 title: Engine
 image: /images/engine.jpg
 abstract: Sunt nisi street art marfa, hella kitsch waistcoat everyday carry. Tattooed non swag reprehenderit. Cloud bread prism qui gorpcore pop-up pug. Aute raw denim deep v palo santo. Lyft yr mumblecore neutra ea irure, edison bulb ut actually beard affogato.
+template: /blog/card.jinja
 ---
 
 # Adaptogen banjo

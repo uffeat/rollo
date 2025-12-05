@@ -3,6 +3,7 @@ title: Decor
 image: /images/decor.jpg
 abstract: Marfa bespoke hella meh aliqua cupidatat ut food truck. Messenger bag qui sartorial slow-carb ugh. I'm baby roof party blackbird spyplane meggings, authentic in tonx dolor la croix. Aute raw denim deep v palo santo.
 created: 2025-10-10 22:10
+template: /blog/card.jinja
 ---
 
 # Lumbersexual whatever

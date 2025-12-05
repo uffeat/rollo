@@ -18,6 +18,7 @@ export default async () => {
     "/about": await use("/pages/about.x.html"),
     "/blog": await use("/pages/blog.x.html"),
     "/blogrun": await use("/pages/blogrun.x.html"),
+    "/blogmod": await use("/pages/blog/"),
     "/terms": await use("/pages/terms/"),
   });
 
@@ -37,6 +38,7 @@ export default async () => {
         path: "/blogrun",
         title: "Blog",
       }),
+      NavLink("nav-link", { text: "Blog (module)", path: "/blogmod", title: "Blog" }),
       NavLink("nav-link", { text: "Terms", path: "/terms", title: "Terms" })
     ),
     /* Pseudo-argument for code organization */

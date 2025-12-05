@@ -6,9 +6,8 @@ const { marked } = await use("@/marked");
 
 const page = component.main("container pt-3", component.h1({ text: "Terms" }));
 
-const subPage = component.div("border border-top-0 rounded-bottom p-3", {
-  "data.sub": true,
-});
+const subPage = component.div("border border-top-0 rounded-bottom p-3", {});
+subPage.attribute.subPage = true;
 
 const content = {};
 
@@ -42,14 +41,10 @@ state.effects.add(
 );
 
 async function setup(base) {
-  //const link = await use(`/pages${base.repeat(2)}.css`);
+  const link = await use(`/pages//${base.slice(1)}.css`);
 
-  console.log('base:', base)
+  page.attribute.basePath = base;
 
-
-  const link = await use(`/pages//terms.css`);
-
-  page.data.base = base;
   const manifest = await use(`/content/meta/terms.json`);
   const paths = manifest.map(([path, timestamp]) => path);
   for (const path of paths) {
@@ -76,74 +71,69 @@ async function setup(base) {
   page.append(subPage);
 
   (() => {
-    const state = ref();
-    const group = component.div("btn-group", {
-      parent: page,
-      role: "group",
-      "[aria-label]": "Toggle button group",
-    });
-
-    
-
-    const label = component.label("btn btn-outline-primary", {
-      parent: group,
-      text: "No style",
-    },
-    component.input("btn-check", {
-      //parent: group,
-        type: "radio",
-        name: "disabled",
-      })
-  
-  
-  
-  );
-  })();
-
-  page.append(
-    component.div(
+    const group = component.div(
       "btn-group",
       {
+        parent: page,
         role: "group",
-        "on.change": (event) => {
-          console.log("event:", event);
-
-          if (true) {
-            link.sheet.disabled = true;
-          } else {
-            link.sheet.disabled = false;
-          }
-        },
-        "[aria-label]": "Toggle button group",
       },
+
       function () {
-        const input = component.input("btn-check", {
+        const radio = component.input("btn-check", {
           parent: this,
+          name: "style",
           type: "radio",
-          name: "disabled",
-        });
+          value: "styled",
+          _value: false,
 
-        input.id = input.uid;
-        component.label(
-          "btn btn-outline-primary",
-          { parent: this, for_: input.id },
-          "No style"
-        );
+          checked: true
+        });
+        radio.id = radio.uid;
+        component.label("btn btn-outline-primary", {
+          parent: this,
+          text: "Style",
+          for_: radio.id,
+        });
       },
+
       function () {
-        const input = component.input(
-          "btn-check",
-          { parent: this, type: "radio", name: "enabled" },
-        );
-        input.id = input.uid;
-        component.label(
-          "btn btn-outline-primary",
-          { parent: this, for_: input.id },
-          "Style"
-        );
+        const radio = component.input("btn-check", {
+          parent: this,
+          name: "style",
+          type: "radio",
+          value: "unstyled",
+          _value: true,
+        });
+        radio.id = radio.uid;
+        component.label("btn btn-outline-primary", {
+          parent: this,
+          text: "No style",
+          for_: radio.id,
+        });
+      },
+
+      
+    );
+
+    group.on.change((event) => {
+      if ("_value" in event.target) {
+        group.$.value = event.target._value;
       }
-    )
-  );
+    });
+
+    group.$.effects.add(
+      (change) => {
+        const value = change.value;
+        link.sheet.disabled = value;
+      },
+      { run: false },
+      ["value"]
+    );
+
+    //const styled = group.find("input:first-of-type")
+    //const value = styled._value;
+    //group.$.value = value;
+  })();
 }
 
 function enter(meta, query, ...paths) {

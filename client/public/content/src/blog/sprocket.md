@@ -3,6 +3,7 @@ title: Sprocket
 image: /images/sprocket.jpg
 abstract: Craft beer XOXO solarpunk vibecession. Literally pitchfork fit four dollar toast try-hard cred, asymmetrical yr listicle sus jawn pop-up banjo. Kickstarter retro hammock, gochujang gorpcore raw denim man bun pabst single-origin coffee.
 created: 2024-09-05 17:25
+template: /blog/card.jinja
 ---
 
 # I'm baby seitan echo park retro

@@ -46,6 +46,8 @@ class build(Files, Minify):
 
             manifest = []
 
+            bundle = {}
+
             for file in publication.rglob("**/*.md"):
 
                 # Ignore meta files
@@ -62,11 +64,15 @@ class build(Files, Minify):
                 created = meta.get("created")
                 manifest.append([f"/{path}", created])
 
+                bundle[f"/{path}"] = dict(content=content, meta=meta)
+
             manifest = sorted(
                 manifest,
                 key=lambda item: datetime.datetime.strptime(item[1], TIME_FORMAT),
                 reverse=True,
             )
+
+            
 
             count["count"] += len(manifest)
 
@@ -79,6 +85,12 @@ class build(Files, Minify):
             self.write(
                 f"client/public/content/meta/{publication.stem}.json",
                 json.dumps(manifest),
+            )
+
+            # Handle publication bundle
+            self.write(
+                f"client/public/content/bundle/{publication.stem}.json",
+                json.dumps(dict(bundle=bundle, manifest=manifest)),
             )
 
         count = count["count"]
@@ -112,7 +124,11 @@ class build(Files, Minify):
         # data into template
         template = meta.pop("template", None)
         if template:
-            content = render(f"build/templates/{template}", content=content, **meta)
+            # XXX Do NOT minify Jinja-rendered templates!
+            meta['html'] = render(f"client/templates{template}", **meta)
+            
+
+
         content = self.minify_html(content)
         return path, meta, content
 

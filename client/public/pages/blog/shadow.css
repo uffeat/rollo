@@ -1,0 +1,34 @@
+/* Cards per row */
+#root {
+  --gap: 0rem;
+  --items: 1;
+}
+@media (width >= 768px) {
+  #root {
+    --gap: 0.25rem;
+    --items: 2;
+  }
+}
+@media (width >= 1200px) {
+  #root {
+    --gap: 0.5rem;
+    --items: 3;
+  }
+}
+
+[cards] {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  column-gap: var(--gap);
+  row-gap: max(calc(1.5 * var(--gap)), 0.5rem);
+}
+
+::slotted(.card) {
+  width: calc(calc(100% / var(--items)) - var(--gap));
+}
+
+:host([hide]) [cards] {
+  display: none;
+}

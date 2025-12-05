@@ -11,6 +11,8 @@ const { layout } = await use("@/layout/");
 const { component } = await use("@/component.js");
 const { reactive } = await use("@/state.js");
 
+// SEE SCRATCH! 
+
 const wrapReact = (state, wrapper, reactComponent) => {
   let reactRoot
   

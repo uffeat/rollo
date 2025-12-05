@@ -3,6 +3,7 @@ title: Phone
 image: /images/phone.jpg
 abstract: Locavore venmo jean shorts, solarpunk lo-fi microdosing vape woke. Neutra enamel pin cliche, taxidermy health goth DSA pug quinoa. Mustache XOXO you probably haven't heard of them shoreditch.
 created: 2025-08-09 17:25
+template: /blog/card.jinja
 ---
 
 # Asymmetrical tofu

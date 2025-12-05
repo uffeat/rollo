@@ -3,6 +3,7 @@ title: Skater girl
 image: /images/skatergirl.jpg
 abstract: Kitsch marxism copper mug sriracha heirloom prism. Wayfarers chambray hammock cloud bread lo-fi knausgaard shabby chic art party 3 wolf moon distillery kombucha yr same swag pok pok.
 created: 2025-07-09 17:25
+template: /blog/card.jinja
 ---
 
 # Wolf 8-bit umami

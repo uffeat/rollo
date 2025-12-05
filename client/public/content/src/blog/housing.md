@@ -3,6 +3,7 @@ title: Housing
 image: /images/housing.jpg
 abstract: Swag hot chicken succulents anim solarpunk. Hell of meh palo santo fanny pack. Pitchfork umami tempor same velit occupy neutral milk hotel drinking vinegar hammock vegan selfies. Narwhal gentrify XOXO consectetur.
 created: 2024-09-01 17:25
+template: /blog/card.jinja
 ---
 
 # Consectetur

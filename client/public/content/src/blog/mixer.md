@@ -3,6 +3,7 @@ title: Mixer
 image: /images/mixer.jpg
 abstract: Air plant swag chartreuse blackbird spyplane actually fingerstache vape waistcoat ramps kombucha fashion axe. Fixie mustache keffiyeh, pickled flannel; live-edge, same blue bottle
 created: 2025-08-09 17:25
+template: /blog/card.jinja
 ---
 
 # Single-origin banjo

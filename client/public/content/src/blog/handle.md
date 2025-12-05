@@ -3,6 +3,7 @@ title: Handle
 image: /images/handle.jpg
 abstract: Intelligentsia pinterest truffaut, microdosing skateboard kitsch in duis ut exercitation put a bird on it live-edge. Cupping drinking vinegar affogato, nisi organic nulla aliquip hot chicken adipisicing celiac fam qui laborum listicle banh mi.
 created: 2024-05-09 19:25
+template: /blog/card.jinja
 ---
 
 # Semiotics vape

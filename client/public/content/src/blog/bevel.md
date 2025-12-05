@@ -3,6 +3,7 @@ title: Bevel
 image: /images/bevel.jpg
 abstract: Cardigan plaid roof party ex, fugiat nulla bitters small batch. Dreamcatcher shaman banh mi messenger bag, church-key consectetur lomo taiyaki. Glossier post-ironic cred sed aesthetic leggings, poutine quinoa dreamcatcher freegan et thundercats adaptogen.
 created: 2024-05-09 17:25
+template: /blog/card.jinja
 ---
 
 

@@ -24,10 +24,6 @@ export class UseError extends Error {
 }
 
 /* Utility for parsing path.
-- Supports shorthands:
-  - Trailing '/': '@/layout/' -> '@/layout/layout.js'.
-  - Double '/': '@//layout.js' -> '@/layout/layout.js'.
-  - Missing type: '@/layout/layout' -> '@/layout/layout.js'.
 NOTE 
 - Query support currently not used, but could be an alternative to option args.
 */
@@ -45,18 +41,46 @@ export class Path {
 
   constructor(specifier) {
     this.#_.specifier = specifier;
-    /* Query */
-    const [path, query] = specifier.split("?");
-    this.#_.query = Object.freeze(
-      query ? Array.from(new URLSearchParams(query).keys()) : []
-    );
-    const parts = path.split("/");
-    /* Trailing '/' */
+    
+    const [path, search] = specifier.split("?");
+
+    /* Build query */
+    if (search) {
+      this.#_.query = Object.freeze(
+        Object.fromEntries(
+          Array.from(new URLSearchParams(search), ([k, v]) => {
+            v = v.trim();
+            if (v === "") return [k, true];
+            if (v === "true") return [k, true];
+            const probe = Number(v);
+            return [k, Number.isNaN(probe) ? v : probe];
+          }).filter(([k, v]) => !["false", "null", "undefined"].includes(v))
+        )
+      );
+    } else {
+      this.#_.query = null;
+    }
+
+    let parts = path.split("/");
+
+    this.#_.source = parts.shift();
+    /* NOTE If specifier starts with '/', this.#_.source becomes '', which is 
+    handy during construction. However, the this.source getter returns '/' for 
+    falsy (i.e., '') this.#_.source values. */
+
+    /** Handle shortcuts */
+
+    /* Trailing '/' -> repeats last part with js type. Example: */
+    () => "@/foo/" === "@/foo/foo.js";
+
     if (parts.at(-1) === "") {
       parts[parts.length - 1] = `${parts[parts.length - 2]}.js`;
     }
-    /* Double '/' */
-    if (!specifier.startsWith("/") && parts.includes("")) {
+    /* '//' in path -> repeats next part without any types. Examples: */
+    () => "/foo//bar.css" === "@/foo/foo.js";
+    () => "@//foo.js" === "@/foo/foo.js";
+
+    if (parts.includes("")) {
       const index = parts.findIndex((p) => p === "");
       const next = parts[index + 1];
       parts[index] = next.split(".")[0];
@@ -67,18 +91,20 @@ export class Path {
       parts[parts.length - 1] = `${file}.js`;
     }
 
-    this.#_.source = parts.at(0);
-    this.#_.file = parts[parts.length - 1];
+    /** Build props */
+    this.#_.parts = Object.freeze(parts);
+    this.#_.path = `/${parts.join("/")}`;
+    this.#_.full = `${this.#_.source}${this.#_.path}`;
+    this.#_.file = parts.at(-1);
     this.#_.stem = this.#_.file.split(".").at(0);
     this.#_.type = this.#_.file.split(".").at(-1);
     const [_, ...types] = this.#_.file.split(".");
     this.#_.types = types.join(".");
-    this.#_.path = `/${parts.slice(1).join("/")}`;
-    this.#_.full = parts.join("/");
-    this.#_.parts = Object.freeze(parts);
+    
   }
 
-  /* Returns detail for ad-hoc data. */
+  /* Returns detail for ad-hoc data.
+  NOTE Can be critical for handlers. */
   get detail() {
     return this.#_.detail;
   }
@@ -103,12 +129,12 @@ export class Path {
     return this.#_.path;
   }
 
-  /* Returns query array. */
+  /* Returns query. */
   get query() {
     return this.#_.query;
   }
 
-  /* Returns source name. */
+  /* Returns source. */
   get source() {
     return this.#_.source || "/";
   }
@@ -131,22 +157,6 @@ export class Path {
   /* Returns string with pseudo files types and declared file type. */
   get types() {
     return this.#_.types;
-  }
-
-  /* Returns 'Path' instance (of specifier, if 'raw') created current instance, 
-  but with replaced file type(s). */
-  as(types, { raw = false } = {}) {
-    if (!this.#_.file) {
-      throw new Error(`No file.`);
-    }
-    const specifier = `${this.source}${this.path.slice(
-      0,
-      -this.types.length
-    )}${types}${this.query.length ? "?" : ""}${this.query.join("&")}`;
-    if (raw) {
-      return specifier;
-    }
-    return new Path(specifier);
   }
 }
 
@@ -482,8 +492,16 @@ use.sources.add(
         import, which will throw for invalid paths; it carries a small perf
         penalty, so only do in DEV. */
         if (use.meta.DEV) {
+
+          //
           await use(path.path, { raw: true });
+          //
         }
+
+        //console.log("path:", path);////
+
+
+
         const href = `${owner.meta.base}${path.path}`;
         let link = document.head.querySelector(
           `link[rel="stylesheet"][href="${href}"]`

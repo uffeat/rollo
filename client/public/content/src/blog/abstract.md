@@ -3,6 +3,7 @@ title: Abstract
 image: /images/abstract.jpg
 abstract: Four dollar toast migas YOLO skateboard, artisan bushwick gluten-free williamsburg plaid tote bag drinking vinegar. Bespoke vinyl before they sold out in.
 created: 2025-02-19 17:25
+template: /blog/card.jinja
 ---
 
 # Cred XOXO
