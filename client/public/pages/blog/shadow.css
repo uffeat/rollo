@@ -29,6 +29,8 @@
   width: calc(calc(100% / var(--items)) - var(--gap));
 }
 
-:host([hide]) [cards] {
+:host([post-view]) :is([cards], slot[name="title"]) {
   display: none;
 }
+
+

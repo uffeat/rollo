@@ -35,7 +35,6 @@ const Card = ({ html, path }) => {
   return card;
 };
 
-
 /* TODO
 - convert to Map
 */
@@ -61,31 +60,24 @@ const state = ref();
 state.effects.add(
   (current, message) => {
     console.log("current:", current); ////
-    const previous = message.owner.previous
+    const previous = message.owner.previous;
     console.log("previous:", previous); ////
 
     if (current) {
-
-      
-
-
-
-      console.log("Post view"); ////
-      page.attribute.hide = true;
+      //console.log("Post view"); ////
+      page.attribute.postView = true;
       const post = posts[`/${current}`];
       page.append(post);
     } else {
-      console.log("Cards view"); ////
-
+      //console.log("Cards view"); ////
 
       if (previous) {
         const post = posts[`/${previous}`];
         post?.remove();
-        
       }
       //const post = page.find(`[post]`);
       //post?.remove();
-      page.attribute.hide = false;
+      page.attribute.postView = false;
     }
   },
   { run: false }
