@@ -14,10 +14,10 @@ export default async () => {
   router.routes.add({
     "/": await use("/pages/home.x.html"),
     "/about": await use("/pages/about.x.html"),
-    "/blog": await use("/pages/blog.x.html"),
-    "/blogrun": await use("/pages/blogrun.x.html"),
+    //"/blog": await use("/pages/blog.x.html"),
+    //"/blogrun": await use("/pages/blogrun.x.html"),
     "/blogmod": await use("/pages/blog/"),
-    "/terms": await use("/pages/terms/"),
+    //"/terms": await use("/pages/terms/"),
   });
 
   /* Create nav */
