@@ -12,11 +12,31 @@ export default async () => {
 
   /* Define routes */
   router.routes.add({
-    "/": await use("/pages/home.x.html"),
+    //"/": await use("/pages/home.x.html"),
+    "/": (() => {
+      const page = component.main(
+        "container pt-3",
+        component.h1({ text: "Home" })
+      );
+
+      return (meta, url, ...paths) => {
+        if (meta.enter) {
+          layout.clear(":not([slot])");
+          layout.append(page);
+          return;
+        }
+
+        if (meta.exit) {
+          page.remove();
+          return;
+        }
+      };
+    })(),
+
     "/about": await use("/pages/about.x.html"),
     //"/blog": await use("/pages/blog.x.html"),
     //"/blogrun": await use("/pages/blogrun.x.html"),
-    "/blogmod": await use("/pages/blog/"),
+    //"/blogmod": await use("/pages/blog/"),
     //"/terms": await use("/pages/terms/"),
   });
 
