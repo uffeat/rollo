@@ -1,16 +1,33 @@
 import "../use.js";
 import "../assets/blog.css";
 
+//
+//
+import shadowCss from "../assets/shadow.css?raw";
+//
+//
+//import "./assets.js";
+
 const { component } = await use("@/component");
 const { layout } = await use("@/layout/");
 const { ref } = await use("@/state");
-const { router, Nav, NavLink } = await use("@/router/");
+const { router, NavLink } = await use("@/router/");
 const { toTop } = await use("@/tools/scroll");
 const reboot = await use("@/bootstrap/reboot.css");
+const { Sheet } = await use("@/sheet");
 
 //
 //
-const shadowSheet = await use("/pages/blog/shadow.css", { as: "sheet" });
+let shadowSheet;
+if (import.meta.env.DEV) {
+  const css = await import("../assets/shadow.css?raw");
+  const { Sheet } = await use("@/sheet");
+  shadowSheet = Sheet.create(css);
+} else {
+  shadowSheet = await use(`@/blog/shadow.css`);
+}
+
+console.log("shadowSheet:", shadowSheet);////
 //
 //
 
@@ -22,15 +39,23 @@ const page = component.main(
 );
 
 page.attachShadow({ mode: "open" });
-const shadow = component.div(
-  { id: "root" },
-  component.slot({ name: "title" }),
-  component.div({ "[cards]": true }, component.slot()),
-  component.slot({ name: "post" })
-);
-page.shadowRoot.append(shadow);
-reboot.use(page);
-shadowSheet.use(page);
+  const shadow = component.div(
+    { id: "root" },
+    component.slot({ name: "title" }),
+    component.div({ "[cards]": true }, component.slot()),
+    component.slot({ name: "post" })
+  );
+  page.shadowRoot.append(shadow);
+  reboot.use(page);
+
+  //
+  //
+  //shadowSheet.use(page);
+  Sheet.create(shadowCss).use(page);
+  //
+  //
+
+
 
 /* */
 const Card = ({ html, path }) => {
@@ -60,10 +85,10 @@ const Post = ({ html, path }) => {
       link.replaceWith(NavLink("nav-link", { path, text: link.textContent }));
     }
   }
-
   return post;
 };
 
+/* */
 const state = ref();
 state.effects.add(
   (current, message) => {
@@ -103,7 +128,10 @@ state.effects.add(
 );
 
 async function setup(base) {
+  
+
   page.attribute.page = base;
+
   const bundle = await use(`@/content/bundle/blog.json`);
   const manifest = bundle.manifest;
   const paths = manifest.map(([path, timestamp]) => path);

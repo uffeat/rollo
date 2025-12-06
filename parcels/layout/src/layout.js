@@ -6,9 +6,9 @@ const icons = {
   close: await use("@/icons/close.svg"),
   menu: await use("@/icons/menu.svg"),
 };
-const { Sheet } = await use("@/sheet.js");
+const { Sheet } = await use("@/sheet");
 const reboot = await use("@/bootstrap/reboot.css");
-const { Mixins, author, component, mix } = await use("@/component.js");
+const { Mixins, author, component, mix } = await use("@/component");
 
 export const Layout = author(
   class extends mix(HTMLElement, {}, ...Mixins()) {
