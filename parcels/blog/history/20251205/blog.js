@@ -1,26 +1,14 @@
-import "../use.js";
+import "../../use.js";
 import "../assets/blog.css";
+import Sheets from "../../src/assets/sheets.js";
+import { Card } from "../../src/tools/card.js";
+import { Post, posts } from "../../src/tools/post.js";
 
 const { component } = await use("@/component");
 const { layout } = await use("@/layout/");
 const { ref } = await use("@/state");
-const { router, NavLink } = await use("@/router/");
+const { router } = await use("@/router/");
 const { toTop } = await use("@/tools/scroll");
-
-const sheets = await (async () => {
-  return {
-    reboot: await use("@/bootstrap/reboot.css"),
-    shadow: import.meta.env.DEV
-      ? await use(`/assets/blog/shadow.css`, { as: "sheet" })
-      : await use(`@/blog/shadow.css`),
-  };
-})();
-
-const reboot = await use("@/bootstrap/reboot.css");
-
-const shadowSheet = import.meta.env.DEV
-  ? await use(`/assets/blog/shadow.css`, { as: "sheet" })
-  : await use(`@/blog/shadow.css`);
 
 /** Prepare components and component factories */
 
@@ -29,50 +17,7 @@ const page = component.main(
   component.h1("py-3", { text: "Blog", slot: "title" })
 );
 
-page.attachShadow({ mode: "open" });
-page.detail.shadow = component.div(
-  { id: "root" },
-  component.slot({ name: "title" }),
-  component.div({ "[cards]": true }, component.slot()),
-  component.slot({ name: "post" })
-);
-
-page.shadowRoot.append(page.detail.shadow);
-sheets.reboot.use(page);
-sheets.shadow.use(page);
-
-/* */
-const Card = ({ html, path }) => {
-  /* XXX Build tools produce the full card html (keep it that way for clarity 
-  and consistency). This could be injected directly into page. However, we want
-  a top-level component handle. So to avoid over-nesting (and styling issues), 
-  we create a fresh component, and transfer first child's classes and html. */
-  const first = component.div({ innerHTML: html }).firstChild;
-  const card = component.div(first.className, { innerHTML: first.innerHTML });
-  card.attribute.card = path;
-  replaceImages(card);
-  return card;
-};
-
-const posts = new Map();
-
-/* Returns post component rendered from html and with any internal links 
-  replaced with .nav-wrapped NavLinks. */
-const Post = ({ html, path }) => {
-  const post = component.div({ innerHTML: html, slot: "post" });
-  post.attribute.post = path;
-  replaceImages(post);
-  for (const link of post.querySelectorAll(`a[href]`)) {
-    const path = link.getAttribute("href");
-    if (path.startsWith("/")) {
-      link.parentElement.classList.add("nav");
-      link.replaceWith(NavLink("nav-link", { path, text: link.textContent }));
-    }
-  }
-  return post;
-};
-
-/* */
+/* State for controlling view */
 const state = ref();
 state.effects.add(
   (current, message) => {
@@ -88,17 +33,14 @@ state.effects.add(
       const post = posts.get(`/${previous}`);
       post?.remove();
     }
-
     if (current) {
       //console.log("Post view"); ////
       /* Undisplay cards */
       page.attribute.postView = true;
       const key = `/${current}`;
-
       if (!posts.has(key)) {
         router.error(`Invalid path: ${key}.`);
       }
-
       const post = posts.get(key);
       page.append(post);
       toTop(post);
@@ -113,11 +55,26 @@ state.effects.add(
 
 async function setup(base) {
   page.attribute.page = base;
+  /* Set up shadow */
+  page.attachShadow({ mode: "open" });
+  await (async () => {
+    const shadow = component.div(
+      { id: "root" },
+      component.slot({ name: "title" }),
+      component.div({ "[cards]": true }, component.slot()),
+      component.slot({ name: "post" })
+    );
+    page.detail.shadow = shadow;
+    page.shadowRoot.append(shadow);
+    const sheets = await Sheets();
+    sheets.reboot.use(page);
+    sheets.shadow.use(page);
+  })();
 
+  /* Render */
   const bundle = await use(`@/content/bundle/blog.json`);
-  const manifest = bundle.manifest;
-  const paths = manifest.map(([path, timestamp]) => path);
-  for (let path of paths) {
+ 
+  for (let path of bundle.manifest.map(([path, timestamp]) => path)) {
     const item = bundle.bundle[path];
     /* Convert: /blog/foo -> /foo */
     path = `/${path.split("/").at(-1)}`;
@@ -157,15 +114,3 @@ function exit(meta) {
 }
 
 export { setup, enter, update, exit };
-
-/* */
-function replaceImages(container) {
-  for (const image of container.querySelectorAll(`img`)) {
-    const src = image.getAttribute("src");
-    if (src.startsWith("/")) {
-      const alt = image.getAttribute("alt");
-      const replacement = component.img({ alt, src: `${use.meta.base}${src}` });
-      image.replaceWith(replacement);
-    }
-  }
-}

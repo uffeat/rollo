@@ -1,4 +1,4 @@
-/* Cards per row */
+/* Cards layout */
 #root {
   --gap: 0rem;
   --items: 1;
@@ -26,11 +26,9 @@
 }
 
 ::slotted(.card) {
-  width: calc(calc(100% / var(--items)) - var(--gap));
+  width: calc(calc(100% / var(--items)) - var(--gap)) !important;
 }
 
 :host([post-view]) :is([cards], slot[name="title"]) {
   display: none;
 }
-
-

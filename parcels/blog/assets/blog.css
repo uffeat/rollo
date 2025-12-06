@@ -1,7 +1,15 @@
 /* Card links */
-[page="/blog"] .card .nav-link:hover {
+[page="/blog"] > .card .nav-link {
+  cursor: pointer;
+}
+[page="/blog"] > .card .nav-link:hover {
   text-decoration: underline;
   text-decoration-thickness: 2px;
+}
+
+/* Card footer */
+[page="/blog"] > .card > .card-footer {
+  min-height: 2rem !important;
 }
 
 /* Post headings */
