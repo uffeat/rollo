@@ -1,0 +1,12 @@
+[base-path="/terms"] {
+  .nav-link.active {
+    
+    color: var(--bs-link-color);
+  }
+
+  [sub-page] {
+    h1 {
+      font-size: 1.5rem;
+    }
+  }
+}

@@ -6,7 +6,7 @@ import "./test.css";
 import "../../../client/src/main.css"
 /* Overload to use live parcel */
 import * as parcel from "../index.js";
-use.add("@/component.js", parcel);
+use.add("@/blog/blog.js", parcel);
 
 document.documentElement.dataset.bsTheme = "dark";
 
@@ -41,7 +41,7 @@ await (async () => {
 /* Runs test. */
 const run = async (path) => {
   if (!path) return;
-  history.replaceState({}, "", path); //
+  //history.replaceState({}, "", path); //
   const asset = await use(`tests${path}`);
   const test = asset?.default ?? asset;
   await test(parcel);
@@ -70,3 +70,5 @@ await (async () => {
     })()
   );
 })();
+
+

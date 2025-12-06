@@ -1,0 +1,28 @@
+<style for="page" global>
+  section {
+    padding-top: 4rem;
+  }
+
+  h1 {
+    color: pink;
+  }
+</style>
+
+<script type="module">
+  const { component } = await use("@/component");
+  const { layout } = await use("@/layout/");
+
+  export const page = component.main(
+    "container",
+    component.section(component.h1({ text: "About" }))
+  );
+
+  export default async function () {
+    return (mode) => {
+      if (mode.enter) {
+        layout.clear(":not([slot])");
+        layout.append(page);
+      }
+    };
+  }
+</script>
