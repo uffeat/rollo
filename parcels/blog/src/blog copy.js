@@ -1,22 +1,35 @@
 import "../use.js";
 import "../assets/blog.css";
 
+//
+//
+import shadowCss from "../assets/shadow.css?raw";
+//
+//
+//import "./assets.js";
+
 const { component } = await use("@/component");
 const { layout } = await use("@/layout/");
 const { ref } = await use("@/state");
 const { router, NavLink } = await use("@/router/");
 const { toTop } = await use("@/tools/scroll");
+const reboot = await use("@/bootstrap/reboot.css");
+const { Sheet } = await use("@/sheet");
 
-const sheets = await (async () => {
-  return {
-    reboot: await use("@/bootstrap/reboot.css"),
-    shadow: import.meta.env.DEV
-      ? await use(`/assets/blog/shadow.css`, { as: "sheet" })
-      : await use(`@/blog/shadow.css`),
-  };
-})();
+//
+//
+let shadowSheet;
+if (import.meta.env.DEV) {
+  const css = await import("../assets/shadow.css?raw");
+  const { Sheet } = await use("@/sheet");
+  shadowSheet = Sheet.create(css);
+} else {
+  shadowSheet = await use(`@/blog/shadow.css`);
+}
 
-
+console.log("shadowSheet:", shadowSheet);////
+//
+//
 
 /** Prepare components and component factories */
 
@@ -26,16 +39,23 @@ const page = component.main(
 );
 
 page.attachShadow({ mode: "open" });
-page.detail.shadow = component.div(
-  { id: "root" },
-  component.slot({ name: "title" }),
-  component.div({ "[cards]": true }, component.slot()),
-  component.slot({ name: "post" })
-);
+  const shadow = component.div(
+    { id: "root" },
+    component.slot({ name: "title" }),
+    component.div({ "[cards]": true }, component.slot()),
+    component.slot({ name: "post" })
+  );
+  page.shadowRoot.append(shadow);
+  reboot.use(page);
 
-page.shadowRoot.append(page.detail.shadow);
-sheets.reboot.use(page);
-sheets.shadow.use(page);
+  //
+  //
+  //shadowSheet.use(page);
+  Sheet.create(shadowCss).use(page);
+  //
+  //
+
+
 
 /* */
 const Card = ({ html, path }) => {
@@ -108,6 +128,8 @@ state.effects.add(
 );
 
 async function setup(base) {
+  
+
   page.attribute.page = base;
 
   const bundle = await use(`@/content/bundle/blog.json`);

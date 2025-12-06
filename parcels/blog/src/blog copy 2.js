@@ -16,7 +16,11 @@ const sheets = await (async () => {
   };
 })();
 
+const reboot = await use("@/bootstrap/reboot.css");
 
+const shadowSheet = import.meta.env.DEV
+  ? await use(`/assets/blog/shadow.css`, { as: "sheet" })
+  : await use(`@/blog/shadow.css`);
 
 /** Prepare components and component factories */
 
