@@ -72,8 +72,6 @@ class build(Files, Minify):
                 reverse=True,
             )
 
-            
-
             count["count"] += len(manifest)
 
             def COMMENT():
@@ -88,6 +86,10 @@ class build(Files, Minify):
             )
 
             # Handle publication bundle
+            self.write(
+                f"client/assets/content/bundle/{publication.stem}.json",
+                json.dumps(dict(bundle=bundle, manifest=manifest)),
+            )
             self.write(
                 f"client/public/content/bundle/{publication.stem}.json",
                 json.dumps(dict(bundle=bundle, manifest=manifest)),
@@ -125,9 +127,7 @@ class build(Files, Minify):
         template = meta.pop("template", None)
         if template:
             # XXX Do NOT minify Jinja-rendered templates!
-            meta['html'] = render(f"client/templates{template}", **meta)
-            
-
+            meta["html"] = render(f"client/templates{template}", **meta)
 
         content = self.minify_html(content)
         return path, meta, content

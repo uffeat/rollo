@@ -1,5 +1,3 @@
-import '../use.js'
-import error from "./error.js";
 let ran;
 
 export default async () => {
@@ -38,7 +36,11 @@ export default async () => {
         path: "/blogrun",
         title: "Blog",
       }),
-      NavLink("nav-link", { text: "Blog (module)", path: "/blogmod", title: "Blog" }),
+      NavLink("nav-link", {
+        text: "Blog (module)",
+        path: "/blogmod",
+        title: "Blog",
+      }),
       NavLink("nav-link", { text: "Terms", path: "/terms", title: "Terms" })
     ),
     /* Pseudo-argument for code organization */
@@ -50,7 +52,30 @@ export default async () => {
     )
   );
 
-  await router.setup({ error });
+  await router.setup({
+    error: (() => {
+      const page = component.main(
+        "container",
+        component.h1({ text: "Page not found" })
+      );
+      const details = component.p({ parent: page });
+
+      return (message) => {
+        if (message) {
+          if (message instanceof Error) {
+            message = message.message;
+          }
+
+          details.text = message;
+        } else {
+          details.clear();
+        }
+
+        layout.clear(":not([slot])");
+        layout.append(page);
+      };
+    })(),
+  });
 
   console.log("Router set up");
 };

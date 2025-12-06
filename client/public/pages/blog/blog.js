@@ -2,8 +2,14 @@ const { component } = await use("@/component");
 const { layout } = await use("@/layout/");
 const { ref } = await use("@/state");
 const { router, Nav, NavLink } = await use("@/router/");
+const { toTop } = await use("@/tools/scroll");
 const reboot = await use("@/bootstrap/reboot.css");
 const shadowSheet = await use("/pages/blog/shadow.css", { as: "sheet" });
+
+
+/* TODO
+- Move to assets
+*/
 
 /** Prepare components and component factories */
 
@@ -59,24 +65,24 @@ const Post = ({ html, path }) => {
 const state = ref();
 state.effects.add(
   (current, message) => {
-    console.log("current:", current); ////
+    //console.log("current:", current); ////
     const previous = message.owner.previous;
-    console.log("previous:", previous); ////
+    //console.log("previous:", previous); ////
 
     if (current) {
       //console.log("Post view"); ////
       page.attribute.postView = true;
       const post = posts[`/${current}`];
       page.append(post);
+      toTop(post)
+
+
     } else {
       //console.log("Cards view"); ////
-
       if (previous) {
         const post = posts[`/${previous}`];
         post?.remove();
       }
-      //const post = page.find(`[post]`);
-      //post?.remove();
       page.attribute.postView = false;
     }
   },
@@ -84,13 +90,12 @@ state.effects.add(
 );
 
 async function setup(base) {
-  //console.log('base:', base)////
 
   const link = await use(`/pages//blog.css`);
 
   page.attribute.basePath = base;
 
-  const bundle = await use(`/content/bundle/blog.json`);
+  const bundle = await use(`@/content/bundle/blog.json`);
 
   const manifest = bundle.manifest;
   const paths = manifest.map(([path, timestamp]) => path);
@@ -99,7 +104,6 @@ async function setup(base) {
     const item = bundle.bundle[path];
     /* Convert: /blog/foo -> /foo */
     path = `/${path.split("/").at(-1)}`;
-    //console.log('path:', path)////
     const card = Card({ html: item.meta.html, path });
     page.append(card);
     const post = Post({ html: item.content, path });
@@ -113,13 +117,6 @@ async function setup(base) {
       const card = event.target.closest(`[card]`);
       const path = card.attribute.card;
       await router(`${base}${path}`);
-      //
-      //
-      //console.log('path:', path)////
-      //const post = posts[path]
-      //console.log('post:', post)////
-      //page.attribute.hide = true
-      //page.append(post)
     }
   };
 }
@@ -127,14 +124,11 @@ async function setup(base) {
 function enter(meta, query, ...paths) {
   layout.clear(":not([slot])");
   layout.append(page);
-
-  //console.log('paths:', paths)////
   /* Default to null, since undefined state is ignored */
   state(paths.at(0) || null);
 }
 
 function update(meta, query, ...paths) {
-  //console.log('paths:', paths)////
   /* Default to null, since undefined state is ignored */
   state(paths.at(0) || null);
 }
