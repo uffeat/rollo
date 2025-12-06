@@ -167,6 +167,8 @@ class L {
   get list() {
     return this.owner.classList;
   }
+  get size() {
+  }
   /* Adds classes. */
   add(s) {
     const t = this.#e(s);
@@ -217,6 +219,8 @@ class L {
       this.owner.classList.toggle(n, t);
     return this.owner;
   }
+  values() {
+  }
   #e(s) {
     if (s) {
       const t = s.includes(".") ? "." : " ";
@@ -264,7 +268,7 @@ const C = (i, s) => class extends i {
       e.startsWith(".") && (n === void 0 || n === "..." || this.classes[n ? "add" : "remove"](e));
     return this;
   }
-}, k = (i, s) => class extends i {
+}, P = (i, s) => class extends i {
   static __name__ = "clear";
   /* Clears content, optionally subject to selector. Chainable. */
   clear(t) {
@@ -278,7 +282,7 @@ const C = (i, s) => class extends i {
     }
     return this;
   }
-}, P = (i, s) => class extends i {
+}, k = (i, s) => class extends i {
   static __name__ = "connect";
   connectedCallback() {
     super.connectedCallback?.(), this.dispatchEvent(new CustomEvent("_connect"));
@@ -406,7 +410,7 @@ const V = (i, s, ...t) => class extends i {
     registry: /* @__PURE__ */ new Map()
   };
   add(i, s, t) {
-    s ? Object.defineProperty(i, "__key__", {
+    if (s ? Object.defineProperty(i, "__key__", {
       configurable: !1,
       enumerable: !0,
       writable: !1,
@@ -416,7 +420,11 @@ const V = (i, s, ...t) => class extends i {
       enumerable: !0,
       writable: !1,
       value: t
-    }) : t = i.__native__;
+    }) : t = i.__native__, use.meta.DEV) {
+      const n = customElements.get(s);
+      if (n)
+        return n;
+    }
     const e = [s, i];
     return t && e.push({ extends: t }), customElements.define(...e), use.meta.DEV, this.#t.registry.set(s, i), i;
   }
@@ -499,19 +507,19 @@ const I = (i, s) => class extends i {
           symmetry with respect to handler by 'unuse':
           `button.on.click.unuse()`
           */
-          get(u, _) {
+          get(a, _) {
             return (...h) => {
-              const a = h.find((f) => typeof f == "function"), l = h.find((f) => d(f) === "Object") || {};
+              const u = h.find((f) => typeof f == "function"), l = h.find((f) => d(f) === "Object") || {};
               if (_ === "use")
-                return e.addEventListener(c, a, l);
+                return e.addEventListener(c, u, l);
               if (_ === "unuse")
-                return e.removeEventListener(c, a, l);
+                return e.removeEventListener(c, u, l);
               throw new Error(`Invalid key: ${_}`);
             };
           },
-          apply(u, _, h) {
-            const a = h.find((f) => typeof f == "function"), l = h.find((f) => d(f) === "Object") || {};
-            return e.addEventListener(c, a, l);
+          apply(a, _, h) {
+            const u = h.find((f) => typeof f == "function"), l = h.find((f) => d(f) === "Object") || {};
+            return e.addEventListener(c, u, l);
           }
         });
       },
@@ -520,9 +528,9 @@ const I = (i, s) => class extends i {
       button.on['click.run']((event) => console.log("Clicked"));
       */
       set(r, o, c) {
-        const [u, ..._] = o.split(".");
+        const [a, ..._] = o.split(".");
         return e.addEventListener(
-          u,
+          a,
           c,
           Object.fromEntries(_.map((h) => [h, !0]))
         ), !0;
@@ -555,31 +563,31 @@ const I = (i, s) => class extends i {
     const [n, r] = typeof e[0] == "string" ? e : Object.entries(e[0])[0], {
       once: o = !1,
       run: c = !1,
-      track: u = !1,
+      track: a = !1,
       ..._
-    } = e.find((a, l) => l && d(a) === "Object") || {};
-    u && !o && this.#t.registry.add(n, r), super.addEventListener(n, r, { once: o, ..._ });
+    } = e.find((u, l) => l && d(u) === "Object") || {};
+    a && !o && this.#t.registry.add(n, r), super.addEventListener(n, r, { once: o, ..._ });
     const h = {
       handler: r,
       once: o,
       remove: () => {
-        this.removeEventListener(n, r, { track: u });
+        this.removeEventListener(n, r, { track: a });
       },
       run: c,
       target: this,
-      track: u,
+      track: a,
       type: n,
       ..._
     };
     if (c) {
-      const a = this.constructor.create();
-      a.addEventListener(
+      const u = this.constructor.create();
+      u.addEventListener(
         n,
         (l) => {
           m(l, "currentTarget", this), m(l, "target", this), m(l, "noevent", !0), r(l, h);
         },
         { once: !0 }
-      ), n.startsWith("_") || n.includes("-") ? a.dispatchEvent(new CustomEvent(n)) : `on${n}` in a && n in a && typeof a[n] == "function" ? a[n]() : a.dispatchEvent(new Event(n));
+      ), n.startsWith("_") || n.includes("-") ? u.dispatchEvent(new CustomEvent(n)) : `on${n}` in u && n in u && typeof u[n] == "function" ? u[n]() : u.dispatchEvent(new Event(n));
     }
     return h;
   }
@@ -588,7 +596,7 @@ const I = (i, s) => class extends i {
   handles additional options makes chainable and enables object-based args.
   "Point-of-truth" event handler deregistration. */
   removeEventListener(...e) {
-    const [n, r] = typeof e[0] == "string" ? e : Object.entries(e[0])[0], { track: o = !1, ...c } = e.find((u, _) => _ && d(u) === "Object") || {};
+    const [n, r] = typeof e[0] == "string" ? e : Object.entries(e[0])[0], { track: o = !1, ...c } = e.find((a, _) => _ && d(a) === "Object") || {};
     return o && this.#t.registry.remove(n, r), super.removeEventListener(n, r, c), this;
   }
   /* Adds event handlers from the special on-syntax. */
@@ -596,8 +604,8 @@ const I = (i, s) => class extends i {
     super.update?.(e);
     for (const [n, r] of Object.entries(e))
       if (n.startsWith("on.")) {
-        const [o, ...c] = n.slice(q).split("."), u = Object.fromEntries(c.map((_) => [_, !0]));
-        this.addEventListener(o, r, u);
+        const [o, ...c] = n.slice(q).split("."), a = Object.fromEntries(c.map((_) => [_, !0]));
+        this.addEventListener(o, r, a);
       }
     return this;
   }
@@ -649,8 +657,8 @@ const I = (i, s) => class extends i {
     const o = e === void 0 ? new Event(t, r) : new CustomEvent(t, { detail: e, ...r });
     if (this.dispatchEvent(o), n) {
       const c = typeof n == "string" ? this.querySelectorAll(n) : this.children;
-      for (const u of c)
-        u.dispatchEvent(o);
+      for (const a of c)
+        a.dispatchEvent(o);
     }
     return o;
   }
@@ -762,8 +770,8 @@ const Z = (i, s) => class extends i {
         "./mixins/append.js": A,
         "./mixins/attrs.js": O,
         "./mixins/classes.js": C,
-        "./mixins/clear.js": k,
-        "./mixins/connect.js": P,
+        "./mixins/clear.js": P,
+        "./mixins/connect.js": k,
         "./mixins/data.js": $,
         "./mixins/detail.js": W,
         "./mixins/find.js": M,
@@ -816,7 +824,7 @@ const Z = (i, s) => class extends i {
 }, w = (i) => {
   const s = it(i), t = new s();
   return y(t);
-}, ut = (i, ...s) => {
+}, at = (i, ...s) => {
   const [t, ...e] = i.split("."), n = w(t);
   return e.length ? n(`${e.join(".")}`, ...s) : n(...s);
 }, _t = new Proxy(
@@ -828,7 +836,7 @@ const Z = (i, s) => class extends i {
   }
 ), { defineValue: ot } = await use("@/tools/define"), lt = (i, s, t) => (p.add(i, s, t), ot(i, "create", y(i)), i.create);
 export {
-  ut as Component,
+  at as Component,
   w as Factory,
   nt as Mixins,
   lt as author,

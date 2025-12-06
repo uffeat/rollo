@@ -1,5 +1,5 @@
 /* TODO
-- eager load @@ jsx assets.
+- eager load @@ jsx assets?
 */
 
 export class UseError extends Error {
@@ -41,7 +41,7 @@ export class Path {
 
   constructor(specifier) {
     this.#_.specifier = specifier;
-    
+
     const [path, search] = specifier.split("?");
 
     /* Build query */
@@ -100,7 +100,6 @@ export class Path {
     this.#_.type = this.#_.file.split(".").at(-1);
     const [_, ...types] = this.#_.file.split(".");
     this.#_.types = types.join(".");
-    
   }
 
   /* Returns detail for ad-hoc data.
@@ -492,15 +491,12 @@ use.sources.add(
         import, which will throw for invalid paths; it carries a small perf
         penalty, so only do in DEV. */
         if (use.meta.DEV) {
-
           //
           await use(path.path, { raw: true });
           //
         }
 
         //console.log("path:", path);////
-
-
 
         const href = `${owner.meta.base}${path.path}`;
         let link = document.head.querySelector(
@@ -600,13 +596,13 @@ NOTE
 */
 await (async () => {
   await use("/assets.css");
-
   //console.log('Assets sheet loaded')////
 
   const cache = new Map();
 
   use.sources.add("@", async ({ path }) => {
     if (cache.has(path.full)) return cache.get(path.full);
+
     const probe = document.createElement("meta");
     document.head.append(probe);
     probe.setAttribute("__path__", path.path);
@@ -811,7 +807,7 @@ to avoid Vercel-injections.
           `[uid="${components[target].uid}"] { ${element.textContent.trim()} }`
         );
         if (element.hasAttribute("global")) {
-          sheet.use()
+          sheet.use();
         }
         if (element.hasAttribute("name")) {
           assets[element.getAttribute("name")] = sheet;
@@ -827,7 +823,9 @@ to avoid Vercel-injections.
       } else {
         /* Construct named sheet and add to context */
         assets[
-          element.hasAttribute("name") ? element.getAttribute("name") : "__sheet__"
+          element.hasAttribute("name")
+            ? element.getAttribute("name")
+            : "__sheet__"
         ] = Sheet.create(element.textContent.trim());
       }
     }
@@ -835,14 +833,16 @@ to avoid Vercel-injections.
     /* Parse templates */
     for (const element of fragment.querySelectorAll(`template`)) {
       assets[
-        element.hasAttribute("name") ? element.getAttribute("name") : "__template__"
+        element.hasAttribute("name")
+          ? element.getAttribute("name")
+          : "__template__"
       ] = element.innerHTML.trim();
     }
 
     Object.freeze(assets);
 
     /* Build pseudo module */
-    const pseudo = {'__type__': 'Module', assets};
+    const pseudo = { __type__: "Module", assets };
     for (const [key, value] of Object.entries(mod)) {
       if (typeof value === "function") {
         if (key === "__init__") {

@@ -30,17 +30,20 @@ export const registry = new (class {
       native = cls.__native__;
     }
 
-    if (import.meta.env.DEV) {
-      /* In DEV, test scripts may attempt double registration, which (in DEV) 
-      should be ignored. NOTE Cannot use 'this.#_.registry' since the
+    if (use.meta.DEV) {
+      /* XXX Something odd is going on, when testing parcels: Components get
+      registered multiple times!
+      Perhaps a failed cache, perhaps an in-flight issue or some other kind of 
+      race condition? Perhaps a bug in the component's parcel? Perhaps due
+      to the way the import engine is initialized inside parcels?
+      This is a hack - not a solution... On the positive side, the issue only 
+      pertains to testing (does not occur, when using the built parcel).
+      NOTE Cannot use 'this.#_.registry' since the
       dev context may have recreated it. Use 'customElements', which of course
       assumes dev work NOT done in Safari (as if...) */
       const current = customElements.get(key);
       if (current) {
-        console.warn(
-          `Fending off double registration of component with key:`,
-          key
-        );
+        //console.warn(`Ignored attempt to re-register:`, key);////
         return current;
       }
     }

@@ -1,68 +1,62 @@
-const f = async () => ({
+const b = async () => ({
   reboot: await use("@/bootstrap/reboot.css"),
   shadow: await use("@/blog/shadow.css")
-}), w = async () => {
-  const { component: o } = await use("@/component");
-  return ({ path: r, ...s }) => {
-    const { abstract: t, image: e, title: a } = s, c = o.div(
-      "card",
+}), { component: r } = await use("@/component"), h = ({ path: a, ...s }) => {
+  const { abstract: o, image: t, title: e } = s, c = r.div(
+    "card",
+    {},
+    r.img("card-img-top", { src: `${use.meta.base}${t}` }),
+    r.div(
+      "card-body.nav.d-flex.flex-column",
       {},
-      o.img("card-img-top", { src: `${use.meta.base}${e}` }),
-      o.div(
-        "card-body.nav.d-flex.flex-column",
-        {},
-        o.a(
-          "nav-link",
-          o.h1("card-title", { text: a, title: a })
-        ),
-        o.p("card-text", { text: t })
+      r.a(
+        "nav-link",
+        r.h1("card-title", { text: e, title: e })
       ),
-      o.div("card-footer")
-    );
-    return c.attribute.card = r, c;
-  };
-}, u = /* @__PURE__ */ new Map(), b = async () => {
-  const { component: o } = await use("@/component"), { NavLink: r } = await use("@/router/"), s = (t) => {
-    for (const e of t.querySelectorAll("img")) {
-      const a = e.getAttribute("src");
-      if (a.startsWith("/")) {
-        const c = e.getAttribute("alt"), l = o.img({
-          alt: c,
-          src: `${use.meta.base}${a}`
-        });
-        e.replaceWith(l);
-      }
+      r.p("card-text", { text: o })
+    ),
+    r.div("card-footer")
+  );
+  return c.attribute.card = a, c;
+}, { component: d } = await use("@/component"), { NavLink: w } = await use("@/router/"), g = (a) => {
+  for (const s of a.querySelectorAll("img")) {
+    const o = s.getAttribute("src");
+    if (o.startsWith("/")) {
+      const t = s.getAttribute("alt"), e = d.img({
+        alt: t,
+        src: `${use.meta.base}${o}`
+      });
+      s.replaceWith(e);
     }
-  };
-  return ({ html: t, path: e }) => {
-    const a = o.div({ innerHTML: t, slot: "post" });
-    a.attribute.post = e, s(a);
-    for (const c of a.querySelectorAll("a[href]")) {
-      const l = c.getAttribute("href");
-      l.startsWith("/") && (c.parentElement.classList.add("nav"), c.replaceWith(r("nav-link", { path: l, text: c.textContent })));
-    }
-    return a;
-  };
-}, { component: i } = await use("@/component"), { layout: d } = await use("@/layout/"), { ref: h } = await use("@/state"), { router: m } = await use("@/router/"), { toTop: g } = await use("@/tools/scroll"), y = await w(), v = await b(), n = i.main(
+  }
+}, l = /* @__PURE__ */ new Map(), v = ({ html: a, path: s }) => {
+  const o = d.div({ innerHTML: a, slot: "post" });
+  o.attribute.post = s, g(o);
+  for (const t of o.querySelectorAll("a[href]")) {
+    const e = t.getAttribute("href");
+    e.startsWith("/") && (t.parentElement.classList.add("nav"), t.replaceWith(w("nav-link", { path: e, text: t.textContent })));
+  }
+  return o;
+}, { component: i } = await use("@/component"), { layout: u } = await use("@/layout/"), { ref: y } = await use("@/state"), { router: m } = await use("@/router/"), { toTop: $ } = await use("@/tools/scroll"), n = i.main(
   "container mt-3 mb-3",
   i.h1("py-3", { text: "Blog", slot: "title" })
-), p = h();
+), p = y();
 p.effects.add(
-  (o, r) => {
-    const s = r.owner.previous;
-    if (s && u.get(`/${s}`)?.remove(), o) {
+  (a, s) => {
+    const o = s.owner.previous;
+    if (o && l.get(`/${o}`)?.remove(), a) {
       n.attribute.postView = !0;
-      const t = `/${o}`;
-      u.has(t) || m.error(`Invalid path: ${t}.`);
-      const e = u.get(t);
-      n.append(e), g(e);
+      const t = `/${a}`;
+      l.has(t) || m.error(`Invalid path: ${t}.`);
+      const e = l.get(t);
+      n.append(e), $(e);
     } else
       n.attribute.postView = !1;
   },
   { run: !1 }
 );
-async function x(o) {
-  n.attribute.page = o, n.attachShadow({ mode: "open" }), await (async () => {
+async function x(a) {
+  n.attribute.page = a, n.attachShadow({ mode: "open" }), await (async () => {
     const t = i.div(
       { id: "root" },
       i.slot({ name: "title" }),
@@ -70,45 +64,45 @@ async function x(o) {
       i.slot({ name: "post" })
     );
     n.detail.shadow = t, n.shadowRoot.append(t);
-    const e = await f();
+    const e = await b();
     e.reboot.use(n), e.shadow.use(n);
   })();
-  const r = await use("@/content/bundle/blog.json");
-  for (let t of r.manifest.map(([e, a]) => e)) {
-    const e = r.bundle[t];
+  const s = await use("@/content/bundle/blog.json");
+  for (let t of s.manifest.map(([e, c]) => e)) {
+    const e = s.bundle[t];
     t = `/${t.split("/").at(-1)}`;
-    const a = y({ path: t, ...e.meta });
-    n.append(a);
-    const c = v({ html: e.content, path: t });
-    u.set(t, c);
+    const c = h({ path: t, ...e.meta });
+    n.append(c);
+    const f = v({ html: e.content, path: t });
+    l.set(t, f);
   }
-  const s = "a.nav-link";
+  const o = "a.nav-link";
   n.on.click = async (t) => {
-    if (t.target.matches(s) || t.target.closest(s)) {
+    if (t.target.matches(o) || t.target.closest(o)) {
       const e = t.target.closest("[card]");
       if (e) {
-        const a = e.attribute.card;
-        await m(`${o}${a}`);
+        const c = e.attribute.card;
+        await m(`${a}${c}`);
       }
     }
   };
 }
-function $(o, r, ...s) {
-  d.clear(":not([slot])"), d.append(n), p(s.at(0) || null);
+function k(a, s, ...o) {
+  u.clear(":not([slot])"), u.append(n), p(o.at(0) || null);
 }
-function k(o, r, ...s) {
-  p(s.at(0) || null);
+function S(a, s, ...o) {
+  p(o.at(0) || null);
 }
-function S(o) {
+function A(a) {
   n.remove();
 }
-const A = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const q = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  enter: $,
-  exit: S,
+  enter: k,
+  exit: A,
   setup: x,
-  update: k
+  update: S
 }, Symbol.toStringTag, { value: "Module" }));
 export {
-  A as blog
+  q as blog
 };
