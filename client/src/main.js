@@ -75,6 +75,8 @@ if (import.meta.env.DEV) {
       })()
     );
   })();
+} else {
+await router();
 }
 
-await router();
+
