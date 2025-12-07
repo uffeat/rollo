@@ -1,5 +1,5 @@
 /*
-/path/shortcuts.test.js
+/path/basics.test.js
 */
 
 import { Path } from "../../../src/use.js";

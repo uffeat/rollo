@@ -1,6 +1,8 @@
-import "../../use.js";
+//import "../../use.js";
+
 
 const { component } = await use("@/component");
+
 
 /* */
 export default ({ path, ...meta }) => {

@@ -43,7 +43,7 @@ export const registry = new (class {
       assumes dev work NOT done in Safari (as if...) */
       const current = customElements.get(key);
       if (current) {
-        //console.warn(`Ignored attempt to re-register:`, key);////
+        console.warn(`Ignored attempt to re-register:`, key);////
         return current;
       }
     }

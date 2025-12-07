@@ -423,7 +423,7 @@ const V = (i, s, ...t) => class extends i {
     }) : t = i.__native__, use.meta.DEV) {
       const n = customElements.get(s);
       if (n)
-        return n;
+        return console.warn("Ignored attempt to re-register:", s), n;
     }
     const e = [s, i];
     return t && e.push({ extends: t }), customElements.define(...e), use.meta.DEV, this.#t.registry.set(s, i), i;
@@ -507,19 +507,19 @@ const I = (i, s) => class extends i {
           symmetry with respect to handler by 'unuse':
           `button.on.click.unuse()`
           */
-          get(a, _) {
+          get(u, _) {
             return (...h) => {
-              const u = h.find((f) => typeof f == "function"), l = h.find((f) => d(f) === "Object") || {};
+              const a = h.find((f) => typeof f == "function"), l = h.find((f) => d(f) === "Object") || {};
               if (_ === "use")
-                return e.addEventListener(c, u, l);
+                return e.addEventListener(c, a, l);
               if (_ === "unuse")
-                return e.removeEventListener(c, u, l);
+                return e.removeEventListener(c, a, l);
               throw new Error(`Invalid key: ${_}`);
             };
           },
-          apply(a, _, h) {
-            const u = h.find((f) => typeof f == "function"), l = h.find((f) => d(f) === "Object") || {};
-            return e.addEventListener(c, u, l);
+          apply(u, _, h) {
+            const a = h.find((f) => typeof f == "function"), l = h.find((f) => d(f) === "Object") || {};
+            return e.addEventListener(c, a, l);
           }
         });
       },
@@ -528,9 +528,9 @@ const I = (i, s) => class extends i {
       button.on['click.run']((event) => console.log("Clicked"));
       */
       set(r, o, c) {
-        const [a, ..._] = o.split(".");
+        const [u, ..._] = o.split(".");
         return e.addEventListener(
-          a,
+          u,
           c,
           Object.fromEntries(_.map((h) => [h, !0]))
         ), !0;
@@ -563,31 +563,31 @@ const I = (i, s) => class extends i {
     const [n, r] = typeof e[0] == "string" ? e : Object.entries(e[0])[0], {
       once: o = !1,
       run: c = !1,
-      track: a = !1,
+      track: u = !1,
       ..._
-    } = e.find((u, l) => l && d(u) === "Object") || {};
-    a && !o && this.#t.registry.add(n, r), super.addEventListener(n, r, { once: o, ..._ });
+    } = e.find((a, l) => l && d(a) === "Object") || {};
+    u && !o && this.#t.registry.add(n, r), super.addEventListener(n, r, { once: o, ..._ });
     const h = {
       handler: r,
       once: o,
       remove: () => {
-        this.removeEventListener(n, r, { track: a });
+        this.removeEventListener(n, r, { track: u });
       },
       run: c,
       target: this,
-      track: a,
+      track: u,
       type: n,
       ..._
     };
     if (c) {
-      const u = this.constructor.create();
-      u.addEventListener(
+      const a = this.constructor.create();
+      a.addEventListener(
         n,
         (l) => {
           m(l, "currentTarget", this), m(l, "target", this), m(l, "noevent", !0), r(l, h);
         },
         { once: !0 }
-      ), n.startsWith("_") || n.includes("-") ? u.dispatchEvent(new CustomEvent(n)) : `on${n}` in u && n in u && typeof u[n] == "function" ? u[n]() : u.dispatchEvent(new Event(n));
+      ), n.startsWith("_") || n.includes("-") ? a.dispatchEvent(new CustomEvent(n)) : `on${n}` in a && n in a && typeof a[n] == "function" ? a[n]() : a.dispatchEvent(new Event(n));
     }
     return h;
   }
@@ -596,7 +596,7 @@ const I = (i, s) => class extends i {
   handles additional options makes chainable and enables object-based args.
   "Point-of-truth" event handler deregistration. */
   removeEventListener(...e) {
-    const [n, r] = typeof e[0] == "string" ? e : Object.entries(e[0])[0], { track: o = !1, ...c } = e.find((a, _) => _ && d(a) === "Object") || {};
+    const [n, r] = typeof e[0] == "string" ? e : Object.entries(e[0])[0], { track: o = !1, ...c } = e.find((u, _) => _ && d(u) === "Object") || {};
     return o && this.#t.registry.remove(n, r), super.removeEventListener(n, r, c), this;
   }
   /* Adds event handlers from the special on-syntax. */
@@ -604,8 +604,8 @@ const I = (i, s) => class extends i {
     super.update?.(e);
     for (const [n, r] of Object.entries(e))
       if (n.startsWith("on.")) {
-        const [o, ...c] = n.slice(q).split("."), a = Object.fromEntries(c.map((_) => [_, !0]));
-        this.addEventListener(o, r, a);
+        const [o, ...c] = n.slice(q).split("."), u = Object.fromEntries(c.map((_) => [_, !0]));
+        this.addEventListener(o, r, u);
       }
     return this;
   }
@@ -657,8 +657,8 @@ const I = (i, s) => class extends i {
     const o = e === void 0 ? new Event(t, r) : new CustomEvent(t, { detail: e, ...r });
     if (this.dispatchEvent(o), n) {
       const c = typeof n == "string" ? this.querySelectorAll(n) : this.children;
-      for (const a of c)
-        a.dispatchEvent(o);
+      for (const u of c)
+        u.dispatchEvent(o);
     }
     return o;
   }
@@ -824,7 +824,7 @@ const Z = (i, s) => class extends i {
 }, w = (i) => {
   const s = it(i), t = new s();
   return y(t);
-}, at = (i, ...s) => {
+}, ut = (i, ...s) => {
   const [t, ...e] = i.split("."), n = w(t);
   return e.length ? n(`${e.join(".")}`, ...s) : n(...s);
 }, _t = new Proxy(
@@ -836,7 +836,7 @@ const Z = (i, s) => class extends i {
   }
 ), { defineValue: ot } = await use("@/tools/define"), lt = (i, s, t) => (p.add(i, s, t), ot(i, "create", y(i)), i.create);
 export {
-  at as Component,
+  ut as Component,
   w as Factory,
   nt as Mixins,
   lt as author,

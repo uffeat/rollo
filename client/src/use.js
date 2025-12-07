@@ -2,6 +2,7 @@
 - eager load @@ jsx assets?
 */
 
+
 export class UseError extends Error {
   static raise = (message, callback) => {
     callback?.();
