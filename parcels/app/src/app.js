@@ -1,4 +1,4 @@
-import "../use.js";
+//import "../use.js";////
 import "../assets/app.css";
 
 const { Mixins, author, component, mix } = await use("@/component");

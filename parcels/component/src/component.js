@@ -1,4 +1,4 @@
-import "../use.js";
+//import "../use.js";////
 import { factory } from "./tools/factory.js";
 import { mix } from "./tools/mix.js";
 import { Mixins, mixins } from "./mixins/mixins.js";

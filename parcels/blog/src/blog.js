@@ -1,5 +1,4 @@
-//import "../use.js";
-console.log('HERE')////
+import "../use.js";
 import "../assets/blog.css";
 import Sheets from "./assets/sheets.js";
 import Card from "./tools/card.js";
@@ -12,9 +11,6 @@ const { router } = await use("@/router/");
 const { toTop } = await use("@/tools/scroll");
 
 /** Prepare components and component factories */
-
-
-
 
 const page = component.main(
   "container mt-3 mb-3",

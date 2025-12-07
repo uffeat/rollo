@@ -5,7 +5,7 @@
 import { on } from "../../../assets/tools/on.js";
 
 const { component } = await use("@/component");
-const { layout } = await use("@//layout");
+const { layout } = await use("@/layout/");
 
 export default async () => {
   layout.clear(":not([slot])");

@@ -1,4 +1,4 @@
-import "../use.js";
+//import "../use.js";////
 
 /* Utility for sheet adoption control. */
 export class Targets {

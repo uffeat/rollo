@@ -2,8 +2,8 @@
 /use/public/template.test.js
 */
 
-const { css } = await use("@/sheet.js");
-const { component } = await use("@/component.js");
+const { css } = await use("@/sheet");
+const { component } = await use("@/component");
 const { layout } = await use("@/layout/");
 
 export default async () => {

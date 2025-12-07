@@ -4,37 +4,26 @@ import "./use.js";
 import "./main.css";
 import router from "./router/router.js";
 
-
-
 document.documentElement.dataset.bsTheme = "dark";
 
 /* Load global sheets */
 await use("/assets/bootstrap/main.css");
 await use("/main.css");
 
-
-
-
 if (import.meta.env.DEV) {
   /* NOTE Rules in "/dev.css" should eventually be transferred to 
   "/client/assets/main.css" from where build tools will minify etc. */
   await use("/dev.css");
 
-
-
-
   const parcels = Object.fromEntries(
     Object.entries({
       ...import.meta.glob("../../parcels/*/index.js"),
-    }).map(([path, load]) => {
-      return [path.slice(14, -9), load];
     })
+      .map(([path, load]) => {
+        return [path.slice(14, -9), load];
+      })
+      .filter(([path, load]) => !path.startsWith("_"))
   );
-
-  console.log("parcels:", parcels);////
-
-
-  
 
   /* Add 'tests' source to import engine */
   await (async () => {
@@ -63,12 +52,13 @@ if (import.meta.env.DEV) {
   await (async () => {
     const { layout } = await use("@/layout/");
 
-  
     const KEY = "__test__";
 
     window.addEventListener(
       "keydown",
       (() => {
+        layout.clear();
+
         return async (event) => {
           /* Unit tests */
           if (event.code === "KeyU" && event.shiftKey) {
@@ -79,13 +69,12 @@ if (import.meta.env.DEV) {
           if (event.code === "KeyC" && event.shiftKey) {
             layout.clear();
             document.adoptedStyleSheets = [];
-            history.replaceState({}, "", '/');
+            history.replaceState({}, "", "/");
           }
         };
       })()
     );
   })();
 }
- else {
-  await router();
-}
+
+await router();

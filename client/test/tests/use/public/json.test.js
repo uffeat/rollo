@@ -2,7 +2,7 @@
 /use/public/json.test.js
 */
 
-const { component } = await use("@/component.js");
+const { component } = await use("@/component");
 
 export default async () => {
   use("/test/foo.json", { inform: (message) => console.log(message) }).then(

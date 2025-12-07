@@ -1,4 +1,4 @@
-import "../../use.js";
+//import "../../use.js";////
 
 const { type } = await use("@/tools/type");
 

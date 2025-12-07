@@ -1,4 +1,4 @@
-//import "../../use.js";
+import "../../use.js";
 import { replaceImages } from "./images.js";
 
 const { component } = await use("@/component");

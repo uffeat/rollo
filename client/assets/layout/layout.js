@@ -125,7 +125,7 @@ footer {\r
 `, { app: d } = await use("@/app/"), a = {
   close: await use("@/icons/close.svg"),
   menu: await use("@/icons/menu.svg")
-}, { Sheet: l } = await use("@/sheet.js"), c = await use("@/bootstrap/reboot.css"), { Mixins: g, author: m, component: t, mix: u } = await use("@/component.js"), b = m(
+}, { Sheet: l } = await use("@/sheet"), c = await use("@/bootstrap/reboot.css"), { Mixins: g, author: m, component: t, mix: u } = await use("@/component"), b = m(
   class extends u(HTMLElement, {}, ...g()) {
     #t = {
       tree: {}

@@ -1,4 +1,3 @@
-import YAML from 'yaml'
+import YAML from "yaml";
 
-
-export {YAML}
+export { YAML };

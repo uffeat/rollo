@@ -1,11 +1,13 @@
-const b = async () => ({
+const f = async () => ({
   reboot: await use("@/bootstrap/reboot.css"),
   shadow: await use("@/blog/shadow.css")
 }), { component: r } = await use("@/component"), h = ({ path: a, ...s }) => {
   const { abstract: o, image: t, title: e } = s, c = r.div(
     "card",
     {},
-    r.img("card-img-top", { src: `${use.meta.base}${t}` }),
+    r.img("card-img-top", function() {
+      this.src = t.startsWith("/") ? `${use.meta.base}${t}` : t, this.alt = `Illustration of ${e.toLowerCase()}`;
+    }),
     r.div(
       "card-body.nav.d-flex.flex-column",
       {},
@@ -18,44 +20,44 @@ const b = async () => ({
     r.div("card-footer")
   );
   return c.attribute.card = a, c;
-}, { component: d } = await use("@/component"), { NavLink: w } = await use("@/router/"), g = (a) => {
+}, { component: w } = await use("@/component"), b = (a) => {
   for (const s of a.querySelectorAll("img")) {
     const o = s.getAttribute("src");
     if (o.startsWith("/")) {
-      const t = s.getAttribute("alt"), e = d.img({
+      const t = s.getAttribute("alt"), e = w.img({
         alt: t,
         src: `${use.meta.base}${o}`
       });
       s.replaceWith(e);
     }
   }
-}, l = /* @__PURE__ */ new Map(), v = ({ html: a, path: s }) => {
-  const o = d.div({ innerHTML: a, slot: "post" });
-  o.attribute.post = s, g(o);
+}, { component: g } = await use("@/component"), { NavLink: v } = await use("@/router/"), l = /* @__PURE__ */ new Map(), y = ({ html: a, path: s }) => {
+  const o = g.div({ innerHTML: a, slot: "post" });
+  o.attribute.post = s, b(o);
   for (const t of o.querySelectorAll("a[href]")) {
     const e = t.getAttribute("href");
-    e.startsWith("/") && (t.parentElement.classList.add("nav"), t.replaceWith(w("nav-link", { path: e, text: t.textContent })));
+    e.startsWith("/") && (t.parentElement.classList.add("nav"), t.replaceWith(v("nav-link", { path: e, text: t.textContent })));
   }
   return o;
-}, { component: i } = await use("@/component"), { layout: u } = await use("@/layout/"), { ref: y } = await use("@/state"), { router: m } = await use("@/router/"), { toTop: $ } = await use("@/tools/scroll"), n = i.main(
+}, { component: i } = await use("@/component"), { layout: u } = await use("@/layout/"), { ref: $ } = await use("@/state"), { router: d } = await use("@/router/"), { toTop: x } = await use("@/tools/scroll"), n = i.main(
   "container mt-3 mb-3",
   i.h1("py-3", { text: "Blog", slot: "title" })
-), p = y();
+), p = $();
 p.effects.add(
   (a, s) => {
     const o = s.owner.previous;
     if (o && l.get(`/${o}`)?.remove(), a) {
       n.attribute.postView = !0;
       const t = `/${a}`;
-      l.has(t) || m.error(`Invalid path: ${t}.`);
+      l.has(t) || d.error(`Invalid path: ${t}.`);
       const e = l.get(t);
-      n.append(e), $(e);
+      n.append(e), x(e);
     } else
       n.attribute.postView = !1;
   },
   { run: !1 }
 );
-async function x(a) {
+async function k(a) {
   n.attribute.page = a, n.attachShadow({ mode: "open" }), await (async () => {
     const t = i.div(
       { id: "root" },
@@ -64,7 +66,7 @@ async function x(a) {
       i.slot({ name: "post" })
     );
     n.detail.shadow = t, n.shadowRoot.append(t);
-    const e = await b();
+    const e = await f();
     e.reboot.use(n), e.shadow.use(n);
   })();
   const s = await use("@/content/bundle/blog.json");
@@ -73,8 +75,8 @@ async function x(a) {
     t = `/${t.split("/").at(-1)}`;
     const c = h({ path: t, ...e.meta });
     n.append(c);
-    const f = v({ html: e.content, path: t });
-    l.set(t, f);
+    const m = y({ html: e.content, path: t });
+    l.set(t, m);
   }
   const o = "a.nav-link";
   n.on.click = async (t) => {
@@ -82,27 +84,27 @@ async function x(a) {
       const e = t.target.closest("[card]");
       if (e) {
         const c = e.attribute.card;
-        await m(`${a}${c}`);
+        await d(`${a}${c}`);
       }
     }
   };
 }
-function k(a, s, ...o) {
+function S(a, s, ...o) {
   u.clear(":not([slot])"), u.append(n), p(o.at(0) || null);
 }
-function S(a, s, ...o) {
+function A(a, s, ...o) {
   p(o.at(0) || null);
 }
-function A(a) {
+function L(a) {
   n.remove();
 }
-const q = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const W = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  enter: k,
-  exit: A,
-  setup: x,
-  update: S
+  enter: S,
+  exit: L,
+  setup: k,
+  update: A
 }, Symbol.toStringTag, { value: "Module" }));
 export {
-  q as blog
+  W as blog
 };

@@ -2,19 +2,29 @@
 /blog/basics.test.js
 */
 
-import * as parcel from "../../../../parcels/blog/index.js";
 
-/* Overload to use live parcel */
-use.add("@/blog/blog.js", parcel);
+/* Import and 'use'-inject live parcel */
+//import * as parcel from "../../../../parcels/blog/index.js";
+//use.add("@/blog/blog.js", parcel);
 
 const { component } = await use("@/component");
 const { layout } = await use("@/layout/");
 const { router, Nav, NavLink } = await use("@/router/");
-const { blog } = await use("@/blog/");
+//const { blog } = await use("@/blog/");
 
 
 
-export default async () => {
+export default async (parcels) => {
+
+
+  //console.log('parcels:', parcels)
+
+  const parcel = await parcels.blog()
+  use.add("@/blog/blog.js", parcel);
+  const { blog } = await use("@/blog/");
+
+
+
   /* Define routes */
   router.routes.add({
     "/": (() => {

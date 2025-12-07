@@ -6,8 +6,8 @@ Tests import of js, json and x.template assets from
 - assets
 - src/assets
 */
-const { Sheet, css, scope } = await use("@/sheet.js");
-const { component } = await use("@/component.js");
+const { Sheet, css, scope } = await use("@/sheet");
+const { component } = await use("@/component");
 const { layout } = await use("@/layout/");
 
 export default async () => {

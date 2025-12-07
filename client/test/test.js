@@ -1,6 +1,11 @@
 if (import.meta.env.DEV) {
   /* NOTE Rules in "/dev.css" should eventually be transferred to 
   "/client/assets/main.css" from where build tools will minify etc. */
+
+  console.log('HERE')
+
+
+
   await use("/dev.css");
 
 
@@ -15,6 +20,16 @@ if (import.meta.env.DEV) {
   );
 
   //console.log("parcels:", parcels);////
+  for (const [name, load] of Object.entries(parcels)) {
+
+    console.log('name:', name)
+    
+
+    const parcel = await load()
+
+    console.log('parcel:', parcel)
+    
+  }
 
 
   

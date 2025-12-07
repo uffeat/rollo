@@ -1,10 +1,11 @@
-let ran;
+/*
+/production.test.js
+*/
 
 export default async () => {
-  if (ran) {
-    return;
-  }
-  ran = true;
+
+
+
 
   const { layout } = await use("@/layout/");
   const { component } = await use("@/component");
@@ -51,6 +52,7 @@ export default async () => {
         title: "About",
       }),
       NavLink("nav-link", { text: "Blog", path: "/blog", title: "Blog" }),
+      
       NavLink("nav-link", { text: "Terms", path: "/terms", title: "Terms" })
     ),
     /* Pseudo-argument for code organization */
@@ -87,5 +89,9 @@ export default async () => {
     })(),
   });
 
-  console.log("Router set up");
-};
+
+
+
+
+
+}
