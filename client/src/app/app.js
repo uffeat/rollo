@@ -1,7 +1,15 @@
 //import "./assets/app.css";
-import "./assets/app.module.css";
+/* */
+import '../use.js'
+
+
+
+
+
 import { Mixins, author, component, mix } from "../component/component.js";
 import { stateMixin } from "../state/state.js";
+
+await use('/app/app.css')
 
 
 const TAG = "div";
