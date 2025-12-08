@@ -1,15 +1,9 @@
-import './assets/layout.css'
+//import "./assets/layout.css";
 //import shadow from "./assets/shadow.css?raw";
 import { app } from "../app/app.js";
 import { Sheet } from "../sheet/sheet.js";
 import { Mixins, author, component, mix } from "../component/component.js";
 /* */
-
-
-
-
-
-
 
 const Layout = author(
   class extends mix(HTMLElement, {}, ...Mixins()) {
@@ -25,7 +19,6 @@ const Layout = author(
           component.slot({ name: "home" }),
           component.button("_close", {
             ariaLabel: "Toggle",
-         
           }),
           component.section(component.slot({ name: "top" }))
         ),
@@ -35,7 +28,6 @@ const Layout = author(
             "_side",
             component.button("_close", {
               ariaLabel: "Close",
-             
             }),
             component.slot({ name: "side" })
           ),
@@ -45,7 +37,6 @@ const Layout = author(
       );
 
       this.attachShadow({ mode: "open" }).append(this.shadow);
-      
 
       /* Config */
       this.#_.config = new (class Config {
