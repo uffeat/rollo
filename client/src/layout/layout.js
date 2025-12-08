@@ -1,9 +1,18 @@
 //import "./assets/layout.css";
 //import shadow from "./assets/shadow.css?raw";
+
+/* */
+import '../use.js'
+
+
+
 import { app } from "../app/app.js";
 import { Sheet } from "../sheet/sheet.js";
 import { Mixins, author, component, mix } from "../component/component.js";
 /* */
+
+
+const reboot = await use("@/bootstrap/reboot.css");
 
 const Layout = author(
   class extends mix(HTMLElement, {}, ...Mixins()) {
@@ -37,6 +46,7 @@ const Layout = author(
       );
 
       this.attachShadow({ mode: "open" }).append(this.shadow);
+      reboot.use(this);
 
       /* Config */
       this.#_.config = new (class Config {
