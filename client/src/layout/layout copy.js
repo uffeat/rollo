@@ -4,11 +4,18 @@ import { app } from "../app/app.js";
 import { Sheet } from "../sheet/sheet.js";
 import { Mixins, author, component, mix } from "../component/component.js";
 /* */
+import '../use.js'
 
 
 
 
+const icons = {
+  close: await use("@/icons/close.svg"),
+  menu: await use("@/icons/menu.svg"),
+};
 
+
+const reboot = await use("@/bootstrap/reboot.css");
 
 
 const Layout = author(
@@ -25,7 +32,7 @@ const Layout = author(
           component.slot({ name: "home" }),
           component.button("_close", {
             ariaLabel: "Toggle",
-         
+            innerHTML: icons.menu,
           }),
           component.section(component.slot({ name: "top" }))
         ),
@@ -35,7 +42,7 @@ const Layout = author(
             "_side",
             component.button("_close", {
               ariaLabel: "Close",
-             
+              innerHTML: icons.close,
             }),
             component.slot({ name: "side" })
           ),
@@ -45,7 +52,8 @@ const Layout = author(
       );
 
       this.attachShadow({ mode: "open" }).append(this.shadow);
-      
+      reboot.use(this);
+      //Sheet.create(shadow).use(this);
 
       /* Config */
       this.#_.config = new (class Config {
