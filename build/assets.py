@@ -1,6 +1,5 @@
 """Utility for building asset-carrier sheet."""
 
-
 import json
 from pathlib import Path
 
@@ -15,7 +14,6 @@ timestamp = get_timestamp()
 
 
 class build(Files, Minify):
-    
 
     def __call__(self):
         paths = []
@@ -52,21 +50,24 @@ class build(Files, Minify):
                 """NOTE
                 - Writing to public enables css use by link.
                 """
+                self.write_public(path, minified)
                 continue
             if file.suffix == ".html":
                 minified = self.minify_html(minified)
                 encoded = encode(minified)
                 rules.append(self.create_asset_rule(path, encoded))
+                self.write_public(path, minified)
                 continue
             if file.suffix == ".js":
                 encoded = encode(text)
                 rules.append(self.create_asset_rule(path, encoded))
+                ##self.write_public(path, text)
                 continue
             if file.suffix == ".json":
                 encoded = encode(text)
                 rules.append(self.create_asset_rule(path, encoded))
+                self.write_public(path, text)
                 continue
-
             if file.suffix == ".svg":
                 minified = self.minify_html(text)
                 encoded = encode(minified)
@@ -75,6 +76,7 @@ class build(Files, Minify):
                 - Writing to public enables svg use by css ref.
                 - Write unminified to enable icon display in editor.
                 """
+                self.write_public(path, text)
                 continue
 
         # Meta

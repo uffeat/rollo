@@ -26,18 +26,8 @@
     },
 
     {
-      "source": "/pages/:match*",
-      "destination": "/pages/:match*"
-    },
-
-    {
       "source": "/test/:match*",
       "destination": "/test/:match*"
-    },
-
-    {
-      "source": "/tools/:match*",
-      "destination": "/tools/:match*"
     },
 
     {

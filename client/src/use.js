@@ -3,8 +3,6 @@ import { UseError } from "@/tools/errors/use.js";
 import { Sheet } from "@/sheet/sheet.js";
 import { component } from "component";
 
-
-
 /* Utility for parsing path.
 NOTE 
 - Query support currently not used, but could be an alternative to option args.
@@ -570,8 +568,6 @@ NOTE
   - Serialized out-of-the-box
 */
 await (async () => {
-  await use("/assets.css");
-  //console.log("Assets sheet loaded"); ////
   const cache = new Map();
   use.sources.add("@", async ({ path }) => {
     if (cache.has(path.full)) return cache.get(path.full);
@@ -582,6 +578,7 @@ await (async () => {
       .getPropertyValue("--__asset__")
       .trim();
     probe.remove();
+
     if (!propertyValue) {
       UseError.raise(`Invalid path: ${path.full}`);
     }

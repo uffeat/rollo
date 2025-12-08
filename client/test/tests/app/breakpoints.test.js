@@ -9,7 +9,13 @@ import { layout } from "@/layout/layout.js";
 import { Sheet, css } from "@/sheet/sheet.js";
 import { app, breakpoints } from "@/app/app.js";
 
-const { Plotly } = await use("@/plotly");
+const paths = await use('@/__paths__.json')
+console.log('paths:', paths)
+const { d3 } = await use("@/d3");
+console.log('d3:', d3)
+
+const { Plotly } = await use("@/plotly/");
+console.log('Plotly:', Plotly)
 
 const sheet = Sheet.create({
   ".plotly .modebar": {

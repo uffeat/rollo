@@ -8,7 +8,7 @@ import Sheets from "./assets/sheets.js";
 import Card from "./tools/card.js";
 import { Post, posts } from "./tools/post.js";
 
-await use("/blog/blog.css");
+await use("/assets/blog/blog.css");
 
 /** Prepare components and component factories */
 

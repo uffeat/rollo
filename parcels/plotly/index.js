@@ -1,7 +1,4 @@
-await use("/assets/plotly.js", { as: "script" });
+import "./assets/plotly.css";
+import Plotly from "plotly.js-dist-min";
 
-const Plotly = globalThis.Plotly;
-
-delete globalThis.Plotly;
-
-export {Plotly}
+export { Plotly };

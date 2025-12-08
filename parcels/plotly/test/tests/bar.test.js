@@ -4,7 +4,7 @@
 
 import "../assets/sheet.css";
 
-const { component } = await use("@/component");
+
 const { layout } = await use("@/layout/");
 const { Plotly } = await use("@/plotly");
 
