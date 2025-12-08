@@ -1,19 +1,9 @@
-//import "./assets/layout.css";
-//import shadow from "./assets/shadow.css?raw";
-
-/* */
-import '../use.js'
-
-
-
+import "../use.js";
 import { app } from "../app/app.js";
-import { Sheet } from "../sheet/sheet.js";
 import { Mixins, author, component, mix } from "../component/component.js";
-/* */
-
 
 const reboot = await use("@/bootstrap/reboot.css");
-const shadow = await use('/layout/shadow.css', {as: 'sheet'})
+const shadow = await use("/layout/shadow.css", { as: "sheet" });
 const icons = {
   close: await use("@/icons/close.svg"),
   menu: await use("@/icons/menu.svg"),
@@ -54,7 +44,7 @@ const Layout = author(
 
       this.attachShadow({ mode: "open" }).append(this.shadow);
       reboot.use(this);
-      shadow.use(this)
+      shadow.use(this);
 
       /* Config */
       this.#_.config = new (class Config {

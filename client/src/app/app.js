@@ -1,21 +1,17 @@
-//import "./assets/app.css";
-/* */
-import '../use.js'
-
-
-
-
-
+import "../use.js";
 import { Mixins, author, component, mix } from "../component/component.js";
 import { stateMixin } from "../state/state.js";
 
-await use('/app/app.css')
-
+await use("/app/app.css");
 
 const TAG = "div";
 
 const App = author(
-  class extends mix(document.createElement(TAG).constructor, {}, ...Mixins(stateMixin)) {
+  class extends mix(
+    document.createElement(TAG).constructor,
+    {},
+    ...Mixins(stateMixin)
+  ) {
     #_ = {};
     constructor() {
       super();
@@ -43,22 +39,19 @@ export const breakpoints = Object.freeze({
   lg: 992,
   xl: 1200,
   xxl: 1400,
-})
-
+});
 
 /* Breakpoints */
 for (const [key, value] of Object.entries(breakpoints)) {
   const query = window.matchMedia(`(width >= ${value}px)`);
   /* Handle initial */
-  const match = query.matches
-  app.$[key] = match
-  app.send(`_break_${key}`, {detail: match})
+  const match = query.matches;
+  app.$[key] = match;
+  app.send(`_break_${key}`, { detail: match });
   query.addEventListener("change", (event) => {
-    const match = query.matches
-    app.$[key] = match
+    const match = query.matches;
+    app.$[key] = match;
 
-    app.send(`_break_${key}`, {detail: match})
+    app.send(`_break_${key}`, { detail: match });
   });
 }
-
-

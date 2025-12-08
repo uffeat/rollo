@@ -5,6 +5,9 @@ import inject from "@rollup/plugin-inject";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 
+/* Create __dirname to help aliases work reliably */
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
 export default defineConfig(({ mode }) => {
   return {
     /* Set base URL (accessible from code as import.meta.env.BASE_URL) */
@@ -42,5 +45,11 @@ export default defineConfig(({ mode }) => {
       tailwindcss(),
       react(),
     ],
+
+    resolve: {
+      alias: {
+        "@": resolve(__dirname, "src"),
+      },
+    },
   };
 });

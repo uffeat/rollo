@@ -2,11 +2,12 @@
 /app/breakpoints.test.js
 */
 
+import "@/use.js";
+import { component } from "@/component/component.js";
+import { layout } from "@/layout/layout.js";
+import { Sheet, css } from "@/sheet/sheet.js";
+import { app, breakpoints } from "@/app/app.js";
 
-
-const { component } = await use("@/component");
-const { layout } = await use("@/layout/");
-const { Sheet, css } = await use("@/sheet");
 const { Plotly } = await use("@/plotly");
 
 const sheet = Sheet.create({
@@ -18,15 +19,7 @@ const sheet = Sheet.create({
 
 sheet.use();
 
-export default async (parcels) => {
-  //
-  //
-  //const parcel = await parcels.app();
-  //use.add("@/app/app.js", parcel);
-  const { app, breakpoints } = await use("@/app/");
-  //
-  //
-
+export default async () => {
   layout.clear(":not([slot])");
   layout.close();
 
