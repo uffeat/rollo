@@ -1,5 +1,5 @@
 import './assets/layout.css'
-import shadow from "./assets/shadow.css?raw";
+//import shadow from "./assets/shadow.css?raw";
 import { app } from "../app/app.js";
 import { Sheet } from "../sheet/sheet.js";
 import { Mixins, author, component, mix } from "../component/component.js";
@@ -53,7 +53,7 @@ const Layout = author(
 
       this.attachShadow({ mode: "open" }).append(this.shadow);
       reboot.use(this);
-      Sheet.create(shadow).use(this);
+      //Sheet.create(shadow).use(this);
 
       /* Config */
       this.#_.config = new (class Config {
