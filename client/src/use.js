@@ -704,3 +704,6 @@ use.types.add("json", (result) => {
   if (!(typeof result === "string")) return;
   return JSON.parse(result);
 });
+
+
+window.dispatchEvent(new CustomEvent("_use"));
