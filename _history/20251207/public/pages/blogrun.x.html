@@ -1,0 +1,272 @@
+<!--
+* About
+- Blog route based on non-blocking rendering from static data.
+- Frontmatter -> meta + html takes place at runtime. 
+- The frontmatter -> meta + html split is quite primitive, but it works!
+- Primarily styled with Tailwind, but
+  - uses in-module sheet for more advanced stuff
+  - uses Bootstrap for card-stuff.
+- Uses residuals rather than query for aux data, which goes against my own 
+  recommendations, but nested (residual-based) routing just feels natural 
+  for blogs.
+
+** Structure
+1. Components, incl styling
+2. Rendering and route->ui interface: 
+3. Route
+This structure may seem overkill and much of the work done in #2 could be 
+done directly in the route, but I want this route to be a beacon of best 
+practices that can inspire other routes.
+
+* TODO
+- Pagination. Create a sep 'paginator' tool with logic and an optional component.
+- Search feature. Perhaps a sep tool.
+- Consider relegating frontmatter-parsing to build process. The current
+  runtime solution is pretty fast, but since I do run a custom build process...
+  If I do this, the build process should transpile each blog item to a single 
+  file with both card and post data. This file could be
+  - an .html file with card data in one or more meta tags
+  - a .json file with an 'html' item that contains the transpiled html 
+    (perhaps base64 encoded?).
+- Consider using progressive images... and/or perhaps placeholders. Already 
+  not critical and even less so with pagination, but could be good practice.
+-->
+
+<style for="page" global>
+  /** Cards */
+  [cards] {
+    --gap: 0rem;
+    --items: 1;
+  }
+  [cards][md] {
+    --gap: 0.25rem;
+    --items: 2;
+  }
+  [cards][xl] {
+    --gap: 0.5rem;
+    --items: 3;
+  }
+
+  /* Card */
+  [cards] .card {
+    width: calc(calc(100% / var(--items)) - var(--gap));
+  }
+
+  /** Post */
+  /* Images */
+  [post] p:has(> img) {
+    display: flex;
+    justify-content: center;
+  }
+  [post] img {
+    min-width: 80%;
+  }
+  /* Links */
+  [post] a {
+    text-decoration: none;
+  }
+</style>
+
+<script type="module">
+  const { app } = await use("@/app/");
+  const { component } = await use("@/component");
+  const { layout } = await use("@/layout/");
+  const { ref } = await use("@/state");
+  const { marked } = await use("@/marked");
+  const { YAML } = await use("@/yaml");
+  const { NavLink, router } = await use("@/router/");
+  const { toTop } = await use("@/tools/scroll");
+  const { Exception } = await use("@/tools/exception");
+
+  /** Prepare components and component factories */
+
+  const cards = component.div(
+    "w-full flex justify-between flex-wrap gap-y-3 hidden",
+    {}
+  );
+  cards.attribute.cards = true;
+
+  export const page = component.main("container mt-3 mb-3", cards);
+  page.attribute.page = true;
+
+  /* Card click -> post view (via router) */
+  (() => {
+    const stem = __path__.split("/").at(-1).split(".").at(0);
+    page.on.click = async (event) => {
+      const LINK = "a.nav-link";
+      if (event.target.matches(LINK) || event.target.closest(LINK)) {
+        const card = event.target.closest(`[card]`);
+        const path = card.attribute.card;
+        await router(`/${stem}${path}`);
+      }
+    };
+  })();
+
+  /* Mirror app breakpoint state onto cards */
+  app.$.effects.add(
+    (change) => {
+      cards.attribute.md = app.$.md;
+      cards.attribute.xl = app.$.xl;
+    },
+    ["md", "xl"]
+  );
+  /* Alt:
+  app.on._break_md({ run: true }, (event) => {
+    cards.attribute.md = event.detail ?? app.$.md
+  });
+  app.on._break_xl({ run: true }, (event) => {
+    cards.attribute.xl = event.detail ?? app.$.xl
+  });
+  ... or with media queries in css
+  */
+
+  const Card = ({ abstract, image, path, title }) => {
+    const card = component.div(
+      "card h-full",
+      {},
+      component.img("card-img-top", { src: `${use.meta.base}${image}` }),
+      component.div(
+        "card-body nav flex flex-col",
+        {},
+        component.a(
+          "nav-link cursor-pointer",
+          component.h1("card-title", { text: title, title })
+        ),
+        component.p("card-text", { text: abstract })
+      ),
+      component.div("card-footer min-h-8")
+    );
+    card.attribute.card = path;
+    return card;
+  };
+
+  const Post = ({ html, path }) => {
+    const post = component.div({ innerHTML: html });
+    post.attribute.post = path;
+    for (const link of post.querySelectorAll(`a[href]`)) {
+      const path = link.getAttribute("href");
+      if (path.startsWith("/")) {
+        link.parentElement.classList.add("nav");
+        link.replaceWith(NavLink("nav-link", { path, text: link.textContent }));
+      }
+    }
+    return post;
+  };
+
+  /** Render and create interface for route */
+
+  const mount = (() => {
+    const state = ref();
+    state.effects.add(
+      (current) => {
+        if (current) {
+          layout.clear(":not([slot])");
+          layout.append(page);
+        } else {
+          page.remove();
+        }
+      },
+      { run: false }
+    );
+    return state;
+  })();
+
+  const view = await (async () => {
+    const manifest = await use("/content/meta/blog.json");
+    const paths = manifest.map(([path, timestamp]) => path);
+    const START = "/content".length - 2;
+    const toRouterPath = (path) => {
+      return "/" + path.slice(START).toLowerCase();
+    };
+
+    /* Controller for non-blocking rendering */
+    const items = new (class Items {
+      #_ = {
+        index: 0,
+        posts: new Map(),
+      };
+
+      constructor() {
+        /* Populate posts with pwr's */
+        paths.forEach((path) => {
+          this.#_.posts.set(toRouterPath(path), Promise.withResolvers());
+        });
+        this.#create();
+      }
+
+      async view(path) {
+        if (path) {
+          path = `/${path}`;
+          if (!this.#_.posts.has(path)) {
+            return router.error(path);
+          }
+
+          /* Remove any current post */
+          this.#_.post?.remove();
+          this.#_.post = null;
+
+          const result = this.#_.posts.get(path);
+          if (result instanceof HTMLElement) {
+            this.#_.post = result;
+          } else {
+            const { promise, resolve } = result;
+            this.#_.post = (await promise)();
+            this.#_.posts.set(path, this.#_.post);
+          }
+          cards.classes.add("hidden");
+          page.append(this.#_.post);
+          toTop(this.#_.post);
+        } else {
+          /* Back to cards view */
+          this.#_.post?.remove();
+          this.#_.post = null;
+          cards.classes.remove("hidden");
+        }
+      }
+
+      #create() {
+        const _path = paths.at(this.#_.index);
+        if (!_path) {
+          return;
+        }
+        const path = toRouterPath(_path);
+
+        use(`/content/src${_path}.md`)
+          .then((text) => {
+            const [yaml, md] = text.split("---").slice(1);
+            /** Handle card component */
+            const meta = YAML.parse(yaml);
+            cards.append(Card({ path, ...meta }));
+            /* Handle post component */
+            const { promise, resolve } = this.#_.posts.get(path);
+            /* NOTE MD-parsing can be expensive, so resolve to a post factory 
+            rather than to a post component rendered here */
+            resolve(() => {
+              const html = marked.parse(md);
+              return Post({ path, html });
+            });
+            this.#create(this.#_.index++);
+          })
+          .catch((error) => {
+            Exception.raise(
+              `Failed to load: ${path}`,
+              () => console.error("error:", error)
+            );
+          });
+      }
+    })();
+
+    return async (residuals) => {
+      await items.view(residuals.at(0));
+    };
+  })();
+
+  export default function () {
+    /* Route */
+    return async (mode, query, ...residuals) => {
+      mount(!mode.exit);
+      /* NOTE Never residuals on exit */
+      await view(residuals);
+    };
+  }
+</script>

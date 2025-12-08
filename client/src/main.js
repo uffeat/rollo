@@ -6,22 +6,63 @@ import "@/main.css";
 import "@/bootstrap/bootstrap.css";
 
 import { layout } from "@/layout/layout.js";
-import { component } from "@/component/component.js";
+import { component } from "component";
+import { Nav, NavLink, router } from "@/router/router.js";
 
-const fooHtml = await use(`/test/foo.template`);
-console.log("fooHtml:", fooHtml);
+import * as home from '@/routes/home.js'
+import * as blog from '@/routes/blog/blog.js'
 
-const fooSheet = await use(`/test/foo.css`, { as: "sheet" });
-console.log("fooSheet:", fooSheet);
-fooSheet.use();
+/* Define routes */
+router.routes.add({
+  "/": home,
+  '/blog': blog,
+});
 
-layout.insert.afterbegin(fooHtml);
-
-const button = component.button(
-  "btn.btn-primary",
-  { parent: layout },
-  "Button"
+/* Create nav */
+Nav(
+  component.nav(
+    "nav router flex flex-col gap-y-1 p-1",
+    { slot: "side", parent: layout },
+    NavLink("nav-link", {
+      text: "About",
+      path: "/about",
+      title: "About",
+    }),
+    NavLink("nav-link", { text: "Blog", path: "/blog", title: "Blog" }),
+    NavLink("nav-link", { text: "Terms", path: "/terms", title: "Terms" })
+  ),
+  /* Pseudo-argument for code organization */
+  NavLink(
+    { path: "/", parent: layout, slot: "home", title: "Home" },
+    async function () {
+      this.innerHTML = await use("/favicon.svg");
+    }
+  )
 );
+
+await router.setup({
+  error: (() => {
+    const page = component.main(
+      "container",
+      component.h1({ text: "Page not found" })
+    );
+    const details = component.p({ parent: page });
+    return (message) => {
+      if (message) {
+        if (message instanceof Error) {
+          message = message.message;
+        }
+
+        details.text = message;
+      } else {
+        details.clear();
+      }
+
+      layout.clear(":not([slot])");
+      layout.append(page);
+    };
+  })(),
+});
 
 if (import.meta.env.DEV) {
   /* Add 'tests' source to import engine */
@@ -55,8 +96,6 @@ if (import.meta.env.DEV) {
     window.addEventListener(
       "keydown",
       (() => {
-        layout.clear();
-
         return async (event) => {
           /* Unit tests */
           if (event.code === "KeyU" && event.shiftKey) {

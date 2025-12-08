@@ -1,1 +1,5 @@
-layout-component{display:block;height:100%}
+layout-component {
+  display: block;
+  /* NOTE `100vw` would push behind vertical scrollbars. */
+  height: 100%;
+}

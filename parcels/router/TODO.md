@@ -1,5 +1,0 @@
-- In separate parcel: Paginator:
-  - Logic:
-    - Delivers 'chuck arrays', either from index of nexr/previous
-    - Manages cursor so that we know if at end or beginning
-  - Stepper component

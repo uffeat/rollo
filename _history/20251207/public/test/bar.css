@@ -1,0 +1,8 @@
+.bar {
+  background-color: black;
+}
+
+.bar::before {
+  content: 'bar ';
+  color: hotpink;
+}

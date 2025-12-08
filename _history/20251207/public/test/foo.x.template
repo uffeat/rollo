@@ -1,0 +1,19 @@
+<style name="sheet">
+  [public-foo] {
+    color: var(--bs-red);
+  }
+</style>
+
+<template name="template">
+  <h1 public-foo>From '/test/foo.x.template'</h1>
+</template>
+
+<script type="module">
+  const { component } = await use("@/component.js");
+
+  export default function () {
+    this.assets.sheet.use();
+    const element = component.div({ innerHTML: this.assets.template });
+    return element;
+  }
+</script>

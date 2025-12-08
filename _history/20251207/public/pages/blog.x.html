@@ -1,0 +1,447 @@
+<!--
+** About
+- Blog route based on non-blocking rendering from static data.
+- Serves as a general demo of best practices and options for using x.html
+  assets as routes.
+
+* Styling
+- Uses a combination of Tailwind, Bootstrap and in-module sheets. 
+  Different options for using in-module sheets are illustrated.
+
+* Routing
+- Uses standard route hooks: setup, enter, update, and exit.
+- Uses residuals rather than query for aux data, which goes against my own 
+  recommendations, but nested (residual-based) routing just feels natural 
+  for blogs.
+
+** TODO
+* Client
+- Pagination. Create a sep 'paginator' tool with logic and an optional component.
+- Search feature. Perhaps as a separate tool.
+- Consider using progressive images... and/or perhaps placeholders. Already 
+  not critical and even less so with pagination, but could be good practice.
+
+* Build tool
+- Tags (keywords) in additional manifest-like json files.
+-->
+
+<style for="page" global>
+  /** The import engine transforms this CSS to a Sheet instance 
+  (constructed sheet extension).
+  The global attr causes import engine to adopt the sheet to document. Adoption
+  happens at module construction, which mitigates FOUC risk.
+  Scoped out-of-the box by exploiting the import engine's handling of style 
+  for attrs. The for="page" attr causes the import engine to scope the sheet 
+  to the page component by nesting all rules into a single rule with a selector 
+  corresponding to the 'uid' attr of the page component.
+  The sheet can safely stay adopted and enabled without risk of leakage.
+
+  Pro's:
+  - Strong encapsulation
+  - Short selectors
+
+  Con's:
+  - Not possible to style based on component's outside the 'for' component.
+  - Not possible to style the 'for' component itself.
+  - Somewhat difficult dynamic rule control.
+  - Conceptually confined to 'x.html' assets.
+  */
+
+  /* Cards per row */
+  [cards] {
+    --gap: 0rem;
+    --items: 1;
+  }
+  @media (width >= 768px) {
+    [cards] {
+      --gap: 0.25rem;
+      --items: 2;
+    }
+  }
+  @media (width >= 1200px) {
+    [cards] {
+      --gap: 0.5rem;
+      --items: 3;
+    }
+  }
+  [cards] .card {
+    width: calc(calc(100% / var(--items)) - var(--gap));
+  }
+</style>
+
+<style global>
+  /** Scoped out-of-the box by exploiting the fact that the router sets the
+  state-path attr on the app component. We also exploit the app component's 
+  dynamic breakpoint attrs as an alternative to using media queries.
+  The sheet can safely stay adopted and enabled without risk of leakage.
+
+  Pro's:
+  - Strong encapsulation.
+  - No selector limitation beyond #app.
+  - Relatively easy dynamic rule control.
+  - Conceptually applicable to any js module.
+
+  Con's:
+  - Long and ugly selectors.
+  - Relies on router and app component mechanics.
+  */
+
+  /* Post headings */
+  #app[state-path^="/blog"] [page] [post] :is(h1, h2, h3, h4, h5, h6) {
+    color: var(--bs-link-color);
+  }
+
+  /* Post links */
+  #app[state-path^="/blog"][state-md] [page] [post] a {
+    font-size: 1.125rem;
+  }
+  #app[state-path^="/blog"] [page] [post] a:hover {
+    text-decoration: underline;
+  }
+</style>
+
+<style name="sheet">
+  /** Here, no scoping is done. This means that sheet activation must be 
+  manually hooked into a lifecycle to avoid leakage. We get programmatic 
+  access to the sheet via the name="sheet" attr, which causes the import engine 
+  to add the sheet as 'sheet' to the context object that exposed module functions 
+  are bound to. It also causes the import engine to include the sheet in the 
+  repackaged pseudo-module.
+  Sheet activation/deactivation could be done by adopting/unadopting 
+  (with use/unuse). However, a more efficient strategy is to adopt (use)
+  once and then toggle the disabled state subsequently.
+  In terms of the lifecycle to tap into, we could use the page component's
+  connection lifecycle (access via the _connect/_disconnet events), but for
+  earlier sheet enabling (FOUC mitigation) it's better to use the router's
+  entry/exit lifecycle.
+
+  Pro's:
+  - Possibly strong encapsulation.
+  - No selector limitation.
+  - Short selectors.
+  - Easy dynamic rule control.
+  - Conceptually applicable to any js module.
+
+  Con's:
+  - Requires manual lifecycle-based control.
+  */
+
+  /* Card links */
+  .card .nav-link:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+  }
+</style>
+
+<style global>
+  /** Here scoping relies on a 'base-path' attr on the page component.
+  Scoping it not established out-of-the box, but requires setting the
+  attr on the page component. In principle, the attr could be set to any
+  value deemed unique for the module. However, the idea is that the 
+  'base-path' should be derived from either the file's location or it's
+  router key - both can be retrieved programatically.
+
+  The sheet can safely stay adopted and enabled with no real
+  risk of style leakage as long as modules adhere to deriving truely unique
+  'base-path' values.
+
+  Pro's:
+  - Possibly strong encapsulation.
+  - Possible to style the page component itself.
+  - Relatively easy dynamic rule control.
+  - Conceptually applicable to any js module.
+
+  Con's:
+  - Not possible to style based on component's outside the page component.
+  - Long and ugly selectors.
+  - Relies on discipline re setting unique 'base-path' attr values.
+  */
+
+  /* Post images */
+  [page][base-path="/blog"] [post] p:has(> img) {
+    display: flex;
+    justify-content: center;
+  }
+
+  [page][base-path="/blog"] [post] img {
+    min-width: 80%;
+  }
+</style>
+
+<script type="module">
+  const { component } = await use("@/component");
+  const { layout } = await use("@/layout/");
+  const { ref } = await use("@/state");
+  const { NavLink, router } = await use("@/router/");
+  const { toTop } = await use("@/tools/scroll");
+  const { Exception } = await use("@/tools/exception");
+
+  /** Prepare components and component factories */
+
+  const cards = component.div(
+    "w-full flex justify-between flex-wrap gap-y-3 hidden",
+    {}
+  );
+  cards.attribute.cards = true;
+
+  export const page = component.main("container mt-3 mb-3", cards);
+  page.attribute.page = true;
+
+  /* Returns card component rendered from object. */
+  const Card = ({ abstract, image, path, title }) => {
+    const card = component.div(
+      "card h-full",
+      {},
+      component.img("card-img-top", { src: `${use.meta.base}${image}` }),
+      component.div(
+        "card-body nav flex flex-col",
+        {},
+        component.a(
+          "nav-link cursor-pointer",
+          component.h1("card-title", { text: title, title })
+        ),
+        component.p("card-text", { text: abstract })
+      ),
+      component.div("card-footer min-h-8")
+    );
+    card.attribute.card = path;
+    return card;
+  };
+
+  /* Returns post component rendered from html and with any internal links 
+  replaced with .nav-wrapped NavLinks. */
+  const Post = ({ html, path }) => {
+    const post = component.div({ innerHTML: html });
+    post.attribute.post = path;
+    for (const link of post.querySelectorAll(`a[href]`)) {
+      const path = link.getAttribute("href");
+      if (path.startsWith("/")) {
+        link.parentElement.classList.add("nav");
+        link.replaceWith(NavLink("nav-link", { path, text: link.textContent }));
+      }
+    }
+    return post;
+  };
+
+  /** Render cards and posts in the background and provide router interface.
+
+   The challenge: 
+   The page relies on rendering components from static data 
+   sources. This is much faster than rendering from server data, but can still
+   take some time.
+
+   The dilemma:
+   If we commence async/await-based import/rendering at module import, the 
+   page will be ready when we visit it, but importing the module (at route 
+   registration) will block the app.
+   If we postpone import/rendering to page request, the page will not be ready
+   at first visit and the user will likely experience flickering and unrendered 
+   components.
+
+   The practical solution:
+   Import static data and render at module import, but in a non-blocking way. 
+   This will not block the app at import and increases the likelyhood of the 
+   page being ready at first visit.
+
+   The (handled) gotchas:
+   What if the user visits the page before the "background" rendering has completed?
+   ... Then we need to "shift" the "background" non-blocking rendering to aync/await.
+   Yes, the eager user may then experience unrendered components, but will get the page.
+
+   The ideal solution(?):
+   The build tools could place the transpiled content resources in an "asset-carrier"
+   sheet (similar to how a handle "@/"-assets). That would make static data imports
+   very fast - at module import of at first page view and could probably allow for
+   blocking imports. Moreover, build tools could do more than just MD -> JSON;
+   In principle, build tools could pre-render everything into a single large chuck
+   of html - complete with a style tag, so that only the JS part would be dealt with
+   at runtime. But that's a whole other build game...
+   */
+
+  const view = await (async () => {
+    const manifest = await use("/content/meta/blog.json");
+    /* NOTE Build tools create a date-sorted (newest first) manifest array with items of the shape: */
+    () => ["/blog/sprocket", "2025-10-10 22:10"];
+    /* where the path is a fragment that can be used to import the src file, like: */
+    () => use("/content/src/blog/sprocket.md");
+    /* or to import the built file, like: */
+    () => use("/content/dst/blog/sprocket.json");
+    /* The built file contains an object the items:
+    - html: HTML parsed from MD
+    - meta: For 'frontmatter'-style files, an object parsed from the YAML header.
+    */
+
+    /* For more advanced date filtering and sorting, the manifest can be used. 
+    If this becomes relevant, remember that the Temporal polyfill has been 
+    installed. */
+
+    const paths = manifest.map(([path, timestamp]) => path);
+
+    /* Helper than translates a path from 'paths' into a path that can be used
+    for routing. */
+    const START = "/content".length - 2;
+    const toRouterPath = (path) => {
+      return "/" + path.slice(START);
+    };
+
+    /* Controller for non-blocking rendering 
+    NOTE Stuctured as an "iice" for better code organization. */
+    const items = new (class Items {
+      #_ = {
+        /* 'index' keeps track of the item currently being rendered - I guess, 
+        somewhat like a home-made iterator? */
+        index: 0,
+        /* The 'posts' store serves a double purpose:
+        1. Store for pwr's, where the promise enables awaiting item 
+        import/rendering. 
+        2. Store for rendered items. */
+        posts: new Map(),
+      };
+
+      constructor() {
+        /* Populate posts with "ready-to-use" pwr's */
+        paths.forEach((path) => {
+          this.#_.posts.set(toRouterPath(path), Promise.withResolvers());
+        });
+        this.#create();
+      }
+      /* Decides what to show depending on 'path' (sub path)  */
+      async view(path) {
+        if (path) {
+          /** Got path -> posts view */
+          /* Check if path is valid */
+          path = `/${path}`;
+          if (!this.#_.posts.has(path)) {
+            return router.error(path);
+          }
+          /* Remove any current post */
+          this.#_.post?.remove();
+          this.#_.post = null;
+          /* Retrieve what's stored in the 'posts' store */
+          const result = this.#_.posts.get(path);
+          if (result instanceof HTMLElement) {
+            /* Item has been rendered */
+            // Not sure if this is redundant? ... Uncomment, if issues...
+            //this.#_.post = result;
+          } else {
+            /* Item has not been been rendered -> wait until is has been */
+            const { promise } = result;
+            /* Wait until item has been rendered */
+            this.#_.post = await promise;
+            /* Update store with the rendered post component */
+            this.#_.posts.set(path, this.#_.post);
+          }
+          /* We need to show the post, so hide the cards view */
+          cards.classes.add("hidden");
+          /* Add post component to page DOM */
+          page.append(this.#_.post);
+          /* Scroll to top of post component */
+          toTop(this.#_.post);
+        } else {
+          /** No path -> show cards view */
+          /* Remove and reset any current post view */
+          this.#_.post?.remove();
+          this.#_.post = null;
+          /* Show cards view; already in page DOM - just make visible */
+          cards.classes.remove("hidden");
+        }
+      }
+
+      /* Recursively imports and renders the next item until we've gone through 
+      all paths. */
+      #create() {
+        const _path = paths.at(this.#_.index);
+        if (!_path) {
+          return;
+        }
+
+        const path = toRouterPath(_path);
+        /* Import static data and render from that data */
+        use(`/content/dst${_path}.json`)
+          .then((result) => {
+            const { html, meta } = result;
+            /* Handle card component 
+            NOTE Cards are added to 'cards' and stay in the page DOM once added. */
+            cards.append(Card({ path, ...meta }));
+            /* Handle post component 
+            NOTE Posts are stored in the 'posts' store and moves in and out of 
+            the page DOM one at a time. */
+            const { resolve } = this.#_.posts.get(path);
+            const post = Post({ path, html });
+            /* Item rendered -> resolve to post
+            NOTE We use the post rendering as indicator of complete item 
+            rendering, i.e., when the item's post has been rendered, so has the
+            items' card. */
+            resolve(post);
+            /* NOTE index as pseudo argument */
+            this.#create(this.#_.index++);
+          })
+          .catch((error) => {
+            this.#_.posts.delete(path);
+            Exception.raise(`Failed to load: ${path}`, () =>
+              console.error("error:", error)
+            );
+          });
+      }
+    })();
+
+    /* Repackage 'items.view' to a simple function (for a leaner syntax in 
+    route lifecycle functions) */
+    return async (paths) => {
+      await items.view(paths.at(0));
+    };
+  })();
+
+  /* NOTE This function is called only once (by the import engine) and is 
+  excluded form the constructed pseudo module. */
+  export function __init__() {
+    /* Disable an adopt the unscoped 'sheet' */
+    this.sheet.disable().use();
+  }
+
+  /* NOTE This function is called only once (by the router) and should not be 
+  explicitly called elsewhere. */
+  export function setup(base) {
+    /* NOTE 'base' could be derived outside of 'setup' by using: */
+    () => `/${__path__.split("/").at(-1).split(".").at(0)}`;
+    /* ... or in non-constructed modules, using import.meta.url. */
+
+    /* Set basePath for style scoping */
+    page.attribute.basePath = base;
+
+    /* Card click -> post view (via router) */
+    const LINK = "a.nav-link";
+    page.on.click = async (event) => {
+      if (event.target.matches(LINK) || event.target.closest(LINK)) {
+        const card = event.target.closest(`[card]`);
+        const path = card.attribute.card;
+        await router(`${base}${path}`);
+      }
+    };
+  }
+
+  /* Route lifecycle method: Called by router, whenever there's a change in 
+  registered route path and this router's path becomes active. */
+  export async function enter(meta, query, ...paths) {
+    /* Enable unscoped sheet */
+    this.sheet.enable();
+    layout.clear(":not([slot])");
+    layout.append(page);
+    await view(paths);
+  }
+
+  /* Route lifecycle method: Called by router, when there's no change in the 
+  registered route path, but a change in either sub-paths and/or query. */
+  export async function update(meta, query, ...paths) {
+    await view(paths);
+  }
+
+  /* Route lifecycle method: Called by router, whenever there's a change in 
+  registered route path and this router's path becomes inactive. Called before
+  the next route's 'enter' */
+  export function exit(meta, query) {
+    /* Disable unscoped sheet */
+    this.sheet.disable();
+    page.remove();
+  }
+</script>

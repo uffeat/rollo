@@ -1,7 +1,0 @@
-@import "tailwindcss";
-
-@tailwind utilities;
-
-.bar {
-  @apply m-8;
-}

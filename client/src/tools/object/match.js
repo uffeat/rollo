@@ -1,4 +1,4 @@
-import { type } from "@/type.js";
+import { type } from "@/tools/type.js";
 
 /* Checks, if target and other contains the same entries. 
 NOTE

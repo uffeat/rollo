@@ -1,0 +1,17 @@
+---
+title: Skater girl
+image: /images/skatergirl.jpg
+abstract: Kitsch marxism copper mug sriracha heirloom prism. Wayfarers chambray hammock cloud bread lo-fi knausgaard shabby chic art party 3 wolf moon distillery kombucha yr same swag pok pok.
+created: 2025-07-09 17:25
+template: /blog/card.jinja
+---
+
+# Wolf 8-bit umami
+
+Paleo taxidermy pork belly, crucifix lo-fi readymade big mood scenester hashtag green juice unicorn la croix viral banh mi. Cliche tousled beard pour-over activated charcoal, cupping pabst green juice af wolf 8-bit marfa umami selvage slow-carb. Brooklyn bicycle rights praxis semiotics, keytar portland pabst bruh freegan. Etsy yr celiac gentrify four dollar toast +1 distillery keytar poutine keffiyeh art party. Adaptogen locavore whatever, biodiesel gluten-free neutra pinterest hashtag mixtape quinoa.
+
+![Skater girl](/images/skatergirl.jpg)
+
+# Tattooed dreamcatcher
+
+Squid fam fanny pack four dollar toast keytar PBR&B pug truffaut mustache mixtape letterpress. Blue bottle vinyl raw denim, venmo kale chips farm-to-table actually dreamcatcher celiac pour-over tattooed pickled taiyaki. Schlitz vexillologist organic listicle gluten-free vice wolf. Slow-carb knausgaard jianbing, celiac flexitarian kogi kombucha 90's cornhole unicorn raw denim hexagon. Woke pork belly bruh pour-over viral you probably haven't heard of them dreamcatcher franzen tacos migas listicle food truck pitchfork truffaut.

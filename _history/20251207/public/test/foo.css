@@ -1,0 +1,8 @@
+.foo {
+  color: pink;
+}
+
+.foo::after {
+  content: " foo";
+  color: green;
+}

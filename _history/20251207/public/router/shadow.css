@@ -1,0 +1,30 @@
+#root {
+  --gap: 0rem;
+  --items: 1;
+}
+@media (width>=768px) {
+  #root {
+    --gap: 0.25rem;
+    --items: 2;
+  }
+}
+@media (width>=1200px) {
+  #root {
+    --gap: 0.5rem;
+    --items: 3;
+  }
+}
+[cards] {
+  justify-content: space-between;
+  column-gap: var(--gap);
+  row-gap: max(calc(1.5 * var(--gap)), 0.5rem);
+  flex-wrap: wrap;
+  width: 100%;
+  display: flex;
+}
+::slotted(.card) {
+  width: calc(calc(100% / var(--items)) - var(--gap)) !important;
+}
+:host([post-view]) :is([cards], slot[name="title"]) {
+  display: none;
+}

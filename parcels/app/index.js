@@ -1,1 +1,0 @@
-export { app, breakpoints } from "./src/app.js";

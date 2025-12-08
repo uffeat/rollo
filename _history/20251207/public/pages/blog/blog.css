@@ -1,0 +1,30 @@
+/* Card links */
+[page][base-path="/blogmod"] .card .nav-link:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+}
+
+/* Post headings */
+[page][base-path="/blogmod"] > [post] :is(h1, h2, h3, h4, h5, h6) {
+  color: var(--bs-link-color);
+}
+
+/* Post links */
+[page][base-path="/blogmod"] > [post] a:hover {
+  text-decoration: underline;
+}
+@media (width >= 768px) {
+  [page][base-path="/blogmod"] > [post] a {
+    font-size: 1.125rem;
+  }
+}
+
+/* Post images */
+[page][base-path="/blogmod"] > [post] p:has(> img) {
+  display: flex;
+  justify-content: center;
+}
+
+[page][base-path="/blogmod"] > [post] img {
+  min-width: 80%;
+}
