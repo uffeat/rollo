@@ -1,4 +1,5 @@
 //import "./assets/app.css";
+import "./assets/app.module.css";
 import { Mixins, author, component, mix } from "../component/component.js";
 import { stateMixin } from "../state/state.js";
 
