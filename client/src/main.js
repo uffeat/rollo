@@ -5,18 +5,20 @@ import "./main.css";
 /* Load Bootstrap sheet */
 import "./bootstrap/bootstrap.css";
 
+console.log("Global sheets loaded");////
+
 import { layout } from "@/layout/layout.js";
 
 import { component } from "component";
 import { Nav, NavLink, router } from "@/router/router.js";
 
-import * as home from '@/routes/home.js'
-import * as blog from '@/routes/blog/blog.js'
+import * as home from "@/routes/home.js";
+import * as blog from "@/routes/blog/blog.js";
 
 /* Define routes */
 router.routes.add({
   "/": home,
-  '/blog': blog,
+  "/blog": blog,
 });
 
 /* Create nav */
