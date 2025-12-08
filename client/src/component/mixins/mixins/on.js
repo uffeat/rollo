@@ -1,6 +1,6 @@
-import { type as typeName } from '../../../tools/type.js'
-import { TaggedSets } from "../../../tools/stores.js";
-import { defineValue } from "../../../tools/define.js";
+import { type as typeName } from '@/tools/type.js'
+import { TaggedSets } from "@/tools/stores.js";
+import { defineValue } from "@/tools/define.js";
 
 
 const START = "on.".length;

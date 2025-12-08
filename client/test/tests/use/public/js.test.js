@@ -2,7 +2,7 @@
 /use/public/js.test.js
 */
 
-const { component } = await use("@/component");
+
 
 export default async () => {
   console.log("foo:", (await use("/test/foo.js")).foo);

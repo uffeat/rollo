@@ -2,10 +2,10 @@
 /use/public/css.test.js
 */
 
-import "../../../../src/use.js";
-import { component } from "../../../../src/component/component.js";
-import { layout } from "../../../../src/layout/layout.js";
-import { Sheet, css, scope } from "../../../../src/sheet/sheet.js";
+import "@/use.js";
+import { component } from "component";
+import { layout } from "@/layout/layout.js";
+import { Sheet, css, scope } from "@/sheet/sheet.js";
 
 const sheet = await use("/test/bar.css", { as: "sheet" });
 

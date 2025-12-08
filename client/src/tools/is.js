@@ -1,4 +1,4 @@
-import { type } from "./type.js";
+import { type } from "@/tools/type.js";
 
 export const is = new (class {
   arrow = (value) => {

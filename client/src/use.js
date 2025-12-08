@@ -1,5 +1,6 @@
 import { type } from "./tools/type.js";
 import { Sheet } from "./sheet/sheet.js";
+import { component } from "component";
 
 export class UseError extends Error {
   static raise = (message, callback) => {
@@ -482,19 +483,15 @@ use.sources.add(
       import: Function("u", "return import(u)"),
     };
     return async ({ options, owner, path }) => {
-      const { as, inform, raw } = options;
+      const { as, raw } = options;
       /* Global sheet by link (FOUC-free) */
       if (path.type === "css" && as === undefined && raw !== true) {
         /* NOTE 'error' event does not fire reliably, therefore attempt raw 
         import, which will throw for invalid paths; it carries a small perf
         penalty, so only do in DEV. */
         if (use.meta.DEV) {
-          //
           await use(path.path, { raw: true });
-          //
         }
-
-        //console.log("path:", path);////
 
         const href = `${owner.meta.base}${path.path}`;
         let link = document.head.querySelector(
@@ -537,17 +534,17 @@ use.sources.add(
       }
       /* Text-based asset */
       if (cache.has(path.full)) {
-        inform?.(`Using cached version of: ${path.full}`);
+        //console.log(`Using cached version of: ${path.full}`); ////
         return cache.get(path.full);
       }
       if (fetching.has(path.full)) {
-        inform?.(`Awaiting fetch of: ${path.full}`);
+        //console.log(`Awaiting fetch of: ${path.full}`); ////
         const promise = fetching.get(path.full);
         const result = await promise;
         fetching.delete(path.full);
         return result;
       } else {
-        inform?.(`Fetching: ${path.full}`);
+        //console.log(`Fetching: ${path.full}`); ////
         const { promise, resolve } = Promise.withResolvers();
         fetching.set(path.full, promise);
         const result = (
@@ -555,15 +552,16 @@ use.sources.add(
             await fetch(`${owner.meta.base}${path.path}`, { cache: "no-store" })
           ).text()
         ).trim();
-        //Alt: await fetch(`${owner.meta.base}${path.path}?d=${Date.now()}`)
+        /* Alternative fetch: */
+        async () =>
+          await fetch(`${owner.meta.base}${path.path}?d=${Date.now()}`);
         /* Invalid paths causes result to be index.html (with misc devtools 
         injected). Use custom index meta as indicator for invalid path, 
         since such an element should not be present in imported assets. */
         const tester = document.createElement("div");
         tester.innerHTML = result;
         if (tester.querySelector(`meta[index]`)) {
-          /* NOTE Critical to remove from fetching on error!
-          ... challenged my sanity before I found out... */
+          /* NOTE Critical to remove from fetching on error! */
           fetching.delete(path.full);
           UseError.raise(`Invalid path: ${path.full}`);
         }
@@ -581,28 +579,20 @@ NOTE
 - Tightly coupled with build tools and parcels.
 - Always returns raw asset, subject to any subsequent transformation and 
   processing.
-- Go-to source, except for:
-  - Global sheets (already handled in parcels/by build tool).
-  - Assets that use build-integrated libs such as React and Tailwind. 
-  - Large-volume small-size content and data assets.
+- Use for:
+  - External libs.
+  - Text-based assets that need fast retrival. 
 - Attractive because:
   - Does not hit bundle size.
   - Low latency.
   - Serialized out-of-the-box
-  - Leverages the (module-federation-like) 'parcel' architecture, 
-    which provides build tool integration and encapsulated authoring/testing.
 */
 await (async () => {
-  //
-  //
   await use("/assets.css");
-  //console.log('Assets sheet loaded')////
-
+  //console.log("Assets sheet loaded"); ////
   const cache = new Map();
-
   use.sources.add("@", async ({ path }) => {
     if (cache.has(path.full)) return cache.get(path.full);
-
     const probe = document.createElement("meta");
     document.head.append(probe);
     probe.setAttribute("__path__", path.path);
@@ -617,8 +607,7 @@ await (async () => {
     cache.set(path.full, result);
     return result;
   });
-
-  //console.log('@ source created')////
+  //console.log("@ source created"); ////
 })();
 
 /** Register out-of-the-box transformers and processors for native types. */
@@ -705,5 +694,101 @@ use.types.add("json", (result) => {
   return JSON.parse(result);
 });
 
+/** Register out-of-the-box transformers and processors for synthetic assets. */
+
+/* Add x.html/x.template support.
+NOTE Use the html-associated file type 'template' for html public assets 
+to avoid Vercel-injections.
+*/
+(() => {
+  const cache = new Map();
+  use.processors.add("x.html", "x.template", async (result, { path }) => {
+    /* Type guard */
+    if (!(typeof result === "string")) return;
+    if (cache.has(path.full)) return cache.get(path.full);
+
+    const fragment = component.div({ innerHTML: result });
+
+    const mod = await use.module(
+      `export const __path__ = "${path.path}";${fragment
+        .querySelector("script")
+        .textContent.trim()}`,
+      path.path
+    );
+    /* Get exposed components */
+    const components = Object.fromEntries(
+      Object.entries(mod).filter(([k, v]) => {
+        return v instanceof HTMLElement;
+      })
+    );
+
+    /* Create context */
+    const assets = {};
+
+    /* Parse styles */
+    for (const element of fragment.querySelectorAll(`style`)) {
+      /* Construct and adopt sheet scoped to exposed component */
+      if (element.hasAttribute("for")) {
+        const target = element.getAttribute("for");
+        const sheet = Sheet.create(
+          `[uid="${components[target].uid}"] { ${element.textContent.trim()} }`
+        );
+        if (element.hasAttribute("global")) {
+          sheet.use();
+        }
+        if (element.hasAttribute("name")) {
+          assets[element.getAttribute("name")] = sheet;
+        }
+        continue;
+      }
+      /* Construct and adopt global sheet and if named add to context */
+      if (element.hasAttribute("global")) {
+        const sheet = Sheet.create(element.textContent.trim()).use();
+        if (element.hasAttribute("name")) {
+          assets[element.getAttribute("name")] = sheet;
+        }
+      } else {
+        /* Construct named sheet and add to context */
+        assets[
+          element.hasAttribute("name")
+            ? element.getAttribute("name")
+            : "__sheet__"
+        ] = Sheet.create(element.textContent.trim());
+      }
+    }
+
+    /* Parse templates */
+    for (const element of fragment.querySelectorAll(`template`)) {
+      assets[
+        element.hasAttribute("name")
+          ? element.getAttribute("name")
+          : "__template__"
+      ] = element.innerHTML.trim();
+    }
+
+    Object.freeze(assets);
+
+    /* Build pseudo module */
+    const pseudo = { __type__: "Module", assets };
+    for (const [key, value] of Object.entries(mod)) {
+      if (typeof value === "function") {
+        if (key === "__init__") {
+          /* Do not include any '__init__' function member, but call 
+          immediately with context. 
+          NOTE Useful for one-off init that requires context awareness. */
+          await value.call(assets, assets);
+          continue;
+        }
+        /* Bind function members to context */
+        pseudo[key] = value.bind(assets);
+        continue;
+      }
+      pseudo[key] = value;
+    }
+
+    cache.set(path.full, Object.freeze(pseudo));
+    return pseudo;
+  });
+})();
 
 window.dispatchEvent(new CustomEvent("_use"));

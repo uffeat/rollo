@@ -3,7 +3,8 @@
 */
 
 import "@/use.js";
-import { component } from "@/component/component.js";
+//import { component } from "@/component/component.js";
+import { component } from "component";
 import { layout } from "@/layout/layout.js";
 import { Sheet, css } from "@/sheet/sheet.js";
 import { app, breakpoints } from "@/app/app.js";

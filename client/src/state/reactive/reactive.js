@@ -1,6 +1,6 @@
-import { type } from '../../tools/type.js'
-import { is } from '../../tools/is.js'
-import { Exception } from '../../tools/exception.js'
+import { type } from '@/tools/type.js'
+import { is } from '@/tools/is.js'
+import { Exception } from '@/tools/exception.js'
 import { Message } from "../tools/message.js";
 import { Ref } from "../ref/ref.js";
 

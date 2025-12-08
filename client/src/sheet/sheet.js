@@ -1,4 +1,4 @@
-import { type } from '../tools/type.js'
+import { type } from '@/tools/type.js'
 import { Rules } from "./rules.js";
 import { Targets } from "./targets.js";
 

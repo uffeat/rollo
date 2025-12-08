@@ -1,4 +1,4 @@
-import { camelToKebab } from "../../../tools/case.js";
+import { camelToKebab } from "@/tools/case.js";
 
 export default (parent, config) => {
   return class extends parent {

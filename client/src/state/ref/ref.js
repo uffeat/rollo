@@ -1,5 +1,5 @@
-import { type } from '../../tools/type.js'
-import { is } from '../../tools/is.js'
+import { type } from '@/tools/type.js'
+import { is } from '@/tools/is.js'
 import { Message } from "../tools/message.js";
 
 export class Ref {

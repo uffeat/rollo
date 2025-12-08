@@ -1,4 +1,4 @@
-import { type } from '../tools/type.js'
+import { type } from '@/tools/type.js'
 
 export const rule = (media) => {
   let selector = "";

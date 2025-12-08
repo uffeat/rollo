@@ -1,4 +1,4 @@
-import { defineValue } from "../../tools/define.js";
+import { defineValue } from "@/tools/define.js";
 import { factory } from "./factory.js";
 import { registry } from "./registry.js";
 

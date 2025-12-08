@@ -2,9 +2,13 @@
 /use/public/template.test.js
 */
 
-const { css } = await use("@/sheet");
-const { component } = await use("@/component");
-const { layout } = await use("@/layout/");
+import "@/use.js";
+import { component } from "component";
+import { layout } from "@/layout/layout.js";
+import { css } from "@/sheet/sheet.js";
+
+
+
 
 export default async () => {
   layout.clear(":not([slot])");
@@ -14,9 +18,8 @@ export default async () => {
     ...css.display.flex,
     ...css.flexDirection.column,
     ...css.alignItems.end,
+    innerHTML: await use("/test/foo.template")
   });
 
-  const element = (await use("/test/foo.x.template"))();
-
-  container.insert.beforeend(element);
+  
 };
