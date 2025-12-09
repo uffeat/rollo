@@ -2,7 +2,7 @@ import "@/use.js";
 import { app } from "@/app/app.js";
 import { Mixins, author, component, mix } from "@/component/component.js";
 //
-
+import '/src/layout/layout.css'
 //await use("/assets/layout/layout.css");
 
 const reboot = await use("@/bootstrap/reboot.css");
