@@ -1,7 +1,8 @@
 /* Initialize import engine */
 import "@/use.js";
 /* Activate Tailwind */
-import "/src/assets/main.css";
+//import "/src/assets/main.css";
+import "@/assets/main.css";
 
 
 

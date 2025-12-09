@@ -23,12 +23,21 @@ export default defineConfig(({ mode }) => {
       manifest: true,
       target: "es2022",
       rollupOptions: {
-        external: (path) =>
-          (path.includes("/assets/") && !path.includes("/src/")) ||
-          (path.includes("/parcels/") && !path.includes("/src/")) ||
-          (path.includes("/templates/") && !path.includes("/src/")) ||
-          (path.includes("/test/") && !path.includes("/src/")) ||
-          path.endsWith(".test.js"),
+        external: (id) => {
+          // Never treat aliased src imports as external
+          if (id.startsWith("@")) return false;
+
+          // Optionally: only treat URL-like ids as candidates
+          // if (!id.startsWith("/")) return false;
+
+          return (
+            (id.includes("/assets/") && !id.includes("/src/")) ||
+            (id.includes("/parcels/") && !id.includes("/src/")) ||
+            (id.includes("/templates/") && !id.includes("/src/")) ||
+            (id.includes("/test/") && !id.includes("/src/")) ||
+            id.endsWith(".test.js")
+          );
+        },
       },
     },
 
@@ -50,7 +59,7 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         "@": resolve(__dirname, "src"),
-        "component": resolve(__dirname, "src/component/component.js"),
+        component: resolve(__dirname, "src/component/component.js"),
       },
     },
   };
