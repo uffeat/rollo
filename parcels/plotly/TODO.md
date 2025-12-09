@@ -1,2 +1,0 @@
-- Include container
-- Improve styling, bot via stylesheet (see legacy dir) and config (see `parcels/app/test/tests/breakpoints.test.js`)
