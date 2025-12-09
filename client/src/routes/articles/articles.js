@@ -15,7 +15,7 @@ const bundle = await use(`@/content/bundle/blog.json`);
 
 const items = Object.entries(bundle.bundle).map(([k, v]) => {
 
-  return [k.slice(5), v]
+  return [k.slice(5), v.meta]
 
 })
 
