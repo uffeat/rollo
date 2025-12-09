@@ -1,11 +1,11 @@
 /* Activate Tailwind */
 import "./main.css";
 /* Initialize import engine */
-import "./use.js";
+import "../../client/src/use.js";
 
 import { createRoot } from "react-dom/client";
 import { createElement } from "react";
-import { Foo } from "./components/foo.jsx";
+import { Foo } from "../../client/src/components/foo.jsx";
 
 const { layout } = await use("@/layout/");
 const { component } = await use("@/component.js");

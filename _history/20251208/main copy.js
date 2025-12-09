@@ -1,8 +1,8 @@
 /* Initialize import engine */
-import "./use.js";
+import "../../client/src/use.js";
 /* Activate Tailwind */
 import "./main.css";
-import router from "./router/router.js";
+import router from "../../client/src/router/router.js";
 
 document.documentElement.dataset.bsTheme = "dark";
 
