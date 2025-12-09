@@ -3,6 +3,8 @@ import "@/use.js";
 /* Activate Tailwind */
 import "@/assets/main.css";
 
+console.log('HERE')
+
 import { layout } from "@/layout/layout.js";
 import { component } from "component";
 import { Nav, NavLink, router } from "@/router/router.js";
