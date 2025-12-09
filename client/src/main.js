@@ -2,14 +2,8 @@
 import "@/use.js";
 /* Activate Tailwind */
 import "./main.css";
-/* Load Bootstrap sheet */
-await use("/assets/bootstrap/bootstrap.css");
-
-
-//await use("/assets.css");
 
 import { layout } from "@/layout/layout.js";
-
 import { component } from "component";
 import { Nav, NavLink, router } from "@/router/router.js";
 
