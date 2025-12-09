@@ -4,7 +4,7 @@ import { ref } from "@/state/state.js";
 import { router } from "@/router/router.js";
 import { toTop } from "@/tools/scroll.js";
 
-//import Sheets from "./assets/sheets.js";
+import Sheets from "./assets/sheets.js";
 import Card from "./tools/card.js";
 import { Post, posts } from "./tools/post.js";
 
@@ -54,6 +54,12 @@ state.effects.add(
 );
 
 async function setup(base) {
+  //const reboot = await use("@/bootstrap/reboot.css")
+  //let shadow
+ 
+
+
+
   page.attribute.page = base;
   /* Set up shadow */
   page.attachShadow({ mode: "open" });
@@ -66,11 +72,16 @@ async function setup(base) {
     );
     page.detail.shadow = shadow;
     page.shadowRoot.append(shadow);
+
+    //reboot.use(page);
+
+
+
     //
     //
-    //const sheets = await Sheets();
-    //sheets.reboot.use(page);
-    //sheets.shadow.use(page);
+    const sheets = await Sheets();
+    sheets.reboot.use(page);
+    sheets.shadow.use(page);
   })();
 
   /* Render */
