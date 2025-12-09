@@ -5,8 +5,9 @@ import { ref, stateMixin  } from "@/state/state.js";
 import { app } from "@/app/app.js";
 import { Url } from "./url.js";
 import { Mixins, author, mix } from "component";
+import "@/router/router.css";
 
-await use("/assets/router/router.css");
+//await use("/assets/router/router.css");
 
 
 const types = Object.freeze(

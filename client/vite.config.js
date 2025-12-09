@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import { resolve, dirname } from "path";
+import path from "node:path";
 import { fileURLToPath } from "url";
 import inject from "@rollup/plugin-inject";
 import tailwindcss from "@tailwindcss/vite";
@@ -27,8 +28,7 @@ export default defineConfig(({ mode }) => {
           // Never treat aliased src imports as external
           if (id.startsWith("@")) return false;
 
-          // Optionally: only treat URL-like ids as candidates
-          // if (!id.startsWith("/")) return false;
+          
 
           return (
             (id.includes("/assets/") && !id.includes("/src/")) ||
@@ -59,6 +59,7 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         "@": resolve(__dirname, "src"),
+        // Alt: "@": path.resolve(__dirname, "src"),
         component: resolve(__dirname, "src/component/component.js"),
       },
     },
