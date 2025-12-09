@@ -7,8 +7,8 @@ import { toTop } from "@/tools/scroll.js";
 import Card from "./tools/card.js";
 import { Post, posts } from "./tools/post.js";
 
-//import "@/routes/blog/blog.css";
-import scope from "@/routes/blog/blog.module.css";
+import "@/routes/blog/blog.css";
+//import scope from "@/routes/blog/blog.module.css";
 
 
 //
@@ -25,7 +25,7 @@ const page = component.main(
   component.h1("py-3", { text: "Blog", slot: "title" })
 );
 
-page.classes.add(scope.blog)
+//page.classes.add(scope.blog)
 
 
 
