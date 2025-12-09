@@ -28,3 +28,9 @@ input[type="number"] {
   appearance: none; /* modern generic reset */
   box-sizing: border-box;
 }
+
+layout-component {
+  display: block;
+  /* NOTE `100vw` would push behind vertical scrollbars. */
+  height: 100%;
+}
