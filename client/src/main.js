@@ -1,7 +1,7 @@
 /* Initialize import engine */
 import "@/use.js";
 /* Activate Tailwind */
-import "./assets/main.css";
+import "/src/assets/main.css";
 
 import { layout } from "@/layout/layout.js";
 import { component } from "component";
