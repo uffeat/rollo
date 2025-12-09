@@ -9,11 +9,7 @@ import { Post, posts } from "./tools/post.js";
 
 import "/src/routes/blog/blog.css";
 
-//
-//
-//await use("/assets/blog/blog.css");
-//
-//
+
 
 
 /** Prepare components and component factories */
@@ -76,13 +72,13 @@ async function setup(base) {
     page.detail.shadow = shadow;
     page.shadowRoot.append(shadow);
     reboot.use(page);
-    if (import.meta.env.DEV) {
-      const shadow = await use(`/assets/blog/shadow.css`, { as: "sheet" });
-      shadow.use(page);
-    } else {
-      const shadow = await use(`@/blog/shadow.css`);
-      shadow.use(page);
-    }
+    const shadowSheet = use.meta.DEV ? await use(`/assets/blog/shadow.css`, { as: "sheet" }) : await use(`@/blog/shadow.css`);
+    shadowSheet.use(page);
+
+
+
+
+   
   })();
 
   /* Render */
