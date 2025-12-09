@@ -3,20 +3,9 @@ import { app } from "@/app/app.js";
 import { Mixins, author, component, mix } from "@/component/component.js";
 import "/src/layout/layout.css";
 
+/* Get shadow sheets */
 const reboot = await use("@/bootstrap/reboot.css");
-
-/*
-let shadow;
-if (import.meta.env.DEV) {
-  shadow = await use("/assets/layout/shadow.css", { as: "sheet" });
-} else {
-  shadow = await use(`@/layout/shadow.css`);
-}
-*/
 const shadow = use.meta.DEV ?  await use("/assets/layout/shadow.css", { as: "sheet" }) : await use(`@/layout/shadow.css`);
-
-//
-//
 
 const icons = {
   close: await use("@/icons/close.svg"),

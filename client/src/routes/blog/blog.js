@@ -4,11 +4,17 @@ import { ref } from "@/state/state.js";
 import { router } from "@/router/router.js";
 import { toTop } from "@/tools/scroll.js";
 
-
 import Card from "./tools/card.js";
 import { Post, posts } from "./tools/post.js";
 
-await use("/assets/blog/blog.css");
+import "/src/routes/blog/blog.css";
+
+//
+//
+//await use("/assets/blog/blog.css");
+//
+//
+
 
 /** Prepare components and component factories */
 
