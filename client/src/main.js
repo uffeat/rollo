@@ -3,7 +3,8 @@ import "@/use.js";
 /* Activate Tailwind */
 import "./main.css";
 /* Load Bootstrap sheet */
-//import "./bootstrap/bootstrap.css";
+await use("/assets/bootstrap/bootstrap.css");
+
 
 //await use("/assets.css");
 
