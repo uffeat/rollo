@@ -2,12 +2,12 @@
 /tools/future.test.js
 */
 
+import "@/use.js";
 import {
   Future,
-} from "../../../assets/tools/future.js";
-
-const { component } = await use("@/component.js");
-const { layout } = await use("@//layout.js");
+} from "@/tools/future.js";
+import { component } from "component";
+import { layout } from "@/layout/layout.js";
 
 export default async () => {
   layout.clear(":not([slot])");

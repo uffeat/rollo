@@ -2,6 +2,7 @@
 /tools/case.test.js
 */
 
+
 import {
   camelToKebab,
   camelToPascal,
@@ -10,7 +11,7 @@ import {
   kebabToSnake,
   pascalToCamel,
   pascalToKebab,
-} from "../../../assets/tools/case.js";
+} from "@/tools/case.js";
 
 export default async () => {
   function test(expected, actual) {

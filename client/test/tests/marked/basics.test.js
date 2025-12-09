@@ -1,9 +1,11 @@
 /*
-/basics.test.js
+/marked/basics.test.js
 */
 
-const { component } = await use("@/component");
-const { layout } = await use("@/layout/");
+import "@/use.js";
+import { component } from "component";
+import { layout } from "@/layout/layout.js";
+
 const { marked } = await use("@/marked");
 
 export default async () => {
@@ -12,7 +14,11 @@ export default async () => {
   const page = component.div("container.p-3", { parent: layout });
 
   const Post = async (path) => {
-    const result = component.div({ innerHTML: marked.parse(await use(path)) });
+    const text = await use(path);
+    const parts = text.trim().split("---");
+    const md = parts.slice(2).join("");
+
+    const result = component.div({ innerHTML: marked.parse(md) });
     for (const image of result.querySelectorAll("img")) {
       image.replaceWith(
         component.img({
@@ -24,5 +30,7 @@ export default async () => {
     return result;
   };
 
-  Post("/content/blog/bevel.md").then((post) => page.append(post));
+  
+
+  Post("/content/src/blog/bevel.md").then((post) => page.append(post));
 };

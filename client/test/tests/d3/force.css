@@ -1,0 +1,38 @@
+#graph {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#graph > svg {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+  background: transparent;
+}
+
+#graph line.link {
+  stroke: var(--bs-light);
+  stroke-opacity: 0.6;
+}
+
+#graph circle.node {
+  stroke-width: 1;
+  cursor: grab;
+  stroke: var(--bs-light);
+  fill: var(--bs-success);
+}
+
+#graph circle.node:active {
+  cursor: grabbing;
+}
+
+#graph text.label {
+  font-size: 0.75rem;
+  pointer-events: none;
+  stroke: var(--bs-primary);
+}

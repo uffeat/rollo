@@ -1,12 +1,16 @@
 /*
-/blog.test.js
+/marked/blog.test.js
 */
-const { component } = await use("@/component");
-const { layout } = await use("@/layout/");
+
+import "@/use.js";
+import { component } from "component";
+import { layout } from "@/layout/layout.js";
+import { Sheet, css, rule, scope } from "@/sheet/sheet.js";
+import { toTop } from "@/tools/scroll.js";
+
 const { marked } = await use("@/marked");
 const { YAML } = await use("@/yaml");
-const { toTop } = await use("@/tools/scroll");
-const { Sheet, css } = await use("@/sheet");
+
 
 export default async () => {
   layout.clear(":not([slot])");
@@ -29,7 +33,6 @@ export default async () => {
     const meta = YAML.parse(parts[1]);
     console.log("meta:", meta);
     const md = parts.slice(2).join("");
-    //console.log("md:", md);
     const html = marked.parse(md);
 
     const item = component.div("_item", {});
@@ -98,7 +101,7 @@ export default async () => {
     return item;
   };
 
-  const paths = ["/content/blog/sprocket.md", "/content/blog/bevel.md"];
+  const paths = ["/content/src/blog/sprocket.md", "/content/src/blog/bevel.md"];
 
   for (const path of paths) {
     Item(path).then((item) => items.append(item));
