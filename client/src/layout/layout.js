@@ -9,9 +9,23 @@ const reboot = await use("@/bootstrap/reboot.css");
 
 //
 //
-const shadow = await use("/assets/layout/shadow.css", { as: "sheet" });
+//const shadow = await use("/assets/layout/shadow.css", { as: "sheet" });
+
+let shadow
+if (import.meta.env.DEV) {
+      shadow = await use("/assets/layout/shadow.css", { as: "sheet" });
+    } else {
+      shadow = await use(`@/layout/shadow.css`);
+      
+    }
+
+
+
+
+
 //
 //
+
 const icons = {
   close: await use("@/icons/close.svg"),
   menu: await use("@/icons/menu.svg"),
