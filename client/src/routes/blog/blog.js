@@ -7,10 +7,7 @@ import { toTop } from "@/tools/scroll.js";
 import Card from "./tools/card.js";
 import { Post, posts } from "./tools/post.js";
 
-import "/src/routes/blog/blog.css";
-
-
-
+import "@/routes/blog/blog.css";
 
 /** Prepare components and component factories */
 
@@ -56,8 +53,11 @@ state.effects.add(
 );
 
 async function setup(base) {
+  /* Get shadow sheets */
   const reboot = await use("@/bootstrap/reboot.css");
-  //let shadow
+  const shadowSheet = use.meta.DEV
+    ? await use(`/assets/blog/shadow.css`, { as: "sheet" })
+    : await use(`@/blog/shadow.css`);
 
   page.attribute.page = base;
   /* Set up shadow */
@@ -72,13 +72,7 @@ async function setup(base) {
     page.detail.shadow = shadow;
     page.shadowRoot.append(shadow);
     reboot.use(page);
-    const shadowSheet = use.meta.DEV ? await use(`/assets/blog/shadow.css`, { as: "sheet" }) : await use(`@/blog/shadow.css`);
     shadowSheet.use(page);
-
-
-
-
-   
   })();
 
   /* Render */
