@@ -1,14 +1,13 @@
 import "@/use.js";
 import { Exception } from "@/tools/exception.js";
 import { type } from "@/tools/type.js";
-import { ref, stateMixin  } from "@/state/state.js";
+import { ref, stateMixin } from "@/state/state.js";
 import { app } from "@/app/app.js";
 import { Url } from "./url.js";
 import { Mixins, author, mix } from "component";
 import "@/router/router.css";
 
-//await use("/assets/router/router.css");
-
+//Alt: await use("/assets/router/router.css");
 
 const types = Object.freeze(
   new Set(["AsyncFunction", "Function", "Module", "Object"])
@@ -283,7 +282,6 @@ const Router = new (class Router {
   }
 })();
 
-
 /* Proxy version with leaner syntax  */
 const router = new Proxy(async () => {}, {
   get(target, key) {
@@ -313,6 +311,22 @@ const router = new Proxy(async () => {}, {
   },
 });
 
+
+/*
+const Route = author(
+  class extends mix(HTMLElement, {}, ...Mixins(stateMixin)) {
+    #_ = {
+      tree: {},
+    };
+    constructor() {
+      super();
+    }
+  },
+  "route-component"
+);
+const testRoute = Route()
+console.log('testRoute:', testRoute)
+*/
 
 const TAG = "a";
 const NavLink = author(
@@ -373,11 +387,11 @@ const Nav = (nav) => {
     (path) => {
       const previous = nav.find(`.active`);
       if (previous) {
-        previous.classes.remove('active');
+        previous.classes.remove("active");
       }
       const current = nav.find(`[path="${path}"]`);
       if (current) {
-        current.classes.add('active');
+        current.classes.add("active");
       }
     },
     (path) => !!path
@@ -385,6 +399,4 @@ const Nav = (nav) => {
   return nav;
 };
 
-
-
-export {Nav, NavLink, router}
+export { Nav, NavLink, router };

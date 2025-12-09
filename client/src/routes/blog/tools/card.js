@@ -1,3 +1,4 @@
+import "@/use.js";
 import { component } from "component";
 
 /* */

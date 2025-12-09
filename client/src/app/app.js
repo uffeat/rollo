@@ -3,11 +3,7 @@ import { Mixins, author, component, mix } from "@/component/component.js";
 import { stateMixin } from "@/state/state.js";
 import "@/app/app.css";
 
-//
-//
-//await use("/assets/app/app.css");
-//
-//
+//Alt: await use("/assets/app/app.css");
 
 const TAG = "div";
 

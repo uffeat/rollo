@@ -1,4 +1,4 @@
-import { Button } from "../catalyst/button.jsx";
+import { Button } from "@/catalyst/button.jsx";
 import { useState } from "react";
 
 export const Foo = ({ state }) => {

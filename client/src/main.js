@@ -1,10 +1,7 @@
 /* Initialize import engine */
 import "@/use.js";
-/* Activate Tailwind */
-//import "/src/assets/main.css";
+/* Load main sheet (with Tailwind) */
 import "@/assets/main.css";
-
-
 
 import { layout } from "@/layout/layout.js";
 import { component } from "component";
@@ -12,11 +9,13 @@ import { Nav, NavLink, router } from "@/router/router.js";
 
 import * as home from "@/routes/home.js";
 import * as blog from "@/routes/blog/blog.js";
+import * as articles from "@/routes/articles/articles.js";
 
 /* Define routes */
 router.routes.add({
   "/": home,
   "/blog": blog,
+  "/articles": articles,
 });
 
 /* Create nav */
@@ -30,6 +29,7 @@ Nav(
       title: "About",
     }),
     NavLink("nav-link", { text: "Blog", path: "/blog", title: "Blog" }),
+    NavLink("nav-link", { text: "Articles", path: "/articles", title: "Articles" }),
     NavLink("nav-link", { text: "Terms", path: "/terms", title: "Terms" })
   ),
   /* Pseudo-argument for code organization */

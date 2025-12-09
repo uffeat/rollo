@@ -1,6 +1,5 @@
 @import "tailwindcss";
 
-@tailwind utilities;
 
 .foo {
   @apply rounded border border-gray-300;

@@ -1,5 +1,6 @@
 import "@/use.js";
 import { component } from "component";
+import { layout } from "@/layout/layout.js";
 import { ref } from "@/state/state.js";
 import { router } from "@/router/router.js";
 import { toTop } from "@/tools/scroll.js";
@@ -8,26 +9,15 @@ import Card from "./tools/card.js";
 import { Post, posts } from "./tools/post.js";
 
 import "@/routes/blog/blog.css";
-//import scope from "@/routes/blog/blog.module.css";
+//Alt: await use("/assets/blog/blog.css");
 
-
-//
-//
-//await use("/assets/blog/blog.css");
-//
-//
 
 /** Prepare components and component factories */
-
 
 const page = component.main(
   "container mt-3 mb-3",
   component.h1("py-3", { text: "Blog", slot: "title" })
 );
-
-//page.classes.add(scope.blog)
-
-
 
 /* State for controlling view */
 const state = ref();
@@ -73,7 +63,6 @@ async function setup(base) {
     : await use(`@/blog/shadow.css`);
 
   page.attribute.page = base;
-
 
   /* Set up shadow */
   page.attachShadow({ mode: "open" });

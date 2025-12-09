@@ -25,8 +25,6 @@ const { component } = await Use("@/component");
 const { layout } = await Use("@/layout/");
 
 const container = component.div("container.d-flex.flex-column.align-items-center", { parent: layout });
-
-
 const root = component.div({ parent: container });
 
 root.$.effects.add(
