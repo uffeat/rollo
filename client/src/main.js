@@ -1,7 +1,7 @@
 /* Initialize import engine */
 import "@/use.js";
 /* Activate Tailwind */
-//import "./main.css";
+import "./main.css";
 /* Load Bootstrap sheet */
 //import "./bootstrap/bootstrap.css";
 
