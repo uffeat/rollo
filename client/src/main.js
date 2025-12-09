@@ -1,9 +1,9 @@
 /* Initialize import engine */
 import "@/use.js";
 /* Activate Tailwind */
-import "/src/assets/main.css";
+import "@/assets/main.css";
 
-console.log('HERE')
+
 
 import { layout } from "@/layout/layout.js";
 import { component } from "component";
