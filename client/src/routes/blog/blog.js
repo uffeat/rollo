@@ -7,11 +7,11 @@ import { toTop } from "@/tools/scroll.js";
 import Card from "./tools/card.js";
 import { Post, posts } from "./tools/post.js";
 
-//import "@/routes/blog/blog.css";
+import "@/routes/blog/blog.css";
 
 //
 //
-await use("/assets/blog/blog.css");
+//await use("/assets/blog/blog.css");
 //
 //
 
