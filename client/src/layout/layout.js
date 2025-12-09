@@ -1,27 +1,19 @@
 import "@/use.js";
 import { app } from "@/app/app.js";
 import { Mixins, author, component, mix } from "@/component/component.js";
-//
-import '/src/layout/layout.css'
-//await use("/assets/layout/layout.css");
+import "/src/layout/layout.css";
 
 const reboot = await use("@/bootstrap/reboot.css");
 
-//
-//
-//const shadow = await use("/assets/layout/shadow.css", { as: "sheet" });
-
-let shadow
+/*
+let shadow;
 if (import.meta.env.DEV) {
-      shadow = await use("/assets/layout/shadow.css", { as: "sheet" });
-    } else {
-      shadow = await use(`@/layout/shadow.css`);
-      
-    }
-
-
-
-
+  shadow = await use("/assets/layout/shadow.css", { as: "sheet" });
+} else {
+  shadow = await use(`@/layout/shadow.css`);
+}
+*/
+const shadow = use.meta.DEV ?  await use("/assets/layout/shadow.css", { as: "sheet" }) : await use(`@/layout/shadow.css`);
 
 //
 //
