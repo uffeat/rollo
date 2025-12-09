@@ -19,6 +19,7 @@ export default defineConfig(({ mode }) => {
       "import.meta.env.VERCEL_URL": JSON.stringify(process.env.VERCEL_URL),
     },
     build: {
+      minify: false, //
       manifest: true,
       target: "es2022",
       rollupOptions: {
