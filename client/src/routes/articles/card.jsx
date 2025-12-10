@@ -1,16 +1,12 @@
 import "@/use.js";
 
-export const Card = ({ path, meta  }) => {
+export const Card = ({ root, path, meta  }) => {
+
+  //console.log("root:", root);////
 
   const { abstract, image, title } = meta;
 
-  console.log('image:', image)
-
-  /* Issue
-  - React complains that 'image' is undefined eventhough the data set does contain 'image' (a src reference)
-  */
-
-
+  
   return (
     <div className="card">
       <img
@@ -18,7 +14,7 @@ export const Card = ({ path, meta  }) => {
         src={image.startsWith(`/`) ? `${use.meta.base}${image}` : image}
         alt={`Illustration of ${title.toLowerCase()}`}
       ></img>
-      <div className="card-body.nav.d-flex.flex-column">
+      <div className="card-body nav d-flex flex-column">
         <a className="nav-link">
           <h1 className="card-title" title={title}>
             {title}

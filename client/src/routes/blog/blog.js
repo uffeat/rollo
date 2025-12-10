@@ -81,8 +81,9 @@ async function setup(base) {
 
   /* Render */
   const bundle = await use(`@/content/bundle/blog.json`);
+  const paths = bundle.manifest.map(([path, timestamp]) => path)
 
-  for (let path of bundle.manifest.map(([path, timestamp]) => path)) {
+  for (let path of paths) {
     const item = bundle.bundle[path];
     /* Convert: /blog/foo -> /foo */
     path = `/${path.split("/").at(-1)}`;

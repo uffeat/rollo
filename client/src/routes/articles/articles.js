@@ -10,23 +10,21 @@ import classes from "@/routes/articles/articles.module.css";
 
 const page = component.main("container my-3");
 
-const bundle = await use(`@/content/bundle/blog.json`);
-
-
-const items = Object.entries(bundle.bundle).map(([k, v]) => {
-
-  return [k.slice(5), v.meta]
-
-})
-
-console.log('items:', items)
-
-const reactRoot = createRoot(page);
-reactRoot.render(createElement(Articles, { page, items }));
-
 const state = ref();
 
-function setup() {}
+async function setup() {
+  const bundle = await use(`@/content/bundle/blog.json`);
+  const paths = bundle.manifest.map(([path, timestamp]) => path);
+  const items = paths.map((path) => [
+    path.slice("/blog".length),
+    bundle.bundle[path].meta,
+  ]);
+
+  //console.log('items:', items)////
+
+  const reactRoot = createRoot(page);
+  reactRoot.render(createElement(Articles, { root: page, items }));
+}
 
 function enter(meta, query, ...paths) {
   layout.clear(":not([slot])");

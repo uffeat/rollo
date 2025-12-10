@@ -3,21 +3,16 @@ import "@/use.js";
 
 import { Card } from "./card.jsx";
 
-export const Articles = ({ page, items }) => {
-  const cards = items.map(([path, meta]) => {
-    return (
-      <Card
-        key={path}
-        path={path}
-        meta={meta}
-      />
-    );
-  });
+export const Articles = ({ root, items }) => {
+
+  //console.log("root:", root);////
 
   return (
     <div>
       <h1>Articles</h1>
-      {cards}
+      {items.map(([path, meta]) => (
+        <Card key={path} path={path} meta={meta} root={root} />
+      ))}
     </div>
   );
 };
