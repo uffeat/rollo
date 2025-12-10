@@ -5,12 +5,10 @@ export const replaceImages = (container) => {
     for (const image of container.querySelectorAll(`img`)) {
       const src = image.getAttribute("src");
       if (src.startsWith("/")) {
-        const alt = image.getAttribute("alt");
-        const replacement = component.img({
-          alt,
+        image.replaceWith(component.img({
+          alt: image.getAttribute("alt"),
           src: `${use.meta.base}${src}`,
-        });
-        image.replaceWith(replacement);
+        }));
       }
     }
   };

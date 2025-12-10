@@ -1,12 +1,10 @@
-//import "@/use.js";
+/*
+src/routes/articles/card.js
+*/
 
-export const Card = ({ path, data  }) => {
-
-  //console.log("root:", root);////
-
+export const Card = ({ path, data }) => {
   const { abstract, image, title } = data;
 
-  
   return (
     <div className="card">
       <img

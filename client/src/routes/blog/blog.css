@@ -8,6 +8,8 @@
 [page="/blog"] > .card > .card-footer {
   min-height: 2rem !important;
 }
+
+
 [page="/blog"] > [post] :is(h1, h2, h3, h4, h5, h6) {
   color: var(--bs-link-color);
 }
