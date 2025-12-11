@@ -363,13 +363,21 @@ export const assets = new (class Assets {
       useful for testing.
   */
   async get(specifier, ...args) {
-
-
-
-
-    
     const options = { ...(args.find((a) => type(a) === "Object") || {}) };
     args = args.filter((a) => type(a) !== "Object");
+
+    if (this.meta.DEV && options.auto && specifier.startsWith('@/') && specifier.endsWith('.css')) {
+      options.as = 'sheet';
+      specifier = `/assets${specifier.slice(1)}`
+
+      
+    }
+
+
+
+
+
+
     const path = Path.create(specifier);
     let result;
     /* Import */
