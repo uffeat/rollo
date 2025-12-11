@@ -11,7 +11,8 @@ import * as home from "@/routes/home";
 import * as blog from "@/routes/blog/blog";
 import * as articles from "@/routes/articles/articles";
 
-const modules = Object.fromEntries(
+(() => {
+  const modules = Object.fromEntries(
   Object.entries({
     ...import.meta.glob(["./component/component.js"], { eager: true }),
   }).map(([k, v]) => {
@@ -24,6 +25,10 @@ use.sources.add("@@", ({ path }) => {
   //console.log("path.path:", path.path); ////
   return modules[`${path.path.slice(1)}`];
 });
+
+})();
+
+
 
 //const {component: comp} = modules['component']
 const { component } = await use("@@/component");
