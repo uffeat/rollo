@@ -7,8 +7,8 @@ import { layout } from "@/layout/layout";
 import { component } from "component";
 import { Nav, NavLink, router } from "@/router/router";
 
-import * as home from "@/routes/home.js";
-import * as blog from "@/routes/blog/blog.js";
+import * as home from "@/routes/home";
+import * as blog from "@/routes/blog/blog";
 import * as articles from "@/routes/articles/articles";
 
 /* Define routes */

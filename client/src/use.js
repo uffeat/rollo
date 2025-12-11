@@ -181,6 +181,35 @@ class Registry {
   }
 }
 
+class Redirects {
+  #_ = {
+    registry: new Set(),
+  };
+
+  constructor(owner) {
+    this.#_.owner = owner;
+  }
+
+  add(test) {
+    this.#_.registry.add(test);
+    return this.#_.owner;
+  }
+
+  async redirect(specifier, options, ...args) {
+    for (const test of this.#_.registry.values()) {
+      const result = await test(
+        specifier,
+        { owner: this.#_.owner, options },
+        ...args
+      );
+      if (result) {
+        return result;
+      }
+    }
+    return specifier;
+  }
+}
+
 /* Import engine. 
 - Provides dynamic imports.
 - Supports a range of asset types from different sources out-of-the-box.
@@ -240,6 +269,10 @@ export const assets = new (class Assets {
         return location.origin;
       }
     })();
+    /* Compose redirects */
+    this.#_.redirects = new Redirects(this);
+
+
     /* Compose sources */
     this.#_.sources = new Registry(this);
     /* Compose processors 
@@ -304,6 +337,10 @@ export const assets = new (class Assets {
     return this.#_.processors;
   }
 
+  get redirects() {
+    return this.#_.redirects
+  }
+
   /* Returns sources controller. 
   NOTE Operates on 'path.source'. */
   get sources() {
@@ -366,17 +403,23 @@ export const assets = new (class Assets {
     const options = { ...(args.find((a) => type(a) === "Object") || {}) };
     args = args.filter((a) => type(a) !== "Object");
 
-    if (this.meta.DEV && options.auto && specifier.startsWith('@/') && specifier.endsWith('.css')) {
-      options.as = 'sheet';
-      specifier = `/assets${specifier.slice(1)}`
+    specifier = await this.redirects.redirect(specifier, options, ...args)
 
-      
+    /*
+    if (
+      this.meta.DEV &&
+      options.auto &&
+      specifier.startsWith("@/") &&
+      specifier.endsWith(".css")
+    ) {
+      options.as = "sheet";
+      specifier = `/assets${specifier.slice(1)}`;
     }
+    
+    
+    */
 
-
-
-
-
+    
 
     const path = Path.create(specifier);
     let result;
@@ -453,6 +496,20 @@ export const assets = new (class Assets {
     return result;
   }
 })();
+
+/** Register out-of-the-box redirects. */
+
+use.redirects.add((specifier, { owner, options }, ...args) => {
+  if (
+    owner.meta.DEV &&
+    options.auto &&
+    specifier.startsWith("@/") &&
+    specifier.endsWith(".css")
+  ) {
+    options.as = "sheet";
+    return `/assets${specifier.slice(1)}`;
+  }
+});
 
 /** Register out-of-the-box sources. */
 

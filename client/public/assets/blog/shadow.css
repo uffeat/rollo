@@ -16,6 +16,9 @@
   display: grid;
   grid-template-columns: repeat(var(--items), minmax(0, 1fr));
   gap: calc(0.5rem * var(--items));
+
+  /**/
+  border: 2px solid green;
 }
 
 :host([post-view]) :is([cards], slot[name="title"]) {
