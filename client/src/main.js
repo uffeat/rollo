@@ -4,7 +4,7 @@ import "@/use";
 import "@/assets/main.css";
 
 import { layout } from "@/layout/layout";
-import { component } from "component";
+//import { component } from "component";
 import { Nav, NavLink, router } from "@/router/router";
 
 import * as home from "@/routes/home";
@@ -15,15 +15,19 @@ const modules = Object.fromEntries(
   Object.entries({
     ...import.meta.glob(["./component/component.js"], { eager: true }),
   }).map(([k, v]) => {
-    const key = k.split("/").at(-1).slice(0, -3);
-
-    //console.log("key:", key);
-
-    return [key, v];
+    return [k.split("/").at(-1), v];
   })
 );
+//console.log("modules:", modules); ////
 
-console.log("modules:", modules);
+use.sources.add("@@", ({ path }) => {
+  //console.log("path.path:", path.path); ////
+  return modules[`${path.path.slice(1)}`];
+});
+
+//const {component: comp} = modules['component']
+const { component } = await use("@@/component");
+//console.log("comp:", comp); ////
 
 /* Define routes */
 router.routes.add({
