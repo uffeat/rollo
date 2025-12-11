@@ -10,8 +10,6 @@ import { Post, posts } from "./_tools/post";
 
 import "@/routes/blog/_blog.css";
 
-
-
 /** Prepare components and component factories */
 
 const page = component.main(
@@ -58,14 +56,6 @@ state.effects.add(
 async function setup(base) {
   /* Get shadow sheets */
   const reboot = await use("@/bootstrap/reboot.css");
-
-  
-  /*
-  const shadowSheet = use.meta.DEV
-    ? await use(`/assets/blog/shadow.css`, { as: "sheet" })
-    : await use(`@/blog/shadow.css`);
-  */
-
   const shadowSheet = await use(`@/blog/shadow.css`, { auto: true });
 
   page.attribute.page = base;
@@ -87,7 +77,7 @@ async function setup(base) {
 
   /* Render */
   const bundle = await use(`@/content/bundle/blog.json`);
-  const paths = bundle.manifest.map(([path, timestamp]) => path)
+  const paths = bundle.manifest.map(([path, timestamp]) => path);
 
   for (let path of paths) {
     const item = bundle.bundle[path];

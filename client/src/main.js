@@ -11,6 +11,20 @@ import * as home from "@/routes/home";
 import * as blog from "@/routes/blog/blog";
 import * as articles from "@/routes/articles/articles";
 
+const modules = Object.fromEntries(
+  Object.entries({
+    ...import.meta.glob(["./component/component.js"], { eager: true }),
+  }).map(([k, v]) => {
+    const key = k.split("/").at(-1).slice(0, -3);
+
+    //console.log("key:", key);
+
+    return [key, v];
+  })
+);
+
+console.log("modules:", modules);
+
 /* Define routes */
 router.routes.add({
   "/": home,
@@ -29,7 +43,11 @@ Nav(
       title: "About",
     }),
     NavLink("nav-link", { text: "Blog", path: "/blog", title: "Blog" }),
-    NavLink("nav-link", { text: "Articles", path: "/articles", title: "Articles" }),
+    NavLink("nav-link", {
+      text: "Articles",
+      path: "/articles",
+      title: "Articles",
+    }),
     NavLink("nav-link", { text: "Terms", path: "/terms", title: "Terms" })
   ),
   /* Pseudo-argument for code organization */

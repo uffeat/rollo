@@ -197,11 +197,7 @@ class Redirects {
 
   async redirect(specifier, options, ...args) {
     for (const test of this.#_.registry.values()) {
-      const result = await test(
-        specifier,
-        { owner: this.#_.owner, options },
-        ...args
-      );
+      const result = await test(specifier, options, ...args);
       if (result) {
         return result;
       }
@@ -272,7 +268,6 @@ export const assets = new (class Assets {
     /* Compose redirects */
     this.#_.redirects = new Redirects(this);
 
-
     /* Compose sources */
     this.#_.sources = new Registry(this);
     /* Compose processors 
@@ -337,8 +332,10 @@ export const assets = new (class Assets {
     return this.#_.processors;
   }
 
+  /* Returns redirects controller. 
+  NOTE Only kicks in in DEV, since redirect are expensive. */
   get redirects() {
-    return this.#_.redirects
+    return this.#_.redirects;
   }
 
   /* Returns sources controller. 
@@ -403,23 +400,9 @@ export const assets = new (class Assets {
     const options = { ...(args.find((a) => type(a) === "Object") || {}) };
     args = args.filter((a) => type(a) !== "Object");
 
-    specifier = await this.redirects.redirect(specifier, options, ...args)
-
-    /*
-    if (
-      this.meta.DEV &&
-      options.auto &&
-      specifier.startsWith("@/") &&
-      specifier.endsWith(".css")
-    ) {
-      options.as = "sheet";
-      specifier = `/assets${specifier.slice(1)}`;
+    if (this.meta.DEV) {
+      specifier = await this.redirects.redirect(specifier, options, ...args);
     }
-    
-    
-    */
-
-    
 
     const path = Path.create(specifier);
     let result;
@@ -499,9 +482,10 @@ export const assets = new (class Assets {
 
 /** Register out-of-the-box redirects. */
 
-use.redirects.add((specifier, { owner, options }, ...args) => {
+/* Redirects @/-sheets to / counter parts.
+Ensures live sheet updates during DEV and fast sheet loads in PROD. */
+use.redirects.add((specifier, options, ...args) => {
   if (
-    owner.meta.DEV &&
     options.auto &&
     specifier.startsWith("@/") &&
     specifier.endsWith(".css")

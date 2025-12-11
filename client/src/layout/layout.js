@@ -7,17 +7,8 @@ import { app } from "@/app/app";
 import { Mixins, author, component, mix } from "component";
 import "./_layout.css";
 
-//Alt: await use("/assets/layout/layout.css");
-
 /* Get shadow sheets */
 const reboot = await use("@/bootstrap/reboot.css");
-
-/*
-const shadow = use.meta.DEV
-  ? await use("/assets/layout/shadow.css", { as: "sheet" })
-  : await use(`@/layout/shadow.css`);
-  */
-
 const shadow = await use(`@/layout/shadow.css`, { auto: true });
 
 const icons = {
