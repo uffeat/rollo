@@ -1,3 +1,7 @@
+/*
+src/layout/layout.js
+*/
+
 import "@/use.js";
 import { app } from "@/app/app.js";
 import { Mixins, author, component, mix } from "component";

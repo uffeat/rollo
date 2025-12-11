@@ -363,6 +363,11 @@ export const assets = new (class Assets {
       useful for testing.
   */
   async get(specifier, ...args) {
+
+
+
+
+    
     const options = { ...(args.find((a) => type(a) === "Object") || {}) };
     args = args.filter((a) => type(a) !== "Object");
     const path = Path.create(specifier);
