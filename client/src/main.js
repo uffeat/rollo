@@ -3,9 +3,9 @@ import "@/use";
 /* Load main sheet (with Tailwind) */
 import "@/assets/main.css";
 
-import { layout } from "@/layout/layout";
+//import { layout } from "@/layout/layout";
 //import { component } from "component";
-import { Nav, NavLink, router } from "@/router/router";
+//import { Nav, NavLink, router } from "@/router/router";
 
 import * as home from "@/routes/home";
 import * as blog from "@/routes/blog/blog";
@@ -13,26 +13,32 @@ import * as articles from "@/routes/articles/articles";
 
 (() => {
   const modules = Object.fromEntries(
-  Object.entries({
-    ...import.meta.glob(["./component/component.js"], { eager: true }),
-  }).map(([k, v]) => {
-    return [k.split("/").at(-1), v];
-  })
-);
-//console.log("modules:", modules); ////
+    Object.entries({
+      ...import.meta.glob(
+        [
+          "./component/component.js",
+          "./layout/layout.js",
+          "./router/router.js",
+        ],
+        {
+          eager: true,
+        }
+      ),
+    }).map(([k, v]) => {
+      return [k.split("/").at(-1), v];
+    })
+  );
+  //console.log("modules:", modules); ////
 
-use.sources.add("@@", ({ path }) => {
-  //console.log("path.path:", path.path); ////
-  return modules[`${path.path.slice(1)}`];
-});
-
+  use.sources.add("@@", ({ path }) => {
+    //console.log("path.path:", path.path); ////
+    return modules[`${path.path.slice(1)}`];
+  });
 })();
 
-
-
-//const {component: comp} = modules['component']
 const { component } = await use("@@/component");
-//console.log("comp:", comp); ////
+const { layout } = await use("@@/layout");
+const { Nav, NavLink, router } = await use("@@/router");
 
 /* Define routes */
 router.routes.add({
