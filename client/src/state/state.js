@@ -1,11 +1,11 @@
-export { Reactive } from "./reactive/reactive.js";
-export {reactive} from './reactive/proxy.js'
+export { Reactive } from "./_reactive/reactive";
+export {reactive} from './_reactive/proxy'
 
-export { Ref } from "./ref/ref.js";
-export { ref } from "./ref/proxy.js";
+export { Ref } from "./_ref/ref";
+export { ref } from "./_ref/proxy";
 
-import stateMixin from "./reactive/mixin.js";
+import stateMixin from "./_reactive/mixin";
 export { stateMixin };
 
-import refMixin from "./ref/mixin.js";
+import refMixin from "./_ref/mixin";
 export { refMixin };

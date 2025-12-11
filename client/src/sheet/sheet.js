@@ -1,6 +1,6 @@
-import { type } from '@/tools/type.js'
-import { Rules } from "./rules.js";
-import { Targets } from "./targets.js";
+import { type } from '@/tools/type'
+import { Rules } from "./_rules";
+import { Targets } from "./_targets";
 
 
 
@@ -86,6 +86,6 @@ class Sheet extends CSSStyleSheet {
 
 
 export { Rules, Sheet, Targets }
-export { css } from "./css.js";
-export { rule } from "./rule.js";
-export { scope } from "./selector.js";
+export { css } from "./_css";
+export { rule } from "./_rule";
+export { scope } from "./_selector";

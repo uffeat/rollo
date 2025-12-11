@@ -1,7 +1,7 @@
-import "@/use.js";
-import { replaceImages } from "./images.js";
+import "@/use";
+import { replaceImages } from "./images";
 import { component } from "component";
-import { NavLink } from "@/router/router.js";
+import { NavLink } from "@/router/router";
 
 export const posts = new Map();
 

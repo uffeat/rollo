@@ -1,5 +1,5 @@
 import { component } from "component";
-import { layout } from "@/layout/layout.js";
+import { layout } from "@/layout/layout";
 
 const page = component.main("container pt-3", component.h1({ text: "Home" }));
 

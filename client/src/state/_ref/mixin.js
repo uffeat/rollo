@@ -1,4 +1,4 @@
-import { Ref } from "./ref.js";
+import { Ref } from "./ref";
 
 export default (parent) => {
   return class extends parent {

@@ -1,13 +1,12 @@
-import "@/use.js";
-import { Exception } from "@/tools/exception.js";
-import { type } from "@/tools/type.js";
-import { ref, stateMixin } from "@/state/state.js";
-import { app } from "@/app/app.js";
-import { Url } from "./url.js";
+import "@/use";
+import { Exception } from "@/tools/exception";
+import { type } from "@/tools/type";
+import { ref, stateMixin } from "@/state/state";
+import { app } from "@/app/app";
+import { Url } from "./_url";
 import { Mixins, author, mix } from "component";
-import "@/router/router.css";
+import "./_router.css";
 
-//Alt: await use("/assets/router/router.css");
 
 const types = Object.freeze(
   new Set(["AsyncFunction", "Function", "Module", "Object"])

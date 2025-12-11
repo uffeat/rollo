@@ -5,11 +5,11 @@ src/routes/articles/articles.js
 import { createRoot } from "react-dom/client";
 import { createElement } from "react";
 import { component } from "component";
-import { layout } from "@/layout/layout.js";
-import { NavLink } from "@/router/router.js";
-import { toTop } from "@/tools/scroll.js";
-import { Articles } from "./articles.jsx";
-import scopes from "@/routes/articles/post.module.css";
+import { layout } from "@/layout/layout";
+import { NavLink } from "@/router/router";
+import { toTop } from "@/tools/scroll";
+import { Articles } from "./_articles.jsx";
+import scopes from "./_post.module.css";
 
 const root = component.div();
 root.attribute.root = true;

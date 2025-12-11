@@ -1,4 +1,4 @@
-import { Reactive } from "./reactive.js";
+import { Reactive } from "./reactive";
 
 const $ = "$";
 const START = $.length;

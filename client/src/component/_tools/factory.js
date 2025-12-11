@@ -1,4 +1,4 @@
-import { type } from "@/tools/type.js";
+import { type } from "@/tools/type";
 
 /* Utility for parsing args in component factory functions. */
 class Parse {

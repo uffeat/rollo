@@ -1,5 +1,5 @@
-import { Exception } from '@/tools/exception.js'
-import { Ref } from "./ref.js";
+import { Exception } from '@/tools/exception'
+import { Ref } from "./ref";
 
 /* Proxy version of Ref with a leaner syntax: Update/access to current happens 
 via direct function call. */

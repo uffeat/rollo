@@ -1,4 +1,4 @@
-import { Reactive } from "./reactive.js";
+import { Reactive } from "./reactive";
 
 /* Alternative Reactive API with leaner syntax */
 export const reactive = (...args) => {

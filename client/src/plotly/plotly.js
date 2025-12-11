@@ -1,4 +1,4 @@
-import "@/use.js";
+import "@/use";
 
 
 let result;

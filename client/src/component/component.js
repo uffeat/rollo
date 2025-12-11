@@ -1,8 +1,8 @@
-import { factory } from "./tools/factory.js";
-import { mix } from "./tools/mix.js";
-import { Mixins, mixins } from "./mixins/mixins.js";
-import { registry } from "./tools/registry.js";
-import { stateMixin } from "../state/state.js";
+import { factory } from "./_tools/factory";
+import { mix } from "./_tools/mix";
+import { Mixins, mixins } from "./_mixins/mixins";
+import { registry } from "./_tools/registry";
+import { stateMixin } from "../state/state";
 
 /* Registers native web component from tag and returns component class. */
 const create = (tag) => {
@@ -66,5 +66,5 @@ export const component = new Proxy(
   }
 );
 
-export { author } from "./tools/author.js";
+export { author } from "./_tools/author";
 export { factory, mix, Mixins, mixins, registry };

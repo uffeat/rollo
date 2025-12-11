@@ -2,10 +2,10 @@
 src/layout/layout.js
 */
 
-import "@/use.js";
-import { app } from "@/app/app.js";
+import "@/use";
+import { app } from "@/app/app";
 import { Mixins, author, component, mix } from "component";
-import "@/layout/_layout.css";
+import "./_layout.css";
 
 //Alt: await use("/assets/layout/layout.css");
 
@@ -18,7 +18,7 @@ const shadow = use.meta.DEV
   : await use(`@/layout/shadow.css`);
   */
 
-const shadow =await use(`@/layout/shadow.css`, { auto: true });
+const shadow = await use(`@/layout/shadow.css`, { auto: true });
 
 const icons = {
   close: await use("@/icons/close.svg"),

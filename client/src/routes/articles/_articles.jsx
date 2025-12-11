@@ -3,8 +3,8 @@ src/routes/articles/articles.jsx
 */
 
 import { useEffect, useRef } from "react";
-import { router } from "@/router/router.js";
-import { Card } from "./card.jsx";
+import { router } from "@/router/router";
+import { Card } from "./_card.jsx";
 
 const SELECTOR = ".card a.nav-link";
 

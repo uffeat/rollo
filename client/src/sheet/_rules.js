@@ -1,8 +1,8 @@
-import { type } from '@/tools/type.js'
-import { Exception } from '@/tools/exception.js'
-import { camelToKebab } from '@/tools/case.js';
-import { truncate } from '@/tools/truncate.js';
-import { reference } from "./reference.js";
+import { type } from '@/tools/type'
+import { Exception } from '@/tools/exception'
+import { camelToKebab } from '@/tools/case';
+import { truncate } from '@/tools/truncate';
+import { reference } from "./_reference";
 
 const MEDIA = "@media";
 

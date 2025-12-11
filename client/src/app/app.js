@@ -1,7 +1,7 @@
-import "@/use.js";
-import { Mixins, author, component, mix } from "@/component/component.js";
-import { stateMixin } from "@/state/state.js";
-import "@/app/app.css";
+import "@/use";
+import { Mixins, author, component, mix } from "component";
+import { stateMixin } from "@/state/state";
+import "./_app.css";
 
 //Alt: await use("/assets/app/app.css");
 

@@ -1,15 +1,15 @@
 import "@/use.js";
 import { component } from "component";
-import { layout } from "@/layout/layout.js";
-import { ref } from "@/state/state.js";
-import { router } from "@/router/router.js";
-import { toTop } from "@/tools/scroll.js";
+import { layout } from "@/layout/layout";
+import { ref } from "@/state/state";
+import { router } from "@/router/router";
+import { toTop } from "@/tools/scroll";
 
-import Card from "./tools/card.js";
-import { Post, posts } from "./tools/post.js";
+import Card from "./_tools/card";
+import { Post, posts } from "./_tools/post";
 
-import "@/routes/blog/blog.css";
-//Alt: await use("/assets/blog/blog.css");
+import "@/routes/blog/_blog.css";
+
 
 
 /** Prepare components and component factories */
@@ -58,9 +58,15 @@ state.effects.add(
 async function setup(base) {
   /* Get shadow sheets */
   const reboot = await use("@/bootstrap/reboot.css");
+
+  
+  /*
   const shadowSheet = use.meta.DEV
     ? await use(`/assets/blog/shadow.css`, { as: "sheet" })
     : await use(`@/blog/shadow.css`);
+  */
+
+  const shadowSheet = await use(`@/blog/shadow.css`, { auto: true });
 
   page.attribute.page = base;
 

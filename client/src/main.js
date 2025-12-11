@@ -1,15 +1,15 @@
 /* Initialize import engine */
-import "@/use.js";
+import "@/use";
 /* Load main sheet (with Tailwind) */
 import "@/assets/main.css";
 
-import { layout } from "@/layout/layout.js";
+import { layout } from "@/layout/layout";
 import { component } from "component";
-import { Nav, NavLink, router } from "@/router/router.js";
+import { Nav, NavLink, router } from "@/router/router";
 
 import * as home from "@/routes/home.js";
 import * as blog from "@/routes/blog/blog.js";
-import * as articles from "@/routes/articles/articles.js";
+import * as articles from "@/routes/articles/articles";
 
 /* Define routes */
 router.routes.add({

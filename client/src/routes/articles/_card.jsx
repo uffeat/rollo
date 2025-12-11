@@ -1,5 +1,5 @@
 /*
-src/routes/articles/card.js
+src/routes/articles/_card.js
 */
 
 export const Card = ({ path, data }) => {

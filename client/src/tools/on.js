@@ -1,4 +1,4 @@
-import { type as typeName } from "@/tools/type.js";
+import { type as typeName } from "@/tools/type";
 
 /* Registers/deregisters event handlers on target.
 Supports:

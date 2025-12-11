@@ -1,6 +1,6 @@
-import { defineValue } from "@/tools/define.js";
-import { factory } from "./factory.js";
-import { registry } from "./registry.js";
+import { defineValue } from "@/tools/define";
+import { factory } from "./factory";
+import { registry } from "./registry";
 
 /* Defines web component and returns instance factory function. */
 export const author = (cls, key, native) => {

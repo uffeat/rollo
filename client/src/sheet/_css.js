@@ -1,5 +1,5 @@
-import { camelToKebab } from "@/tools/case.js";
-import { reference } from "./reference.js";
+import { camelToKebab } from "@/tools/case";
+import { reference } from "./_reference";
 
 const root = document.documentElement;
 

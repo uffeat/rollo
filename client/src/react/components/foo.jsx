@@ -1,5 +1,6 @@
-import { Button } from "@/catalyst/button.jsx";
 import { useState } from "react";
+import { Button } from "@/catalyst/button.jsx";
+
 
 export const Foo = ({ state }) => {
 

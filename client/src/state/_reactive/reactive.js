@@ -1,8 +1,8 @@
-import { type } from '@/tools/type.js'
-import { is } from '@/tools/is.js'
-import { Exception } from '@/tools/exception.js'
-import { Message } from "../tools/message.js";
-import { Ref } from "../ref/ref.js";
+import { type } from '@/tools/type'
+import { is } from '@/tools/is'
+import { Exception } from '@/tools/exception'
+import { Message } from "../_tools/message";
+import { Ref } from "../_ref/ref";
 
 /* Reactive ADT for flat key-value collections.
 NOTE

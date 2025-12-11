@@ -1,6 +1,6 @@
-import { type } from "@/tools/type.js";
-import { UseError } from "@/tools/errors/use.js";
-import { Sheet } from "@/sheet/sheet.js";
+import { type } from "@/tools/type";
+import { UseError } from "@/tools/errors/use";
+import { Sheet } from "@/sheet/sheet";
 import { component } from "component";
 
 /* Utility for parsing path.

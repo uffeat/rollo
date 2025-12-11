@@ -1,5 +1,5 @@
-import { match } from "@/tools/object/match.js";
-import { Query } from "./query.js";
+import { match } from "@/tools/object/match";
+import { Query } from "./_query";
 
 export class Url {
   static create = (...args) => new Url(...args);

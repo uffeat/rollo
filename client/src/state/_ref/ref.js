@@ -1,6 +1,6 @@
-import { type } from '@/tools/type.js'
-import { is } from '@/tools/is.js'
-import { Message } from "../tools/message.js";
+import { type } from '@/tools/type'
+import { is } from '@/tools/is'
+import { Message } from "../_tools/message";
 
 export class Ref {
   static create = (...args) => new Ref(...args);
