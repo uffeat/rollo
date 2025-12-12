@@ -7,6 +7,11 @@ import { Url } from "./_url";
 import { Mixins, author, mix } from "component";
 import "./_router.css";
 
+
+const types = Object.freeze(
+  new Set(["AsyncFunction", "Function", "Module", "Object"])
+);
+
 class Routes {
   #_ = {
     registry: new Map(),
@@ -16,39 +21,42 @@ class Routes {
     return this.#_.registry.size;
   }
 
-  add(...args) {
-    if (typeof args.at(0) === "string") {
-      /* Add single route */
-      const path = args.at(0);
-      const route = args.at(1);
-      const config = args.at(2);
-
-      this.#check(route);
-
-      this.#_.registry.set(path, { route, config });
-    } else {
-      /* Add one or more route */
-      const routes = args.at(0);
-      for (const [path, route] of Object.entries(routes)) {
-        this.#check(route);
-
-        this.#_.registry.set(path, { route });
-      }
+  add(spec) {
+    for (const [path, route] of Object.entries(spec)) {
+      /* Type check */
+      const _type = type(route);
+      Exception.if(!types.has(_type), `Invalid route type: ${_type}`);
+      Exception.if(
+        (_type === "Module" || _type === "Object") &&
+          route.default &&
+          typeof route.default !== "function",
+        `Invalid default member (expected a function; got type: ${_type})`,
+        () => console.error(`default:`, route.default)
+      );
+      /* Register */
+      this.#_.registry.set(path, { route });
     }
-
-    return this;
   }
 
   async get(path) {
-    const stored = this.#_.registry.get(path);
-
-    /* Run any setup once */
-    if (!stored.setup && typeof stored.route.setup === "function") {
-      stored.setup = true;
-      await stored.route.setup(path);
+    const detail = this.#_.registry.get(path);
+    if (typeof detail.route === "function") {
+      return detail.route;
     }
-
-    return stored.route;
+    /* Module or Object route -> run any setup and use default as route function */
+    if (!detail.setup && typeof detail.route.setup === "function") {
+      /* ensure that setup only runs once */
+      detail.setup = true;
+      await detail.route.setup(path);
+    }
+    if (typeof detail.route.default === "function") {
+      /* Replace registered route
+        NOTE Done by mutating detail - faster and cleaner than tinkering 
+        with registry */
+      detail.route = await detail.route.default();
+      return detail.route;
+    }
+    return detail.route;
   }
 
   has(path) {
@@ -57,14 +65,6 @@ class Routes {
 
   remove(path) {
     return this.#_.registry.delete(path);
-  }
-
-  #check(route) {
-    Exception.if(
-      !["Module", "Object"].includes(type(route)),
-      `Invalid route`,
-      () => console.error("route:", route)
-    );
   }
 }
 
@@ -192,6 +192,12 @@ const Router = new (class Router {
               url.query,
               ...residual
             );
+          } else if (typeof route === "function") {
+            await route(
+              { mode: "update", session: this.#_.session, update: true },
+              url.query,
+              ...residual
+            );
           }
         } else {
           /* Route change */
@@ -200,12 +206,24 @@ const Router = new (class Router {
             NOTE Never residual on exit */
             if (this.#_.route.exit) {
               await this.#_.route.exit({ session: this.#_.session });
+            } else if (typeof this.#_.route === "function") {
+              await this.#_.route({
+                exit: true,
+                mode: "exit",
+                session: this.#_.session,
+              });
             }
           }
           /* Route enter */
           if (route.enter) {
             await route.enter(
               { session: this.#_.session },
+              url.query,
+              ...residual
+            );
+          } else if (typeof route === "function") {
+            await route(
+              { enter: true, mode: "enter", session: this.#_.session },
               url.query,
               ...residual
             );
@@ -291,6 +309,7 @@ const router = new Proxy(async () => {}, {
     return Router.routes.has(key);
   },
 });
+
 
 /*
 const Route = author(

@@ -3,14 +3,16 @@ import "@/use";
 /* Load main sheet (with Tailwind) */
 import "@/assets/main.css";
 
-//import { layout } from "@/layout/layout";
-//import { component } from "component";
-//import { Nav, NavLink, router } from "@/router/router";
+import { layout } from "@/layout/layout";
+import { component } from "component";
+import { Nav, NavLink, router } from "@/router/router";
 
-import * as home from "@/routes/home";
-import * as blog from "@/routes/blog/blog";
+import home from "@/routes/home/home";
+import about from "@/routes/about/about";
+import blog from "@/routes/blog/blog";
 import * as articles from "@/routes/articles/articles";
 
+/*
 (() => {
   const modules = Object.fromEntries(
     Object.entries({
@@ -36,16 +38,19 @@ import * as articles from "@/routes/articles/articles";
   });
 })();
 
-const { component } = await use("@@/component");
-const { layout } = await use("@@/layout");
-const { Nav, NavLink, router } = await use("@@/router");
+//const { component } = await use("@@/component");
+//const { layout } = await use("@@/layout");
+//const { Nav, NavLink, router } = await use("@@/router");
+*/
 
 /* Define routes */
-router.routes.add({
-  "/": home,
-  "/blog": blog,
-  "/articles": articles,
-});
+router.routes
+  .add("/", home)
+  .add("/blog", blog)
+  .add({
+    "/articles": articles,
+  })
+  .add("/about", about);
 
 /* Create nav */
 Nav(
