@@ -10,7 +10,7 @@ import { Nav, NavLink, router } from "@/router/router";
 import home from "@/routes/home/home";
 import about from "@/routes/about/about";
 import blog from "@/routes/blog/blog";
-import * as articles from "@/routes/articles/articles";
+import articles from "@/routes/articles/articles";
 
 /*
 (() => {
@@ -47,9 +47,7 @@ import * as articles from "@/routes/articles/articles";
 router.routes
   .add("/", home)
   .add("/blog", blog)
-  .add({
-    "/articles": articles,
-  })
+  .add("/articles", articles)
   .add("/about", about);
 
 /* Create nav */

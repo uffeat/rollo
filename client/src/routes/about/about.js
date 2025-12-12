@@ -16,12 +16,12 @@ export default new (class {
     return this.#_.page;
   }
 
-  async enter(meta, url, ...paths) {
+  enter(meta, url, ...paths) {
     layout.clear(":not([slot])");
     layout.append(this.page);
   }
 
-  async exit(meta) {
+  exit(meta) {
     this.page.remove();
   }
 })();

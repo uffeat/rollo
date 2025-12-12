@@ -1,7 +1,6 @@
 import "@/use";
 import { component } from "component";
 import { layout } from "@/layout/layout";
-import { ref } from "@/state/state";
 import { router } from "@/router/router";
 import { toTop } from "@/tools/scroll";
 
@@ -13,43 +12,7 @@ import "@/routes/blog/_blog.css";
 export default new (class {
   #_ = {};
 
-  constructor() {
-    this.#_.state = ref();
-
-    this.state.effects.add(
-      (current, message) => {
-        const previous = message.owner.previous;
-        /* 'current' holds the name of any requested post.
-        'previous' holds the name of any previous post (at this moment shown) */
-
-        //console.log("current:", current); ////
-        //console.log("previous:", previous); ////
-
-        /* Remove any previous post */
-        if (previous) {
-          const post = posts.get(`/${previous}`);
-          post?.remove();
-        }
-        if (current) {
-          //console.log("Post view"); ////
-          /* Undisplay cards */
-          this.page.attribute.postView = true;
-          const key = `/${current}`;
-          if (!posts.has(key)) {
-            router.error(`Invalid path: ${key}.`);
-          }
-          const post = posts.get(key);
-          this.page.append(post);
-          toTop(post);
-        } else {
-          //console.log("Cards view"); ////
-          /* Display cards */
-          this.page.attribute.postView = false;
-        }
-      },
-      { run: false }
-    );
-  }
+  constructor() {}
 
   get page() {
     if (!this.#_.page) {
@@ -61,17 +24,10 @@ export default new (class {
     return this.#_.page;
   }
 
-  get state() {
-    return this.#_.state;
-  }
-
   async setup(base) {
     /* Get shadow sheets */
     const reboot = await use("@/bootstrap/reboot.css");
     const shadowSheet = await use(`@/blog/shadow.css`, { auto: true });
-
-    this.page.attribute.page = base;
-
     /* Set up shadow */
     this.page.attachShadow({ mode: "open" });
     await (async () => {
@@ -112,23 +68,49 @@ export default new (class {
         }
       }
     };
+
+    this.page.$.effects.add(
+      (change, message) => {
+        const previous = message.owner.previous.post;
+        /* Remove any previous post */
+        if (previous) {
+          const post = posts.get(`/${previous}`);
+          post?.remove();
+        }
+        const current = change.post;
+        if (current) {
+          /* Post view -> undisplay cards */
+          this.page.attribute.postView = true;
+          const key = `/${current}`;
+          if (!posts.has(key)) {
+            router.error(`Invalid path: ${key}.`);
+          }
+          const post = posts.get(key);
+          this.page.append(post);
+          toTop(post);
+        } else {
+          /* Cards view -> display cards */
+          this.page.attribute.postView = false;
+        }
+      },
+      { run: false },
+      ["post"]
+    );
   }
 
-  async enter(meta, url, ...paths) {
+  enter(meta, url, ...paths) {
     layout.clear(":not([slot])");
     layout.append(this.page);
     /* Default to null, since undefined state is ignored */
-    this.state(paths.at(0) || null);
+    this.page.$.post = paths.at(0) || null;
   }
 
   update(meta, query, ...paths) {
     /* Default to null, since undefined state is ignored */
-    this.state(paths.at(0) || null);
+    this.page.$.post = paths.at(0) || null;
   }
 
-  async exit(meta) {
+  exit(meta) {
     this.page.remove();
   }
 })();
-
-

@@ -17,38 +17,30 @@ class Routes {
   }
 
   add(...args) {
-    if (typeof args.at(0) === "string") {
-      /* Add single route */
-      const path = args.at(0);
-      const route = args.at(1);
-      const config = args.at(2);
-
-      this.#check(route);
-
-      this.#_.registry.set(path, { route, config });
-    } else {
-      /* Add one or more route */
-      const routes = args.at(0);
-      for (const [path, route] of Object.entries(routes)) {
-        this.#check(route);
-
-        this.#_.registry.set(path, { route });
-      }
-    }
-
+    const path = args.at(0);
+    const route = args.at(1);
+    const config = args.at(2);
+    //this.#check(route);
+    this.#_.registry.set(path, { route });
     return this;
   }
 
   async get(path) {
     const stored = this.#_.registry.get(path);
-
-    /* Run any setup once */
-    if (!stored.setup && typeof stored.route.setup === "function") {
+    const route = stored.route;
+    /* Do setup once */
+    if (!stored.setup) {
+      const page = route.page;
+      if (page instanceof HTMLElement && page.attribute) {
+        /* Expose base path as page attr */
+        page.attribute.page = path;
+      }
+      if (typeof route.setup === "function") {
+        await route.setup(path);
+      }
       stored.setup = true;
-      await stored.route.setup(path);
     }
-
-    return stored.route;
+    return route;
   }
 
   has(path) {
