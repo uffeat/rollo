@@ -12,8 +12,6 @@ import about from "@/routes/about/about";
 import blog from "@/routes/blog/blog";
 import articles from "@/routes/articles/articles";
 
-
-
 /*
 (() => {
   const modules = Object.fromEntries(
@@ -147,11 +145,7 @@ if (import.meta.env.DEV) {
     );
   })();
 } else {
-
   const response = await fetch("/api/echo");
-const result = await response.json();
-console.log('result:', result);
-
-
-
+  const result = await response.text();
+  console.log("result:", result);
 }

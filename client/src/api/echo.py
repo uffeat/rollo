@@ -18,5 +18,3 @@ class handler(BaseHTTPRequestHandler):
         self.end_headers()
 
         self.wfile.write(result.encode("utf-8"))
-        
-        
