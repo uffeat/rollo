@@ -148,6 +148,10 @@ if (import.meta.env.DEV) {
   })();
 } else {
 
+  const response = await fetch("/api/echo");
+const result = await response.json();
+console.log('result:', result);
 
-  
+
+
 }
