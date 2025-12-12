@@ -4,7 +4,6 @@
       "source": "/api/:match*",
       "destination": "/api/:match*"
     },
-
     {
       "source": "/assets/:match*",
       "destination": "/assets/:match*"
@@ -14,12 +13,10 @@
       "source": "/content/:match*",
       "destination": "/content/:match*"
     },
-
     {
       "source": "/data/:match*",
       "destination": "/data/:match*"
     },
-
     {
       "source": "/images/:match*",
       "destination": "/images/:match*"
@@ -29,7 +26,6 @@
       "source": "/test/:match*",
       "destination": "/test/:match*"
     },
-
     {
       "source": "/favicon.ico",
       "destination": "/favicon.ico"
@@ -38,7 +34,6 @@
       "source": "/robots.txt",
       "destination": "/robots.txt"
     },
-
     {
       "source": "/:match*",
       "destination": "/"
