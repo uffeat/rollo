@@ -145,7 +145,7 @@ if (import.meta.env.DEV) {
     );
   })();
 } else {
-  const response = await fetch("/api/echo");
+  const response = await fetch("/api/ping");
   const result = await response.text();
   console.log("result:", result);
 }
