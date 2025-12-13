@@ -1,11 +1,11 @@
+console.log('From reference.js')
+
 const cls = class extends HTMLElement {
   constructor() {
     super();
   }
 };
 
-if (!customElements.get("sheet-reference")) {
-  customElements.define("sheet-reference", cls);
-}
+customElements.define("sheet-reference", cls);
 
 export const reference = new cls();

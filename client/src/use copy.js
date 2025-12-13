@@ -711,7 +711,8 @@ use.types.add(
   "js",
   (() => {
     const cache = new Map();
-    const constructing = new Map();
+    const constructing = new Map()
+
 
     return async (text, { options, owner, path }) => {
       /* Type guard */
@@ -720,56 +721,46 @@ use.types.add(
       const { as } = options;
       const key = as === "function" ? `${path.full}?${as}` : path.full;
 
+
       //console.log("key:", key);////
 
+
+
       if (cache.has(key)) {
-        console.log("Using cached result for:", key); ////
-        return cache.get(key);
-      }
-      console.log("Creating result for:", key); ////
+        console.log("Using cached result for:", key);////
+        return cache.get(key)
+      };
+      console.log("Creating result for:", key);////
+
 
       if (constructing.has(key)) {
-        //console.log(`Awaiting construction of: ${key}`); ////
+        //console.log(`Awaiting fetch of: ${path.full}`); ////
         const promise = constructing.get(key);
         const result = await promise;
         constructing.delete(key);
         return result;
-      } else {
-
-        const { promise, resolve } = Promise.withResolvers();
-        constructing.set(key, promise);
+      }
 
 
-        if (as === "function") {
-          /* NOTE When dealing with self-hosted external libs that are not 
+
+
+      if (as === "function") {
+        /* NOTE When dealing with self-hosted external libs that are not 
         available as ESM, import as 'function' can sometimes be a cleaner 
         alternative to importing as 'script'. */
-          result = Function(`return ${text}`)();
-          if (result === undefined) {
-            /* Since undefined results are ignored, convert to null */
-            result = null;
-          }
-        } else {
-
-          
-
-
-
-
-          result = await owner.module(
-            `export const __path__ = "${path.path}";${text}`,
-            path.path
-          );
+        result = Function(`return ${text}`)();
+        if (result === undefined) {
+          /* Since undefined results are ignored, convert to null */
+          result = null;
         }
-
-        resolve(result);
-        constructing.delete(key);
-
-
-
-        cache.set(key, result);
-        return result;
+      } else {
+        result = await owner.module(
+          `export const __path__ = "${path.path}";${text}`,
+          path.path
+        );
       }
+      cache.set(key, result);
+      return result;
     };
   })()
 );

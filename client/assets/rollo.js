@@ -1444,12 +1444,14 @@ const vt = (n, t) => class extends n {
       return St(t);
     }
   }
-), Ct = (n, t = !0) => t ? n.replace(/[^\S ]/g, "").replace(/ {2,}/g, " ").trim() : n.replace(/\s/g, ""), K = class extends HTMLElement {
+), Ct = (n, t = !0) => t ? n.replace(/[^\S ]/g, "").replace(/ {2,}/g, " ").trim() : n.replace(/\s/g, "");
+console.log("From reference.js");
+const K = class extends HTMLElement {
   constructor() {
     super();
   }
 };
-customElements.get("sheet-reference") || customElements.define("sheet-reference", K);
+customElements.define("sheet-reference", K);
 const V = new K(), R = "@media";
 class k {
   static create = (...t) => new k(...t);

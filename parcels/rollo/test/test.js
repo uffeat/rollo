@@ -1,9 +1,9 @@
-//import {component, reactive, Sheet} from "../index";
+import {component, reactive, Sheet} from "../index";
 
 //
 
-//const button = component.button({parent: document.body}, 'Button')
+const button = component.button({parent: document.body}, 'Button')
 
-//console.log(Sheet.create())
+console.log(Sheet.create())
 
-//console.log(reactive())
+console.log(reactive())
