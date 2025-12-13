@@ -1,5 +1,4 @@
 import "@/use";
-import { component } from "component";
 import { layout } from "@/layout/layout";
 import { router } from "@/router/router";
 import { toTop } from "@/tools/scroll";
@@ -8,6 +7,8 @@ import Card from "./_tools/card";
 import { Post, posts } from "./_tools/post";
 
 import "@/routes/blog/_blog.css";
+
+const { component } = await use("@/rollo");
 
 export default new (class {
   #_ = {};

@@ -2,14 +2,13 @@
 /marked/blog.test.js
 */
 
-import "@/use.js";
-import { component } from "component";
-import { layout } from "@/layout/layout.js";
-import { Sheet, css, rule, scope } from "@/sheet/sheet.js";
-import { toTop } from "@/tools/scroll.js";
+import "@/use";
+import { layout } from "@/layout/layout";
+import { toTop } from "@/tools/scroll";
 
 const { marked } = await use("@/marked");
 const { YAML } = await use("@/yaml");
+const { component, css } = await use("@/rollo");
 
 
 export default async () => {

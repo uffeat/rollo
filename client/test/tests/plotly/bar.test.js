@@ -2,13 +2,12 @@
 /plotly/bar.test.js
 */
 
-import "@/use.js";
-import { component } from "component";
-import { layout as _layout } from "@/layout/layout.js";
-import { Sheet } from "@/sheet/sheet.js";
-import { Plotly } from "@/plotly/plotly.js";
-
+import "@/use";
+import { layout as _layout } from "@/layout/layout";
+import { Plotly } from "@/plotly/plotly";
 import cssText from "./bar.css?raw";
+
+const { Sheet } = await use("@/rollo");
 
 const plotly = await Plotly();
 

@@ -2,10 +2,9 @@
 /tools/on.test.js
 */
 
-import "@/use.js";
-import { on } from "@/tools/on.js";
-import { component } from "component";
-import { layout } from "@/layout/layout.js";
+import "@/use";
+import { on } from "@/tools/on";
+import { layout } from "@/layout/layout";
 
 export default async () => {
   layout.clear(":not([slot])");

@@ -2,7 +2,7 @@
 /use/path/basics.test.js
 */
 
-import { Path } from "../../../src/use.js";
+import { Path } from "../../../src/use";
 
 
 export default async () => {

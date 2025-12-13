@@ -2,10 +2,10 @@
 /use/public/template.test.js
 */
 
-import "@/use.js";
-import { component } from "component";
-import { layout } from "@/layout/layout.js";
-import { css } from "@/sheet/sheet.js";
+import "@/use";
+import { layout } from "@/layout/layout";
+
+const { component, css } = await use("@/rollo");
 
 
 

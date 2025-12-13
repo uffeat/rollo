@@ -28,8 +28,6 @@ export default defineConfig(({ mode }) => {
           // Never treat aliased src imports as external
           if (id.startsWith("@")) return false;
 
-          
-
           return (
             (id.includes("/assets/") && !id.includes("/src/")) ||
             (id.includes("/parcels/") && !id.includes("/src/")) ||
@@ -60,7 +58,6 @@ export default defineConfig(({ mode }) => {
       alias: {
         "@": resolve(__dirname, "src"),
         // Alt: "@": path.resolve(__dirname, "src"),
-        component: resolve(__dirname, "src/component/component.js"),
       },
     },
   };

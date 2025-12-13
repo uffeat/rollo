@@ -1,5 +1,6 @@
-import { component } from "component";
 import { layout } from "@/layout/layout";
+
+const { component } = await use("@/rollo");
 
 export default new (class {
   #_ = {};

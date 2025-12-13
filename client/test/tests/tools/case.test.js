@@ -11,7 +11,7 @@ import {
   kebabToSnake,
   pascalToCamel,
   pascalToKebab,
-} from "@/tools/case.js";
+} from "@/tools/case";
 
 export default async () => {
   function test(expected, actual) {

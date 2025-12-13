@@ -2,15 +2,13 @@
 /app/breakpoints.test.js
 */
 
-import "@/use.js";
-//import { component } from "@/component/component.js";
-import { component } from "component";
-import { layout } from "@/layout/layout.js";
-import { Sheet, css } from "@/sheet/sheet.js";
-import { app, breakpoints } from "@/app/app.js";
-import { Plotly } from "@/plotly/plotly.js";
-
+import "@/use";
+import { layout } from "@/layout/layout";
+import { app, breakpoints } from "@/app/app";
+import { Plotly } from "@/plotly/plotly";
 import cssText from "./breakpoints.css?raw";
+
+const { component, Sheet, css } = await use("@/rollo");
 
 Sheet.create(cssText).use();
 const plotly = await Plotly();

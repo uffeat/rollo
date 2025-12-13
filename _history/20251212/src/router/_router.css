@@ -1,0 +1,11 @@
+[nav-link] {
+  cursor: pointer;
+}
+nav.nav.router {
+  [nav-link] {
+    font-size: var(--fontSize, 1.125rem);
+  }
+  [nav-link].active {
+    font-weight: var(--fontWeight, 600);
+  }
+}

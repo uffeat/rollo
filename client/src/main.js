@@ -4,7 +4,6 @@ import "@/use";
 import "@/assets/main.css";
 
 import { layout } from "@/layout/layout";
-import { component } from "component";
 import { Nav, NavLink, router } from "@/router/router";
 
 import home from "@/routes/home/home";
@@ -12,36 +11,9 @@ import about from "@/routes/about/about";
 import blog from "@/routes/blog/blog";
 import articles from "@/routes/articles/articles";
 
-/*
-(() => {
-  const modules = Object.fromEntries(
-    Object.entries({
-      ...import.meta.glob(
-        [
-          "./component/component.js",
-          "./layout/layout.js",
-          "./router/router.js",
-        ],
-        {
-          eager: true,
-        }
-      ),
-    }).map(([k, v]) => {
-      return [k.split("/").at(-1), v];
-    })
-  );
-  //console.log("modules:", modules); ////
+const { component } = await use("@/rollo");
 
-  use.sources.add("@@", ({ path }) => {
-    //console.log("path.path:", path.path); ////
-    return modules[`${path.path.slice(1)}`];
-  });
-})();
 
-//const { component } = await use("@@/component");
-//const { layout } = await use("@@/layout");
-//const { Nav, NavLink, router } = await use("@@/router");
-*/
 
 /* Define routes */
 router.routes

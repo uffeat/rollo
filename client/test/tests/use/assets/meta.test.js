@@ -2,9 +2,9 @@
 /use/assets/meta.test.js
 */
 
-import "@/use.js";
-client/test/tests/use/meta.test.js
-import { layout } from "@/layout/layout.js";
+import "@/use";
+
+import { layout } from "@/layout/layout";
 
 
 export default async () => {

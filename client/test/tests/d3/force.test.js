@@ -2,13 +2,11 @@
 /d3/force.test.js
 */
 
-import "@/use.js";
-import { component } from "component";
-import { layout } from "@/layout/layout.js";
-import { Sheet, css, rule, scope } from "@/sheet/sheet.js";
-
+import "@/use";
+import { layout } from "@/layout/layout";
 import cssText from "./force.css?raw";
 
+const { component, Sheet } = await use("@/rollo");
 const { d3 } = await use("@/d3");
 
 Sheet.create(cssText).use();

@@ -1,9 +1,9 @@
 import "@/use";
-import { Mixins, author, component, mix } from "component";
-import { stateMixin } from "@/state/state";
 import "./_app.css";
 
 //Alt: await use("/assets/app/app.css");
+
+const { Mixins, author, component, mix, stateMixin } = await use("@/rollo");
 
 const TAG = "div";
 

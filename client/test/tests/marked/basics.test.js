@@ -2,10 +2,10 @@
 /marked/basics.test.js
 */
 
-import "@/use.js";
-import { component } from "component";
-import { layout } from "@/layout/layout.js";
+import "@/use";
+import { layout } from "@/layout/layout";
 
+const { component } = await use("@/rollo");
 const { marked } = await use("@/marked");
 
 export default async () => {

@@ -4,8 +4,9 @@ src/layout/layout.js
 
 import "@/use";
 import { app } from "@/app/app";
-import { Mixins, author, component, mix } from "component";
 import "./_layout.css";
+
+const { Mixins, author, component, mix } = await use("@/rollo");
 
 /* Get shadow sheets */
 const reboot = await use("@/bootstrap/reboot.css");

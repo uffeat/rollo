@@ -2,9 +2,10 @@
 /layout/buttons.test.js
 */
 
-import "@/use.js";
-import { component } from "component";
-import { layout } from "@/layout/layout.js";
+import "@/use";
+import { layout } from "@/layout/layout";
+
+const { component } = await use("@/rollo");
 
 export default () => {
   layout.clear(":not([slot])");

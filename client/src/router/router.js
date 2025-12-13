@@ -1,11 +1,13 @@
 import "@/use";
 import { Exception } from "@/tools/exception";
 import { type } from "@/tools/type";
-import { ref, stateMixin } from "@/state/state";
 import { app } from "@/app/app";
 import { Url } from "./_url";
-import { Mixins, author, mix } from "component";
 import "./_router.css";
+
+const { Mixins, author, component, mix, ref, stateMixin } = await use(
+  "@/rollo"
+);
 
 class Routes {
   #_ = {

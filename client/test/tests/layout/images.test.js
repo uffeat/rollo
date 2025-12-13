@@ -3,11 +3,11 @@
 Tests scroll/overflow/flex behavior.
 */
 
-import "@/use.js";
-import { component } from "component";
-import { layout } from "@/layout/layout.js";
-import { Sheet, css } from "@/sheet/sheet.js";
-import { toTop } from "@/tools/scroll.js";
+import "@/use";
+import { layout } from "@/layout/layout";
+import { toTop } from "@/tools/scroll";
+
+const { component, Sheet, css } = await use("@/rollo");
 
 const sheet = Sheet.create();
 sheet.rules.add({
