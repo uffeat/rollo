@@ -1,9 +1,5 @@
-import "@/use";
-import "./_app.css";
-
-//Alt: await use("/assets/app/app.css");
-
-const { Mixins, author, component, mix, stateMixin } = await use("@/rollo");
+import { Mixins, author, component, mix } from '../component/index'
+import { stateMixin } from '../state/index'
 
 const TAG = "div";
 
@@ -17,7 +13,7 @@ const App = author(
     constructor() {
       super();
       this.#_.slot = component.slot();
-      this.#_.dataSlot = component.slot({ name: "data" });
+      this.#_.dataSlot = component.slot({ name: "data", display: null });
       this.#_.shadow = component.div(
         { id: "root" },
         this.#_.slot,
@@ -52,7 +48,6 @@ for (const [key, value] of Object.entries(breakpoints)) {
   query.addEventListener("change", (event) => {
     const match = query.matches;
     app.$[key] = match;
-
     app.send(`_break_${key}`, { detail: match });
   });
 }

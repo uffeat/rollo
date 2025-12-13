@@ -28,3 +28,11 @@ input[type="number"] {
   box-sizing: border-box;
 }
 
+#app {
+  position: relative;
+  height: 100vh;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+

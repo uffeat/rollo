@@ -3,9 +3,10 @@ src/layout/layout.js
 */
 
 import "@/use";
-import { app } from "@/app/app";
+
 import "./_layout.css";
 
+const { app } = await use("@/rollo");
 const { Mixins, author, component, mix } = await use("@/rollo");
 
 /* Get shadow sheets */

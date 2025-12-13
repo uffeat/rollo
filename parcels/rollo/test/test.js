@@ -1,9 +1,14 @@
-import {component, reactive, Sheet} from "../index";
+import { component, reactive, Sheet, tools } from "../index";
 
 //
+console.log(tools);
 
-const button = component.button({parent: document.body}, 'Button')
+const { type } = tools;
 
-console.log(Sheet.create())
+console.log(type);
 
-console.log(reactive())
+const button = component.button({ parent: document.body }, "Button");
+
+console.log(Sheet.create());
+
+console.log(reactive());

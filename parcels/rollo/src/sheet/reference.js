@@ -1,5 +1,3 @@
-console.log('From reference.js')
-
 const cls = class extends HTMLElement {
   constructor() {
     super();

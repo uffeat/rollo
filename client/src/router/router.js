@@ -1,10 +1,10 @@
 import "@/use";
 import { Exception } from "@/tools/exception";
 import { type } from "@/tools/type";
-import { app } from "@/app/app";
 import { Url } from "./_url";
 import "./_router.css";
 
+const { app } = await use("@/rollo");
 const { Mixins, author, component, mix, ref, stateMixin } = await use(
   "@/rollo"
 );

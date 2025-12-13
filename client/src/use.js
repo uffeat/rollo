@@ -640,13 +640,14 @@ NOTE
 */
 (() => {
   const cache = new Map();
+
   use.sources.add("@", ({ path }) => {
     //console.log("path.full:", path.full);////
-
-    if (cache.has(path.full)) return cache.get(path.full);
-
+    if (cache.has(path.full)) {
+      //console.log("Using cached result for:", path.full);////
+      return cache.get(path.full);
+    }
     //console.log("Creating result for:", path.full);////
-
     const probe = document.createElement("meta");
     document.head.append(probe);
     probe.setAttribute("__path__", path.path);
@@ -654,7 +655,6 @@ NOTE
       .getPropertyValue("--__asset__")
       .trim();
     probe.remove();
-
     if (!propertyValue) {
       UseError.raise(`Invalid path: ${path.full}`);
     }
@@ -719,15 +719,11 @@ use.types.add(
       let result;
       const { as } = options;
       const key = as === "function" ? `${path.full}?${as}` : path.full;
-
       //console.log("key:", key);////
-
       if (cache.has(key)) {
-        console.log("Using cached result for:", key); ////
+        //console.log("Using cached result for:", key); ////
         return cache.get(key);
       }
-      console.log("Creating result for:", key); ////
-
       if (constructing.has(key)) {
         //console.log(`Awaiting construction of: ${key}`); ////
         const promise = constructing.get(key);
@@ -735,38 +731,26 @@ use.types.add(
         constructing.delete(key);
         return result;
       } else {
-
         const { promise, resolve } = Promise.withResolvers();
         constructing.set(key, promise);
-
-
+        //console.log("Creating result for:", key); ////
         if (as === "function") {
           /* NOTE When dealing with self-hosted external libs that are not 
-        available as ESM, import as 'function' can sometimes be a cleaner 
-        alternative to importing as 'script'. */
+          available as ESM, import as 'function' can sometimes be a cleaner 
+          alternative to importing as 'script'. */
           result = Function(`return ${text}`)();
           if (result === undefined) {
             /* Since undefined results are ignored, convert to null */
             result = null;
           }
         } else {
-
-          
-
-
-
-
           result = await owner.module(
             `export const __path__ = "${path.path}";${text}`,
             path.path
           );
         }
-
         resolve(result);
         constructing.delete(key);
-
-
-
         cache.set(key, result);
         return result;
       }
