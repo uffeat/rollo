@@ -1,0 +1,30 @@
+import { defineConfig } from "vite";
+import { resolve, dirname } from "path";
+import { fileURLToPath } from "url";
+import tailwindcss from "@tailwindcss/vite";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+export default defineConfig({
+  build: {
+    emptyOutDir: false,
+    outDir: "../../client/assets/frame",
+    minify: true, //
+    target: "es2022",
+
+    rollupOptions: {
+        external: (id) => {
+          return (
+            (id.includes("/test/") && !id.includes("/src/")) ||
+            id.endsWith(".test.js")
+          );
+        },
+      },
+    lib: {
+      entry: resolve(__dirname, "index.js"),
+      fileName: () => "frame.js",
+      formats: ["es"],
+    },
+  },
+  plugins: [tailwindcss()],
+});

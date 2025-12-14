@@ -2,14 +2,11 @@
 /sheet/invalid.test.js
 */
 
-
-import "@/use.js";
-import { component } from "component";
-import { layout } from "@/layout/layout.js";
-import { Sheet, css, rule, scope } from "@/sheet/sheet.js";
+const { component, Sheet, css } = await use("@/rollo/");
+const { frame } = await use("@/frame/");
 
 export default () => {
-  layout.clear(":not([slot])");
+  frame.clear(":not([slot])");
 
   const sheet = Sheet.create().use();
 
@@ -18,20 +15,17 @@ export default () => {
       h1: { bad: "pink" },
     });
   } catch (error) {
-    component.p({ 
-      parent: layout, 
-      text: `Error `,
-      padding: css.rem(1),
-      ...css.marginLeft.auto
-     },
-     component.span({
-      text: error.message,
-      color: css.__.bsDanger,
-
-    })
-    
-    
-    
+    component.p(
+      {
+        parent: frame,
+        text: `Error `,
+        padding: css.rem(1),
+        ...css.marginLeft.auto,
+      },
+      component.span({
+        text: error.message,
+        color: css.__.bsDanger,
+      })
     );
   }
 };

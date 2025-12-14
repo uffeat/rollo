@@ -2,20 +2,19 @@
 /state/reactive/computed.test.js
 */
 
-import "@/use.js";
-import { component } from "component";
-import { layout } from "@/layout/layout.js";
-import { reactive } from "@/state/state.js";
+
+const { reactive, component } = await use("@/rollo/");
+const { frame } = await use("@/frame/");
 
 export default async () => {
-  layout.clear(":not([slot])");
+  frame.clear(":not([slot])");
 
   const state = reactive({ foo: 2, bar: 4 });
 
   const group = component.div(
     "input-group.container.my-3",
     {
-      parent: layout,
+      parent: frame,
     },
     function () {
       const button = component.button("btn.btn-primary", {

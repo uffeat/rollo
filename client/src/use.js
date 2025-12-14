@@ -199,6 +199,7 @@ class Registry {
   }
 }
 
+/* Tool for specifier manipulation in DEV */
 class Redirects {
   #_ = {
     registry: new Set(),
@@ -629,19 +630,11 @@ NOTE
 - Tightly coupled with build tools and parcels.
 - Always returns raw asset, subject to any subsequent transformation and 
   processing.
-- Use for:
-  - External libs.
-  - Text-based assets that need fast retrival. 
 - Attractive because:
   - Does not hit bundle size.
   - Low latency.
   - Serialized out-of-the-box
 */
-if (!document.head.querySelector(`link[href="/assets.css"]`)) {
-  ////console.log(`Injecting asset-carrier sheet.`); ////
-  //await use(`/assets.css`);
-}
-
 (() => {
   const cache = new Map();
   use.sources.add("@", ({ path }) => {
@@ -770,5 +763,105 @@ use.types.add("json", (result) => {
   if (!(typeof result === "string")) return;
   return JSON.parse(result);
 });
+
+/** Register out-of-the-box transformers and processors for synthetic assets. */
+
+/* Add x.html/x.template support.
+NOTE Use the html-associated file type 'template' for html public assets 
+to avoid Vercel-injections.
+*/
+(() => {
+  const cache = new Map();
+  use.processors.add("x.html", "x.template", async (result, { path }) => {
+    /* Type guard */
+    if (!(typeof result === "string")) return;
+    const { component } = await use("@/rollo/");
+
+
+    if (cache.has(path.full)) return cache.get(path.full);
+
+    const fragment = component.div({ innerHTML: result });
+
+    const mod = await use.module(
+      `export const __path__ = "${path.path}";${fragment
+        .querySelector("script")
+        .textContent.trim()}`,
+      path.path
+    );
+    /* Get exposed components */
+    const components = Object.fromEntries(
+      Object.entries(mod).filter(([k, v]) => {
+        return v instanceof HTMLElement;
+      })
+    );
+
+    /* Create context */
+    const assets = {};
+
+    /* Parse styles */
+    for (const element of fragment.querySelectorAll(`style`)) {
+      /* Construct and adopt sheet scoped to exposed component */
+      if (element.hasAttribute("for")) {
+        const target = element.getAttribute("for");
+        const sheet = Sheet.create(
+          `[uid="${components[target].uid}"] { ${element.textContent.trim()} }`
+        );
+        if (element.hasAttribute("global")) {
+          sheet.use();
+        }
+        if (element.hasAttribute("name")) {
+          assets[element.getAttribute("name")] = sheet;
+        }
+        continue;
+      }
+      /* Construct and adopt global sheet and if named add to context */
+      if (element.hasAttribute("global")) {
+        const sheet = Sheet.create(element.textContent.trim()).use();
+        if (element.hasAttribute("name")) {
+          assets[element.getAttribute("name")] = sheet;
+        }
+      } else {
+        /* Construct named sheet and add to context */
+        assets[
+          element.hasAttribute("name")
+            ? element.getAttribute("name")
+            : "__sheet__"
+        ] = Sheet.create(element.textContent.trim());
+      }
+    }
+
+    /* Parse templates */
+    for (const element of fragment.querySelectorAll(`template`)) {
+      assets[
+        element.hasAttribute("name")
+          ? element.getAttribute("name")
+          : "__template__"
+      ] = element.innerHTML.trim();
+    }
+
+    Object.freeze(assets);
+
+    /* Build pseudo module */
+    const pseudo = { __type__: "Module", assets };
+    for (const [key, value] of Object.entries(mod)) {
+      if (typeof value === "function") {
+        if (key === "__init__") {
+          /* Do not include any '__init__' function member, but call 
+          immediately with context. 
+          NOTE Useful for one-off init that requires context awareness. */
+          await value.call(assets, assets);
+          continue;
+        }
+        /* Bind function members to context */
+        pseudo[key] = value.bind(assets);
+        continue;
+      }
+      pseudo[key] = value;
+    }
+
+    cache.set(path.full, Object.freeze(pseudo));
+    return pseudo;
+  });
+})();
 
 window.dispatchEvent(new CustomEvent("_use"));

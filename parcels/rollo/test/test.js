@@ -1,19 +1,53 @@
-import '../../../client/src/main.css'
-import '../use'
-import * as parcel from "../index";
-
+/* Initialize import engine and load main sheet */
+import "../../../client/src/main.css";
+import "../use";
+/* Load local sheet */
+import "./test.css";
 /* Overload to use live parcel */
+import * as parcel from "../index";
 use.add("@/rollo/rollo.js", parcel);
-
-
 
 document.documentElement.dataset.bsTheme = "dark";
 
-await use("/assets/bootstrap/bootstrap.css");
+/* Returns function that runs test from path */
+const run = (() => {
+  const START = "./tests".length;
+  const loaders = Object.fromEntries(
+    Object.entries({
+      ...import.meta.glob("./tests/**/*.test.js"),
+    }).map(([k, v]) => {
+      return [k.slice(START), v];
+    })
+  );
+  
+  use.sources.add("tests", async ({ path }) => {
+    if (!(path.path in loaders)) {
+      throw new Error(`Invalid path:${path.full}`);
+    }
+    return await loaders[path.path]();
+  });
 
-const { app } = await use("@/rollo/");
-const { component } = await use("@/rollo/");
 
-const button = component.button('text-red-100 bg-orange-300', { parent: app }, "Button");
-//console.log(Sheet.create());
-//console.log(reactive());
+  return async (path) => {
+    const asset = await use(`tests${path}`);
+    await asset.default();
+  };
+})();
+
+/* Trigger test from shortcut */
+(() => {
+  const KEY = "__test__";
+  window.addEventListener(
+    "keydown",
+    (() => {
+      return async (event) => {
+        /* Unit tests */
+        if (event.code === "KeyU" && event.shiftKey) {
+          const path = prompt("Path:", localStorage.getItem(KEY) || "");
+          localStorage.setItem(KEY, path);
+          await run(path);
+        }
+      };
+    })()
+  );
+})();

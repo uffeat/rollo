@@ -2,9 +2,10 @@
 /component/on/run.test.js
 */
 
-import "@/use.js";
-import { Mixins, author, component, mix } from "component";
-import { layout } from "@/layout/layout.js";
+
+
+const { Mixins, author, component, mix } = await use("@/rollo/");
+const { frame } = await use("@/frame/");
 
 
 
@@ -19,12 +20,12 @@ const Special = author(
 );
 
 export default async () => {
-  layout.clear(":not([slot])");
-  layout.close();
+  frame.clear(":not([slot])");
+  frame.close();
 
   const button = component.button("btn.btn-success", {
     text: "Button",
-    parent: layout,
+    parent: frame,
     "on.click.run": (event) => {
       console.log("event:", event); ////
 
@@ -63,21 +64,21 @@ export default async () => {
     }
   });
 
-  const special = Special({
-    parent: layout,
+  const special = Special('text-orange-100',{
+    parent: frame,
     height: "200px",
     width: "300px",
     backgroundColor: "green",
-  });
+  }, 'Try me!');
 
   console.log("special.constructor.create:", special.constructor.create); //
 
-  const special2 = special.constructor.create({
-    parent: layout,
+  const special2 = special.constructor.create('text-teal-600',{
+    parent: frame,
     height: "200px",
     width: "300px",
     backgroundColor: "pink",
-  });
+  }, 'Does nothing');
 
 
   const special3 = document.createElement('special-component')

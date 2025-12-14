@@ -2,16 +2,14 @@
 /marked/basics.test.js
 */
 
-import "@/use";
-import { layout } from "@/layout/layout";
-
-const { component } = await use("@/rollo");
+const { component } = await use("@/rollo/");
+const { frame } = await use("@/frame/");
 const { marked } = await use("@/marked");
 
 export default async () => {
-  layout.clear(":not([slot])");
+  frame.clear(":not([slot])");
 
-  const page = component.div("container.p-3", { parent: layout });
+  const page = component.div("container.p-3", { parent: frame });
 
   const Post = async (path) => {
     const text = await use(path);
@@ -29,8 +27,6 @@ export default async () => {
     }
     return result;
   };
-
-  
 
   Post("/content/src/blog/bevel.md").then((post) => page.append(post));
 };

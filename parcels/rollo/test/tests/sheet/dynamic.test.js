@@ -2,15 +2,13 @@
 /sheet/dynamic.test.js
 */
 
-import "@/use.js";
-import { component } from "component";
-import { layout } from "@/layout/layout.js";
-import { Sheet, css, rule, scope } from "@/sheet/sheet.js";
-
 import { sheets } from "./sheets.js";
 
+const { component, Sheet, css } = await use("@/rollo/");
+const { frame } = await use("@/frame/");
+
 export default () => {
-  layout.clear(":not([slot])");
+  frame.clear(":not([slot])");
 
   const path = "base";
   const sheet = Sheet.create(
@@ -66,14 +64,14 @@ export default () => {
 
   component.button("base", {
     text: "Reset",
-    parent: layout,
+    parent: frame,
     "on.click": (event) => {
       event.target.remove();
       sheet.unuse(document);
 
       component.button("base", {
         text: "Remove",
-        parent: layout,
+        parent: frame,
         "on.click": (event) => {
           event.target.remove();
         },

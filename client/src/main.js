@@ -1,33 +1,25 @@
-/* Initialize import engine */
+/* Initialize import engine and load main sheet (with Tailwind) */
 import "@/main.css";
 import "@/use";
-/* Load main sheet (with Tailwind) */
+import home from "@/routes/home/index";
 
-
-import { layout } from "@/layout/layout";
-import { Nav, NavLink, router } from "@/router/router";
-
-import home from "@/routes/home/home";
-import about from "@/routes/about/about";
-import blog from "@/routes/blog/blog";
-import articles from "@/routes/articles/articles";
-
-const { component } = await use("@/rollo/");
-
-
+const { component, Nav, NavLink, router } = await use("@/rollo/");
+const { frame } = await use("@/frame/");
 
 /* Define routes */
-router.routes
-  .add("/", home)
-  .add("/blog", blog)
-  .add("/articles", articles)
-  .add("/about", about);
+for (const [path, mod] of Object.entries(
+  import.meta.glob("./routes/**/index.js", { eager: true, import: "default" })
+)) {
+  router.routes.add(`/${path.split("/").at(-2)}`, mod);
+}
+router.routes.add("/", home);
+
 
 /* Create nav */
 Nav(
   component.nav(
     "nav router flex flex-col gap-y-1 p-1",
-    { slot: "side", parent: layout },
+    { slot: "side", parent: frame },
     NavLink("nav-link", {
       text: "About",
       path: "/about",
@@ -43,7 +35,7 @@ Nav(
   ),
   /* Pseudo-argument for code organization */
   NavLink(
-    { path: "/", parent: layout, slot: "home", title: "Home" },
+    { path: "/", parent: frame, slot: "home", title: "Home" },
     async function () {
       this.innerHTML = await use("/favicon.svg");
     }
@@ -67,16 +59,15 @@ await router.setup({
       } else {
         details.clear();
       }
-
-      layout.clear(":not([slot])");
-      layout.append(page);
+      frame.clear(":not([slot])");
+      frame.append(page);
     };
   })(),
 });
 
 if (import.meta.env.DEV) {
-  /* Add 'tests' source to import engine */
-  await (async () => {
+  /* Returns function that runs test from path */
+  const run = (() => {
     const START = "../test/tests".length;
     const loaders = Object.fromEntries(
       Object.entries({
@@ -85,24 +76,23 @@ if (import.meta.env.DEV) {
         return [k.slice(START), v];
       })
     );
+
     use.sources.add("tests", async ({ path }) => {
       if (!(path.path in loaders)) {
         throw new Error(`Invalid path:${path.full}`);
       }
       return await loaders[path.path]();
     });
+
+    return async (path) => {
+      const asset = await use(`tests${path}`);
+      await asset.default();
+    };
   })();
 
-  /* Runs test. */
-  const run = async (path) => {
-    const asset = await use(`tests${path}`);
-    await asset.default();
-  };
-
-  /* Add test control */
-  await (async () => {
+  /* Trigger test from shortcut */
+  (() => {
     const KEY = "__test__";
-
     window.addEventListener(
       "keydown",
       (() => {

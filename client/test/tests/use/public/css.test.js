@@ -2,15 +2,13 @@
 /use/public/css.test.js
 */
 
-import "@/use";
-import { layout } from "@/layout/layout";
-
-const { component, Sheet, css } = await use("@/rollo");
+const { component, css } = await use("@/rollo/");
+const { frame } = await use("@/frame/");
 
 const sheet = await use("/test/bar.css", { as: "sheet" });
 
 export default async () => {
-  layout.clear(":not([slot])");
+  frame.clear(":not([slot])");
 
   const link = await use("/test/foo.css");
   sheet.use();
@@ -18,7 +16,7 @@ export default async () => {
   const container = component.main(
     "container.mt-3",
     {
-      parent: layout,
+      parent: frame,
       ...css.display.flex,
       ...css.flexDirection.column,
       ...css.alignItems.end,

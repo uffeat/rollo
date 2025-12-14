@@ -2,19 +2,17 @@
 /sheet/dsl.test.js
 */
 
-import "@/use.js";
-import { component } from "component";
-import { layout } from "@/layout/layout.js";
-import { Sheet, css, rule, scope } from "@/sheet/sheet.js";
+const { component, Sheet, css, rule, scope } = await use("@/rollo/");
+const { frame } = await use("@/frame/");
 
-import { sheets } from "./sheets.js";
+
 
 export default () => {
-  layout.clear(":not([slot])");
+  frame.clear(":not([slot])");
 
   const sheet = Sheet.create().use(document);
 
-  const element = component.div({ parent: layout }, component.p({}, "Hi!"));
+  const element = component.div({ parent: frame }, component.p({}, "Hi!"));
 
   sheet.rules.add({
     [scope(element)]: {

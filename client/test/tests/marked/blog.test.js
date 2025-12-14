@@ -2,17 +2,13 @@
 /marked/blog.test.js
 */
 
-import "@/use";
-import { layout } from "@/layout/layout";
-import { toTop } from "@/tools/scroll";
-
 const { marked } = await use("@/marked");
 const { YAML } = await use("@/yaml");
-const { component, css } = await use("@/rollo");
-
+const { component, css, toTop } = await use("@/rollo/");
+const { frame } = await use("@/frame/");
 
 export default async () => {
-  layout.clear(":not([slot])");
+  frame.clear(":not([slot])");
 
   const items = component.div({
     width: css.pct(100),
@@ -22,7 +18,7 @@ export default async () => {
     rowGap: css.rem(4),
   });
 
-  const page = component.div("container.p-3", { parent: layout }, items);
+  const page = component.div("container.p-3", { parent: frame }, items);
 
   const Item = async (path) => {
     console.log("path:", path);

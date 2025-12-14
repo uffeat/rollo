@@ -2,8 +2,7 @@
 /state/ref/condition.test.js
 */
 
-import "@/use.js";
-import { ref } from "@/state/state.js";
+const { ref } = await use("@/rollo/");
 
 export default async () => {
   (() => {

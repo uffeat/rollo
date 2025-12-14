@@ -2,23 +2,20 @@
 /d3/force.test.js
 */
 
-import "@/use";
-import { layout } from "@/layout/layout";
 import cssText from "./force.css?raw";
 
-const { component, Sheet } = await use("@/rollo");
 const { d3 } = await use("@/d3");
+const { component, Sheet } = await use("@/rollo/");
+const { frame } = await use("@/frame/");
 
 Sheet.create(cssText).use();
 
 export default async () => {
-  layout.clear(":not([slot])");
+  frame.clear(":not([slot])");
 
- 
-
-  const container = component.div('container', {
+  const container = component.div("container", {
     id: "graph",
-    parent: layout,
+    parent: frame,
     innerHTML: `<svg role="img" aria-label="Graph"></svg>`,
   });
 

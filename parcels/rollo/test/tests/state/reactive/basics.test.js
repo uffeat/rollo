@@ -2,16 +2,13 @@
 /state/reactive/basics.test.js
 */
 
-import "@/use.js";
-import { component } from "component";
-import { layout } from "@/layout/layout.js";
-import { Sheet, css, scope } from "@/sheet/sheet.js";
-import { Reactive } from "@/state/state.js";
+const { Reactive, component, Sheet, css, scope } = await use("@/rollo/");
+const { frame } = await use("@/frame/");
 
 const sheet = Sheet.create();
 
 export default async () => {
-  layout.clear(":not([slot])");
+  frame.clear(":not([slot])");
   sheet.rules.clear();
 
   const state = Reactive.create({ score: 42 });
@@ -45,7 +42,7 @@ export default async () => {
   page.on._connect$once = (event) => sheet.use();
   page.on._disconnect$once = (event) => sheet.unuse();
   /* Connect */
-  layout.append(page);
+  frame.append(page);
 
   (() => {
     const inputLabel = component.label("form-label", {

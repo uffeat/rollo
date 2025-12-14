@@ -14,10 +14,8 @@ export default (parent, config) => {
           continue;
         }
 
-        /* Ignore undefined/'...' values, e.g., for efficient use of iife's.
-        NOTE '...' is used as a proxy for undefined to enable use from Python, 
-        which does not support undefined */
-        if (value === undefined || value === "...") {
+        /* Ignore undefined, e.g., for efficient use of iife's.  */
+        if (value === undefined) {
           continue;
         }
 

@@ -41,8 +41,8 @@ export default (parent, config) => {
           } else if (value === 0) {
             value = "0";
           } 
-          /* Abort, if undefined/'...' value, e.g., for efficient use of iife's */
-          if (value === undefined || value === "...") {
+          /* Abort, if undefined value, e.g., for efficient use of iife's */
+          if (value === undefined) {
             return true;
           }
           /* Abort, if no change */

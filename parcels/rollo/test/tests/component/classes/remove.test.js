@@ -2,17 +2,16 @@
 /component/classes/remove.test.js
 */
 
-import "@/use.js";
-import { component } from "component";
-import { layout } from "@/layout/layout.js";
+const { component } = await use("@/rollo/");
+const { frame } = await use("@/frame/");
 
 export default async () => {
-  layout.clear(":not([slot])");
+  frame.clear(":not([slot])");
   const button = component.button(
     "text-3xl text-red-300 font-bold",
     {
       text: "Remove bold",
-      parent: layout,
+      parent: frame,
     }
   );
 

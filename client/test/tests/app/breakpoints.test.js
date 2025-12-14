@@ -2,17 +2,14 @@
 /app/breakpoints.test.js
 */
 
-import "@/use";
-import { layout } from "@/layout/layout";
-import { app, breakpoints } from "@/app/app";
 import { Plotly } from "@/plotly/plotly";
 import cssText from "./breakpoints.css?raw";
 
-const { component, Sheet, css } = await use("@/rollo");
+const { component, Sheet, css, app, breakpoints } = await use("@/rollo/");
+const { frame } = await use("@/frame/");
 
 Sheet.create(cssText).use();
 const plotly = await Plotly();
-
 
 const sheet = Sheet.create({
   ".plotly .modebar": {
@@ -22,22 +19,20 @@ const sheet = Sheet.create({
 
   ".plotly:hover .modebar": {
     //backgroundColor: css.important("pink"),
-  
   },
 });
 
 sheet.use();
 
 export default async () => {
-  layout.clear(":not([slot])");
-  layout.close();
+  frame.clear(":not([slot])");
+  frame.close();
 
   app.on._break_sm({ run: true }, (event) => {
     console.log("sm satisfied:", event.detail ?? app.$.sm);
   });
 
   const plotContainer = document.createElement("div");
-
 
   //plotContainer.classList.add('container')
 
@@ -127,7 +122,7 @@ export default async () => {
   const container = component.div(
     "container",
     {
-      parent: layout,
+      parent: frame,
       ...css.display.flex,
       ...css.flexDirection.column,
       ...css.alignItems.end,

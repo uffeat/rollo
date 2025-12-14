@@ -3,16 +3,14 @@
 */
 
 
-import "@/use.js";
-import { component } from "component";
-import { layout } from "@/layout/layout.js";
-import { reactive } from "@/state/state.js";
+const { reactive, component } = await use("@/rollo/");
+const { frame } = await use("@/frame/");
 
 
 export default async () => {
-  layout.clear(":not([slot])");
+  frame.clear(":not([slot])");
 
-  component.h1({parent: layout, text: 'Testing forEach method'})
+  component.h1({parent: frame, text: 'Testing forEach method'})
 
   const state = reactive({ foo: 2, bar: 3 });
 

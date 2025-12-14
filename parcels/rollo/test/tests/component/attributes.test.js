@@ -2,15 +2,14 @@
 /component/attributes.test.js
 */
 
-import "@/use.js";
-import { component } from "component";
-import { layout } from "@/layout/layout.js";
+const { component } = await use("@/rollo/");
+const { frame } = await use("@/frame/");
 
 export default async () => {
-  layout.clear(":not([slot])");
+  frame.clear(":not([slot])");
   const button = component.button("btn.btn-success", {
     text: "Button",
-    parent: layout,
+    parent: frame,
   });
 
   button.attribute.test = 0;

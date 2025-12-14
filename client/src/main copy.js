@@ -1,0 +1,130 @@
+/* Initialize import engine and load main sheet (with Tailwind) */
+import "@/main.css";
+import "@/use";
+
+import home from "@/routes/home/index";
+import about from "@/routes/about/index";
+import blog from "@/routes/blog/index";
+import articles from "@/routes/articles/index";
+
+const routes = Object.fromEntries(
+  Object.entries(import.meta.glob("./routes/**/index.js", { eager: true, import: 'default' })).map(
+    ([k, v]) => {
+      return [`/${k.split("/").at(-2)}`, v];
+    }
+  )
+);
+
+console.log("routes:", routes);
+
+const { component, Nav, NavLink, router } = await use("@/rollo/");
+const { frame } = await use("@/frame/");
+
+for (const [path, mod] of Object.entries(routes)) {
+  router.routes.add(path, mod);
+  
+}
+
+/* Define routes */
+router.routes.add("/", home);
+//.add("/blog", blog)
+//.add("/articles", articles)
+//.add("/about", about);
+
+/* Create nav */
+Nav(
+  component.nav(
+    "nav router flex flex-col gap-y-1 p-1",
+    { slot: "side", parent: frame },
+    NavLink("nav-link", {
+      text: "About",
+      path: "/about",
+      title: "About",
+    }),
+    NavLink("nav-link", { text: "Blog", path: "/blog", title: "Blog" }),
+    NavLink("nav-link", {
+      text: "Articles",
+      path: "/articles",
+      title: "Articles",
+    }),
+    NavLink("nav-link", { text: "Terms", path: "/terms", title: "Terms" })
+  ),
+  /* Pseudo-argument for code organization */
+  NavLink(
+    { path: "/", parent: frame, slot: "home", title: "Home" },
+    async function () {
+      this.innerHTML = await use("/favicon.svg");
+    }
+  )
+);
+
+await router.setup({
+  error: (() => {
+    const page = component.main(
+      "container",
+      component.h1({ text: "Page not found" })
+    );
+    const details = component.p({ parent: page });
+    return (message) => {
+      if (message) {
+        if (message instanceof Error) {
+          message = message.message;
+        }
+
+        details.text = message;
+      } else {
+        details.clear();
+      }
+      frame.clear(":not([slot])");
+      frame.append(page);
+    };
+  })(),
+});
+
+if (import.meta.env.DEV) {
+  /* Returns function that runs test from path */
+  const run = (() => {
+    const START = "../test/tests".length;
+    const loaders = Object.fromEntries(
+      Object.entries({
+        ...import.meta.glob("../test/tests/**/*.test.js"),
+      }).map(([k, v]) => {
+        return [k.slice(START), v];
+      })
+    );
+
+    use.sources.add("tests", async ({ path }) => {
+      if (!(path.path in loaders)) {
+        throw new Error(`Invalid path:${path.full}`);
+      }
+      return await loaders[path.path]();
+    });
+
+    return async (path) => {
+      const asset = await use(`tests${path}`);
+      await asset.default();
+    };
+  })();
+
+  /* Trigger test from shortcut */
+  (() => {
+    const KEY = "__test__";
+    window.addEventListener(
+      "keydown",
+      (() => {
+        return async (event) => {
+          /* Unit tests */
+          if (event.code === "KeyU" && event.shiftKey) {
+            const path = prompt("Path:", localStorage.getItem(KEY) || "");
+            localStorage.setItem(KEY, path);
+            await run(path);
+          }
+        };
+      })()
+    );
+  })();
+} else {
+  const response = await fetch("/api/ping");
+  const result = await response.text();
+  console.log("result:", result);
+}

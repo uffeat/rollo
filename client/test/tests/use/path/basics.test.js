@@ -4,7 +4,6 @@
 
 import { Path } from "../../../src/use";
 
-
 export default async () => {
   (() => {
     const path = Path.create("@/foo/bar.js?ding&dong=42&ping=pong");

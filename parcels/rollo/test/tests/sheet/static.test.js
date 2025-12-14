@@ -3,23 +3,30 @@
 */
 
 
-import "@/use.js";
-import { component } from "component";
-import { layout } from "@/layout/layout.js";
-import { Sheet, css, rule, scope } from "@/sheet/sheet.js";
-
 import { sheets } from "./sheets.js";
 
-export default () => {
-  layout.clear(":not([slot])");
+//console.log('sheets:', sheets)////
 
-  const sheet = Sheet.create(sheets.base, {}, { foo: 42 }).use(document);
+const { component, Sheet } = await use("@/rollo/");
+const { frame } = await use("@/frame/");
+
+export default () => {
+  frame.clear(":not([slot])");
+
+  const sheet = Sheet.create(sheets.base, {}, { foo: 42 }).use();
+  
+
+  //console.log("css:", sheets.base); ////
+  //console.log("css:", sheet.text); ////
+  //console.log("css:", sheet.rules.text); ////
+
+
 
   console.log("detail:", sheet.detail); ////
 
   component.menu(
     {
-      parent: layout,
+      parent: frame,
       "on.click": (event) => {
         if (event.target._action) {
           event.target._action();
@@ -32,7 +39,7 @@ export default () => {
     }),
     component.button({
       text: "Unuse",
-      _action: () => sheet.unuse(document),
+      _action: () => sheet.unuse(),
     }),
     component.button(
       {

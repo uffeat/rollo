@@ -6,17 +6,13 @@
 - Make the purpose of this test clear!
 - Make something happen when the component is clicked (expected for a button)
 */
-
-import "@/use.js";
-import { Mixins, author, component, factory, mix, registry } from "component";
-import { layout } from "@/layout/layout.js";
-import { Sheet } from "@/sheet/sheet.js";
-import { stateMixin } from "@/state/state.js";
+const { stateMixin, Sheet, Mixins, author, factory, mix, registry } = await use("@/rollo/");
+const { frame } = await use("@/frame/");
 
 const sheet = Sheet.create();
 
 export default async () => {
-  layout.clear(":not([slot])");
+  frame.clear(":not([slot])");
 
   await (async () => {
     const TAG = "button";
@@ -53,7 +49,7 @@ export default async () => {
           TAG
         );
 
-    const testComponent = TestComponent({ parent: layout });
+    const testComponent = TestComponent({ parent: frame });
 
     testComponent.$({
       text: "My button",

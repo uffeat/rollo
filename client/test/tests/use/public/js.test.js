@@ -2,8 +2,6 @@
 /use/public/js.test.js
 */
 
-
-
 export default async () => {
   console.log("foo:", (await use("/test/foo.js")).foo);
 

@@ -2,13 +2,12 @@
 /component/on/remove.test.js
 */
 
-import "@/use.js";
-import { component } from "component";
-import { layout } from "@/layout/layout.js";
+const { component } = await use("@/rollo/");
+const { frame } = await use("@/frame/");
 
 export default async () => {
-  layout.clear(":not([slot])");
-  layout.close();
+  frame.clear(":not([slot])");
+  frame.close();
 
   /** Different ways to deregister */
 
@@ -16,7 +15,7 @@ export default async () => {
   (() => {
     const button = component.button("btn.btn-success", {
       text: "Button",
-      parent: layout,
+      parent: frame,
     });
     const { remove } = button.on.click.use({ track: true }, (event) =>
       console.log("Clicked")
@@ -31,7 +30,7 @@ export default async () => {
   (() => {
     const button = component.button("btn.btn-primary", {
       text: "Button",
-      parent: layout,
+      parent: frame,
     });
     const handler = (event) => console.log("Clicked");
     button.on.click({ track: true }, handler);
@@ -45,7 +44,7 @@ export default async () => {
   (() => {
     const button = component.button("btn.btn-secondary", {
       text: "Button",
-      parent: layout,
+      parent: frame,
     });
     const { handler, track } = button.on.click({ track: true }, (event) =>
       console.log("Clicked")

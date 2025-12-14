@@ -2,13 +2,11 @@
 /state/reactive/proxy.test.js
 */
 
-import "@/use.js";
-import { component } from "component";
-import { layout } from "@/layout/layout.js";
-import { reactive } from "@/state/state.js";
+const { reactive } = await use("@/rollo/");
+const { frame } = await use("@/frame/");
 
 export default async () => {
-  layout.clear(":not([slot])");
+  frame.clear(":not([slot])");
 
   const state = reactive({ foo: 42 }, { detail: { count: 0 } });
 

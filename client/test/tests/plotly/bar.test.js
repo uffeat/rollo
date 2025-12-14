@@ -2,25 +2,22 @@
 /plotly/bar.test.js
 */
 
-import "@/use";
-import { layout as _layout } from "@/layout/layout";
 import { Plotly } from "@/plotly/plotly";
 import cssText from "./bar.css?raw";
 
-const { Sheet } = await use("@/rollo");
+const { Sheet } = await use("@/rollo/");
+const { frame } = await use("@/frame/");
 
 const plotly = await Plotly();
-
 
 Sheet.create(cssText).use();
 
 export default async () => {
-  _layout.clear(":not([slot])");
+  frame.clear(":not([slot])");
 
   //const container = component.div("container", { parent: _layout });
-  const container = document.createElement('div')
-  _layout.append(container);
-
+  const container = document.createElement("div");
+  frame.append(container);
 
   const trace1 = {
     x: ["Zebras", "Lions", "Pelicans"],
@@ -126,6 +123,4 @@ export default async () => {
   };
 
   plotly.newPlot(container, data, layout, config);
-
-
 };

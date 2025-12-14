@@ -6,5 +6,7 @@ export const sheets = Object.fromEntries(
       import: "default",
       query: "?raw",
     }),
-  }).map(([path, css]) => [path.slice("./sheets".length, -".css".length), css])
+  }).map(([path, css]) => [path.slice("./sheets".length+1, -".css".length), css])
 );
+
+

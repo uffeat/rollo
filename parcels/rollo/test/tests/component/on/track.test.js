@@ -2,25 +2,25 @@
 /component/on/track.test.js
 */
 
-import "@/use.js";
-import { component } from "component";
-import { layout } from "@/layout/layout.js";
+const { component } = await use("@/rollo/");
+const { frame } = await use("@/frame/");
 
 export default async () => {
-  layout.clear(":not([slot])");
-  layout.close();
+  frame.clear(":not([slot])");
+  frame.close();
 
   const button = component.button("btn.btn-success", {
     text: "Button",
-    parent: layout,
+    parent: frame,
   });
 
-
-
   button.on.click({ track: true }, (event) => console.log("Clicked"));
   button.on.click({ track: true }, (event) => console.log("Clicked"));
 
-  console.log("Number of tracked click handlers:", button.on.registry.size("click"));
+  console.log(
+    "Number of tracked click handlers:",
+    button.on.registry.size("click")
+  );
 
   console.log("Tracked types:", button.on.registry.types);
 };

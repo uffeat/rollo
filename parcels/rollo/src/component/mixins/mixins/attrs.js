@@ -59,10 +59,10 @@ export default (parent, config) => {
         set(name, value) {
           /* Normalize name */
           name = camelToKebab(name);
-          /* Abort, if undefined'...', e.g., for efficient use of iife's.
+          /* Abort, if undefined, e.g., for efficient use of iife's.
           NOTE '...' is used as a proxy for undefined to enable use from Python, 
           which does not support undefined */
-          if (value === undefined || value === "...") {
+          if (value === undefined) {
             return owner;
           }
           /* Abort, if no change */

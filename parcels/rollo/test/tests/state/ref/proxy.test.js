@@ -2,10 +2,7 @@
 /state/ref/proxy.test.js
 */
 
-import "@/use.js";
-import { component } from "component";
-import { layout } from "@/layout/layout.js";
-import { ref } from "@/state/state.js";
+const { ref } = await use("@/rollo/");
 
 const STYLE = "color: green; font: bold 1em 'JetBrains Mono';";
 
@@ -18,9 +15,9 @@ export default async () => {
 
     const getterNames = Object.entries(
       Object.getOwnPropertyDescriptors(message.constructor.prototype)
-    ).filter(([name, spec]) => spec.get).map(([name, spec]) => name)
-
-    
+    )
+      .filter(([name, spec]) => spec.get)
+      .map(([name, spec]) => name);
 
     console.log("%ccurrent:", STYLE, current);
     for (const name of getterNames) {

@@ -33,7 +33,6 @@ export default (parent, config) => {
             .filter(([k, v]) => k.startsWith("data."))
             .map(([k, v]) => {
               const name = `data-${k.slice(START)}`;
-
               return [name, v];
             })
         )

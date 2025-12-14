@@ -2,12 +2,11 @@
 /component/classes/basics.test.js
 */
 
-import "@/use.js";
-import { component } from "component";
-import { layout } from "@/layout/layout.js";
+const { component } = await use("@/rollo/");
+const { frame } = await use("@/frame/");
 
 export default async () => {
-  layout.clear(":not([slot])");
+  frame.clear(":not([slot])");
   component.button(".btn", {
     text: "Button",
     parent: layout,
@@ -18,7 +17,7 @@ export default async () => {
 
   const button = component.button("bg-sky-500/80 rounded", {
     text: "Button",
-    parent: layout,
+    parent: frame,
 
   });
 
