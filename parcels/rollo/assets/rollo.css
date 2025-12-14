@@ -4,12 +4,4 @@
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
-
-  img {
-    max-width: 100%;
-  }
-
-  [slot="data"] {
-    display: none;
-  }
 }

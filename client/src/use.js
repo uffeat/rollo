@@ -285,7 +285,6 @@ export const assets = new (class Assets {
     })();
     /* Compose redirects */
     this.#_.redirects = new Redirects(this);
-
     /* Compose sources */
     this.#_.sources = new Registry(this);
     /* Compose processors 
@@ -638,9 +637,13 @@ NOTE
   - Low latency.
   - Serialized out-of-the-box
 */
+if (!document.head.querySelector(`link[href="/assets.css"]`)) {
+  ////console.log(`Injecting asset-carrier sheet.`); ////
+  await use(`/assets.css`);
+}
+
 (() => {
   const cache = new Map();
-
   use.sources.add("@", ({ path }) => {
     //console.log("path.full:", path.full);////
     if (cache.has(path.full)) {
@@ -679,7 +682,7 @@ use.types
       return async (text, { path }) => {
         /* Type guard */
         if (!(typeof text === "string")) return;
-        const { Sheet } = await use("@/rollo");
+        const { Sheet } = await use("@/rollo/");
         const key = path.full;
         if (cache.has(key)) return cache.get(key);
         const result = Sheet.create(text, key);

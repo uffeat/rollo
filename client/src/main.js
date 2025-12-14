@@ -11,7 +11,7 @@ import about from "@/routes/about/about";
 import blog from "@/routes/blog/blog";
 import articles from "@/routes/articles/articles";
 
-const { component } = await use("@/rollo");
+const { component } = await use("@/rollo/");
 
 
 

@@ -18,7 +18,6 @@ class build(Files, Minify):
     def __call__(self):
         paths = []
         rules = []
-        style_rules = []
 
         for file in SRC.rglob("**/*.*"):
             # Ignore unsupported types
@@ -46,16 +45,6 @@ class build(Files, Minify):
             # Process
             if file.suffix == ".css":
                 minified = self.minify_css(text)
-
-
-                
-                if file.stem == file.parent.stem:
-                    style_rules.append(text)
-
-
-
-
-
                 encoded = encode(minified)
                 rules.append(self.create_asset_rule(path, encoded))
                 """NOTE
@@ -102,10 +91,6 @@ class build(Files, Minify):
 
         # Create css
         css = f"/*{timestamp}*/\n" + self.minify_css("\n".join(rules))
-
-        css += self.minify_css("\n".join(style_rules))
-
-
         # Write to client public
         self.write(
             "client/public/assets.css",

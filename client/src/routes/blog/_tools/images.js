@@ -1,6 +1,6 @@
 import "@/use";
 
-const { component } = await use("@/rollo");
+const { component } = await use("@/rollo/");
 
 export const replaceImages = (container) => {
     for (const image of container.querySelectorAll(`img`)) {

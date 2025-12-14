@@ -1,6 +1,6 @@
 import "@/use";
 
-const { component } = await use("@/rollo");
+const { component } = await use("@/rollo/");
 
 /* */
 export default ({ path, ...meta }) => {

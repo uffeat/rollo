@@ -9,7 +9,7 @@ use.add("@/papa.js", parcel);
 document.documentElement.dataset.bsTheme = "dark";
 
 /* Load global sheets */
-await use("/assets/bootstrap/main.css");
+await use("/assets/bootstrap/bootstrap.css");
 await use("/main.css");
 if (use.meta.DEV) {
   await use("/dev.css");

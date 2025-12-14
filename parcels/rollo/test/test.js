@@ -1,14 +1,19 @@
-import { component, reactive, Sheet, tools } from "../index";
+import '../use'
+import * as parcel from "../index";
+/* Load global sheet */
+import '../../../client/src/assets/main.css'
+/* Overload to use live parcel */
+use.add("@/rollo/rollo.js", parcel);
 
-//
-console.log(tools);
 
-const { type } = tools;
 
-console.log(type);
+document.documentElement.dataset.bsTheme = "dark";
 
-const button = component.button({ parent: document.body }, "Button");
+await use("/assets/bootstrap/bootstrap.css");
 
-console.log(Sheet.create());
+const { app } = await use("@/rollo/");
+const { component } = await use("@/rollo/");
 
-console.log(reactive());
+const button = component.button('text-red-100 bg-orange-300', { parent: app }, "Button");
+//console.log(Sheet.create());
+//console.log(reactive());

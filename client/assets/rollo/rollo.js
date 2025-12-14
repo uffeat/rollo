@@ -1825,6 +1825,7 @@ class J extends CSSStyleSheet {
   }
 }
 export {
+  j as Exception,
   F as Mixins,
   J as Sheet,
   R as app,
@@ -1833,6 +1834,7 @@ export {
   M as component,
   Ut as css,
   k as factory,
+  E as is,
   D as mix,
   W as mixins,
   qt as reactive,
@@ -1841,5 +1843,6 @@ export {
   T as registry,
   Bt as rule,
   Jt as scope,
-  V as stateMixin
+  V as stateMixin,
+  p as type
 };

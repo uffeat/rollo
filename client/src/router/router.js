@@ -4,9 +4,9 @@ import { type } from "@/tools/type";
 import { Url } from "./_url";
 import "./_router.css";
 
-const { app } = await use("@/rollo");
+const { app } = await use("@/rollo/");
 const { Mixins, author, component, mix, ref, stateMixin } = await use(
-  "@/rollo"
+  "@/rollo/"
 );
 
 class Routes {

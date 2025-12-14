@@ -2,7 +2,7 @@ import "@/use";
 import { replaceImages } from "./images";
 import { NavLink } from "@/router/router";
 
-const { component } = await use("@/rollo");
+const { component } = await use("@/rollo/");
 
 export const posts = new Map();
 

@@ -10,7 +10,7 @@ import { toTop } from "@/tools/scroll";
 import { Articles } from "./_articles.jsx";
 import scopes from "./_post.module.css";
 
-const { component } = await use("@/rollo");
+const { component } = await use("@/rollo/");
 
 export default new (class {
   #_ = {};
