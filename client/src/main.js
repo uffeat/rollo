@@ -14,24 +14,23 @@ for (const [path, mod] of Object.entries(
 }
 router.routes.add("/", home);
 
-
 /* Create nav */
 Nav(
   component.nav(
     "nav router flex flex-col gap-y-1 p-1",
     { slot: "side", parent: frame },
-    NavLink("nav-link", {
-      text: "About",
-      path: "/about",
-      title: "About",
-    }),
-    NavLink("nav-link", { text: "Blog", path: "/blog", title: "Blog" }),
-    NavLink("nav-link", {
-      text: "Articles",
-      path: "/articles",
-      title: "Articles",
-    }),
-    NavLink("nav-link", { text: "Terms", path: "/terms", title: "Terms" })
+    ...[
+      ["/about", "About"],
+      ["/blog", "Blog"],
+      ["/articles", "Articles"],
+      ["/terms", "Terms"],
+    ].map(([path, text]) => {
+      return NavLink("nav-link", {
+        text,
+        path,
+        title: text,
+      });
+    })
   ),
   /* Pseudo-argument for code organization */
   NavLink(
@@ -42,6 +41,7 @@ Nav(
   )
 );
 
+/* Complete router setup */
 await router.setup({
   error: (() => {
     const page = component.main(
@@ -66,6 +66,8 @@ await router.setup({
 });
 
 if (import.meta.env.DEV) {
+  /** DEV testbench */
+
   /* Returns function that runs test from path */
   const run = (() => {
     const START = "../test/tests".length;
@@ -76,14 +78,12 @@ if (import.meta.env.DEV) {
         return [k.slice(START), v];
       })
     );
-
     use.sources.add("tests", async ({ path }) => {
       if (!(path.path in loaders)) {
         throw new Error(`Invalid path:${path.full}`);
       }
       return await loaders[path.path]();
     });
-
     return async (path) => {
       const asset = await use(`tests${path}`);
       await asset.default();
