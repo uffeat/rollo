@@ -47,14 +47,8 @@ class build(Files, Minify):
             if file.suffix == ".css":
                 minified = self.minify_css(text)
 
-
-                
                 if file.stem == file.parent.stem:
-                    style_rules.append(text)
-
-
-
-
+                    style_rules.append(minified)
 
                 encoded = encode(minified)
                 rules.append(self.create_asset_rule(path, encoded))
@@ -101,14 +95,15 @@ class build(Files, Minify):
         )
 
         # Create css
-        css = f"/*{timestamp}*/\n" + self.minify_css("\n".join(rules))
-
-        css += self.minify_css("\n".join(style_rules))
-
+        css = (
+            f"/*{timestamp}*/\n"
+            + self.minify_css("\n".join(rules))
+            + "\n".join(style_rules)
+        )
 
         # Write to client public
         self.write(
-            "client/public/assets.css",
+            "client/src/main.css",
             css,
         )
 

@@ -639,7 +639,7 @@ NOTE
 */
 if (!document.head.querySelector(`link[href="/assets.css"]`)) {
   ////console.log(`Injecting asset-carrier sheet.`); ////
-  await use(`/assets.css`);
+  //await use(`/assets.css`);
 }
 
 (() => {

@@ -4,8 +4,6 @@ src/layout/layout.js
 
 import "@/use";
 
-//import "./_layout.css";
-
 const { app } = await use("@/rollo/");
 const { Mixins, author, component, mix } = await use("@/rollo/");
 

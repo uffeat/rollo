@@ -1,7 +1,8 @@
 /* Initialize import engine */
+import "@/main.css";
 import "@/use";
 /* Load main sheet (with Tailwind) */
-import "@/assets/main.css";
+
 
 import { layout } from "@/layout/layout";
 import { Nav, NavLink, router } from "@/router/router";

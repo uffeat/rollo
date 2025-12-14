@@ -1,7 +1,7 @@
+import '../../../client/src/main.css'
 import '../use'
 import * as parcel from "../index";
-/* Load global sheet */
-import '../../../client/src/assets/main.css'
+
 /* Overload to use live parcel */
 use.add("@/rollo/rollo.js", parcel);
 

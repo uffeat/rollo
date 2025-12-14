@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 layout-component {
   display: block;
   /* NOTE `100vw` would push behind vertical scrollbars. */
