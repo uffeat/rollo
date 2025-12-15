@@ -7,7 +7,7 @@ from anvil.server import call, connect
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
 
-        key = os.getenv("anvil_uplink_client")
+        key = os.getenv("uplink_client")
         connect(key)
 
         result = call("echo", data=dict(foo=42))
