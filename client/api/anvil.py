@@ -2,26 +2,25 @@
 api/anvil.py
 Gateway to Anvil server functions.
 """
+
 import json
 import os
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
-from anvil.server import call, connect
+from anvil.server import call, connect as _connect
 
 UTF_8 = "utf-8"
 CONTENT_LENGTH = "content-length"
 
-_CONNECTED = False
+connected = {}
 
 
-def ensure_connected():
-    global _CONNECTED
-    if not _CONNECTED:
+def connect():
+   
+    if not connected.get('connected'):
         key = os.getenv("uplink_client_development")
-        connect(key)
-        _CONNECTED = True
-
-
+        _connect(key)
+        connected['connected'] = True
 
 
 class handler(BaseHTTPRequestHandler):
@@ -38,7 +37,7 @@ class handler(BaseHTTPRequestHandler):
         data = json.loads(raw) if raw else {}
 
         # Connect to Anvil
-        ensure_connected()
+        connect()
 
         # Call Anvil server function
         result = call(name, data=data, submission=submission)
