@@ -1,11 +1,14 @@
-import json
 from http.server import BaseHTTPRequestHandler
+import json
+import os
 
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
 
-        result = dict(ping=42)
+        key = os.getenv("uplink_client")
+
+        result = dict(key=key)
         result = json.dumps(result).encode("utf-8")
 
         self.send_response(200)

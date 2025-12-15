@@ -13,7 +13,6 @@ class handler(BaseHTTPRequestHandler):
         result = call("echo", data=dict(foo=42))
         result = json.dumps(result).encode("utf-8")
        
-
         self.send_response(200)
         self.send_header("content-type", "application/json; charset=utf-8")
         self.send_header("content-length", str(len(result)))
