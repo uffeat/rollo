@@ -6,7 +6,7 @@ import os
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
 
-        key = os.getenv("uplink_client")
+        key = os.getenv("uplink_client_development")
 
         result = dict(key=key)
         result = json.dumps(result).encode("utf-8")
