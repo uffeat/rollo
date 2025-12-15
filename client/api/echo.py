@@ -11,10 +11,10 @@ class handler(BaseHTTPRequestHandler):
         connect(key)
 
         result = call("echo", data=dict(foo=42))
-        result = json.dumps(result)
+       
 
         self.send_response(200)
-        self.send_header("content-type", "text/plain")
+        self.send_header("content-type", "application/json")
         self.end_headers()
 
         self.wfile.write(result.encode("utf-8"))
