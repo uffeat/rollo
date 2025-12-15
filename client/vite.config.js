@@ -11,6 +11,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig(({ mode }) => {
   return {
+    
+
     /* Set base URL (accessible from code as import.meta.env.BASE_URL) */
     base: "/",
     define: {
@@ -41,6 +43,14 @@ export default defineConfig(({ mode }) => {
 
     server: {
       port: 3869,
+
+
+      proxy: {
+        "/api": {
+          target: "http://127.0.0.1:8000",
+          changeOrigin: true,
+        },
+      },
     },
 
     plugins: [

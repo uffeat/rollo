@@ -107,6 +107,22 @@ if (import.meta.env.DEV) {
       })()
     );
   })();
+
+
+  await (async () => {
+    const submission = 41
+    const response = await fetch(`/api/anvil?name=echo&submission=${submission}`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ foo: 42, bar: true }),
+    });
+
+     console.log("response:", response);
+
+
+    const result = await response.json();
+    console.log("result:", result);
+  })();
 } else {
 
   await (async () => {
@@ -121,7 +137,7 @@ if (import.meta.env.DEV) {
   })();
 
   await (async () => {
-    const submission = 44
+    const submission = 42
     const response = await fetch(`/api/anvil?name=echo&submission=${submission}`, {
       method: "POST",
       headers: { "content-type": "application/json" },
