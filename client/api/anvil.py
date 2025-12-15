@@ -1,3 +1,7 @@
+"""
+api/anvil.py
+Gateway to Anvil server functions.
+"""
 import json
 import os
 from http.server import BaseHTTPRequestHandler
@@ -8,10 +12,9 @@ UTF_8 = "utf-8"
 CONTENT_LENGTH = "content-length"
 
 
-
 class handler(BaseHTTPRequestHandler):
     def do_POST(self):
-        # Extract submission from query
+        # Extract name and submission from query
         qs = parse_qs(urlparse(self.path).query)
         name = (qs.get("name") or [None])[0]
         submission_raw = (qs.get("submission") or [None])[0]

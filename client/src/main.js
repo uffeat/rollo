@@ -119,16 +119,19 @@ if (import.meta.env.DEV) {
     const result = await response.json();
     console.log("result:", result);
   })();
-  
 
   await (async () => {
-    const submission = 42
-    const response = await fetch(`/api/echo?submission=${submission}`, {
+    const submission = 44
+    const response = await fetch(`/api/anvil?name=echo&submission=${submission}`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ foo: 42, bar: true }),
+      body: JSON.stringify({ foo: false, bar: 'BAR' }),
     });
     const result = await response.json();
     console.log("result:", result);
   })();
+  
+  
+
+ 
 }
