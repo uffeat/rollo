@@ -1,10 +1,13 @@
 /* Initialize import engine and load main sheet (with Tailwind) */
 import "@/main.css";
 import "@/use";
-import home from "@/routes/home/index";
+import home from "@/routes/home";
+import { rpc } from "./server";
 
 const { component, Nav, NavLink, router } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
+
+
 
 /* Define routes */
 for (const [path, mod] of Object.entries(
@@ -108,46 +111,18 @@ if (import.meta.env.DEV) {
     );
   })();
 
-
   await (async () => {
-    const submission = 41
-    const response = await fetch(`/api/gate?name=echo&submission=${submission}`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ foo: 42, bar: true }),
-    });
-
-     console.log("response:", response);
-
-
-    const result = await response.json();
-    console.log("result:", result);
+    const { data } = await rpc.echo({ ding: 42, dong: true });
+    console.log("data:", data);
   })();
 } else {
 
   await (async () => {
-    const submission = 41
-    const response = await fetch(`/api/gate?name=echo&submission=${submission}`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ foo: 42, bar: true }),
-    });
-    const result = await response.json();
-    console.log("result:", result);
+    const { data } = await rpc.echo({ ding: 42, dong: true });
+    console.log("data:", data);
   })();
 
-  await (async () => {
-    const submission = 42
-    const response = await fetch(`/api/gate?name=echo&submission=${submission}`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ foo: false, bar: 'BAR' }),
-    });
-    const result = await response.json();
-    console.log("result:", result);
-  })();
-  
-  
 
- 
+
+
 }

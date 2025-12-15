@@ -18,10 +18,9 @@ if __name__ == "__main__":
     key = (json.loads((Path.cwd() / "secrets.json").read_text(encoding="utf-8")))[
         "development"
     ]["client"]
-
-   
 else:
     import os
+
     key = os.getenv("uplink_client_development")
 
 connected = {}
@@ -64,6 +63,6 @@ class handler(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     from http.server import HTTPServer
+
     server = HTTPServer(("127.0.0.1", 8000), handler)
     server.serve_forever()
-
