@@ -115,10 +115,10 @@ if (import.meta.env.DEV) {
   })();
 
   await (async () => {
-    const response = await fetch("/api/echo", {
+    const response = await fetch(`/api/echo?submission=42`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ foo: 42, bar: "baz" }),
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ foo: 42, bar: true }),
     });
     const result = await response.json();
     console.log("result:", result);
