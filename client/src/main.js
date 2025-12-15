@@ -108,7 +108,15 @@ if (import.meta.env.DEV) {
     );
   })();
 } else {
-  const response = await fetch("/api/ping");
-  const result = await response.text();
-  console.log("result:", result);
+  await (async () => {
+    const response = await fetch("/api/ping");
+    const result = await response.text();
+    console.log("result:", result);
+  })();
+
+  await (async () => {
+    const response = await fetch("/api/echo");
+    const result = await response.text();
+    console.log("result:", result);
+  })();
 }
