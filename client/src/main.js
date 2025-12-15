@@ -115,8 +115,12 @@ if (import.meta.env.DEV) {
   })();
 
   await (async () => {
-    const response = await fetch("/api/echo");
-    const result = await response.text();
+    const response = await fetch("/api/echo", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ foo: 42, bar: "baz" }),
+    });
+    const result = await response.json();
     console.log("result:", result);
   })();
 }

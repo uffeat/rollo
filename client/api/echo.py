@@ -5,17 +5,33 @@ from anvil.server import call, connect
 
 
 class handler(BaseHTTPRequestHandler):
-    def do_GET(self):
+    def do_POST(self):
+        # 1) Read + parse JSON body
+        length = int(self.headers.get("Content-Length", 0))
+        raw = self.rfile.read(length).decode("utf-8") if length else ""
+        try:
+            data = json.loads(raw) if raw else {}
+        except json.JSONDecodeError:
+            self.send_response(400)
+            msg = b'{"error":"Invalid JSON"}'
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(msg)))
+            self.end_headers()
+            self.wfile.write(msg)
+            return
 
+        # 2) Connect to Anvil (from env var)
         key = os.getenv("uplink_client_development")
         connect(key)
 
-        result = call("echo", data=dict(foo=42))
-        result = json.dumps(result).encode("utf-8")
-       
-        self.send_response(200)
-        self.send_header("content-type", "application/json; charset=utf-8")
-        self.send_header("content-length", str(len(result)))
-        self.end_headers()
+        # 3) Call Anvil server function
+        result = call("echo", data=data)
 
-        self.wfile.write(result)
+        # 4) Respond with JSON
+        payload = json.dumps(result).encode("utf-8")
+
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(payload)))
+        self.end_headers()
+        self.wfile.write(payload)
