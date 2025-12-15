@@ -111,7 +111,7 @@ if (import.meta.env.DEV) {
 
   await (async () => {
     const submission = 41
-    const response = await fetch(`/api/anvil?name=echo&submission=${submission}`, {
+    const response = await fetch(`/api/gate?name=echo&submission=${submission}`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ foo: 42, bar: true }),
@@ -127,7 +127,7 @@ if (import.meta.env.DEV) {
 
   await (async () => {
     const submission = 41
-    const response = await fetch(`/api/anvil?name=echo&submission=${submission}`, {
+    const response = await fetch(`/api/gate?name=echo&submission=${submission}`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ foo: 42, bar: true }),
@@ -138,7 +138,7 @@ if (import.meta.env.DEV) {
 
   await (async () => {
     const submission = 42
-    const response = await fetch(`/api/anvil?name=echo&submission=${submission}`, {
+    const response = await fetch(`/api/gate?name=echo&submission=${submission}`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ foo: false, bar: 'BAR' }),

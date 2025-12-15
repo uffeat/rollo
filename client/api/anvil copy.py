@@ -20,7 +20,6 @@ connected = {}
 def connect():
     """Connect to Anvil, if not already connected."""
     if not connected.get("connected"):
-        
         _connect(key)
         connected["connected"] = True
 
