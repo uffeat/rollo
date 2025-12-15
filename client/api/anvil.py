@@ -11,6 +11,18 @@ from anvil.server import call, connect
 UTF_8 = "utf-8"
 CONTENT_LENGTH = "content-length"
 
+_CONNECTED = False
+
+
+def ensure_connected():
+    global _CONNECTED
+    if not _CONNECTED:
+        key = os.getenv("uplink_client_development")
+        connect(key)
+        _CONNECTED = True
+
+
+
 
 class handler(BaseHTTPRequestHandler):
     def do_POST(self):
@@ -26,8 +38,7 @@ class handler(BaseHTTPRequestHandler):
         data = json.loads(raw) if raw else {}
 
         # Connect to Anvil
-        key = os.getenv("uplink_client_development")
-        connect(key)
+        ensure_connected()
 
         # Call Anvil server function
         result = call(name, data=data, submission=submission)
