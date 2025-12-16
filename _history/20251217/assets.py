@@ -7,7 +7,7 @@ from mixins import Files, Minify
 from tools import encode, get_timestamp, plural
 
 
-SRC = Path.cwd() / "client/public/parcels"
+SRC = Path.cwd() / "client/assets"
 UTF_8 = "utf-8"
 
 timestamp = get_timestamp()
@@ -56,13 +56,13 @@ class build(Files, Minify):
                 """NOTE
                 - Writing to public enables css use by link.
                 """
-                ##self.write_public(path, minified)
+                self.write_public(path, minified)
                 continue
             if file.suffix == ".html":
                 minified = self.minify_html(text)
                 encoded = encode(minified)
                 rules.append(self.create_asset_rule(path, encoded))
-                ##self.write_public(path, minified)
+                self.write_public(path, minified)
                 continue
             if file.suffix == ".js":
                 encoded = encode(text)
@@ -72,7 +72,7 @@ class build(Files, Minify):
             if file.suffix == ".json":
                 encoded = encode(text)
                 rules.append(self.create_asset_rule(path, encoded))
-                ##self.write_public(path, text)
+                self.write_public(path, text)
                 continue
             if file.suffix == ".svg":
                 minified = self.minify_html(text)
@@ -82,13 +82,13 @@ class build(Files, Minify):
                 - Writing to public enables svg use by css ref.
                 - Write unminified to enable icon display in editor.
                 """
-                ##self.write_public(path, text)
+                self.write_public(path, text)
                 continue
             if file.suffix == ".template":
                 minified = self.minify_html(text)
                 encoded = encode(minified)
                 rules.append(self.create_asset_rule(path, encoded))
-                ##self.write_public(path, minified)
+                self.write_public(path, minified)
                 continue
 
         # Meta
@@ -97,7 +97,7 @@ class build(Files, Minify):
         paths = json.dumps(paths)
         rules.append(self.create_asset_rule("/__paths__.json", encode(paths)))
         self.write(
-            "client/public/parcels/meta/paths.json",
+            "client/public/assets/meta/paths.json",
             paths,
         )
 

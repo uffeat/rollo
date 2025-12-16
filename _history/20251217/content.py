@@ -87,7 +87,7 @@ class build(Files, Minify):
 
             # Handle publication bundle
             self.write(
-                f"client/public/parcels/content/bundle/{publication.stem}.json",
+                f"client/assets/content/bundle/{publication.stem}.json",
                 json.dumps(dict(bundle=bundle, manifest=manifest)),
             )
             self.write(

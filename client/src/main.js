@@ -5,7 +5,8 @@ import "@/router";
 
 import { rpc } from "@/server";
 
-console.log("foo:", (await use(`@/test/foo.template`, { auto: true })));
+console.log("foo:", await use(`@/test/foo.template`, { auto: true }));
+
 
 await (async () => {
   const { data } = await rpc.echo({ ding: 42, dong: true, foo: "FOO" });

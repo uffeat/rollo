@@ -218,8 +218,7 @@ class Redirects {
     for (const redirector of this.#_.registry.values()) {
       const result = redirector(specifier, options, ...args);
       if (result) {
-        console.log(`Redirecting from ${specifier} to ${result}`); ////
-
+        //console.log(`Redirecting from ${specifier} to ${result}`); ////
         return result;
       }
     }
@@ -419,16 +418,10 @@ export const assets = new (class Assets {
   async get(specifier, ...args) {
     const options = { ...(args.find((a) => type(a) === "Object") || {}) };
     args = args.filter((a) => type(a) !== "Object");
-
     if (this.meta.DEV) {
-      const _specifier = specifier;
+      /* Redirect */
       specifier = this.redirects.redirect(specifier, options, ...args);
-
-      if (_specifier !== specifier) {
-        console.log(`Changed specifier from ${_specifier} to ${specifier}`); ////
-      }
     }
-
     const path = Path.create(specifier);
     let result;
     /* Import */
@@ -507,7 +500,7 @@ export const assets = new (class Assets {
 
 /** Register out-of-the-box redirects to ensures live loads during DEV and fast loads in PROD.*/
 
-/* Redirects `@/`-sheets to `/` counterparts. */
+/* Redirects `@/`-sheets to `/parcels` counterparts. */
 use.redirects.add((specifier, options, ...args) => {
   if (
     options.auto &&
@@ -515,18 +508,18 @@ use.redirects.add((specifier, options, ...args) => {
     specifier.endsWith(".css")
   ) {
     options.as = "sheet";
-    return `/assets${specifier.slice(1)}`;
+    return `/parcels${specifier.slice(1)}`;
   }
 });
 
-/* Redirects `@/`-html and -template strings to `/` counterparts. */
+/* Redirects `@/`-html and -template strings to `/parcels` counterparts. */
 use.redirects.add((specifier, options, ...args) => {
   if (
     options.auto &&
     specifier.startsWith("@/") &&
     (specifier.endsWith(".html") || specifier.endsWith(".template"))
   ) {
-    const redirected = `/assets${specifier.slice(1)}`;
+    const redirected = `/parcels${specifier.slice(1)}`;
     //console.log(`Redirecting from ${specifier} to ${redirected}`);////
     return redirected;
   }
@@ -621,8 +614,8 @@ use.sources.add(
 
         //
         //
-        const url = `${owner.meta.base}${path.path}`
-        console.log('url:', `${owner.meta.base}${path.path}`)
+        //const url = `${owner.meta.base}${path.path}`;
+        //console.log("url:", `${owner.meta.base}${path.path}`);
 
         //
         //
@@ -646,9 +639,7 @@ use.sources.add(
         cache.set(path.full, result);
         resolve(result);
         fetching.delete(path.full);
-
-        console.log("result:", result);////
-
+        //console.log("result:", result); ////
         return result;
       }
     };

@@ -1,1 +1,0 @@
-#root{--items:1}@media (width>=768px){#root{--items:2}}@media (width>=1200px){#root{--items:3}}[cards]{grid-template-columns:repeat(var(--items),minmax(0,1fr));gap:calc(.5rem*var(--items));width:100%;display:grid}:host([post-view]) :is([cards],slot[name=title]){display:none}
