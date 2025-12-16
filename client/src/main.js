@@ -3,7 +3,7 @@ import "@/main.css";
 import "@/use";
 import "@/router";
 
-//import '../test'
+import '../test'
 
 
 import { rpc } from "@/server";
