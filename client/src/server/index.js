@@ -1,6 +1,6 @@
 let __key__
 let url
-if ( use.meta.DEV) {
+if (import.meta.env.DEV) {
   __key__ = (await import("../../../secrets.json")).default.development.server
   url = "https://rollohdev.anvil.app"
 } else {
