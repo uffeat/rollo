@@ -1,8 +1,9 @@
-let __key__;
-if (import.meta.env.DEV) {
-  __key__ = (await import("../../../secrets.json")).default.development.server;
-}
-
+const [url, __key__] = use.meta.DEV
+  ? [
+      "https://rollohdev.anvil.app",
+      (await import("../../../secrets.json")).default.development.server,
+    ]
+  : ["https://rolloh.anvil.app", null];
 
 // TODO base url for env
 
@@ -46,16 +47,15 @@ export const api = new Proxy(
   {
     get(_, name) {
       return async (data) => {
-
         const body = {
           data,
         };
         if (__key__) {
-          body.__key__ = __key__
+          body.__key__ = __key__;
         }
 
         const response = await fetch(
-          `https://rolloh.anvil.app/_/api/${name}?submission=${submission()}`,
+          `${url}/_/api/${name}?submission=${submission()}`,
           {
             body: JSON.stringify(body),
             ...options,
