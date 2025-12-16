@@ -28,6 +28,7 @@ class build(Files, Minify):
                 ".js",
                 ".json",
                 ".svg",
+                ".template",
             ]:
                 continue
             # Ignore meta files
@@ -58,7 +59,7 @@ class build(Files, Minify):
                 self.write_public(path, minified)
                 continue
             if file.suffix == ".html":
-                minified = self.minify_html(minified)
+                minified = self.minify_html(text)
                 encoded = encode(minified)
                 rules.append(self.create_asset_rule(path, encoded))
                 self.write_public(path, minified)
@@ -82,6 +83,17 @@ class build(Files, Minify):
                 - Write unminified to enable icon display in editor.
                 """
                 self.write_public(path, text)
+                continue
+            if file.suffix == ".template":
+
+
+
+
+
+                minified = self.minify_html(text)
+                encoded = encode(minified)
+                rules.append(self.create_asset_rule(path, encoded))
+                self.write_public(path, minified)
                 continue
 
         # Meta

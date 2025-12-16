@@ -3,16 +3,16 @@ import "@/main.css";
 import "@/use";
 import "@/router";
 
-
 import { rpc } from "@/server";
 
+console.log("foo:", (await use(`@/test/foo.template`, { auto: true })));
 
 await (async () => {
-    const { data } = await rpc.echo({ ding: 42, dong: true, foo: 'FOO' });
-    console.log("data:", data);
-  })();
-
+  const { data } = await rpc.echo({ ding: 42, dong: true, foo: "FOO" });
+  console.log("data:", data);
+})();
 
 if (import.meta.env.DEV) {
-  await import('../test')
+  /* Initialize DEV testbench */
+  await import("../test");
 }

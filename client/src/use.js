@@ -209,15 +209,17 @@ class Redirects {
     this.#_.owner = owner;
   }
 
-  add(test) {
-    this.#_.registry.add(test);
+  add(redirector) {
+    this.#_.registry.add(redirector);
     return this.#_.owner;
   }
 
-  async redirect(specifier, options, ...args) {
-    for (const test of this.#_.registry.values()) {
-      const result = await test(specifier, options, ...args);
+  redirect(specifier, options, ...args) {
+    for (const redirector of this.#_.registry.values()) {
+      const result = redirector(specifier, options, ...args);
       if (result) {
+        console.log(`Redirecting from ${specifier} to ${result}`); ////
+
         return result;
       }
     }
@@ -419,7 +421,12 @@ export const assets = new (class Assets {
     args = args.filter((a) => type(a) !== "Object");
 
     if (this.meta.DEV) {
-      specifier = await this.redirects.redirect(specifier, options, ...args);
+      const _specifier = specifier;
+      specifier = this.redirects.redirect(specifier, options, ...args);
+
+      if (_specifier !== specifier) {
+        console.log(`Changed specifier from ${_specifier} to ${specifier}`); ////
+      }
     }
 
     const path = Path.create(specifier);
@@ -498,10 +505,9 @@ export const assets = new (class Assets {
   }
 })();
 
-/** Register out-of-the-box redirects. */
+/** Register out-of-the-box redirects to ensures live loads during DEV and fast loads in PROD.*/
 
-/* Redirects @/-sheets to / counter parts.
-Ensures live sheet updates during DEV and fast sheet loads in PROD. */
+/* Redirects `@/`-sheets to `/` counterparts. */
 use.redirects.add((specifier, options, ...args) => {
   if (
     options.auto &&
@@ -510,6 +516,19 @@ use.redirects.add((specifier, options, ...args) => {
   ) {
     options.as = "sheet";
     return `/assets${specifier.slice(1)}`;
+  }
+});
+
+/* Redirects `@/`-html and -template strings to `/` counterparts. */
+use.redirects.add((specifier, options, ...args) => {
+  if (
+    options.auto &&
+    specifier.startsWith("@/") &&
+    (specifier.endsWith(".html") || specifier.endsWith(".template"))
+  ) {
+    const redirected = `/assets${specifier.slice(1)}`;
+    //console.log(`Redirecting from ${specifier} to ${redirected}`);////
+    return redirected;
   }
 });
 
@@ -596,16 +615,24 @@ use.sources.add(
         return result;
       } else {
         //console.log(`Fetching: ${path.full}`); ////
+
         const { promise, resolve } = Promise.withResolvers();
         fetching.set(path.full, promise);
+
+        //
+        //
+        const url = `${owner.meta.base}${path.path}`
+        console.log('url:', `${owner.meta.base}${path.path}`)
+
+        //
+        //
         const result = (
           await (
             await fetch(`${owner.meta.base}${path.path}`, { cache: "no-store" })
           ).text()
         ).trim();
         /* Alternative fetch: */
-        async () =>
-          await fetch(`${owner.meta.base}${path.path}?d=${Date.now()}`);
+        //async () => await fetch(`${owner.meta.base}${path.path}?d=${Date.now()}`);
         /* Invalid paths causes result to be index.html (with misc devtools 
         injected). Use custom index meta as indicator for invalid path, 
         since such an element should not be present in imported assets. */
@@ -619,6 +646,9 @@ use.sources.add(
         cache.set(path.full, result);
         resolve(result);
         fetching.delete(path.full);
+
+        console.log("result:", result);////
+
         return result;
       }
     };
@@ -777,7 +807,6 @@ to avoid Vercel-injections.
     if (!(typeof result === "string")) return;
     const { component } = await use("@/rollo/");
 
-
     if (cache.has(path.full)) return cache.get(path.full);
 
     const fragment = component.div({ innerHTML: result });
@@ -795,7 +824,7 @@ to avoid Vercel-injections.
       })
     );
 
-    /* Create context */
+    /* Prepare context */
     const assets = {};
 
     /* Parse styles */
@@ -845,10 +874,10 @@ to avoid Vercel-injections.
     const pseudo = { __type__: "Module", assets };
     for (const [key, value] of Object.entries(mod)) {
       if (typeof value === "function") {
-        if (key === "__init__") {
-          /* Do not include any '__init__' function member, but call 
+        if (key === "setup") {
+          /* Do not include any 'setup' function member, but call 
           immediately with context. 
-          NOTE Useful for one-off init that requires context awareness. */
+          NOTE Useful for one-off setup that requires context awareness. */
           await value.call(assets, assets);
           continue;
         }
