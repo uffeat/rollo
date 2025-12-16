@@ -3,7 +3,7 @@ import "@/main.css";
 import "@/use";
 import "@/router";
 
-import '../test/index.js'
+//import '../test/index.js'
 
 
 import { rpc } from "@/server";
@@ -15,3 +15,6 @@ await (async () => {
   })();
 
 
+if (import.meta.env.DEV) {
+  await import('../test/index.js')
+}
