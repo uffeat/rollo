@@ -21,7 +21,7 @@ if __name__ == "__main__":
 else:
     import os
 
-    key = os.getenv("uplink_client_development")
+    key = os.getenv("uplink_client_production")
 
 connected = {}
 
