@@ -1,20 +1,6 @@
-let __key__
-let url
-if (import.meta.env.DEV) {
-  __key__ = (await import("../../../secrets.json")).default.development.server
-  url = "https://rollohdev.anvil.app"
-} else {
- url = "https://rolloh.anvil.app"
-}
-
-
-
-
-
-const submission = (() => {
-  let submission = 0;
-  return () => submission++;
-})();
+import __key__ from "./tools/key";
+import submission from "./tools/submission";
+import url from "./tools/url";
 
 const options = {
   method: "POST",
