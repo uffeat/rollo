@@ -3,15 +3,24 @@ import "@/main.css";
 import "@/use";
 import "@/router";
 
-import { rpc } from "@/server";
+import { api, rpc } from "@/server";
 
 console.log("foo:", await use(`@/test/foo.template`, { auto: true }));
 
+await (async () => {
+  const { data, meta } = await api.echo({ ding: 42, dong: true, foo: "FOO" });
+  console.log("data:", data);
+  console.log("meta:", meta);
+})();
+
 
 await (async () => {
-  const { data } = await rpc.echo({ ding: 42, dong: true, foo: "FOO" });
+  const { data, meta } = await rpc.echo({ ding: 42, dong: true, foo: "FOO" });
   console.log("data:", data);
+  console.log("meta:", meta);
 })();
+
+
 
 if (import.meta.env.DEV) {
   /* Initialize DEV testbench */
