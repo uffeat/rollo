@@ -1,15 +1,11 @@
-let __key__
-let url
-if ( use.meta.DEV) {
-  __key__ = (await import("../../../secrets.json")).default.development.server
-  url = "https://rollohdev.anvil.app"
-} else {
- url = "https://rolloh.anvil.app"
-}
+const [url, __key__] = use.meta.DEV
+  ? [
+      "https://rollohdev.anvil.app",
+      (await import("../../../secrets.json")).default.development.server,
+    ]
+  : ["https://rolloh.anvil.app", null];
 
-
-
-
+// TODO base url for env
 
 const submission = (() => {
   let submission = 0;
