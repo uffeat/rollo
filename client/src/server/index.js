@@ -12,7 +12,7 @@ export const rpc = new Proxy(
           `/api/gate?name=${name}&submission=${submission()}`,
           {
             method: "POST",
-            headers: { "content-type": "application/json; charset=utf-8" },
+            headers: { "content-type": "text/plain; charset=utf-8" },
             body: JSON.stringify(data || {}),
           }
         );

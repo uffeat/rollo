@@ -1,16 +1,13 @@
 import "@/use";
 import Card from "./tools/card";
 import { Post, posts } from "./tools/post";
-
-import "@/routes/blog/blog.css";
+import "./blog.css";
 
 const { component, toTop, router } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
 
 export default new (class {
   #_ = {};
-
-  constructor() {}
 
   get page() {
     if (!this.#_.page) {
@@ -25,7 +22,7 @@ export default new (class {
   async setup(base) {
     /* Get shadow sheets */
     const reboot = await use("@/bootstrap/reboot.css");
-    const shadowSheet = await use(`@/blog/shadow.css`, { auto: true });
+    const sheet = await use(`@/blog/shadow.css`, { auto: true });
     /* Set up shadow */
     this.page.attachShadow({ mode: "open" });
     await (async () => {
@@ -38,7 +35,7 @@ export default new (class {
       this.page.detail.shadow = shadow;
       this.page.shadowRoot.append(shadow);
       reboot.use(this.page);
-      shadowSheet.use(this.page);
+      sheet.use(this.page);
     })();
 
     /* Render */
