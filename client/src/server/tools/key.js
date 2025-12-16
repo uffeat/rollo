@@ -1,7 +1,5 @@
-let key;
+const key = import.meta.env.DEV ? (await import("../../../../secrets.json")).default.development.server : null
 
-if (import.meta.env.DEV) {
-  key = (await import("../../../../secrets.json")).default.development.server;
-}
+
 
 export { key as default };
