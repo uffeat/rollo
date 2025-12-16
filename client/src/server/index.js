@@ -55,7 +55,7 @@ export const api = new Proxy(
         }
 
         const response = await fetch(
-          `https://rollohdev.anvil.app/_/api/${name}?submission=${submission()}`,
+          `https://rolloh.anvil.app/_/api/${name}?submission=${submission()}`,
           {
             body: JSON.stringify(body),
             ...options,
