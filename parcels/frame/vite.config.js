@@ -11,15 +11,15 @@ export default defineConfig({
     outDir: "../../client/public/parcels/frame",
     minify: true, //
     target: "es2022",
-
     rollupOptions: {
-        external: (id) => {
-          return (
-            (id.includes("/test/") && !id.includes("/src/")) ||
-            id.endsWith(".test.js")
-          );
-        },
+      /* Probably not necessary to define external */
+      external: (id) => {
+        return (
+          (id.includes("/test/") && !id.includes("/src/")) ||
+          id.endsWith(".test.js")
+        );
       },
+    },
     lib: {
       entry: resolve(__dirname, "index.js"),
       fileName: () => "frame.js",

@@ -835,7 +835,7 @@ to avoid Vercel-injections.
   use.processors.add("x.html", "x.template", async (result, { path }) => {
     /* Type guard */
     if (!(typeof result === "string")) return;
-    const { component } = await use("@/rollo/");
+    const { component, Sheet } = await use("@/rollo/");
 
     if (cache.has(path.full)) return cache.get(path.full);
 

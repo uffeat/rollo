@@ -1,14 +1,14 @@
 /*
-basics.js
+/basics.test.js
 */
-const { component } = await use("@/component");
-const { layout } = await use("@/layout/");
+const { component } = await use("@/rollo/");
+const { frame } = await use("@/frame/");
 const { YAML } = await use("@/yaml");
 
 export default async () => {
-  layout.clear(":not([slot])");
+  frame.clear(":not([slot])");
 
-  const page = component.div("container.p-3", { parent: layout });
+  const page = component.div("container.p-3", { parent: frame });
 
   const raw = `
 ---

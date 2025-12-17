@@ -1,28 +1,21 @@
-/* Initialize import engine */
-import "../use.js";
-/* Load test sheet (activates Tailwind if installed) */
+/* Initialize import engine and load main sheet */
+import "../../../client/src/main.css";
+import "../use";
+/* Load local sheet */
 import "./test.css";
 /* Overload to use live parcel */
-import * as parcel from "../index.js";
+import * as parcel from "../index";
 use.add("@/d3.js", parcel);
 
 document.documentElement.dataset.bsTheme = "dark";
 
-/* Load global sheets */
-await use("/assets/bootstrap/main.css");
-await use("/main.css");
-if (use.meta.DEV) {
-  await use("/dev.css");
-}
-
-/* Add 'tests' source to import engine */
-await (async () => {
-  const { Exception } = await use("@/tools/exception");
+/* Returns function that runs test from path */
+const run = (() => {
   const START = "./tests".length;
   const loaders = Object.fromEntries(
     Object.entries({
-      ...import.meta.glob("./tests/**/*.js"),
-      ...import.meta.glob("./tests/**/*.html", {
+      ...import.meta.glob("./tests/**/*.test.js"),
+      ...import.meta.glob("./tests/**/*.x.html", {
         import: "default",
         query: "?raw",
       }),
@@ -30,24 +23,20 @@ await (async () => {
       return [k.slice(START), v];
     })
   );
-  use.sources.add("tests", async ({ owner, path }) => {
-    Exception.if(!(path.path in loaders), `Invalid path:${path.full}`);
+  use.sources.add("tests", async ({ path }) => {
+    if (!(path.path in loaders)) {
+      throw new Error(`Invalid path:${path.full}`);
+    }
     return await loaders[path.path]();
   });
+  return async (path) => {
+    const asset = await use(`tests${path}`);
+    await asset.default();
+  };
 })();
 
-/* Runs test. */
-const run = async (path) => {
-  if (!path) return;
-  history.replaceState({}, "", path);
-  const asset = await use(`tests${path}`);
-  const test = asset?.default ?? asset;
-  await test(parcel);
-};
-
-/* Add test control */
-await (async () => {
-  const { layout } = await use("@/layout/");
+/* Trigger test from shortcut */
+(() => {
   const KEY = "__test__";
   window.addEventListener(
     "keydown",
@@ -58,11 +47,6 @@ await (async () => {
           const path = prompt("Path:", localStorage.getItem(KEY) || "");
           localStorage.setItem(KEY, path);
           await run(path);
-        }
-        if (event.code === "KeyC" && event.shiftKey) {
-          history.replaceState({}, "", "/");
-          layout.clear();
-          document.adoptedStyleSheets = [];
         }
       };
     })()

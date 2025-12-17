@@ -2,17 +2,20 @@
 /basics.test.js
 */
 
-const { component } = await use("@/component");
-const { layout } = await use("@/layout/");
+const { component } = await use("@/rollo/");
+const { frame } = await use("@/frame/");
 const { marked } = await use("@/marked");
 
 export default async () => {
-  layout.clear(":not([slot])");
+  frame.clear(":not([slot])");
 
-  const page = component.div("container.p-3", { parent: layout });
+  const page = component.div("container.p-3", { parent: frame });
 
   const Post = async (path) => {
-    const result = component.div({ innerHTML: marked.parse(await use(path)) });
+    /* NOTE Import engine handles md, so this is just to demo */
+    const text = await use(path, { raw: true });
+    const [yaml, md] = text.split("---").slice(1);
+    const result = component.div({ innerHTML: marked.parse(md) });
     for (const image of result.querySelectorAll("img")) {
       image.replaceWith(
         component.img({

@@ -2,8 +2,8 @@
 /basics.test.js
 */
 
-const { component } = await use("@/component");
-const { layout } = await use("@/layout/");
+const { component } = await use("@/rollo/");
+const { frame } = await use("@/frame/");
 const { Papa } = await use("@/papa");
 
 export default async () => {

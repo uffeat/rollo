@@ -1,15 +1,14 @@
 /*
 /blog.test.js
 */
-const { component } = await use("@/component");
-const { layout } = await use("@/layout/");
+const { component, toTop, Sheet, css } = await use("@/rollo/");
+const { frame } = await use("@/frame/");
 const { marked } = await use("@/marked");
 const { YAML } = await use("@/yaml");
-const { toTop } = await use("@/tools/scroll");
-const { Sheet, css } = await use("@/sheet");
+
 
 export default async () => {
-  layout.clear(":not([slot])");
+  frame.clear(":not([slot])");
 
   const items = component.div({
     width: css.pct(100),
@@ -19,12 +18,11 @@ export default async () => {
     rowGap: css.rem(4),
   });
 
-  const page = component.div("container.p-3", { parent: layout }, items);
+  const page = component.div("container.p-3", { parent: frame }, items);
 
   const Item = async (path) => {
-    console.log("path:", path);
-
-    const raw = await use(path);
+    /* NOTE Import engine handles md, so this is just to demo */
+    const raw = await use(path, {raw: true});
     const parts = raw.trim().split("---");
     const meta = YAML.parse(parts[1]);
     console.log("meta:", meta);

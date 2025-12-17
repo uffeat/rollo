@@ -15,6 +15,10 @@ const run = (() => {
   const loaders = Object.fromEntries(
     Object.entries({
       ...import.meta.glob("./tests/**/*.test.js"),
+      ...import.meta.glob("./tests/**/*.x.html", {
+        import: "default",
+        query: "?raw",
+      }),
     }).map(([k, v]) => {
       return [k.slice(START), v];
     })

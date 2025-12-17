@@ -8,7 +8,7 @@ from mdit_py_plugins.footnote import footnote_plugin
 from mdit_py_emoji import emoji_plugin
 
 from mixins import Files, Minify
-from tools import encode, get_timestamp, plural, render
+from tools import get_timestamp, plural, render
 
 
 markdown = (
@@ -28,10 +28,18 @@ timestamp = get_timestamp()
 TIME_FORMAT = "%Y-%m-%d %H:%M"
 
 
-class build(Files, Minify):
+class main(Files, Minify):
 
     def __call__(self):
-        """."""
+        """Utility for transpiling MD (pure and Frontmatter-style) to JSON.
+        Creates manifest for each publication.
+        NOTE
+        - Reads from `/public/content`, from where runtime transpilation is 
+          possible. 
+        - Writes to `/public/parcels/content`. From there, transpiled JSON 
+          (incl. manifest) can be read directly at runtime. However, this is also
+          the src for the `assets` build tool, which injects into the main sheet
+          for super-fast retrieval. """
         # HACK File and dir deletion can be finicky... therefore try-except
         try:
             self.clear(DIST)
@@ -42,35 +50,23 @@ class build(Files, Minify):
         count = dict(count=0)
 
         for publication in SRC.glob("*/"):
-
             manifest = []
-
-            bundle = {}
-
             for file in publication.rglob("**/*.md"):
-
                 # Ignore meta files
                 if file.name.startswith("."):
                     continue
                 # Ignore draft and scratch files
                 if " " in file.name or ".draft." in file.name:
                     continue
-
                 path, meta, content = self.create_from_src(file)
-
                 self.write_json(content=content, meta=meta, path=path)
-
                 created = meta.get("created")
                 manifest.append([f"/{path}", created])
-
-                bundle[f"/{path}"] = dict(content=content, meta=meta)
-
             manifest = sorted(
                 manifest,
                 key=lambda item: datetime.datetime.strptime(item[1], TIME_FORMAT),
                 reverse=True,
             )
-
             count["count"] += len(manifest)
 
             def COMMENT():
@@ -78,18 +74,11 @@ class build(Files, Minify):
                 shape = [["/blog/sprocket", "2025-10-01 10:10"], ...]
                 print("manifest:", manifest)
 
-            # Handle publication meta
+            # Handle manifest
             self.write(
-                f"client/public/parcels/content/meta/{publication.stem}.json",
+                f"client/public/parcels/content/{publication.stem}/_manifest.json",
                 json.dumps(manifest),
             )
-
-            # Handle publication bundle
-            self.write(
-                f"client/public/parcels/content/bundle/{publication.stem}.json",
-                json.dumps(dict(bundle=bundle, manifest=manifest)),
-            )
-            
 
         count = count["count"]
         message = f"Processed {count} content item{plural(count)}."
@@ -99,7 +88,6 @@ class build(Files, Minify):
         """Returns path, meta data and html content."""
         path: str = file.relative_to(SRC).as_posix()[: -len(".md")]
         entry: dict = Frontmatter.read_file(file)
-
         meta: dict = entry["attributes"]
 
         if not entry["body"]:
@@ -124,7 +112,6 @@ class build(Files, Minify):
         if template:
             # XXX Do NOT minify Jinja-rendered templates!
             meta["html"] = render(f"client/templates{template}", **meta)
-
         content = self.minify_html(content)
         return path, meta, content
 
@@ -133,7 +120,7 @@ class build(Files, Minify):
         self.write(f"{DIST}/{path}.json", json.dumps(dict(html=content, meta=meta)))
 
 
-build = build()
+main = main()
 
 if __name__ == "__main__":
-    build()
+    main()

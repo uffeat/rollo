@@ -39,7 +39,7 @@ export default new (class {
     })();
 
     /* Render */
-    const manifest = await use("@/content/meta/blog.json");
+    const manifest = await use("@/content/blog/_manifest.json");
     const paths = manifest.map(([path, timestamp]) => path);
     //console.log("paths:", paths);////
     for (let path of paths) {

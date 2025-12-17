@@ -21,7 +21,7 @@ export default new (class {
 
   async setup(base) {
     /* Import and process pre-transpiled content. */
-    const manifest = await use("@/content/meta/blog.json");
+    const manifest = await use("@/content/blog/_manifest.json");
     const paths = manifest.map(([path, timestamp]) => path);
 
     const cards = [];

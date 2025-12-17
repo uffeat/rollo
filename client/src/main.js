@@ -11,14 +11,14 @@ import { api, rpc } from "@/server";
 //console.log("astract:", await use(`/content/blog/abstract.md`));
 
 
-/*
+
 await (async () => {
   const { data, meta } = await api.echo({ ding: 42, dong: true, foo: "FOO" });
   console.log("data:", data);
   console.log("meta:", meta);
 })();
 
-
+/*
 await (async () => {
   const { data, meta } = await rpc.echo({ ding: 42, dong: true, foo: "FOO" });
   console.log("data:", data);

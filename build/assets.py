@@ -1,5 +1,3 @@
-"""Utility for building main sheet with styles and encoded assets."""
-
 import json
 from pathlib import Path
 
@@ -13,7 +11,8 @@ UTF_8 = "utf-8"
 timestamp = get_timestamp()
 
 
-class build(Files, Minify):
+class main(Files, Minify):
+    """Utility for building main sheet with styles and encoded assets."""
 
     def __call__(self):
         paths = []
@@ -48,7 +47,7 @@ class build(Files, Minify):
             if file.suffix == ".css":
                 minified = self.minify_css(text)
                 if file.stem == file.parent.stem:
-                    # NOTE Already minified
+                    # NOTE Already minified from parcel
                     style_rules.append(text)
                 encoded = encode(minified)
                 rules.append(self.create_asset_rule(path, encoded))
@@ -117,12 +116,10 @@ class build(Files, Minify):
             file.read_text(encoding=UTF_8).strip(),
         )
 
-    def write_public(self, path: str, content: str) -> None:
-        """Writes asset to file."""
-        self.write(f"client/public/assets/{path}", content)
+    
 
 
-build = build()
+main = main()
 
 if __name__ == "__main__":
-    build()
+    main()

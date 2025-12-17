@@ -2,14 +2,16 @@
 /app/breakpoints.test.js
 */
 
-import { Plotly } from "@/plotly/plotly";
+
 import cssText from "./breakpoints.css?raw";
 
 const { component, Sheet, css, app, breakpoints } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
 
 Sheet.create(cssText).use();
-const plotly = await Plotly();
+
+
+const { Plotly } = await use("@/plotly/");
 
 const sheet = Sheet.create({
   ".plotly .modebar": {
@@ -39,7 +41,7 @@ export default async () => {
   //plotContainer.style.border = `2px solid ${css.__.bsGray400}`;
   //plotContainer.style.alignSelf = "stretch";
 
-  plotly.newPlot(
+  Plotly.newPlot(
     plotContainer,
     /* data */
     [
@@ -87,34 +89,34 @@ export default async () => {
       //console.log("state:", app.state);
       const current = app.state.current;
       if (current.xxl) {
-        plotly.restyle(plotContainer, "x", [[breakpoints.xxl]]);
-        plotly.restyle(plotContainer, "marker.color", [css.__.bsBlue]);
+        Plotly.restyle(plotContainer, "x", [[breakpoints.xxl]]);
+        Plotly.restyle(plotContainer, "marker.color", [css.__.bsBlue]);
         return;
       }
       if (current.xl) {
-        plotly.restyle(plotContainer, "x", [[breakpoints.xl]]);
-        plotly.restyle(plotContainer, "marker.color", [css.__.bsPurple]);
+        Plotly.restyle(plotContainer, "x", [[breakpoints.xl]]);
+        Plotly.restyle(plotContainer, "marker.color", [css.__.bsPurple]);
         return;
       }
       if (current.lg) {
-        plotly.restyle(plotContainer, "x", [[breakpoints.lg]]);
-        plotly.restyle(plotContainer, "marker.color", [css.__.bsYellow]);
+        Plotly.restyle(plotContainer, "x", [[breakpoints.lg]]);
+        Plotly.restyle(plotContainer, "marker.color", [css.__.bsYellow]);
         return;
       }
 
       if (current.md) {
-        plotly.restyle(plotContainer, "x", [[breakpoints.md]]);
-        plotly.restyle(plotContainer, "marker.color", [css.__.bsOrange]);
+        Plotly.restyle(plotContainer, "x", [[breakpoints.md]]);
+        Plotly.restyle(plotContainer, "marker.color", [css.__.bsOrange]);
         return;
       }
 
       if (current.sm) {
-        plotly.restyle(plotContainer, "x", [[breakpoints.sm]]);
-        plotly.restyle(plotContainer, "marker.color", [css.__.bsRed]);
+        Plotly.restyle(plotContainer, "x", [[breakpoints.sm]]);
+        Plotly.restyle(plotContainer, "marker.color", [css.__.bsRed]);
         return;
       }
 
-      plotly.restyle(plotContainer, "marker.color", [css.__.bsGray400]);
+      Plotly.restyle(plotContainer, "marker.color", [css.__.bsGray400]);
     },
     ["sm", "md", "lg", "xl", "xxl"]
   );
@@ -161,5 +163,5 @@ export default async () => {
 
   container.append(plotContainer);
 
-  plotly.Plots.resize(plotContainer);
+  Plotly.Plots.resize(plotContainer);
 };
