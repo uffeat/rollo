@@ -1,4 +1,4 @@
-"""Utility for building asset-carrier sheet."""
+"""Utility for building main sheet with styles and encoded assets."""
 
 import json
 from pathlib import Path
@@ -47,48 +47,34 @@ class build(Files, Minify):
             # Process
             if file.suffix == ".css":
                 minified = self.minify_css(text)
-
                 if file.stem == file.parent.stem:
-                    style_rules.append(minified)
-
+                    # NOTE Already minified
+                    style_rules.append(text)
                 encoded = encode(minified)
                 rules.append(self.create_asset_rule(path, encoded))
-                """NOTE
-                - Writing to public enables css use by link.
-                """
-                ##self.write_public(path, minified)
                 continue
             if file.suffix == ".html":
                 minified = self.minify_html(text)
                 encoded = encode(minified)
                 rules.append(self.create_asset_rule(path, encoded))
-                ##self.write_public(path, minified)
                 continue
             if file.suffix == ".js":
                 encoded = encode(text)
                 rules.append(self.create_asset_rule(path, encoded))
-                ##self.write_public(path, text)
                 continue
             if file.suffix == ".json":
                 encoded = encode(text)
                 rules.append(self.create_asset_rule(path, encoded))
-                ##self.write_public(path, text)
                 continue
             if file.suffix == ".svg":
                 minified = self.minify_html(text)
                 encoded = encode(minified)
                 rules.append(self.create_asset_rule(path, encoded))
-                """NOTE
-                - Writing to public enables svg use by css ref.
-                - Write unminified to enable icon display in editor.
-                """
-                ##self.write_public(path, text)
                 continue
             if file.suffix == ".template":
                 minified = self.minify_html(text)
                 encoded = encode(minified)
                 rules.append(self.create_asset_rule(path, encoded))
-                ##self.write_public(path, minified)
                 continue
 
         # Meta
@@ -107,8 +93,7 @@ class build(Files, Minify):
             + self.minify_css("\n".join(rules))
             + "\n".join(style_rules)
         )
-
-        # Write to client public
+        # Write to main sheet
         self.write(
             "client/src/main.css",
             css,

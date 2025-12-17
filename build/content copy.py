@@ -1,6 +1,7 @@
 import datetime
 import json
 from pathlib import Path
+from bs4 import BeautifulSoup as bs
 from frontmatter import Frontmatter
 from markdown_it import MarkdownIt
 from mdit_py_plugins.front_matter import front_matter_plugin
@@ -19,8 +20,8 @@ markdown = (
     .enable("table")
 )
 
-SRC = Path.cwd() / "client/public/content"
-DIST = "client/public/parcels/content"
+SRC = Path.cwd() / "client/public/content/src"
+DIST = "client/public/content/dst"
 UTF_8 = "utf-8"
 
 timestamp = get_timestamp()
@@ -80,7 +81,7 @@ class build(Files, Minify):
 
             # Handle publication meta
             self.write(
-                f"client/public/parcels/content/meta/{publication.stem}.json",
+                f"client/public/content/meta/{publication.stem}.json",
                 json.dumps(manifest),
             )
 
@@ -89,7 +90,10 @@ class build(Files, Minify):
                 f"client/public/parcels/content/bundle/{publication.stem}.json",
                 json.dumps(dict(bundle=bundle, manifest=manifest)),
             )
-            
+            self.write(
+                f"client/public/content/bundle/{publication.stem}.json",
+                json.dumps(dict(bundle=bundle, manifest=manifest)),
+            )
 
         count = count["count"]
         message = f"Processed {count} content item{plural(count)}."

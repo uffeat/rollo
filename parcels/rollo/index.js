@@ -1,6 +1,6 @@
 import "./assets/rollo.css";
 // app
-import { app, breakpoints } from "./src/app/index";
+import { app, breakpoints } from "./src/app";
 // component
 import {
   author,
@@ -10,11 +10,12 @@ import {
   Mixins,
   mixins,
   registry,
-} from "./src/component/index";
+  fromHtml
+} from "./src/component";
 // router
-import { Nav, NavLink, router } from "./src/router/index";
+import { Nav, NavLink, router } from "./src/router";
 // sheet
-import { css, rule, scope, Sheet } from "./src/sheet/index";
+import { css, rule, scope, Sheet } from "./src/sheet";
 // state
 import {
   Reactive,
@@ -23,7 +24,7 @@ import {
   ref,
   refMixin,
   stateMixin,
-} from "./src/state/index";
+} from "./src/state";
 // tools
 import { Exception } from "./src/tools/exception";
 import {
@@ -59,6 +60,7 @@ export {
   Mixins,
   mixins,
   registry,
+  fromHtml,
   // router
   Nav,
   NavLink,

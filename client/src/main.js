@@ -5,8 +5,13 @@ import "@/router";
 
 import { api, rpc } from "@/server";
 
-console.log("foo:", await use(`@/test/foo.template`, { auto: true }));
+//console.log("foo:", await use(`@/test/foo.template`, { convert: true }));
 
+//console.log("astract:", await use(`/content/blog/abstract.md`));
+//console.log("astract:", await use(`/content/blog/abstract.md`));
+
+
+/*
 await (async () => {
   const { data, meta } = await api.echo({ ding: 42, dong: true, foo: "FOO" });
   console.log("data:", data);
@@ -19,6 +24,7 @@ await (async () => {
   console.log("data:", data);
   console.log("meta:", meta);
 })();
+*/
 
 
 

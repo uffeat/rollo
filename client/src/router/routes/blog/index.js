@@ -39,16 +39,18 @@ export default new (class {
     })();
 
     /* Render */
-    const bundle = await use(`@/content/bundle/blog.json`);
-    const paths = bundle.manifest.map(([path, timestamp]) => path);
-
+    const manifest = await use("@/content/meta/blog.json");
+    const paths = manifest.map(([path, timestamp]) => path);
+    //console.log("paths:", paths);////
     for (let path of paths) {
-      const item = bundle.bundle[path];
+      //console.log("path:", path);////
+      const item = await use(`@/content${path}.json`);
+      //console.log("item:", item);////
       /* Convert: /blog/foo -> /foo */
       path = `/${path.split("/").at(-1)}`;
       const card = Card({ path, ...item.meta });
       this.page.append(card);
-      const post = Post({ html: item.content, path });
+      const post = Post({ html: item.html, path });
       posts.set(path, post);
     }
     /* Card click -> post view (via router) */

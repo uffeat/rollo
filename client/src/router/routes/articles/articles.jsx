@@ -1,6 +1,3 @@
-/*
-src/routes/articles/articles.jsx
-*/
 import "@/use";
 import { useEffect, useRef } from "react";
 import { Card } from "./card.jsx";

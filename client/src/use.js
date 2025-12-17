@@ -608,17 +608,8 @@ use.sources.add(
         return result;
       } else {
         //console.log(`Fetching: ${path.full}`); ////
-
         const { promise, resolve } = Promise.withResolvers();
         fetching.set(path.full, promise);
-
-        //
-        //
-        //const url = `${owner.meta.base}${path.path}`;
-        //console.log("url:", `${owner.meta.base}${path.path}`);
-
-        //
-        //
         const result = (
           await (
             await fetch(`${owner.meta.base}${path.path}`, { cache: "no-store" })
@@ -718,6 +709,20 @@ use.types
     }
   });
 
+/* Add support for conversion of html to component or array of components. */
+use.processors.add(
+  "html",
+  "template",
+  async (text, { options, owner, path }) => {
+    /* Options guard guard */
+    if (!options.convert) return;
+    /* Type guard */
+    if (!(typeof text === "string")) return;
+    const { component } = await use("@/rollo/");
+    return component.from(text);
+  }
+);
+
 /* Add js support.
 - Base case: Text -> module.
 - With `{as: 'function'}` option: Text -> iife. 
@@ -729,7 +734,6 @@ use.types.add(
   (() => {
     const cache = new Map();
     const constructing = new Map();
-
     return async (text, { options, owner, path }) => {
       /* Type guard */
       if (!(typeof text === "string")) return;
@@ -752,9 +756,6 @@ use.types.add(
         constructing.set(key, promise);
         //console.log("Creating result for:", key); ////
         if (as === "function") {
-          /* NOTE When dealing with self-hosted external libs that are not 
-          available as ESM, import as 'function' can sometimes be a cleaner 
-          alternative to importing as 'script'. */
           result = Function(`return ${text}`)();
           if (result === undefined) {
             /* Since undefined results are ignored, convert to null */
@@ -784,6 +785,44 @@ use.types.add("json", (result) => {
   if (!(typeof result === "string")) return;
   return JSON.parse(result);
 });
+
+/** Register out-of-the-box transformers and processors for non-standard assets. */
+
+/* Add supprt for runtime MD parsing, incl. Frontmatter-style.
+NOTE Caches by default, but possible to opt out. */
+use.types.add(
+  "md",
+  (() => {
+    const cache = new Map();
+    return async (text, { options, owner, path }) => {
+      /* Options guard guard */
+      if (options.raw) return;
+      if (options.cache !== false && cache.has(path.full)) {
+        //console.log("Using cache for:", path.full);////
+        return cache.get(path.full);
+      }
+      /* Type guard */
+      if (!(typeof text === "string")) return;
+      const { marked } = await use("@/marked");
+      let result;
+      if (text.startsWith("---")) {
+        /* Frontmatter style */
+        const { YAML } = await use("@/yaml");
+        const [yaml, md] = text.split("---").slice(1);
+        const meta = Object.freeze(YAML.parse(yaml));
+        const html = marked.parse(md);
+        result = Object.freeze({ meta, html });
+      } else {
+        /* Pure MD */
+        result = marked.parse(text);
+      }
+      if (options.cache !== false) {
+        cache.set(path.full, result);
+      }
+      return result;
+    };
+  })()
+);
 
 /** Register out-of-the-box transformers and processors for synthetic assets. */
 

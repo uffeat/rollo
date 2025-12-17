@@ -2,7 +2,7 @@
 
 
 .foo {
-  @apply rounded border border-gray-300;
+  @apply rounded border border-orange-300;
 }
 
 img {

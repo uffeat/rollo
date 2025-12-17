@@ -1,6 +1,3 @@
-/*
-src/routes/articles/_card.js
-*/
 import "@/use";
 export const Card = ({ path, data }) => {
   const { abstract, image, title } = data;
@@ -13,7 +10,7 @@ export const Card = ({ path, data }) => {
         alt={`Illustration of ${title.toLowerCase()}`}
       ></img>
       <div className="card-body nav d-flex flex-column">
-        <a className="nav-link cursor-pointer" path={path}>
+        <a className="nav-link cursor-pointer hover:underline! hover:underline-offset-6! hover:decoration-2!" path={path}>
           <h1 className="card-title" title={title}>
             {title}
           </h1>
