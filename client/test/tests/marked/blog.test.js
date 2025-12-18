@@ -4,18 +4,18 @@
 
 const { marked } = await use("@/marked");
 const { YAML } = await use("@/yaml");
-const { component, css, toTop } = await use("@/rollo/");
+const { component, declare, toTop } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
 
 export default async () => {
   frame.clear(":not([slot])");
 
   const items = component.div({
-    width: css.pct(100),
-    ...css.display.flex,
-    ...css.flexWrap.wrap,
-    columnGap: css.rem(1),
-    rowGap: css.rem(4),
+    width: declare.pct(100),
+    ...declare.display.flex,
+    ...declare.flexWrap.wrap,
+    columnGap: declare.rem(1),
+    rowGap: declare.rem(4),
   });
 
   const page = component.div("container.p-3", { parent: frame }, items);
@@ -59,12 +59,12 @@ export default async () => {
         ),
         component.p("card-text", { text: meta.abstract })
       ),
-      component.div("card-footer", { minHeight: css.rem(2) })
+      component.div("card-footer", { minHeight: declare.rem(2) })
     );
 
     const post = component.div(
       "_post.d-none",
-      { ...css.display.flex, ...css.flexDirection.column },
+      { ...declare.display.flex, ...declare.flexDirection.column },
       component.button("btn.btn-primary", {
         text: "Back",
         justifySelf: "end",

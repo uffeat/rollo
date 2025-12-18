@@ -4,7 +4,7 @@
 
 import { sheets } from "./sheets.js";
 
-const { component, Sheet, css } = await use("@/rollo/");
+const { component, Sheet, declare } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
 
 export default () => {
@@ -15,13 +15,13 @@ export default () => {
     sheets[path],
     path,
     {
-      ".base": css.backgroundColor.hotpink,
+      ".base": declare.backgroundColor.hotpink,
       min600: {
-        ".base": css.backgroundColor.green,
+        ".base": declare.backgroundColor.green,
       },
       slideIn: {
         0: {
-          translate: css.vw(150),
+          translate: declare.vw(150),
           scale: 2,
         },
         100: {
@@ -39,16 +39,16 @@ export default () => {
 
   sheet.rules.update({
     ".base": {
-      ...css.border["4px solid red"],
+      ...declare.border["4px solid red"],
       animationName: "slideIn",
-      animationDuration: css.s(1),
+      animationDuration: declare.s(1),
     },
     min600: {
       ".base": { fontSize: { px: 48 } },
     },
     slideIn: {
       0: {
-        translate: css.vw(150),
+        translate: declare.vw(150),
         scale: 2,
       },
       100: {

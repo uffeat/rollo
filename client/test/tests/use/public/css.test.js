@@ -2,7 +2,7 @@
 /use/public/css.test.js
 */
 
-const { component, css } = await use("@/rollo/");
+const { component, declare } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
 
 const sheet = await use("/test/bar.css", { as: "sheet" });
@@ -17,9 +17,9 @@ export default async () => {
     "container.mt-3",
     {
       parent: frame,
-      ...css.display.flex,
-      ...css.flexDirection.column,
-      ...css.alignItems.end,
+      ...declare.display.flex,
+      ...declare.flexDirection.column,
+      ...declare.alignItems.end,
     },
     component.h1("foo.bar", { text: "Roll-oh!" })
   );

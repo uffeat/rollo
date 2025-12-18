@@ -1,112 +1,17 @@
-import { camelToKebab } from "../tools/case";
-import { reference } from "./reference";
+import { Sheet } from "./sheet";
 
-const root = document.documentElement;
-
-const cls = new (class {
-  #_ = {};
-
-  constructor() {
-    this.#_.color = new (class {
-      get hex() {
-        return new Proxy(
-          {},
-          {
-            get(target, key) {
-              return `#${key}`;
-            },
-          }
-        );
-      }
-    })();
+const joinTemplate = (strings, values) => {
+  if (!values.length) return Sheet.create(strings[0]);
+  let result = strings[0];
+  for (let i = 0; i < values.length; i++) {
+    result += String(values[i]) + strings[i + 1];
   }
+  return Sheet.create(result);
+};
 
-  get __() {
-    return new Proxy(
-      {},
-      {
-        get(target, key) {
-          const value = `var(--${camelToKebab(key, { numbers: true })})`;
-          return value;
-        },
-      }
-    );
-  }
-
-  get root() {
-    return new Proxy(
-      {},
-      {
-        get(target, key) {
-          const value = getComputedStyle(root)
-            .getPropertyValue(`--${camelToKebab(key, { numbers: true })}`)
-            .trim();
-          return value;
-        },
-      }
-    );
-  }
-
-  get color() {
-    return this.#_.color;
-  }
-
-  get value() {
-    return new Proxy(
-      {},
-      {
-        get(target, value) {
-          return camelToKebab(value, { numbers: true });
-        },
-      }
-    );
-  }
-
-  attr(value) {
-    return `attr(${value})`;
-  }
-
-  important(...args) {
-    return `${args.join(" ")} !important`;
-  }
-
-  rotate(value) {
-    return `rotate(${value})`;
-  }
-})();
-
-/* DSL-like helper for authoring CSS in JS. */
-export const css = new Proxy(() => {}, {
-  get(target, key) {
-    if (key in cls) {
-      return cls[key];
-    }
-    if (key in reference.style) {
-      return new Proxy(
-        {},
-        {
-          get(target, value) {
-            return { [key]: camelToKebab(value, { numbers: true }) };
-          },
-        }
-      );
-    }
-
-    return (value) => {
-      if (key === "pct") {
-        key = "%";
-      }
-      return `${value}${key}`;
-    };
-  },
-
-  apply(target, thisArg, args) {
-    args = args.map((a) => {
-      if (a === "!") {
-        return "!important";
-      }
-      return a;
-    });
-    return args.join(" ");
-  },
-});
+/* Returns constructed sheet from css text. 
+NOTE Hijacks VS Code plugin intended for lit (without using lit) to obtain 
+linting etc. */
+export function css(strings, ...values) {
+  return joinTemplate(strings, values)
+};

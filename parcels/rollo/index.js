@@ -15,7 +15,7 @@ import {
 // router
 import { Nav, NavLink, router } from "./src/router";
 // sheet
-import { css, rule, scope, Sheet } from "./src/sheet";
+import { css, declare, rule, scope, Sheet } from "./src/sheet";
 // state
 import {
   Reactive,
@@ -47,6 +47,7 @@ import { type, typeName } from "./src/tools/type";
 import { match as matchNumber } from "./src/tools/number/match";
 import { round as roundNumber } from "./src/tools/number/round";
 import { match as matchObject } from "./src/tools/object/match";
+import { html } from "./src/tools/html";
 
 export {
   // app
@@ -66,7 +67,8 @@ export {
   NavLink,
   router,
   // sheet
-  css,
+  css, 
+  declare,
   rule,
   scope,
   Sheet,
@@ -100,4 +102,5 @@ export {
   matchNumber,
   roundNumber,
   matchObject,
+  html
 };

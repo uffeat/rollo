@@ -2,7 +2,7 @@
 /sheet/dsl.test.js
 */
 
-const { component, Sheet, css, rule, scope } = await use("@/rollo/");
+const { component, Sheet, declare, rule, scope } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
 
 
@@ -16,12 +16,12 @@ export default () => {
 
   sheet.rules.add({
     [scope(element)]: {
-      ...css.display.flex,
-      width: css.rem(3),
-      height: css.rem(4),
-      backgroundColor: css.color.hex.ea2d2d,
-      color: css.__.bsBlue,
-      border: css(css.px(4), css.value.solid, css.value.green),
+      ...declare.display.flex,
+      width: declare.rem(3),
+      height: declare.rem(4),
+      backgroundColor: declare.color.hex.ea2d2d,
+      color: declare.__.bsBlue,
+      border: declare(declare.px(4), declare.value.solid, declare.value.green),
     },
   });
 

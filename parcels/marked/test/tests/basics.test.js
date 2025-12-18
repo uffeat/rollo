@@ -16,6 +16,8 @@ export default async () => {
     const text = await use(path, { raw: true });
     const [yaml, md] = text.split("---").slice(1);
     const result = component.div({ innerHTML: marked.parse(md) });
+
+    /*
     for (const image of result.querySelectorAll("img")) {
       image.replaceWith(
         component.img({
@@ -24,8 +26,9 @@ export default async () => {
         })
       );
     }
+      */
     return result;
   };
 
-  Post("/content/blog/bevel.md").then((post) => page.append(post));
+  Post("/content/blog/sprocket.md").then((post) => page.append(post));
 };

@@ -2,7 +2,7 @@
 /state/ref/count/option1.test.js
 */
 
-const { refMixin, Mixins, author, component, mix, Sheet, css, scope } =
+const { refMixin, Mixins, author, component, mix, Sheet, declare, scope } =
   await use("@/rollo/");
 const { frame } = await use("@/frame/");
 
@@ -22,13 +22,13 @@ export default async () => {
 
   sheet.rules.add({
     [scope(menu)]: {
-      width: css.pct(100),
-      ...css.display.flex,
-      ...css.justifyContent.flexEnd,
-      ...css.flexWrap.wrap,
-      columnGap: css.rem(1),
-      rowGap: css.rem(1),
-      paddingRight: css.rem(1),
+      width: declare.pct(100),
+      ...declare.display.flex,
+      ...declare.justifyContent.flexEnd,
+      ...declare.flexWrap.wrap,
+      columnGap: declare.rem(1),
+      rowGap: declare.rem(1),
+      paddingRight: declare.rem(1),
     },
   });
 

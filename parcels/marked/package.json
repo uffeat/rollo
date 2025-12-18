@@ -13,6 +13,8 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.1.17",
     "marked": "^17.0.0",
+    "marked-base-url": "^1.1.8",
+    "marked-directive": "^1.0.7",
     "tailwindcss": "^4.1.17"
   }
 }

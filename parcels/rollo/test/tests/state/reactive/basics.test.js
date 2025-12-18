@@ -2,7 +2,7 @@
 /state/reactive/basics.test.js
 */
 
-const { Reactive, component, Sheet, css, scope } = await use("@/rollo/");
+const { Reactive, component, Sheet, declare, scope } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
 
 const sheet = Sheet.create();
@@ -17,16 +17,16 @@ export default async () => {
 
   sheet.rules.add({
     [scope(page)]: {
-      ...css.display.flex,
-      ...css.flexDirection.column,
-      columnGap: css.rem(1),
-      rowGap: css.rem(1),
+      ...declare.display.flex,
+      ...declare.flexDirection.column,
+      columnGap: declare.rem(1),
+      rowGap: declare.rem(1),
     },
 
     [`${scope(page)} label`]: {
-      ...css.display.flex,
-      ...css.flexDirection.column,
-      rowGap: css.rem(0.5),
+      ...declare.display.flex,
+      ...declare.flexDirection.column,
+      rowGap: declare.rem(0.5),
     },
 
     [`${scope(page)} input[type="number"]`]: {

@@ -62,7 +62,13 @@ export const component = new Proxy(
   {
     get(_, tag) {
       if (tag === "from") {
-        return fromHtml;
+        return (html, {convert = true} = {}) => {
+          if (convert) {
+            return fromHtml(html)
+          }
+          return component[tag]({innerHTML: html})
+
+        };
       }
       return Factory(tag);
     },

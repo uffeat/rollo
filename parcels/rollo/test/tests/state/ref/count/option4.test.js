@@ -2,7 +2,7 @@
 /state/ref/count/option4.test.js
 */
 
-const { ref, component, Sheet, css, scope } =
+const { ref, component, Sheet, declare, scope } =
   await use("@/rollo/");
 const { frame } = await use("@/frame/");
 
@@ -17,13 +17,13 @@ export default async () => {
 
   sheet.rules.add({
     [scope(menu)]: {
-      width: css.pct(100),
-      ...css.display.flex,
-      ...css.justifyContent.flexEnd,
-      ...css.flexWrap.wrap,
-      columnGap: css.rem(1),
-      rowGap: css.rem(1),
-      paddingRight: css.rem(1),
+      width: declare.pct(100),
+      ...declare.display.flex,
+      ...declare.justifyContent.flexEnd,
+      ...declare.flexWrap.wrap,
+      columnGap: declare.rem(1),
+      rowGap: declare.rem(1),
+      paddingRight: declare.rem(1),
     },
   });
 
@@ -55,11 +55,11 @@ export default async () => {
         /* Create rules */
         sheet.rules.add({
           [scope(this)]: {
-            fontWeight: css.important(700),
+            fontWeight: declare.important(700),
           },
 
           [`${scope(this)} > span`]: {
-            fontWeight: css.important("initial"),
+            fontWeight: declare.important("initial"),
           },
         });
         const span = component.span({ parent: this });

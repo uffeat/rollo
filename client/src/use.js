@@ -500,7 +500,7 @@ export const assets = new (class Assets {
 
 /** Register out-of-the-box redirects to ensures live loads during DEV and fast loads in PROD.*/
 
-/* Redirects `@/`-sheets to `/parcels` counterparts. */
+// Converts `@/**/*.css` to `/parcels/**/*.css` specifiers and sets 'as' option to 'sheet' (to avoid load by link).
 use.redirects.add((specifier, options, ...args) => {
   if (
     options.auto &&
@@ -512,16 +512,16 @@ use.redirects.add((specifier, options, ...args) => {
   }
 });
 
-/* Redirects `@/`-html and -template strings to `/parcels` counterparts. */
+// Converts `@/**/*.*` to `/parcels/**/*.*` specifiers for `.html`, `.json`, and `.template` types.
 use.redirects.add((specifier, options, ...args) => {
   if (
     options.auto &&
     specifier.startsWith("@/") &&
-    (specifier.endsWith(".html") || specifier.endsWith(".template"))
+    (specifier.endsWith(".json") ||
+      specifier.endsWith(".html") ||
+      specifier.endsWith(".template"))
   ) {
-    const redirected = `/parcels${specifier.slice(1)}`;
-    //console.log(`Redirecting from ${specifier} to ${redirected}`);////
-    return redirected;
+    return `/parcels${specifier.slice(1)}`;
   }
 });
 
@@ -786,7 +786,7 @@ use.types.add("json", (result) => {
   return JSON.parse(result);
 });
 
-/** Register out-of-the-box transformers and processors for non-standard assets. */
+/** Register out-of-the-box transformers and processors for common non-native assets. */
 
 /* Add supprt for runtime MD parsing, incl. Frontmatter-style.
 NOTE Caches by default, but possible to opt out. */
