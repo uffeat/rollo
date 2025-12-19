@@ -1,8 +1,25 @@
 import { type } from "./type";
 
 /* Updates element.
-NOTE Simplified version of web component instance factory. */
+NOTE Simplified version of web component instance factory.
+Useful for simple elements, for injection into iframes and for special cases 
+that do not work with web components (e.g., Plotly containers); otherwise
+no strong case for usage over 'component'.
+Simplifications include:
+- No support for '!important' (use hooks).
+- No support for CSS class updates (i.e., set via className).
+- No support for '.'-separated CSS classes.
+- No support for CSS classes in update object (i.e., no '.' syntax).
+- No support for ii-handlers (use portable 'on' utility or hooks).
+- Mixin-related features. */
 export function updateElement(...args) {
+  if (this.update) {
+    return this.update(...args)
+  }
+  this.update = updateElement.bind(result)
+  this.setAttribute('element', "");
+
+  /* NOTE Could patch-on 'update' protected, but probably YAGNI... */   
   /* Parse args */
   const className = args.find((a, i) => !i && typeof a === "string");
   const text = args.find((a, i) => i && typeof a === "string");
@@ -16,12 +33,10 @@ export function updateElement(...args) {
   })();
   const children = args.filter((a) => a instanceof HTMLElement);
   const hooks = args.filter((a) => typeof a === "function");
-
   /* Add CSS classes */
   if (className) {
     this.className = className;
   }
-
   /* Use updates */
   for (const [key, value] of Object.entries(updates)) {
     if (key.startsWith("__") && !key.endsWith("__")) {
@@ -75,7 +90,7 @@ export function updateElement(...args) {
     parent.append(this);
   }
   /* Append children */
-  this.append?.(...children);
+  this.append(...children);
   /* Call hooks */
   if (hooks.length) {
     const deferred = [];
