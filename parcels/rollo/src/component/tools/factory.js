@@ -1,7 +1,7 @@
 import { type } from "../../tools/type";
 
 /* Utility for parsing args in component factory functions. */
-class Parse {
+export class Parse {
   #_ = {};
   constructor(args) {
     this.#_.args = args;

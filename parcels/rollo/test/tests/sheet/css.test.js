@@ -8,8 +8,10 @@ const { frame } = await use("@/frame/");
 export default () => {
   frame.clear(":not([slot])");
 
-  const container = component.div({ parent: frame }, component.p({}, "Hi!"), function () {
-
+  const container = component.div(
+    { parent: frame },
+    component.p({}, "Hi!"),
+    function () {
     /* NOTE This is the cannonical Rollo way of implementing small scoped 
     light-DOM constructed sheets:
     - Use css tag to keep SFC without strain on import engine.
@@ -30,25 +32,15 @@ export default () => {
       
       */
 
+      const sheet = css`
+        [uid="${this.uid}"] {
+          color: green;
+          background-color: linen;
+        }
+      `.use();
 
-    const sheet = css`
-      [uid="${this.uid}"] {
-        color: green;
-        background-color: linen;
-      }
-
-     
-    `.use();
-
-    
-
-    this.on._connect((event) => sheet.enable());
-    this.on._disconnect((event) => sheet.disable());
-  });
-
-
-  
-
-
-
+      this.on._connect((event) => sheet.enable());
+      this.on._disconnect((event) => sheet.disable());
+    }
+  );
 };

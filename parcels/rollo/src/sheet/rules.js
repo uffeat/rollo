@@ -1,7 +1,7 @@
-import { type } from '../tools/type'
+import { type } from "../tools/type";
 import { camelToKebab } from "../tools/case";
-import { Exception } from '../tools/exception'
-import { truncate } from '../tools/truncate';
+import { Exception } from "../tools/exception";
+import { truncate } from "../tools/truncate";
 import { reference } from "./reference";
 
 const MEDIA = "@media";
@@ -147,12 +147,6 @@ export class Rules {
   }
 
   #parse(head, body) {
-    if (head.startsWith("max")) {
-      return `@media (width <= ${head.slice(3)}px)`;
-    }
-    if (head.startsWith("min")) {
-      return `@media (width >= ${head.slice(3)}px)`;
-    }
     if (!head.startsWith("@keyframes") && body && this.#isKeyframes(body)) {
       return `@keyframes ${head}`;
     }
@@ -193,11 +187,6 @@ export class Rules {
       /* Ignore, if undefined, e.g., for efficient use of iife's */
       if (value === undefined) {
         continue;
-      }
-
-      if (type(value) === "Object") {
-        const [u, v] = Object.entries(value)[0];
-        value = `${v}${u}`;
       }
 
       if (key.startsWith("__")) {

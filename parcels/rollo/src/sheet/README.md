@@ -1,6 +1,6 @@
 # About
 
-Extension of the native CSSStyleSheet with features for controlled adoption/unadoption and light-weight dynamic rule control. Also includes the optional tools for less "stringy" rule authoring in JS.
+Extension of the native CSSStyleSheet with features for controlled adoption/unadoption and light-weight dynamic rule control. Also includes the optional tools for rule authoring in JS.
 
 # Notes
 

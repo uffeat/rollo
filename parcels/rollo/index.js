@@ -10,12 +10,12 @@ import {
   Mixins,
   mixins,
   registry,
-  fromHtml
+  fromHtml,
 } from "./src/component";
 // router
 import { Nav, NavLink, router } from "./src/router";
 // sheet
-import { css, declare, rule, scope, Sheet } from "./src/sheet";
+import { css, Sheet } from "./src/sheet";
 // state
 import {
   Reactive,
@@ -39,6 +39,7 @@ import {
 import { assign } from "./src/tools/assign";
 import { defineMethod, defineProperty, defineValue } from "./src/tools/define";
 import { Future } from "./src/tools/future";
+import { element, updateElement } from "./src/tools/element";
 import { is } from "./src/tools/is";
 import { pipe } from "./src/tools/pipe";
 import { delay } from "./src/tools/delay";
@@ -67,10 +68,7 @@ export {
   NavLink,
   router,
   // sheet
-  css, 
-  declare,
-  rule,
-  scope,
+  css,
   Sheet,
   // state
   Reactive,
@@ -82,6 +80,8 @@ export {
   // tools
   Exception,
   Future,
+  element,
+  updateElement,
   assign,
   camelToKebab,
   camelToPascal,
@@ -102,5 +102,5 @@ export {
   matchNumber,
   roundNumber,
   matchObject,
-  html
+  html,
 };

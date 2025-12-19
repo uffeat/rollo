@@ -2,7 +2,7 @@
 /sheet/invalid.test.js
 */
 
-const { component, Sheet, declare } = await use("@/rollo/");
+const { component, Sheet, css } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
 
 export default () => {
@@ -19,12 +19,12 @@ export default () => {
       {
         parent: frame,
         text: `Error `,
-        padding: declare.rem(1),
-        ...declare.marginLeft.auto,
+        padding: css.rem(1),
+        ...css.marginLeft.auto,
       },
       component.span({
         text: error.message,
-        color: declare.__.bsDanger,
+        color: css.__.bsDanger,
       })
     );
   }
