@@ -10,7 +10,19 @@ import { api, rpc } from "@/server";
 //console.log("astract:", await use(`/content/blog/abstract.md`));
 //console.log("astract:", await use(`/content/blog/abstract.md`));
 
+const meta = document.head.querySelector(`meta[plotly]`)
+//console.log("meta:", meta);////
+const encoded = meta.getAttribute('plotly')
 
+const decoded = atob(encoded)
+//console.log("decoded:", decoded);////
+const mod = await use.module(decoded)
+//console.log("mod:", mod);////
+const { Plotly } = mod;
+
+
+//const { Plotly } = await use("/parcels/plotly/");
+console.log("Plotly:", Plotly);
 
 await (async () => {
   const { data, meta } = await api.echo({ ding: 42, dong: true, foo: "FOO" });
@@ -25,8 +37,6 @@ await (async () => {
   console.log("meta:", meta);
 })();
 */
-
-
 
 if (import.meta.env.DEV) {
   /* Initialize DEV testbench */

@@ -392,9 +392,7 @@ export const assets = new (class Assets {
       text = `${text}\n//# sourceURL=${path}`;
     }
     const url = URL.createObjectURL(
-      new Blob([text], {
-        type: "text/javascript",
-      })
+      new Blob([text], { type: "text/javascript" })
     );
     const result = await this.#_.import(url);
     URL.revokeObjectURL(url);
@@ -667,6 +665,12 @@ NOTE
       UseError.raise(`Invalid path: ${path.full}`);
     }
     const result = atob(propertyValue.slice(1, -1));
+    /*
+    Alt, if ever needed:
+    const bytes = Uint8Array.from(atob(propertyValue.slice(1, -1)), c => c.charCodeAt(0));
+    const result = new TextDecoder().decode(bytes);
+    */
+
     cache.set(path.full, result);
     return result;
   });

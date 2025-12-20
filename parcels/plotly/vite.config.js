@@ -9,7 +9,7 @@ export default defineConfig({
   build: {
     emptyOutDir: false,
     outDir: "../../client/public/parcels/plotly",
-    minify: true, //
+    minify: false, //
     target: "es2022",
     rollupOptions: {
       /* Probably not necessary to define external */

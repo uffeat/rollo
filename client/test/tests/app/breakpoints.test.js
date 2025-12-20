@@ -5,7 +5,7 @@
 
 import cssText from "./breakpoints.css?raw";
 
-const { component, Sheet, declare, app, breakpoints } = await use("@/rollo/");
+const { component, element, Sheet, css, app, breakpoints } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
 
 Sheet.create(cssText).use();
@@ -15,12 +15,12 @@ const { Plotly } = await use("@/plotly/");
 
 const sheet = Sheet.create({
   ".plotly .modebar": {
-    //backgroundColor: declare.important("gray"),
-    boxShadow: declare.important(null),
+    //backgroundColor: css.important("gray"),
+    boxShadow: css.important(null),
   },
 
   ".plotly:hover .modebar": {
-    //backgroundColor: declare.important("pink"),
+    //backgroundColor: css.important("pink"),
   },
 });
 
@@ -34,11 +34,11 @@ export default async () => {
     console.log("sm satisfied:", event.detail ?? app.$.sm);
   });
 
-  const plotContainer = document.createElement("div");
+  const plotContainer =element.div();
 
   //plotContainer.classList.add('container')
 
-  //plotContainer.style.border = `2px solid ${declare.__.bsGray400}`;
+  //plotContainer.style.border = `2px solid ${css.__.bsGray400}`;
   //plotContainer.style.alignSelf = "stretch";
 
   Plotly.newPlot(
