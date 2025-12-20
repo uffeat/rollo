@@ -1,7 +1,6 @@
 # Features
 - Spaces
-- Static data/content
-- RPC; perhaps coupled with spaces
+- Static data
 - User
 - Stripe
 - Data store

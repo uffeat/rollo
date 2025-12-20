@@ -5,23 +5,7 @@ import "@/router";
 
 import { api, rpc } from "@/server";
 
-//console.log("foo:", await use(`@/test/foo.template`, { convert: true }));
-
-//console.log("astract:", await use(`/content/blog/abstract.md`));
-//console.log("astract:", await use(`/content/blog/abstract.md`));
-
-const meta = document.head.querySelector(`meta[plotly]`)
-//console.log("meta:", meta);////
-const encoded = meta.getAttribute('plotly')
-
-const decoded = atob(encoded)
-//console.log("decoded:", decoded);////
-const mod = await use.module(decoded)
-//console.log("mod:", mod);////
-const { Plotly } = mod;
-
-
-//const { Plotly } = await use("/parcels/plotly/");
+const { Plotly } = await use("/plotly/");
 console.log("Plotly:", Plotly);
 
 await (async () => {

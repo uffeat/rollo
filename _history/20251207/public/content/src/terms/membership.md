@@ -1,3 +1,0 @@
-# Memebership
-
-All about membership...

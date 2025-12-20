@@ -1,3 +1,0 @@
-# Liability
-
-All about liability...

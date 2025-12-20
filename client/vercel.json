@@ -16,6 +16,11 @@
     },
 
     {
+      "source": "/favicon.ico",
+      "destination": "/favicon.ico"
+    },
+
+    {
       "source": "/images/:match*",
       "destination": "/images/:match*"
     },
@@ -26,13 +31,13 @@
     },
 
     {
-      "source": "/test/:match*",
-      "destination": "/test/:match*"
+      "source": "/plotly/:match*",
+      "destination": "/plotly/:match*"
     },
 
     {
-      "source": "/favicon.ico",
-      "destination": "/favicon.ico"
+      "source": "/test/:match*",
+      "destination": "/test/:match*"
     },
 
     {

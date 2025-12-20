@@ -670,7 +670,6 @@ NOTE
     const bytes = Uint8Array.from(atob(propertyValue.slice(1, -1)), c => c.charCodeAt(0));
     const result = new TextDecoder().decode(bytes);
     */
-
     cache.set(path.full, result);
     return result;
   });
