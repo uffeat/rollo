@@ -49,3 +49,7 @@ const run = (() => {
 })();
 
 export {};
+
+
+//
+await run('/plotly/bar_lc.test.js')

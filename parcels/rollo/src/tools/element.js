@@ -16,7 +16,7 @@ export function updateElement(...args) {
   if (this.update) {
     return this.update(...args)
   }
-  this.update = updateElement.bind(result)
+  this.update = updateElement.bind(this)
   this.setAttribute('element', "");
 
   /* NOTE Could patch-on 'update' protected, but probably YAGNI... */   

@@ -1,6 +1,27 @@
 /* Generic plotly sheet for dark mode.
 NOTE Requires reboot or Bootstrap. */
 
+/* Center horizontally */
+.plotly-wrapper,
+.plotly-wrapper .js-plotly-plot {
+  margin: 0 auto !important;
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+.plotly-wrapper .plotly {
+  margin: 0 auto !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+/**/
+.js-plotly-plot {
+  width: var(--width) !important;
+  
+}
+
+
 /* Space around mode bar */
 .plotly-wrapper .modebar-container {
   top: 8px !important;

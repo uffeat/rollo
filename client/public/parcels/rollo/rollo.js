@@ -2150,7 +2150,7 @@ class nt {
 function it(...r) {
   if (this.update)
     return this.update(...r);
-  this.update = it.bind(result), this.setAttribute("element", "");
+  this.update = it.bind(this), this.setAttribute("element", "");
   const t = r.find((c, a) => !a && typeof c == "string"), e = r.find((c, a) => a && typeof c == "string"), s = r.find((c) => _(c) === "Object") || {}, n = (() => {
     const { parent: c } = s;
     if (c)

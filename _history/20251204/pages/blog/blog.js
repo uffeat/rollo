@@ -8,9 +8,7 @@ const shadowSheet = await use("/pages/blog/shadow.css", { as: "sheet" });
 
 
 
-/* TODO
-- Move to assets
-*/
+
 
 /** Prepare components and component factories */
 
@@ -42,9 +40,7 @@ const Card = ({ html, path }) => {
   return card;
 };
 
-/* TODO
-- convert to Map
-*/
+
 const posts = {};
 
 /* Returns post component rendered from html and with any internal links 
