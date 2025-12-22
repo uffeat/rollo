@@ -8,13 +8,8 @@ class Classes {
     return this.#_.owner;
   }
 
-  /* Returns classList (for advanced use). */
-  get list() {
-    return this.owner.classList;
-  }
-
   get size() {
-    // TODO
+    return this.owner.classList.length;
   }
 
   /* Adds classes. */
@@ -54,13 +49,16 @@ class Classes {
   remove(arg) {
     const values = this.#toArray(arg);
     this.owner.classList.remove(...values);
+    if (!this.size) {
+      this.owner.removeAttribute("class");
+    }
     return this.owner;
   }
 
   /* Replaces current with substitutes. 
-        NOTE
-        - If mismatch between 'current' and 'substitutes' sizes, substitutes are (intentionally) 
-        silently ignored. */
+  NOTE
+  - If mismatch between 'current' and 'substitutes' sizes, substitutes are (intentionally) 
+  silently ignored. */
   replace(current, substitutes) {
     current = this.#toArray(current);
     substitutes = this.#toArray(substitutes);
@@ -82,10 +80,6 @@ class Classes {
       this.owner.classList.toggle(value, force);
     }
     return this.owner;
-  }
-
-  values() {
-    // TODO
   }
 
   #toArray(arg) {
@@ -110,25 +104,23 @@ export default (parent, config) => {
 
       this.#_.classes = new Classes(this);
 
-      this.#_.class = new Proxy(
-        ()=>{},
-        {
-          get(_, key) {
-            owner.classes.add(key)
-          },
-          set(_, key, value) {
-            owner.classes[value ? "add" : "remove"](key);
-            return true
-          },
-          apply(_, thisArg, args) {
-
-          }
-        }
-      );
+      /* Lean DX for adding/removing classes */
+      this.#_.class = new Proxy(() => {}, {
+        get(_, key) {
+          owner.classes.add(key);
+        },
+        set(_, key, value) {
+          owner.classes[value ? "add" : "remove"](key);
+          return true;
+        },
+        apply(_, thisArg, args) {
+          console.error("Not yet implemented.");
+        },
+      });
     }
 
     get class() {
-      return this.#_.class
+      return this.#_.class;
     }
 
     /* Returns controller for managing CSS classes from a string.
@@ -162,6 +154,3 @@ export default (parent, config) => {
     }
   };
 };
-
-/* TODO
-- If ever needed: Relatively easy to make classes reactive, by event dispatch. */

@@ -26,11 +26,7 @@ export default () => {
     - Auto-complete etc. not as good as in native css.
 
     The solid non-SFC alternative is: await use('/my_sheet.css')
-
-      
-      
-      
-      */
+    */
 
       const sheet = css`
         [uid="${this.uid}"] {

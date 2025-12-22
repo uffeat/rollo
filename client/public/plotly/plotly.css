@@ -1,4 +1,32 @@
-/* Generic plotly sheet */
-plotly-component {
-  color: inherit;
+/* Generic plotly sheet for dark mode.
+NOTE Requires reboot or Bootstrap. */
+.plotly-wrapper,
+.plotly-wrapper .js-plotly-plot {
+  margin: 0 auto !important;
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+/* Space around mode bar */
+.plotly-wrapper .modebar-container {
+  top: 8px !important;
+  right: 8px !important;
+}
+
+/* Transparent background */
+.plotly-wrapper .main-svg,
+.plotly-wrapper .modebar-group {
+  background-color: transparent !important;
+}
+.plotly-wrapper .legend .bg {
+  fill: transparent !important;
+}
+
+/* Text color */
+.plotly-wrapper .modebar button svg path {
+  fill: var(--bs-gray-600) !important;
+}
+.plotly-wrapper .modebar:hover button svg path {
+  fill: var(--bs-light) !important;
 }

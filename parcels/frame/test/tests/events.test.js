@@ -3,7 +3,7 @@
 Tests open/close-related events.
 */
 
-const { component } = await use("@/rollo/");
+const { component, css } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
 
 export default () => {
@@ -26,16 +26,15 @@ export default () => {
     parent: frame,
     slot: "footer",
     text: "Pretty cool!",
-    marginLeft: "auto",
+    ...css.marginLeft.auto,
   });
 
   const main = component.div({
     parent: frame,
-    display: "flex",
-    flexDirection: "column",
-    rowGap: "0.5rem",
-    marginLeft: "auto",
-    padding: "0.5rem",
+    ...css.display.flex,
+    ...css.flexDirection.column,
+    rowGap: css.rem(0.5),
+    padding: css.rem(0.5),
   });
 
   const inform = (text, color = "white") => {

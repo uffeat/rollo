@@ -1,14 +1,13 @@
 /* Initialize import engine and load main sheet */
-import "../../../client/src/main.css"
+import "../../../client/src/main.css";
 import "../use";
 /* Load local sheet */
-import './test.css'
+import "./test.css";
 /* Overload to use live parcel */
 import * as parcel from "../index";
 use.add("@/frame/frame.js", parcel);
 
 document.documentElement.dataset.bsTheme = "dark";
-
 
 /* Returns function that runs test from path */
 const run = (() => {
@@ -53,3 +52,6 @@ const run = (() => {
     })()
   );
 })();
+
+/* Current test */
+await run("/basics.test.js"); ////

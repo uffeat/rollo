@@ -1,12 +1,14 @@
 /* Initialize import engine and load main sheet (with Tailwind) */
 import "@/main.css";
 import "@/use";
+import "@/plotly";
+
 import "@/router";
 
 import { api, rpc } from "@/server";
 
-const { Plotly } = await use("/plotly/");
-console.log("Plotly:", Plotly);
+const { Sheet, component, element, css } = await use("@/rollo/");
+const { frame } = await use("@/frame/");
 
 await (async () => {
   const { data, meta } = await api.echo({ ding: 42, dong: true, foo: "FOO" });

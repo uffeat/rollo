@@ -68,15 +68,12 @@ const dsl = new (class {
 
 /* Helper for 'css' proxy */
 const media = new (class {
-
   max(width) {
     return `@media (width <= ${width})`;
-
   }
 
   min(width) {
     return `@media (width >= ${width})`;
-
   }
 })();
 
@@ -101,11 +98,11 @@ NOTE Since this is optional DX only, I've chosen unify the features in
 the 'css' utility. */
 export const css = new Proxy(() => {}, {
   get(target, key) {
+     /* Returns dsl controller */
+    //if (Object.hasOwn(dsl.constructor.prototype, key)) return dsl[key];
     if (key in dsl) {
-      /* Returns dsl controller */
-      return dsl[key];
+      return dsl[key]
     }
-
     if (key in reference.style) {
       /* Returns object that can be destructured to a full declaration.
       Example: `...css.display.flex` */
@@ -121,31 +118,27 @@ export const css = new Proxy(() => {}, {
 
     /* Returns media controller.
     Example: [css.media.min(css.px(600))]: { ... } */
-    if (key === 'media') {
-      return media
+    if (key === "media") {
+      return media;
     }
-
 
     /* Returns declaration value string with unit value.
     Example: `width: css.rem(3)` */
     return (value) => {
-      if (key === "pct") {
-        key = "%";
-      }
-      return `${value}${key}`;
+      const unit = key === "pct" ? "%" : key;
+      return `${value}${unit}`;
     };
   },
 
   apply(target, thisArg, args) {
-    const first = args.at(0)
+    const first = args.at(0);
     if (Array.isArray(first)) {
       /* Used as tagged template: Returns constructed sheet from css text. */
       const [strings, ...values] = args;
       return joinTemplate(strings, values);
     }
 
-
-    if (first instanceof HTMLElement && 'uid' in first) {
+    if (first instanceof HTMLElement && "uid" in first) {
       /* Returns selector text that scopes to component uid.
       Example: `[css(myComponent)]: { ... }` */
       return `[uid="${first.uid}"]`;

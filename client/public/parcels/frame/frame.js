@@ -1,97 +1,80 @@
-const { app: a } = await use("@/rollo/"), { Mixins: h, author: r, component: s, mix: d } = await use("@/rollo/"), c = await use("@/bootstrap/reboot.css"), l = await use("@/frame/shadow.css", { auto: !0 }), n = {
+const { app: c } = await use("@/rollo/"), { Mixins: u, author: h, component: e, mix: l } = await use("@/rollo/"), g = await use("@/bootstrap/reboot.css"), m = await use("@/frame/shadow.css", { auto: !0 }), r = {
   close: await use("@/icons/close.svg"),
   menu: await use("@/icons/menu.svg")
-}, _ = r(
-  class extends d(HTMLElement, {}, ...h()) {
-    #e = {
-      tree: {}
-    };
+}, d = h(
+  class extends l(HTMLElement, {}, ...u()) {
+    #t = {};
     constructor() {
-      super(), this.#e.shadow = s.div(
+      super();
+      const t = this, o = e.section(
+        "side",
+        e.button("toggle", {
+          ariaLabel: "Close",
+          innerHTML: r.close
+        }),
+        e.slot({ name: "side" })
+      ), i = e.div(
         { id: "root" },
-        s.header(
-          s.slot({ name: "home" }),
-          s.button("_close", {
+        e.header(
+          e.slot({ name: "home" }),
+          e.button("toggle", {
             ariaLabel: "Toggle",
-            innerHTML: n.menu
+            innerHTML: r.menu
           }),
-          s.section(s.slot({ name: "top" }))
+          e.section(e.slot({ name: "top" }))
         ),
-        s.section(
-          "_main",
-          s.section(
-            "_side",
-            s.button("_close", {
-              ariaLabel: "Close",
-              innerHTML: n.close
-            }),
-            s.slot({ name: "side" })
-          ),
-          s.main(s.slot())
+        e.section(
+          "main",
+          o,
+          e.main(e.slot())
         ),
-        s.footer()
-      ), this.attachShadow({ mode: "open" }).append(this.shadow), c.use(this), l.use(this), this.#e.config = new class {
-        #s = {};
-        constructor(t) {
-          this.#s.owner = t;
-        }
-        get owner() {
-          return this.#s.owner;
-        }
+        e.footer()
+      );
+      this.attachShadow({ mode: "open" }).append(i), g.use(this), m.use(this), this.#t.config = new class {
         get easing() {
-          return this.owner.__.easing;
+          return t.__.easing;
         }
         get time() {
-          return this.owner.attribute._time;
+          return t.attribute.time;
         }
         get width() {
-          return this.owner.__.width;
+          return t.__.width;
         }
         update({
-          easing: t = "ease-in-out",
-          time: i = "200ms",
-          width: o = "300px"
+          /* Defaults */
+          easing: s = "ease-in-out",
+          time: n = "200ms",
+          width: a = "300px"
         } = {}) {
-          this.owner.__.easing = t, this.owner.__.width = o, this.owner.attribute._time = i, this.owner.send("_config", { detail: { easing: t, time: i, width: o } });
+          t.__.easing = s, t.__.width = a, t.attribute.time = n, t.send("_config", { detail: { easing: s, time: n, width: a } });
         }
-      }(this), this.config.update(), (() => {
-        const e = window.matchMedia("(width >= 768px)");
-        e.matches ? (this.classes.add("_md"), this.send("_md", { detail: !0 })) : this.send("_md", { detail: !1 }), e.addEventListener("change", (t) => {
-          t.matches ? (this.classes.add("_md"), this.send("_md", { detail: !0 })) : (this.classes.remove("_md"), this.send("_md", { detail: !1 }));
-        });
-      })(), this.tree.header = this.shadow.find("header"), this.tree.side = this.shadow.find("section._side"), this.tree.slot = this.shadow.find("main>slot"), this.tree.main = this.shadow.find("main"), this.tree.header = this.shadow.find("header"), this.tree.side.addEventListener("transitionstart", (e) => {
-        this.classes.has("_close") ? this.send("_close_start") : this.send("_open_start");
-      }), this.tree.side.addEventListener("transitionend", (e) => {
-        this.classes.has("_close") ? this.send("_close_end") : this.send("_open_end"), this.__.time = 0;
-      }), this.shadow.on.click = (e) => {
-        if (this.shadow.contains(e.target) && e.target.closest("._close")) {
+      }(), this.config.update(), o.on.transitionstart((s) => {
+        this.attribute.open ? this.send("_open_start") : this.send("_close_start");
+      }), o.on.transitionend((s) => {
+        this.attribute.open ? this.send("_close_end") : this.send("_open_end"), this.__.time = 0;
+      }), i.on.click((s) => {
+        if (i.contains(s.target) && s.target.closest(".toggle")) {
           this.toggle();
           return;
         }
-        (e.target.closest("main") || !this.shadow.contains(e.target) && !e.target.closest('[slot="side"]')) && this.close();
-      };
+        (s.target.closest("main") || !i.contains(s.target) && !s.target.closest('[slot="side"]')) && this.close();
+      });
     }
     get config() {
-      return this.#e.config;
+      return this.#t.config;
     }
-    get shadow() {
-      return this.#e.shadow;
+    close(t = !0) {
+      t && (this.__.time = this.config.time), this.attribute.open = !1;
     }
-    get tree() {
-      return this.#e.tree;
+    open(t = !0) {
+      t && (this.__.time = this.config.time), this.attribute.open = !0;
     }
-    close(e = !0) {
-      e && (this.__.time = this.config.time), this.classes.add("_close");
-    }
-    open(e = !0) {
-      e && (this.__.time = this.config.time), this.classes.remove("_close");
-    }
-    toggle(e = !0) {
-      e && (this.__.time = this.config.time), this.classes.toggle("_close");
+    toggle(t = !0) {
+      t && (this.__.time = this.config.time), this.attribute.open = !this.attribute.open;
     }
   },
   "frame-component"
-), u = _({ id: "frame", parent: a });
+), _ = d({ id: "frame", parent: c });
 export {
-  u as frame
+  _ as frame
 };

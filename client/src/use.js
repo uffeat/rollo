@@ -1,3 +1,4 @@
+/* v.20251221 */
 const type = (value) => Object.prototype.toString.call(value).slice(8, -1);
 
 export class UseError extends Error {
@@ -85,7 +86,7 @@ export class Path {
     }
     /* Missing type -> default to js */
     const file = parts.at(-1);
-    if (!file.includes(".")) {
+    if (file && !file.includes(".")) {
       parts[parts.length - 1] = `${file}.js`;
     }
 
@@ -94,10 +95,12 @@ export class Path {
     this.#_.path = `/${parts.join("/")}`;
     this.#_.full = `${this.#_.source}${this.#_.path}`;
     this.#_.file = parts.at(-1);
-    this.#_.stem = this.#_.file.split(".").at(0);
-    this.#_.type = this.#_.file.split(".").at(-1);
-    const [_, ...types] = this.#_.file.split(".");
-    this.#_.types = types.join(".");
+    if (this.#_.file) {
+      this.#_.stem = this.#_.file.split(".").at(0);
+      this.#_.type = this.#_.file.split(".").at(-1);
+      const [_, ...types] = this.#_.file.split(".");
+      this.#_.types = types.join(".");
+    }
   }
 
   /* Returns detail for ad-hoc data.
@@ -218,7 +221,6 @@ class Redirects {
     for (const redirector of this.#_.registry.values()) {
       const result = redirector(specifier, options, ...args);
       if (result) {
-        //console.log(`Redirecting from ${specifier} to ${result}`); ////
         return result;
       }
     }
@@ -267,7 +269,7 @@ export const assets = new (class Assets {
         return this.#_.DEV;
       }
 
-      /* Returns flag that indicates if run in Vite env. */
+      /* Returns flag that indicates if running in Vite env. */
       get VITE() {
         return this.#_.VITE;
       }
@@ -352,7 +354,8 @@ export const assets = new (class Assets {
   }
 
   /* Returns redirects controller. 
-  NOTE Only kicks in in DEV, since redirect are expensive. */
+  NOTE Only kicks in in DEV. Redirects are expensive and exist to enable 
+  access to unbuilt assets during DEV. */
   get redirects() {
     return this.#_.redirects;
   }
@@ -371,7 +374,7 @@ export const assets = new (class Assets {
 
   /* Injects asset. 
   NOTE Useful for
-  - manually making objects use-importable (only for special cases)
+  - manually making objects use-importable (only do when  really necessary)
   - overloading asset when testing parcels (knock yourself out!). */
   add(key, value) {
     if (typeof key === "string") {
@@ -443,15 +446,26 @@ export const assets = new (class Assets {
           );
           this.meta.DEV ? reject(error) : resolve(error);
         }, timeout);
-        this.sources
-          .get(path.source)(
-            { options: { ...options }, owner: this, path },
-            ...args
-          )
+        const sourcePromise = (() => {
+          try {
+            return this.sources.get(path.source)(
+              { options: { ...options }, owner: this, path },
+              ...args
+            );
+          } catch (error) {
+            return Promise.reject(error);
+          }
+        })();
+        sourcePromise
           .then((result) => {
             clearTimeout(timer);
             resolve(result);
+          })
+          .catch((error) => {
+            clearTimeout(timer);
+            this.meta.DEV ? reject(error) : resolve(error);
           });
+        
         result = await promise;
       } else {
         result = await this.sources.get(path.source)(
@@ -540,8 +554,10 @@ use.sources.add(
   (() => {
     const cache = new Map();
     const fetching = new Map();
+    const loading = new Map();
     const _ = {
-      /* Rebuild native 'import' to prevent Vite from barking */
+      /* Rebuild native 'import' to prevent Vite from barking.
+      Yeah, yeah, a little unDRY (also in 'assets'), but keeps things clean. */
       import: Function("u", "return import(u)"),
     };
     return async ({ options, owner, path }) => {
@@ -558,15 +574,28 @@ use.sources.add(
         let link = document.head.querySelector(
           `link[rel="stylesheet"][href="${href}"]`
         );
-        if (link) return link;
+        if (link) {
+          if (loading.has(href)) return loading.get(href);
+          return link;
+        }
         link = document.createElement("link");
         link.rel = "stylesheet";
         link.href = href;
-        const { promise, resolve } = Promise.withResolvers();
+        const { promise, resolve, reject } = Promise.withResolvers();
+        loading.set(href, promise);
         link.addEventListener(
           "load",
           (event) => {
             resolve(link);
+            loading.delete(href);
+          },
+          { once: true }
+        );
+        link.addEventListener(
+          "error",
+          (event) => {
+            loading.delete(href);
+            reject(new UseError(`Failed to load sheet: ${href}`));
           },
           { once: true }
         );
@@ -578,13 +607,30 @@ use.sources.add(
         if (as === "script") {
           const src = `${owner.meta.base}${path.path}`;
           let script = document.head.querySelector(`script[src="${src}"]`);
-          if (script) return true;
+          if (script) {
+            if (loading.has(src)) return loading.get(src);
+            return true;
+          }
           script = document.createElement("script");
           script.src = src;
-          const { promise, resolve } = Promise.withResolvers();
-          script.addEventListener("load", (event) => resolve(true), {
-            once: true,
-          });
+          const { promise, resolve, reject } = Promise.withResolvers();
+          loading.set(src, promise);
+          script.addEventListener(
+            "load",
+            (event) => {
+              loading.delete(src);
+              resolve(true);
+            },
+            { once: true }
+          );
+          script.addEventListener(
+            "error",
+            (event) => {
+              loading.delete(src);
+              reject(new UseError(`Failed to load script: ${src}`));
+            },
+            { once: true }
+          );
           document.head.append(script);
           return await promise;
         }
@@ -595,41 +641,43 @@ use.sources.add(
       }
       /* Text-based asset */
       if (cache.has(path.full)) {
-        //console.log(`Using cached version of: ${path.full}`); ////
         return cache.get(path.full);
       }
       if (fetching.has(path.full)) {
-        //console.log(`Awaiting fetch of: ${path.full}`); ////
         const promise = fetching.get(path.full);
         const result = await promise;
         fetching.delete(path.full);
         return result;
       } else {
-        //console.log(`Fetching: ${path.full}`); ////
-        const { promise, resolve } = Promise.withResolvers();
+        const { promise, resolve, reject } = Promise.withResolvers();
         fetching.set(path.full, promise);
-        const result = (
-          await (
-            await fetch(`${owner.meta.base}${path.path}`, { cache: "no-store" })
-          ).text()
-        ).trim();
-        /* Alternative fetch: */
-        //async () => await fetch(`${owner.meta.base}${path.path}?d=${Date.now()}`);
-        /* Invalid paths causes result to be index.html (with misc devtools 
-        injected). Use custom index meta as indicator for invalid path, 
-        since such an element should not be present in imported assets. */
-        const tester = document.createElement("div");
-        tester.innerHTML = result;
-        if (tester.querySelector(`meta[index]`)) {
-          /* NOTE Critical to remove from fetching on error! */
+        try {
+          const result = (
+            await (
+              await fetch(`${owner.meta.base}${path.path}`, {
+                cache: "no-store",
+              })
+            ).text()
+          ).trim();
+          /* Alternative fetch: */
+          //async () => await fetch(`${owner.meta.base}${path.path}?d=${Date.now()}`);
+          /* Invalid paths causes result to be index.html (with misc devtools 
+          injected). Use custom index meta as indicator for invalid path, 
+          since such an element should not be present in imported assets. */
+          const tester = document.createElement("div");
+          tester.innerHTML = result;
+          if (tester.querySelector(`meta[index]`)) {
+            UseError.raise(`Invalid path: ${path.full}`);
+          }
+          cache.set(path.full, result);
+          resolve(result);
+          return result;
+        } catch (error) {
+          reject(error);
+          throw error;
+        } finally {
           fetching.delete(path.full);
-          UseError.raise(`Invalid path: ${path.full}`);
         }
-        cache.set(path.full, result);
-        resolve(result);
-        fetching.delete(path.full);
-        //console.log("result:", result); ////
-        return result;
       }
     };
   })()
@@ -648,12 +696,9 @@ NOTE
 (() => {
   const cache = new Map();
   use.sources.add("@", ({ path }) => {
-    //console.log("path.full:", path.full);////
     if (cache.has(path.full)) {
-      //console.log("Using cached result for:", path.full);////
       return cache.get(path.full);
     }
-    //console.log("Creating result for:", path.full);////
     const probe = document.createElement("meta");
     document.head.append(probe);
     probe.setAttribute("__path__", path.path);
@@ -665,15 +710,9 @@ NOTE
       UseError.raise(`Invalid path: ${path.full}`);
     }
     const result = atob(propertyValue.slice(1, -1));
-    /*
-    Alt, if ever needed:
-    const bytes = Uint8Array.from(atob(propertyValue.slice(1, -1)), c => c.charCodeAt(0));
-    const result = new TextDecoder().decode(bytes);
-    */
     cache.set(path.full, result);
     return result;
   });
-  //console.log("@ source created"); ////
 })();
 
 /** Register out-of-the-box transformers and processors for native types. */
@@ -743,37 +782,39 @@ use.types.add(
       let result;
       const { as } = options;
       const key = as === "function" ? `${path.full}?${as}` : path.full;
-      //console.log("key:", key);////
       if (cache.has(key)) {
-        //console.log("Using cached result for:", key); ////
         return cache.get(key);
       }
       if (constructing.has(key)) {
-        //console.log(`Awaiting construction of: ${key}`); ////
         const promise = constructing.get(key);
         const result = await promise;
         constructing.delete(key);
         return result;
       } else {
-        const { promise, resolve } = Promise.withResolvers();
+        const { promise, resolve, reject } = Promise.withResolvers();
         constructing.set(key, promise);
-        //console.log("Creating result for:", key); ////
-        if (as === "function") {
-          result = Function(`return ${text}`)();
-          if (result === undefined) {
-            /* Since undefined results are ignored, convert to null */
-            result = null;
+        try {
+          if (as === "function") {
+            result = Function(`return ${text}`)();
+            if (result === undefined) {
+              /* Since undefined results are ignored, convert to null */
+              result = null;
+            }
+          } else {
+            result = await owner.module(
+              `export const __path__ = "${path.path}";${text}`,
+              path.path
+            );
           }
-        } else {
-          result = await owner.module(
-            `export const __path__ = "${path.path}";${text}`,
-            path.path
-          );
+          resolve(result);
+          cache.set(key, result);
+          return result;
+        } catch (error) {
+          reject(error);
+          throw error;
+        } finally {
+          constructing.delete(key);
         }
-        resolve(result);
-        constructing.delete(key);
-        cache.set(key, result);
-        return result;
       }
     };
   })()
@@ -801,7 +842,6 @@ use.types.add(
       /* Options guard guard */
       if (options.raw) return;
       if (options.cache !== false && cache.has(path.full)) {
-        //console.log("Using cache for:", path.full);////
         return cache.get(path.full);
       }
       /* Type guard */

@@ -5,7 +5,7 @@ const { Mixins, author, component, mix } = await use("@/rollo/");
 
 /* Get shadow sheets */
 const reboot = await use("@/bootstrap/reboot.css");
-const shadow = await use(`@/frame/shadow.css`, { auto: true });
+const shadowSheet = await use(`@/frame/shadow.css`, { auto: true });
 
 const icons = {
   close: await use("@/icons/close.svg"),
@@ -14,180 +14,134 @@ const icons = {
 
 const Frame = author(
   class extends mix(HTMLElement, {}, ...Mixins()) {
-    #_ = {
-      tree: {},
-    };
+    #_ = {};
     constructor() {
       super();
+      const owner = this;
 
-      this.#_.shadow = component.div(
+      /* Build shadow */
+      const side = component.section(
+        "side",
+        component.button("toggle", {
+          ariaLabel: "Close",
+          innerHTML: icons.close,
+        }),
+        component.slot({ name: "side" })
+      );
+      const shadow = component.div(
         { id: "root" },
         component.header(
           component.slot({ name: "home" }),
-          component.button("_close", {
+          component.button("toggle", {
             ariaLabel: "Toggle",
             innerHTML: icons.menu,
           }),
           component.section(component.slot({ name: "top" }))
         ),
-        component.section(
-          "_main",
-          component.section(
-            "_side",
-            component.button("_close", {
-              ariaLabel: "Close",
-              innerHTML: icons.close,
-            }),
-            component.slot({ name: "side" })
-          ),
-          component.main(component.slot())
-        ),
+        component.section("main", 
+          side, 
+          component.main(component.slot())),
         component.footer()
       );
-
-      this.attachShadow({ mode: "open" }).append(this.shadow);
+      this.attachShadow({ mode: "open" }).append(shadow);
       reboot.use(this);
-      shadow.use(this);
+      shadowSheet.use(this);
 
       /* Config */
-      this.#_.config = new (class Config {
-        #_ = {};
-
-        constructor(owner) {
-          this.#_.owner = owner;
-        }
-
-        get owner() {
-          return this.#_.owner;
-        }
-
+      this.#_.config = new (class {
         get easing() {
-          return this.owner.__.easing;
+          return owner.__.easing;
         }
 
         get time() {
-          return this.owner.attribute._time;
+          return owner.attribute.time;
         }
 
         get width() {
-          return this.owner.__.width;
+          return owner.__.width;
         }
 
         update({
+          /* Defaults */
           easing = "ease-in-out",
           time = "200ms",
           width = "300px",
         } = {}) {
-          this.owner.__.easing = easing;
-          this.owner.__.width = width;
-          this.owner.attribute._time = time;
-          this.owner.send("_config", { detail: { easing, time, width } });
+          /* NOTE Store config items on components to avoid holding private 
+          values and to private an alternative way to config, i.e., directly 
+          on component. */
+          owner.__.easing = easing;
+          owner.__.width = width;
+          owner.attribute.time = time;
+          /* Notify re config change */
+          owner.send("_config", { detail: { easing, time, width } });
         }
-      })(this);
-
+      })();
       this.config.update();
 
-      /* Responsiveness */
-      (() => {
-        const query = window.matchMedia("(width >= 768px)");
-        /* Handle initial */
-        if (query.matches) {
-          this.classes.add("_md");
-          this.send("_md", { detail: true });
+      /* Transition events */
+      side.on.transitionstart((event) => {
+        if (!this.attribute.open) {
+          this.send("_close_start");
         } else {
-          this.send("_md", { detail: false });
+          this.send("_open_start");
         }
-        query.addEventListener("change", (event) => {
-          if (event.matches) {
-            this.classes.add("_md");
-            this.send("_md", { detail: true });
-          } else {
-            this.classes.remove("_md");
-            this.send("_md", { detail: false });
-          }
-        });
-      })();
+      });
+      side.on.transitionend((event) => {
+        if (this.attribute.open) {
+          this.send("_close_end");
+        } else {
+          this.send("_open_end");
+        }
+        /* Reset 'time' CSS var to side action during resize */
+        this.__.time = 0;
+      });
 
-      /* Tree */
-      this.tree.header = this.shadow.find("header");
-      this.tree.side = this.shadow.find("section._side");
-      this.tree.slot = this.shadow.find("main>slot");
-      this.tree.main = this.shadow.find("main");
-      this.tree.header = this.shadow.find("header");
-
-      /* Open/close control */
-      (() => {
-        /* Transition events */
-        this.tree.side.addEventListener("transitionstart", (event) => {
-          if (this.classes.has("_close")) {
-            this.send("_close_start");
-          } else {
-            this.send("_open_start");
-          }
-        });
-        this.tree.side.addEventListener("transitionend", (event) => {
-          if (this.classes.has("_close")) {
-            this.send("_close_end");
-          } else {
-            this.send("_open_end");
-          }
-          this.__.time = 0;
-        });
-
-        /* Click control */
-        this.shadow.on.click = (event) => {
-          /* Click close control in shadow -> toggle */
-          if (
-            this.shadow.contains(event.target) &&
-            event.target.closest("._close")
-          ) {
-            this.toggle();
-            return;
-          }
-          /* Click main area in shadow -> close
-          Click external component not in side slot -> close */
-          if (
-            event.target.closest("main") ||
-            (!this.shadow.contains(event.target) &&
-              !event.target.closest('[slot="side"]'))
-          ) {
-            this.close();
-          }
-        };
-      })();
+      /* Open/close click control */
+      shadow.on.click((event) => {
+        /* Click close control in shadow -> toggle */
+        if (shadow.contains(event.target) && event.target.closest(".toggle")) {
+          this.toggle();
+          return;
+        }
+        /* Click main area in shadow -> close
+        Click external component not in side slot -> close */
+        if (
+          event.target.closest("main") ||
+          (!shadow.contains(event.target) &&
+            !event.target.closest('[slot="side"]'))
+        ) {
+          this.close();
+        }
+      });
     }
 
     get config() {
       return this.#_.config;
     }
 
-    get shadow() {
-      return this.#_.shadow;
-    }
-
-    get tree() {
-      return this.#_.tree;
-    }
-
     close(smooth = true) {
       if (smooth) {
+        /* Restore config time */
         this.__.time = this.config.time;
       }
-      this.classes.add("_close");
+      this.attribute.open = false;
     }
 
     open(smooth = true) {
       if (smooth) {
+        /* Restore config time */
         this.__.time = this.config.time;
       }
-      this.classes.remove("_close");
+      this.attribute.open = true;
     }
 
     toggle(smooth = true) {
       if (smooth) {
+        /* Restore config time */
         this.__.time = this.config.time;
       }
-      this.classes.toggle("_close");
+      this.attribute.open = !this.attribute.open;
     }
   },
   "frame-component"

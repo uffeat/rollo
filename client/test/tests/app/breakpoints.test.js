@@ -11,7 +11,7 @@ const { frame } = await use("@/frame/");
 Sheet.create(cssText).use();
 
 
-const { Plotly } = await use("@/plotly/");
+const { Plotly } = await use("/plotly/");
 
 const sheet = Sheet.create({
   ".plotly .modebar": {
