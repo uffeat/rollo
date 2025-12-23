@@ -1,7 +1,13 @@
 /* Initialize import engine and load main sheet (with Tailwind) */
 import "@/main.css";
 import "@/use";
-import "@/plotly";
+//import "@/plotly";
+
+import {Plotly, plotly} from "@/plotly";
+
+console.log('Plotly:', Plotly)
+
+
 
 import "@/router";
 

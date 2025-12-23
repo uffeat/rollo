@@ -1,5 +1,8 @@
 /* 
 /plotly/bar_lc.test.js
+
+BUG
+- Responsiveness
 */
 
 const { app, component, delay, element, css, router, NavLink } = await use(
@@ -91,11 +94,17 @@ const route = new (class {
     if (!this.#_.layout.colorway) {
       this.#_.layout.colorway = colorway;
     }
+
+    this.#_.onresize = (event) => {
+      Plotly.refresh(this.#_.container)
+    }
    
     app.addEventListener("_resize_x", this.#_.onresize);
 
 
-    app.on._resize_x = this.#_.onresize;
+    
+
+
     Plotly.create(
       this.#_.container,
       this.#_.data,
