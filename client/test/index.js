@@ -53,3 +53,4 @@ export {};
 
 //
 //await run('/plotly/bar_lc.test.js')
+//await run('/plotly/bar.test.js')

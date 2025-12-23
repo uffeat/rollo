@@ -31,11 +31,6 @@
     },
 
     {
-      "source": "/plotly/:match*",
-      "destination": "/plotly/:match*"
-    },
-
-    {
       "source": "/test/:match*",
       "destination": "/test/:match*"
     },
