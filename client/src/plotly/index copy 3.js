@@ -53,34 +53,15 @@ export const Plot = author(
       };
 
       this.#_.traces = new (class {
-
-        get size() {
-          return owner.#_.data.length
-        }
-
-        /* Appends single trace */
         add(updates) {
-          owner.#_.data.push(updates);
           Plotly.addTraces(owner.container, updates);
-          return owner;
         }
 
-        /* Removes single trace by index */
         remove(index) {
-          const data = owner.#_.data;
-          for (let i = data.length - 1; i >= 0; i--) {
-            if (i === index) {
-              data.splice(i, 1);
-            }
-          }
           Plotly.deleteTraces(owner.container, index);
-          return owner;
         }
 
-        /* Updates single trace */
         update(index, updates) {
-          const trace = owner.#_.data.at(index);
-          Object.assign(trace, updates);
           /* Wrap array values in an outer array so Plotly applies them to 
           the one trace only; e.g., { y: [1,2,3] } -> { y: [[1,2,3]] } for a single trace. */
           const wrapped = {};
@@ -96,17 +77,8 @@ export const Plot = author(
             wrapped[key] = value;
           }
           Plotly.restyle(owner.container, wrapped, index);
-          return owner;
         }
       })();
-
-      this.#_.plotly = new Proxy(() => {}, {
-        get(target, key) {
-          return (...args) => {
-            return Plotly[key](owner.#_.container, ...args);
-          };
-        },
-      });
     }
 
     /* Returns container child. 
@@ -114,12 +86,6 @@ export const Plot = author(
     does not support while still taking advantage of component features. */
     get container() {
       return this.#_.container;
-    }
-
-    /* Returns controller, from which Plotly methods can be called with container 
-    implicitly passed as first arg. Useful for doing stuff beyond component features. */
-    get plotly() {
-      return this.#_.plotly;
     }
 
     /* Returns controller for traces. */
@@ -155,36 +121,59 @@ export const Plot = author(
       this.append(this.#_.container);
     }
 
+    #patchConfig(config) {
+      if (config) {
+        config.displaylogo = false;
+        return config;
+      }
+      return { displaylogo: false };
+    }
+
+    #patchLayout(layout) {
+      if (layout) {
+        if (!("colorway" in layout)) {
+          layout.colorway = colorway;
+        }
+        if ("font" in layout) {
+          if (!("color" in layout.font)) {
+            layout.font.color = css.root.bsLight;
+          }
+        } else {
+          layout.font = { color: css.root.bsLight };
+        }
+        return layout;
+      }
+      return {};
+    }
+
     /* Updates component and handles special Plotly related items. */
     update({ config, data, layout, ...updates } = {}) {
       /* Handle plot items before super.update to ensure it's done before connect */
-      Object.assign(this.#_.config, config);
-      Object.assign(this.#_.layout, layout);
-      if (data) {
-        this.#_.data = data;
-      }
 
       if (this.isConnected) {
         if (!config && !data && layout) {
           /* Update layout only */
-          Plotly.relayout(this.#_.container, layout);
+          Plotly.relayout(this.#_.container, this.#patchLayout(layout));
         } else {
           /* Update plot 
           NOTE Use `traces` for more fine-grained control. */
-
           Plotly.react(
             this.#_.container,
-            this.#_.data,
-            this.#_.layout,
-            this.#_.config
+            data ?? [],
+            this.#patchLayout(layout),
+            this.#patchConfig(config)
           );
         }
       } else {
-        /* New plot (when connected) */
+        /* New plot (when connected) 
+        NOTE this.#_.config, this.#_.data, this.#_.layout are temp stores
+        only to survive until connection */
+        this.#_.config = this.#patchConfig(config);
+        this.#_.data = data ?? [];
+        this.#_.layout = this.#patchLayout(layout);
       }
 
       super.update?.(updates);
-      return this;
     }
   },
   "plotly-component"

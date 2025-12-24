@@ -41,14 +41,18 @@ const plot = Plot({
   parent: app,
 });
 
-plot.traces.update(0, { y: [200, 200, 20] });
+//plot.traces.update(0, { y: [200, 200, 20] });
+
+/*
 plot.traces.add({
   x: ["Zebras", "Lions", "Pelicans"],
   y: [8, 80, 46],
   type: "bar",
   name: "Copenhagen",
 });
+*/
 
+/*
 plot.update({
   layout: {
     xaxis: {
@@ -63,8 +67,9 @@ plot.update({
     },
   },
 });
+*/
 
-const plot2 = Plot({ parent: app });
+
 
 await (async () => {
   //const { data, meta } = await api.echo({ ding: 42, dong: true, foo: "FOO" });
