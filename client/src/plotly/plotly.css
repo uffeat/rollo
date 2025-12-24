@@ -2,25 +2,22 @@
 NOTE Requires reboot or Bootstrap. */
 
 /* Space around mode bar */
-plotly-component .modebar-container {
+:is(plotly-component, [plotly-component]) .modebar-container {
   top: 8px !important;
   right: 8px !important;
 }
 
 /* Colors */
-plotly-component .main-svg,
-plotly-component .modebar-group {
+:is(plotly-component, [plotly-component]) .main-svg,
+:is(plotly-component, [plotly-component]) .modebar-group {
   background-color: transparent !important;
 }
-plotly-component .legend .bg {
+:is(plotly-component, [plotly-component]) .legend .bg {
   fill: transparent !important;
 }
-plotly-component .modebar button svg path {
+:is(plotly-component, [plotly-component]) .modebar button svg path {
   fill: var(--bs-gray-600) !important;
 }
-plotly-component .modebar:hover button svg path {
+:is(plotly-component, [plotly-component]) .modebar:hover button svg path {
   fill: var(--bs-light) !important;
 }
-
-
-

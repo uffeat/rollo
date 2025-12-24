@@ -1,79 +1,140 @@
 /* 
 /plotly/bar.test.js
 */
-import { plotly, colorway } from "@/plotly";
+import { Plot } from "@/plotly";
 
-const { app, component, element, css, router, NavLink } = await use(
-  "@/rollo/"
-);
+const { app, component, element, css, router, NavLink } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
 
 const route = new (class {
   #_ = {};
 
   constructor() {
-    this.#_.container = element.div();
-    this.#_.page = component.div("plotly-wrapper container", this.#_.container);
+    const x = ["Zebras", "Lions", "Pelicans"];
+    const type = "bar";
+    const buttonStyle = "btn.btn-primary";
 
-    this.#_.figure = [
-      [
+    const plot = Plot({
+      data: [
         {
-          x: ["Zebras", "Lions", "Pelicans"],
+          x,
           y: [90, 40, 60],
-          type: "bar",
-          name: "New York Zoo",
+          type,
+          name: "New York",
         },
         {
-          x: ["Zebras", "Lions", "Pelicans"],
+          x,
           y: [10, 80, 45],
-          type: "bar",
-          name: "San Francisco Zoo",
+          type,
+          name: "San Francisco",
         },
       ],
-      {
-        font: { color: css.root.bsLight },
-        colorway,
+      layout: {
         xaxis: {
           title: {
             text: "Animal",
-            font: {
-              size: 14,
-            },
           },
         },
         yaxis: {
           title: {
             text: "Population",
-            font: {
-              size: 14,
+          },
+        },
+      },
+    });
+
+    this.#_.page = component.main(
+      "container pt-3",
+      component.h1({ text: "Bar plot" }),
+      component.menu(
+        "flex justify-end flex-wrap gap-3 me-3",
+        component.button(
+          buttonStyle,
+          {
+            "on.click": (event) => {
+              plot.update({
+                layout: {
+                  xaxis: {
+                    title: {
+                      text: "Inhabitant",
+                    },
+                  },
+                  yaxis: {
+                    title: {
+                      text: "Number",
+                    },
+                  },
+                },
+              });
             },
           },
-        },
-        legend: {
-          font: {
-            size: 12,
+          "Update layout"
+        ),
+        component.button(
+          buttonStyle,
+          {
+            "on.click": (event) => {
+              plot.traces.append({
+                x,
+                y: [10, 20, 40],
+                type,
+                name: "Copenhagen",
+              });
+            },
           },
-        },
-      },
-      {
-        displaylogo: false,
-      },
-    ];
+          "Append Copenhagen"
+        ),
+        component.button(
+          buttonStyle,
+          {
+            "on.click": (event) => {
+              plot.traces.update(0, { y: [60, 90, 60] });
+            },
+          },
+          "Change New York"
+        ),
+        component.button(
+          buttonStyle,
+          {
+            "on.click": (event) => {
+              plot.traces.remove(1);
+            },
+          },
+          "Remove San Francisco"
+        ),
+        component.button(
+          buttonStyle,
+          {
+            "on.click": (event) => {
+              plot.traces.change(0, { y: [40, 40, 40] });
+              console.log('plot.data:', plot.data)
+            },
+          },
+          "Change first"
+        ),
+        component.button(
+          buttonStyle,
+          {
+            "on.click": (event) => {
+              const index = plot.traces.index('Copenhagen');
+              console.log('index:', index)
+            },
+          },
+          "Find Copenhagen index"
+        ),
+      ),
+      plot
+    );
   }
 
   get page() {
     return this.#_.page;
   }
 
-  async setup(base) {
-    plotly.create(this.#_.container, ...this.#_.figure);
-    /* Modern and efficient alternative to `responsive: true` in config */
-    app.on._resize_x((event) => plotly.refresh(this.#_.container));
-  }
+  async setup(base) {}
 
   async enter(meta, url, ...paths) {
     frame.clear(":not([slot])");
-    
     frame.append(this.page);
   }
 
@@ -83,11 +144,12 @@ const route = new (class {
 })();
 
 export default () => {
-  router.routes.add(`/plotly`, route);
+  /* Add route */
+  router.routes.add(`/plotly-bar`, route);
   const link = NavLink("nav-link", {
-    text: "Plotly",
-    path: `/plotly`,
-    title: "Plotly",
+    text: "Plotly bar plot",
+    path: `/plotly-bar`,
+    title: "Plotly bar plot",
     slot: "side",
   });
   /* Inject link into existing nav group to exploit active state management. */

@@ -23,6 +23,7 @@ Nav(
       ["/blog", "Blog"],
       ["/articles", "Articles"],
       ["/terms", "Terms"],
+      ["/zoo", "Zoo"],
     ].map(([path, text]) => {
       return NavLink("nav-link", {
         text,

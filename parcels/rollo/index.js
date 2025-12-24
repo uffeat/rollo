@@ -49,6 +49,7 @@ import { match as matchNumber } from "./src/tools/number/match";
 import { round as roundNumber } from "./src/tools/number/round";
 import { match as matchObject } from "./src/tools/object/match";
 import { html } from "./src/tools/html";
+import { deepFreeze } from "./src/tools/freeze";
 
 export {
   // app
@@ -103,4 +104,5 @@ export {
   roundNumber,
   matchObject,
   html,
+  deepFreeze
 };
