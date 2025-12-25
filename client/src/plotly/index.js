@@ -125,7 +125,7 @@ export const Plot = author(
             }
             index++;
           }
-          return null
+          return null;
         }
 
         /* Inserts single trace */
@@ -305,3 +305,7 @@ export const Plot = author(
   },
   "plotly-component"
 );
+
+
+
+
