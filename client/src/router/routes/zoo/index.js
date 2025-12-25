@@ -1,5 +1,5 @@
 import "@/use";
-import { Plot } from "@/plotly";
+import { Axis, Plot, Layout } from "@/plotly";
 
 const { component } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
@@ -9,37 +9,22 @@ export default new (class {
 
   get page() {
     if (!this.#_.page) {
-      const x = ["Zebras", "Lions", "Pelicans"]
-      const type = "bar"
+      const x = ["Zebras", "Lions", "Pelicans"];
+      const type = "bar";
+      const Trace = (name, y) => ({ x, y, type, name });
+      
       this.#_.page = component.main(
         "container pt-3",
         component.h1({ text: "Zoo" }),
         Plot({
           data: [
-            {
-              x,
-              y: [90, 40, 60],
-              type,
-              name: "New York",
-            },
-            {
-              x,
-              y: [10, 80, 45],
-              type,
-              name: "San Francisco",
-            },
+            Trace("New York", [90, 40, 60]),
+            Trace("San Francisco", [10, 80, 45]),
           ],
           layout: {
-            xaxis: {
-              title: {
-                text: "Animal",
-              },
-            },
-            yaxis: {
-              title: {
-                text: "Population",
-              },
-            },
+            xaxis: Axis("Animal"),
+            yaxis: Axis("Population"),
+            ...Layout(),
           },
         })
       );

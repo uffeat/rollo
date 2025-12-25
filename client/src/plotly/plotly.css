@@ -1,23 +1,28 @@
 /* Generic plotly sheet for dark mode.
-NOTE Requires reboot or Bootstrap. */
+NOTE 
+- Requires reboot or Bootstrap. 
+- Scoped to Plot component (primary use case), but also to components with a 
+  `plotly-component` attr to allow for custom usage.
+*/
 
-/* Space around mode bar */
-:is(plotly-component, [plotly-component]) .modebar-container {
-  top: 8px !important;
-  right: 8px !important;
-}
-
-/* Colors */
-:is(plotly-component, [plotly-component]) .main-svg,
-:is(plotly-component, [plotly-component]) .modebar-group {
-  background-color: transparent !important;
-}
-:is(plotly-component, [plotly-component]) .legend .bg {
-  fill: transparent !important;
-}
-:is(plotly-component, [plotly-component]) .modebar button svg path {
-  fill: var(--bs-gray-600) !important;
-}
-:is(plotly-component, [plotly-component]) .modebar:hover button svg path {
-  fill: var(--bs-light) !important;
+:is(plotly-component, [plotly-component]) {
+  /* Space around mode bar */
+  .modebar-container {
+    top: 8px !important;
+    right: 8px !important;
+  }
+  /* Colors */
+  .main-svg,
+  .modebar-group {
+    background-color: transparent !important;
+  }
+  .legend .bg {
+    fill: transparent !important;
+  }
+  .modebar button svg path {
+    fill: var(--bs-gray-600) !important;
+  }
+  .modebar:hover button svg path {
+    fill: var(--bs-light) !important;
+  }
 }

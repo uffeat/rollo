@@ -1,9 +1,9 @@
 /* 
 /plotly/bar.test.js
 */
-import { Plot } from "@/plotly";
+import { Axis, Plot, Layout } from "@/plotly";
 
-const { app, component, element, css, router, NavLink } = await use("@/rollo/");
+const { component, router, NavLink } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
 
 const route = new (class {
@@ -12,36 +12,47 @@ const route = new (class {
   constructor() {
     const x = ["Zebras", "Lions", "Pelicans"];
     const type = "bar";
+    const Trace = (name, y) => ({ x, y, type, name });
+
     const buttonStyle = "btn.btn-primary";
 
     const plot = Plot({
       data: [
-        {
-          x,
-          y: [90, 40, 60],
-          type,
-          name: "New York",
-        },
-        {
-          x,
-          y: [10, 80, 45],
-          type,
-          name: "San Francisco",
-        },
+        Trace("New York", [90, 40, 60]),
+        Trace("San Francisco", [10, 80, 45]),
       ],
       layout: {
-        xaxis: {
-          title: {
-            text: "Animal",
-          },
-        },
-        yaxis: {
-          title: {
-            text: "Population",
-          },
-        },
+        xaxis: Axis("Animal"),
+        yaxis: Axis("Population"),
+        ...Layout(),
       },
     });
+
+    /* Here's an example of 'non-partially' updating layout. It would be more 
+    efficient to use `plot.relayout`, but this is just to demo the use of 'update'. */
+    plot.update({
+      layout: {
+        xaxis: Axis("Name of animal"),
+        yaxis: Axis("How many we have"),
+        ...Layout(),
+      },
+      /* If we want to signal that config and data should not be touched, we could (redundantly) do: */
+      data: null,
+      config: null,
+    });
+
+    /* Here's an example of 'non-partially' updating data. It would be more 
+    efficient to use `plot.taces`, but this is just to demo the use of 'update'. */
+    plot.update({
+      data: [
+        Trace("New York", [10, 40, 90]),
+        Trace("San Francisco", [90, 40, 10]),
+      ],
+    });
+
+    /* Here's an example of an initial update without any plotly-related items.
+    It really does not make any sense, but it proves that default values prevents errors */
+    const plot2 = Plot();
 
     this.#_.page = component.main(
       "container pt-3",
@@ -52,34 +63,17 @@ const route = new (class {
           buttonStyle,
           {
             "on.click": (event) => {
-              plot.update({
-                layout: {
-                  xaxis: {
-                    title: {
-                      text: "Inhabitant",
-                    },
-                  },
-                  yaxis: {
-                    title: {
-                      text: "Number",
-                    },
-                  },
-                },
-              });
+              plot.relayout({ yaxis: Axis("Number") });
+              //console.log("layout:", plot.layout); ////
             },
           },
-          "Update layout"
+          "Change layout"
         ),
         component.button(
           buttonStyle,
           {
             "on.click": (event) => {
-              plot.traces.append({
-                x,
-                y: [10, 20, 40],
-                type,
-                name: "Copenhagen",
-              });
+              plot.traces.append(Trace("Copenhagen", [10, 20, 40]));
             },
           },
           "Append Copenhagen"
@@ -88,16 +82,16 @@ const route = new (class {
           buttonStyle,
           {
             "on.click": (event) => {
-              plot.traces.update(0, { y: [60, 90, 60] });
+              plot.traces.update("New York", { y: [60, 90, 60] });
             },
           },
-          "Change New York"
+          "Update New York"
         ),
         component.button(
           buttonStyle,
           {
             "on.click": (event) => {
-              plot.traces.remove(1);
+              plot.traces.remove("San Francisco");
             },
           },
           "Remove San Francisco"
@@ -106,25 +100,37 @@ const route = new (class {
           buttonStyle,
           {
             "on.click": (event) => {
-              plot.traces.change(0, { y: [40, 40, 40] });
-              console.log('plot.data:', plot.data)
+              plot.traces.change("New York", { y: [40, 40, 40] });
+              console.log("plot.data:", plot.data);
             },
           },
-          "Change first"
+          "Change New York"
         ),
         component.button(
           buttonStyle,
           {
             "on.click": (event) => {
-              const index = plot.traces.index('Copenhagen');
-              console.log('index:', index)
+              const index = plot.traces.index("Copenhagen");
+              console.log("index:", index);
             },
           },
           "Find Copenhagen index"
-        ),
+        )
       ),
-      plot
+      plot,
+      plot2
     );
+
+    /* Here's an example of a "late update" (strict) of plotly-related items.
+    Not the standard way to do it, but it can be done smoothly. */
+    plot2.update({
+      data: [Trace("Stockholm", [20, 40, 30])],
+      layout: {
+        xaxis: Axis("Animal"),
+        yaxis: Axis("Population"),
+        ...Layout(),
+      },
+    });
   }
 
   get page() {

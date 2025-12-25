@@ -47,9 +47,12 @@ import { toTop } from "./src/tools/scroll";
 import { type, typeName } from "./src/tools/type";
 import { match as matchNumber } from "./src/tools/number/match";
 import { round as roundNumber } from "./src/tools/number/round";
+import { assign as deepAssign } from "./src/tools/object/assign";
 import { match as matchObject } from "./src/tools/object/match";
 import { html } from "./src/tools/html";
-import { deepFreeze } from "./src/tools/freeze";
+import { deepFreeze, freeze } from "./src/tools/freeze";
+import { merge } from "./src/tools/merge";
+import { match } from "./src/tools/match";
 
 export {
   // app
@@ -102,7 +105,11 @@ export {
   typeName,
   matchNumber,
   roundNumber,
+  deepAssign,
   matchObject,
   html,
-  deepFreeze
+  deepFreeze,
+  freeze,
+  merge,
+  match,
 };
