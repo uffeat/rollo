@@ -7,6 +7,23 @@ import "./test.css";
 import * as parcel from "../index";
 use.add("@/rollo/rollo.js", parcel);
 
+const { type } = await use("@/rollo/");
+console.log(type(42));
+console.log(type(null));
+console.log(type(undefined));
+console.log(type({foo: 42}));
+console.log(type(new Proxy({}, {})));
+console.log(type(() => 42));
+class MyClass {
+  static __type__ = "MyClass";
+}
+const myInstance = new MyClass();
+console.log(type(myInstance));
+
+console.log(myInstance.constructor.name);
+
+
+
 document.documentElement.dataset.bsTheme = "dark";
 
 /* Returns function that runs test from path */
@@ -23,14 +40,13 @@ const run = (() => {
       return [k.slice(START), v];
     })
   );
-  
+
   use.sources.add("tests", async ({ path }) => {
     if (!(path.path in loaders)) {
       throw new Error(`Invalid path:${path.full}`);
     }
     return await loaders[path.path]();
   });
-
 
   return async (path) => {
     const asset = await use(`tests${path}`);

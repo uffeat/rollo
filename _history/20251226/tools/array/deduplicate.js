@@ -1,3 +1,8 @@
+/*
+import { deduplicate } from "@/rollotools/array/deduplicate.js";
+20250616
+v.1.0
+*/
 
 /* Returns a representation of source without duplicate values.
 NOTE

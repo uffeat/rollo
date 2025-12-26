@@ -1,5 +1,20 @@
-import { match } from "../tools/object/match";
 import { Query } from "./query";
+
+const match = (target, other) => {
+  if (type(target) !== "Object" || type(other) !== "Object") {
+    return false;
+  }
+
+  if (Object.keys(target).length !== Object.keys(other).length) {
+    return false;
+  }
+  for (const [key, value] of Object.entries(target)) {
+    if (other[key] !== value) {
+      return false;
+    }
+  }
+  return true;
+};
 
 export class Url {
   static create = (...args) => new Url(...args);
