@@ -1,32 +1,30 @@
-import { type } from "./type";
+import { is } from "./is";
 
-/* Deep-freezes nested data structures. 
-Supports plain objects, arrays, maps and sets.  */
-export const freeze = (target) => {
-  Object.freeze(target);
-  /* Maps and Sets */
-  if (target instanceof Map) {
-    target.forEach((value) => {
-      if (type(value) === "Object") {
-        freeze(value);
-      }
-    });
-  } else if (target instanceof Set) {
-    target.forEach((value) => {
-      if (type(value) === "Object") {
-        freeze(value);
-      }
-    });
-  } else {
-    /* Plain objects and arrays */
-    Object.values(target).forEach((value) => {
-      if (type(value) === "Object") {
-        freeze(value);
-      }
-    });
+const push = (stack, value) => {
+  if (value && typeof value === "object") {
+    stack.push(value);
   }
-  return target;
 };
 
-
-export const deepFreeze = freeze
+/* Deep freezes nested structures of objects, arrays, Maps, and Sets. 
+Takes an iterative approach for robustness with deep nesting. */
+export const freeze = (value) => {
+  const stack = [value];
+  while (stack.length) {
+    const value = stack.pop();
+    /* Freeze the value */
+    Object.freeze(value);
+    /* Maps and Sets */
+    if (is.map(value) || is.set(value)) {
+      for (const v of value.values()) {
+        push(stack, v);
+      }
+      continue;
+    }
+    /* Plain objects and arrays */
+    for (const v of Object.values(value)) {
+      push(stack, v);
+    }
+  }
+  return value;
+};

@@ -1,4 +1,4 @@
-import { type as typeName } from '../../../tools/type'
+import { typeName } from '../../../tools/type'
 import { TaggedSets } from "../../../tools/tagged_sets";
 import { defineValue } from "../../../tools/define";
 

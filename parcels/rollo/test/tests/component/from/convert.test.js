@@ -9,12 +9,12 @@ export default async () => {
   frame.clear(":not([slot])");
   frame.close();
 
-  const stuff = 42
-
+  const stuff = 42;
   frame.append(
     component.from(html`
       <div>
-        <h1 class="foo" stuff=${stuff}>Foo</h1>
+        <h1 class="foo" stuff=${stuff}>Foo<span> foo</span></h1>
+        <h2 data-bar>Foo</h2>
       </div>
     `)
   );

@@ -6,7 +6,7 @@ NOTE
   (unless target exposes a wrapped version of its super)
 - Target members may be overwritten without warning.
 */
-export const assign = (target, ...sources) => {
+export const mixup = (target, ...sources) => {
   sources.forEach((source) =>
     Object.defineProperties(
       target,
