@@ -1,4 +1,5 @@
 import { Exception } from "../../tools/exception";
+import { is } from "../../tools/is";
 import { Ref } from "./ref";
 
 /* Proxy version of Ref with a leaner syntax: Update/access to current happens 
@@ -9,7 +10,7 @@ export const ref = (...args) => {
     get(target, key) {
       Exception.if(!(key in instance), `Invalid key: ${key}`);
       const value = instance[key];
-      if (typeof value === 'function') {
+      if (is.function(value)) {
         return value.bind(instance)
       }
       return value

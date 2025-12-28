@@ -12,7 +12,6 @@ NOTE
 - Object/Map hybrid API.
 */
 export class Reactive {
-  static __type__ = "Reactive";
   static create = (...args) => new Reactive(...args);
 
   #_ = {
@@ -34,7 +33,7 @@ export class Reactive {
           return instance.effects;
         }
         /* Enable call of reactive methods directly on proxy */
-        if (key in instance && is.function(instance[key])) {
+        if (key in instance && typeof instance[key] === "function") {
           return instance[key].bind(instance);
         }
         return instance.#_.current[key];
@@ -42,7 +41,8 @@ export class Reactive {
       set(target, key, value) {
         /* Create symmetry with 'get' */
         Exception.if(
-          key === "effects" || (key in instance && is.function(instance[key])),
+          key === "effects" ||
+            (key in instance && typeof instance[key] === "function"),
           `Reserved key: ${key}.`
         );
         instance.update({ [key]: value });
@@ -69,12 +69,13 @@ export class Reactive {
         /* Parse args */
         const {
           data,
-          hooks,
           once = false,
           run = true,
-        } = args.find((a, i) => !i && is.object(a)) || {};
-
-        const effects = args.filter((a) => is.function(a));
+        } = args.find((a, i) => !i && type(a) === "Object") || {};
+        const effects = args.filter((a) => is.arrow(a));
+        const hooks = args.filter(
+          (a) => !is.arrow(a) && typeof a === "function"
+        );
 
         const ref = Ref.create({ owner: instance });
 
@@ -90,10 +91,8 @@ export class Reactive {
         for (const effect of effects) {
           ref.effects.add(effect, { once, run });
         }
-        if (hooks) {
-          for (const hook of hooks) {
-            hook.call(ref);
-          }
+        for (const hook of hooks) {
+          hook.call(ref);
         }
 
         return ref;
@@ -142,7 +141,7 @@ export class Reactive {
       add(effect, ...args) {
         /* Parse args */
         const condition = (() => {
-          const condition = args.find((a) => is.function(a));
+          const condition = args.find((a) => typeof a === "function");
           if (condition) {
             return condition;
           }
@@ -163,7 +162,7 @@ export class Reactive {
           data = {},
           once,
           run = true,
-        } = args.find((a) => is.object(a)) || {};
+        } = args.find((a) => type(a) === "Object") || {};
 
         /* Create detail. 
         NOTE detail is kept mutable to enable dynamic reactive patterns. */
@@ -207,36 +206,30 @@ export class Reactive {
     })(this, this.#_.registry);
     /* Parse args */
     const updates = {
-      ...(args.find((a, i) => !i && is.object(a)) || {}),
+      ...(args.find((a, i) => !i && type(a) === "Object") || {}),
     };
-    const options = args.find((a, i) => i && is.object(a)) || {};
-    const { config = {}, detail, hooks, name, owner } = options;
+    const options = args.find((a, i) => i && type(a) === "Object") || {};
+    const { config = {}, detail, name, owner } = options;
     const { match } = config;
 
-    const effects = args.filter((a) => is.function(a));
+    const effects = args.filter((a) => is.arrow(a));
+    const hooks = args.filter((a) => !is.arrow(a) && typeof a === "function");
 
     /* Use arguments */
     this.#_.owner = owner;
     this.#_.name = name;
-
-    if (detail) {
-      this.#_.detail = detail;
-    }
-
+    Object.assign(this.detail, detail);
     this.config.match = match;
     this.update(updates);
     for (const effect of effects) {
       this.effects.add(effect);
     }
-    if (hooks) {
-      for (const hook of hooks) {
-        hook.call(this);
-      }
+    /* NOTE Effects registered at construction must be arrow functions and 
+    are registered with default options and without condition. For more 
+    fine-grained control, register via hooks (or after construction). */
+    for (const hook of hooks) {
+      hook.call(this);
     }
-  }
-
-  get __type__() {
-    return this.constructor.__type__;
   }
 
   /* Alternative API with leaner syntax */
@@ -301,10 +294,7 @@ export class Reactive {
   copy() {
     return Reactive.create(
       { ...this.#_.current },
-      {
-        config: { match: this.config.match },
-        detail: structuredClone(this.detail),
-      }
+      { config: { match: this.config.match }, detail: { ...this.detail } }
     );
   }
 
@@ -342,7 +332,7 @@ export class Reactive {
     if (other instanceof Reactive) {
       other = other.current;
     } else {
-      if (is.object(other)) {
+      if (type(other) === "Object") {
         /* Remove items with undefined values (ignored by convention) */
         other = Object.fromEntries(
           Object.entries(other).filter(([k, v]) => v !== undefined)
@@ -368,21 +358,15 @@ export class Reactive {
   }
 
   /* Updates current reactively. 
-  - Option for updating silently, i.e., non-reactively,
-  and to set detail. */
+  - Option for updating silently, i.e., non-reactively. */
   update(...args) {
-    /* Parse args */
     let updates = args.find((a, i) => !i);
-    const { detail, silent = false } =
-      args.find((a, i) => i && is.object(a)) || {};
-    /* Set detail */
-    if (detail) {
-      this.#_.detail = detail;
-    }
     /* Fast 'this' return in service of proxy version */
     if (!updates) {
       return this;
     }
+    const { detail, silent = false } =
+      args.find((a, i) => i && type(a) === "Object") || {};
     /* Interpret updates */
     if (Array.isArray(updates)) {
       /* Assume entries */
@@ -392,6 +376,8 @@ export class Reactive {
     } else {
       updates = { ...updates };
     }
+    /* Update detail */
+    if (detail) Object.assign(this.detail, { ...detail });
     /* Infer change and update stores */
     const change = {};
     for (const [key, value] of Object.entries(updates)) {

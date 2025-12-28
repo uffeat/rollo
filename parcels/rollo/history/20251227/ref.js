@@ -1,8 +1,8 @@
+import { type } from "../../tools/type";
 import { is } from "../../tools/is";
 import { Message } from "../tools/message";
 
 export class Ref {
-  static __type__ = "Ref";
   static create = (...args) => new Ref(...args);
 
   #_ = {
@@ -32,7 +32,7 @@ export class Ref {
       add(effect, ...args) {
         /* Parse args */
         const condition = (() => {
-          const condition = args.find((a) => is.function(a));
+          const condition = args.find((a) => typeof a === "function");
           if (condition) {
             return condition;
           }
@@ -48,7 +48,7 @@ export class Ref {
           data = {},
           once,
           run = true,
-        } = args.find((a, i) => !i && is.object(a)) || {};
+        } = args.find((a, i) => !i && type(a) === "Object") || {};
         /* Create detail. 
         NOTE detail is kept mutable to enable dynamic reactive patterns. */
         const detail = (() => {
@@ -90,41 +90,30 @@ export class Ref {
       }
     })(this, this.#_.registry);
     /* Parse args */
-    const current = args.find((a, i) => !i && is.object(a));
-    const options = args.find((a) => is.object(a)) || {};
+    const current = args.find((a, i) => !i && type(a) !== "Object");
+    const options = args.find((a) => type(a) === "Object") || {};
     const {
       detail,
-      hooks,
       match = function (other) {
         return this.current === other;
       },
       name,
       owner,
     } = options;
-    const effects = args.filter((a) => is.function(a));
-
+    const effects = args.filter((a) => is.arrow(a));
+    const hooks = args.filter((a) => !is.arrow(a) && typeof a === "function");
     /* Use arguments */
     this.match = match;
     this.#_.name = name;
     this.#_.owner = owner;
-
-    if (detail) {
-      this.#_.detail = detail;
-    }
-
+    Object.assign(this.detail, detail);
     this.update(current);
     for (const effect of effects) {
       this.effects.add(effect);
     }
-    if (hooks) {
-      for (const hook of hooks) {
-        hook.call(this);
-      }
+    for (const hook of hooks) {
+      hook.call(this);
     }
-  }
-
-  get __type__() {
-    return this.constructor.__type__;
   }
 
   get current() {
@@ -171,12 +160,9 @@ export class Ref {
 
   /* Updates current reactively.
   NOTE 
-  - Option for updating value silently, i.e., non-reactively,
-  and for setting detail. */
+  - Option for updating value silently, i.e., non-reactively. */
   update(value, { detail, silent = false } = {}, ...args) {
-    if (detail) {
-      this.#_.detail = detail;
-    }
+    if (detail) Object.assign(this.detail, detail);
     /* Abort if undefined value */
     if (value === undefined) return this;
     /* Abort if no change */
