@@ -1,5 +1,6 @@
 /* Creates and returns message argument for effects and conditions. */
 export class Message {
+  static __type__ = 'Message'
   static create = (...args) => new Message(...args);
   #_ = {
     index: null,

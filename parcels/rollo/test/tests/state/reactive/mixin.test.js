@@ -3,13 +3,12 @@
 */
 
 /* TODO
-- Make the purpose of this test clear!
+- Make the purpose of this test clear!... ProBABLY NOT DONE YET?
 - Make something happen when the component is clicked (expected for a button)
 */
 const { stateMixin, Sheet, Mixins, author, factory, mix, registry } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
 
-const sheet = Sheet.create();
 
 export default async () => {
   frame.clear(":not([slot])");

@@ -11,7 +11,7 @@ export class Ref {
     session: null,
   };
 
-  constructor(...args) {
+  constructor(current = null, ...args) {
     /* Compose effects */
     this.#_.effects = new (class Effects {
       #_ = {};
@@ -90,7 +90,7 @@ export class Ref {
       }
     })(this, this.#_.registry);
     /* Parse args */
-    const current = args.find((a, i) => !i && is.object(a));
+    
     const options = args.find((a) => is.object(a)) || {};
     const {
       detail,

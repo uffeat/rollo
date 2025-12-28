@@ -2,7 +2,7 @@
 /state/ref/count/option4.test.js
 */
 
-const { ref, component, Sheet, declare, scope } =
+const { ref, component, Sheet, css } =
   await use("@/rollo/");
 const { frame } = await use("@/frame/");
 
@@ -16,14 +16,14 @@ export default async () => {
   const menu = component.menu();
 
   sheet.rules.add({
-    [scope(menu)]: {
-      width: declare.pct(100),
-      ...declare.display.flex,
-      ...declare.justifyContent.flexEnd,
-      ...declare.flexWrap.wrap,
-      columnGap: declare.rem(1),
-      rowGap: declare.rem(1),
-      paddingRight: declare.rem(1),
+    [css(menu)]: {
+      width: css.pct(100),
+      ...css.display.flex,
+      ...css.justifyContent.flexEnd,
+      ...css.flexWrap.wrap,
+      columnGap: css.rem(1),
+      rowGap: css.rem(1),
+      paddingRight: css.rem(1),
     },
   });
 
@@ -54,17 +54,30 @@ export default async () => {
       function () {
         /* Create rules */
         sheet.rules.add({
-          [scope(this)]: {
-            fontWeight: declare.important(700),
+          [css(this)]: {
+            fontWeight: css.important(700),
           },
 
-          [`${scope(this)} > span`]: {
-            fontWeight: declare.important("initial"),
+          [`${css(this)} > span`]: {
+            fontWeight: css.important("initial"),
           },
         });
         const span = component.span({ parent: this });
-        const state = ref(0, (current) => (span.text = current));
-        this.on.click = (event) => (state.current += 1);
+
+        const state = ref(0, (current) => {
+
+          console.log('current:', current)
+
+
+          span.text = current
+        });
+
+        console.log('state.current:', state.current)
+
+
+        this.on.click((event) => {
+          state.current += 1
+        });
       }
     );
 };

@@ -2,7 +2,7 @@
 /state/ref/condition.test.js
 */
 
-const { ref } = await use("@/rollo/");
+const { is, ref } = await use("@/rollo/");
 
 export default async () => {
   (() => {
@@ -13,7 +13,7 @@ export default async () => {
         console.log("current:", current);
       },
       (current, message) => {
-        return typeof current === "number";
+        return is.number(current);
       }
     );
 

@@ -20,10 +20,16 @@ Nav(
     { slot: "side", parent: frame },
     ...[
       ["/about", "About"],
+      ["/bar", "Bar"],
+      ["/bubble", "Bubble"],
+      ["/line", "Line"],
+      ["/pie", "Pie"],
+      ["/stacked", "Stacked"],
       ["/blog", "Blog"],
       ["/articles", "Articles"],
+      
       ["/terms", "Terms"],
-      ["/zoo", "Zoo"],
+      
     ].map(([path, text]) => {
       return NavLink("nav-link", {
         text,

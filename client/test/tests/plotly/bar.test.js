@@ -50,9 +50,7 @@ const route = new (class {
       ],
     });
 
-    /* Here's an example of an initial update without any plotly-related items.
-    It really does not make any sense, but it proves that default values prevents errors */
-    const plot2 = Plot();
+    
 
     this.#_.page = component.main(
       "container pt-3",
@@ -73,25 +71,19 @@ const route = new (class {
           buttonStyle,
           {
             "on.click": (event) => {
-              plot.traces.append(Trace("Copenhagen", [10, 20, 40]));
+              //plot.traces.add(Trace("Copenhagen", [10, 20, 40]));
+              plot.traces.insert(Trace("Copenhagen", [10, 20, 40]));
             },
           },
           "Append Copenhagen"
         ),
+        
         component.button(
           buttonStyle,
           {
             "on.click": (event) => {
-              plot.traces.update("New York", { y: [60, 90, 60] });
-            },
-          },
-          "Update New York"
-        ),
-        component.button(
-          buttonStyle,
-          {
-            "on.click": (event) => {
-              plot.traces.remove("San Francisco");
+              //plot.traces.delete("San Francisco");
+              plot.traces.change("San Francisco", null);
             },
           },
           "Remove San Francisco"
@@ -100,37 +92,20 @@ const route = new (class {
           buttonStyle,
           {
             "on.click": (event) => {
+              //plot.traces.update("New York", { y: [40, 40, 40] });
               plot.traces.change("New York", { y: [40, 40, 40] });
               console.log("plot.data:", plot.data);
             },
           },
           "Change New York"
         ),
-        component.button(
-          buttonStyle,
-          {
-            "on.click": (event) => {
-              const index = plot.traces.index("Copenhagen");
-              console.log("index:", index);
-            },
-          },
-          "Find Copenhagen index"
-        )
+        
       ),
       plot,
-      plot2
+      
     );
 
-    /* Here's an example of a "late update" (strict) of plotly-related items.
-    Not the standard way to do it, but it can be done smoothly. */
-    plot2.update({
-      data: [Trace("Stockholm", [20, 40, 30])],
-      layout: {
-        xaxis: Axis("Animal"),
-        yaxis: Axis("Population"),
-        ...Layout(),
-      },
-    });
+    
   }
 
   get page() {

@@ -10,7 +10,7 @@ export const remove = (target, ...values) => {
   
   /* Iterate backward to avoid index shifting issues */
   for (let i = target.length - 1; i >= 0; i--) {
-    /** If current element is in values, remove it */
+    /* If current element is in values, remove it */
     if (values.includes(target[i])) {
       target.splice(i, 1); /* splice removes the element in-place */
     }

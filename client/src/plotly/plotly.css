@@ -11,6 +11,7 @@ NOTE
     top: 8px !important;
     right: 8px !important;
   }
+
   /* Colors */
   .main-svg,
   .modebar-group {
@@ -24,5 +25,14 @@ NOTE
   }
   .modebar:hover button svg path {
     fill: var(--bs-light) !important;
+  }
+
+  .gridlayer :is(.xgrid, .ygrid) {
+    stroke-opacity: 0.2 !important;
+  }
+
+  .zerolinelayer :is(.yzl, .xzl) {
+    stroke-opacity: 0.6 !important;
+    stroke: var(--bs-light) !important;
   }
 }

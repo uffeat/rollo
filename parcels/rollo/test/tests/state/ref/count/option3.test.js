@@ -2,7 +2,7 @@
 /state/ref/count/option3.test.js
 */
 
-const { refMixin, Mixins, author, component, mix, Sheet, declare, scope } =
+const { refMixin, Mixins, author, component, mix, Sheet, css } =
   await use("@/rollo/");
 const { frame } = await use("@/frame/");
 
@@ -21,14 +21,14 @@ export default async () => {
   const menu = component.menu();
 
   sheet.rules.add({
-    [scope(menu)]: {
-      width: declare.pct(100),
-      ...declare.display.flex,
-      ...declare.justifyContent.flexEnd,
-      ...declare.flexWrap.wrap,
-      columnGap: declare.rem(1),
-      rowGap: declare.rem(1),
-      paddingRight: declare.rem(1),
+    [css(menu)]: {
+      width: css.pct(100),
+      ...css.display.flex,
+      ...css.justifyContent.flexEnd,
+      ...css.flexWrap.wrap,
+      columnGap: css.rem(1),
+      rowGap: css.rem(1),
+      paddingRight: css.rem(1),
     },
   });
 
@@ -58,13 +58,13 @@ export default async () => {
       const state = RefComponent({ current: 0, parent: this });
       /* Create rules */
       sheet.rules.add({
-        [scope(this)]: {
-          fontWeight: declare.important(700),
+        [css(this)]: {
+          fontWeight: css.important(700),
         },
 
-        [`${scope(this)} > ref-component::after`]: {
-          content: declare.attr("current"),
-          fontWeight: declare.important("initial"),
+        [`${css(this)} > ref-component::after`]: {
+          content: css.attr("current"),
+          fontWeight: css.important("initial"),
         },
       });
       /* click -> update state */
