@@ -1,7 +1,7 @@
 import { Plot } from "../plot";
 import { Axis, Layout } from "../tools/layout";
 
-export const Bubble = ({ xaxis, yaxis, ...updates }, ...traces) => {
+export const Bubble = async ({ xaxis, yaxis, ...updates }, ...traces) => {
   const data = [];
   for (const trace of traces) {
     for (const [name, series] of Object.entries(trace)) {
@@ -26,7 +26,7 @@ export const Bubble = ({ xaxis, yaxis, ...updates }, ...traces) => {
     }
   }
 
-  const plot = Plot({
+  const plot = await Plot({
     data,
     layout: {
       xaxis: Axis(xaxis),

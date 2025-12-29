@@ -1,7 +1,7 @@
 import { Plot } from "../plot";
 import { Axis, Layout } from "../tools/layout";
 
-export const Stacked = (
+export const Stacked = async (
   { lines = true, markers = true, smooth = false, xaxis, yaxis, ...updates },
   ...traces
 ) => {
@@ -40,7 +40,7 @@ export const Stacked = (
     }
   }
 
-  const plot = Plot({
+  const plot = await Plot({
     data,
     layout: {
       xaxis: Axis(xaxis),

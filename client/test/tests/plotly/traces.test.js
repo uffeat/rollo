@@ -6,7 +6,7 @@ import { Axis, Plot, Layout } from "@/plotly";
 const { component } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
 
-export default () => {
+export default async () => {
   frame.clear();
 
   const x = ["Zebras", "Lions", "Pelicans"];
@@ -15,7 +15,7 @@ export default () => {
 
   const buttonStyle = "btn.btn-primary";
 
-  const plot = Plot({
+  const plot = await Plot({
     data: [
       Trace("New York", [90, 40, 60]),
       Trace("San Francisco", [10, 80, 45]),

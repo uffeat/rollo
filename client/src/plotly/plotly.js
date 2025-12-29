@@ -1,9 +1,0 @@
-//const { Plotly } = await use("/plotly/");
-const { Plotly } = await use.module(
-  document.head
-    .querySelector("template[plotly]")
-    .content.querySelector("script").textContent,
-  "plotly.js"
-);
-
-export { Plotly };

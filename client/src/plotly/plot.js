@@ -1,25 +1,39 @@
-import { Plotly } from "./plotly.js";
 import { Layout } from "./tools/layout";
 import { Traces } from "./tools/traces";
 
-const { Exception, Mixins, app, author, element, freeze, mix, stateMixin } =
-  await use("@/rollo/");
+const {
+  Exception,
+  Mixins,
+  app,
+  author,
+  component,
+  element,
+  freeze,
+  mix,
+  stateMixin,
+} = await use("@/rollo/");
 
-/* Returns component that wraps a Plotly plot.
-The component creates and disposes responsive plot in accordance with the component 
-connection LC, but retains all other state across LC. 
-Goodies:
-- Sheet-styles for dark-mode (Rollo default).
-- 'Layout' defaults that match sheet styling.
-- Piggybacks on app components resize observer to provide responsive plots
-  (much better than Plotly's built-in 'responsive' config).
-- Integrates Plotly-specifics into Rollo-components' standard 'update' method,
-  but also exposes a 'traces' controller for trace-specific stuff and `relayout`
-  for layout updates.
-NOTE
-- To decouple from connection LC keep component connected or roll custom.
-*/
-const Plot = author(
+//
+//
+
+//
+//
+
+//
+//
+const Plotly = (() => {
+  let result;
+  return async () => {
+    if (!result) {
+      result = (await use("/plotly/")).Plotly;
+    }
+    return result;
+  };
+})();
+//
+//
+
+const Factory = author(
   class extends mix(HTMLElement, {}, ...Mixins(stateMixin)) {
     #_ = {
       config: {
@@ -31,14 +45,26 @@ const Plot = author(
 
     constructor() {
       super();
-      const owner = this;
+
       /* NOTE Plotly needs a plain HTML element (to absolutely demolish :-)) */
       this.#_.container = element.div();
       this.#_.onresize = (event) => {
         this.resize();
       };
 
+      this.#_.spinner = component.div(
+        component.div(
+          "spinner-border",
+          { role: "status" },
+          component.span("visually-hidden", "Loading...")
+        )
+      );
+    }
 
+    setup(Plotly, ...args) {
+      this.#_.Plotly = Plotly;
+
+      const owner = this;
       this.#_.plotly = new Proxy(() => {}, {
         get(target, key) {
           return (...args) => {
@@ -46,6 +72,8 @@ const Plot = author(
           };
         },
       });
+
+      return this.update(...args);
     }
 
     /* Returns container child. 
@@ -79,27 +107,21 @@ const Plot = author(
 
     /* Returns controller for traces. */
     get traces() {
-      Exception.if(
-        !this.#_.traces,
-        `Traces not available. Did you provide 'data'?`
-      );
-      Exception.if(
-        !this.isConnected,
-        `Traces not available, when disconnected.`
-      );
+      Exception.if(!this.#_.traces, `Traces not yey available,`);
+      Exception.if(!this.isConnected, `Not DOM-connected.`);
       return this.#_.traces;
     }
 
     connectedCallback() {
       super.connectedCallback?.();
-      Plotly.newPlot(
+      this.#_.Plotly.newPlot(
         this.#_.container,
         this.#_.data,
         this.#_.layout,
         this.#_.config
       );
-     
-      /* Initial sizing; requestAnimationFrame reduces flickering risk. */
+
+      /* Initial sizing; requestAnimationFrame mitigates flickering. */
       requestAnimationFrame(() => {
         this.resize();
       });
@@ -109,7 +131,7 @@ const Plot = author(
 
     disconnectedCallback() {
       super.disconnectedCallback?.();
-      Plotly.purge(this.#_.container);
+      this.#_.Plotly.purge(this.#_.container);
       app.removeEventListener("_resize_x", this.#_.onresize);
     }
 
@@ -118,27 +140,28 @@ const Plot = author(
       this.append(this.#_.container);
     }
 
+    /* Redraws plot. Call after mutation of Plotly-related items. */
     redraw() {
       Exception.if(!this.isConnected, `Not DOM-connected.`);
-      Plotly.redraw(this.#_.container);
+      this.#_.Plotly.redraw(this.#_.container);
       return this;
     }
 
-    /* Updates layout. */
+    /* Updates plot layout. */
     relayout(updates) {
       Exception.if(!this.isConnected, `Not DOM-connected.`);
-      Plotly.relayout(this.#_.container, updates);
+      this.#_.Plotly.relayout(this.#_.container, updates);
       return this;
     }
 
+    /* Resizes plot. Call to force responsive sizing. */
     resize() {
       Exception.if(!this.isConnected, `Not DOM-connected.`);
-      Plotly.Plots.resize(this.#_.container);
+      this.#_.Plotly.Plots.resize(this.#_.container);
       return this;
-
     }
 
-    /* Updates component and handles special Plotly related items. */
+    /* Updates component and handles special Plotly-related items. */
     update({ config, data, layout, ...updates } = {}) {
       /* Handle plot items before updating other items to ensure it's done before connect */
       if (config) {
@@ -152,7 +175,7 @@ const Plot = author(
         this.#_.layout = layout;
       }
       if (this.isConnected) {
-        Plotly.react(
+        this.#_.Plotly.react(
           this.#_.container,
           this.#_.data,
           this.#_.layout,
@@ -165,5 +188,60 @@ const Plot = author(
   },
   "plotly-component"
 );
+
+/* Returns component that wraps a Plotly plot.
+The component creates and disposes responsive plot in accordance with the component 
+connection LC, but retains state across LC. 
+Goodies:
+- Sheet-styles for dark-mode (Rollo default).
+- 'Layout' defaults that match sheet styling.
+- Piggybacks on app components resize observer to provide responsive plots
+  (much better than Plotly's built-in 'responsive' config).
+- Integrates Plotly-specifics into Rollo-components' standard 'update' method,
+  but also exposes a 'traces' controller for trace-specific stuff and `relayout`
+  for layout updates.
+NOTE
+- To decouple from connection LC keep component connected or roll custom.
+*/
+let P;
+const Plot = (...args) => {
+  const plot = Factory();
+
+  if (P) {
+    console.log("Plotly already loaded."); ////
+    plot.setup(P, ...args);
+    return plot;
+  }
+
+  const spinner = component.div('flex justify-center',
+    component.div(
+      "spinner-border !size-32 mt-8",
+      { role: "status" },
+      component.span("visually-hidden", "Loading...")
+    )
+  );
+ 
+
+  plot.append(spinner);
+  const { promise, resolve } = Promise.withResolvers();
+
+  console.log("Loading Plotly..."); ////
+
+  use("/plotly/").then((mod) => {
+    const { Plotly } = mod;
+    P = Plotly;
+    plot.setup(P, ...args);
+
+    console.log("Plot component setup completed"); ////
+
+    resolve(plot);
+
+    setTimeout(() => {
+      spinner.remove();
+    }, 0);
+  });
+
+  return promise;
+};
 
 export { Plot };

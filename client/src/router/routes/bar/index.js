@@ -17,8 +17,8 @@ export default new (class {
     return this.#_.page;
   }
 
-  setup(base) {
-    const plot = Bar(
+  async setup(base) {
+    this.#_.plot = await Bar(
       {
         xaxis: "Animal",
         yaxis: "Population",
@@ -31,16 +31,16 @@ export default new (class {
       { "New York": [90, 40, 60], "San Francisco": [10, 80, 45] }
     );
 
-    this.page.append(plot)
+    this.page.append(this.#_.plot)
 
   }
 
-  enter(meta, url, ...paths) {
+  async enter(meta, url, ...paths) {
     frame.clear(":not([slot])");
     frame.append(this.page);
   }
 
-  exit(meta) {
+  async exit(meta) {
     this.page.remove();
   }
 })();

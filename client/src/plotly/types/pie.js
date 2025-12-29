@@ -1,7 +1,7 @@
 import { Plot } from "../plot";
 import { Layout } from "../tools/layout";
 
-export const Pie = (...traces) => {
+export const Pie = async (...traces) => {
   const labels = [];
   const values = [];
 
@@ -12,7 +12,7 @@ export const Pie = (...traces) => {
     }
   }
 
-  return Plot({
+  return await Plot({
     data: [
       {
         values,

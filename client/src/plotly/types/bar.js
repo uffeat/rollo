@@ -1,7 +1,7 @@
 import { Plot } from "../plot";
 import { Axis, Layout } from "../tools/layout";
 
-export const Bar = ({ xaxis, yaxis, x, ...updates }, ...traces) => {
+export const Bar = async ({ xaxis, yaxis, x, ...updates }, ...traces) => {
   const data = [];
   for (const trace of traces) {
     for (const [name, y] of Object.entries(trace)) {
@@ -9,7 +9,7 @@ export const Bar = ({ xaxis, yaxis, x, ...updates }, ...traces) => {
     }
   }
 
-  return Plot({
+  const plot = await Plot({
     data,
     layout: {
       xaxis: Axis(xaxis),
@@ -18,4 +18,7 @@ export const Bar = ({ xaxis, yaxis, x, ...updates }, ...traces) => {
     },
     ...updates,
   });
+  
+
+  return plot;
 };

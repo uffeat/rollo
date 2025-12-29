@@ -6,14 +6,14 @@ import { Bar, Bubble, Line, Pie, Stacked } from "@/plotly";
 const { component } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
 
-export default () => {
+export default async () => {
   frame.clear();
 
   component.main(
     "container pt-3",
     { parent: frame },
     component.h1({ text: "Quick plot" }),
-    Stacked(
+    await Stacked(
       {
         xaxis: "Month",
         yaxis: "Revenue",
