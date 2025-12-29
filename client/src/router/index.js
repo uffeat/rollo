@@ -21,13 +21,8 @@ Nav(
     ...[
       ["/about", "About"],
       ["/bar", "Bar"],
-      ["/bubble", "Bubble"],
-      ["/line", "Line"],
-      ["/pie", "Pie"],
-      ["/stacked", "Stacked"],
       ["/blog", "Blog"],
       ["/articles", "Articles"],
-      
       ["/terms", "Terms"],
       
     ].map(([path, text]) => {

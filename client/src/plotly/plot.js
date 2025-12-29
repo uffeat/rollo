@@ -35,8 +35,10 @@ const Plot = author(
       /* NOTE Plotly needs a plain HTML element (to absolutely demolish :-)) */
       this.#_.container = element.div();
       this.#_.onresize = (event) => {
-        Plotly.Plots.resize(this.#_.container);
+        this.resize();
       };
+
+
       this.#_.plotly = new Proxy(() => {}, {
         get(target, key) {
           return (...args) => {
@@ -96,10 +98,10 @@ const Plot = author(
         this.#_.layout,
         this.#_.config
       );
-      /* Alt: this.plotly.newPlot(this.#_.data, this.#_.layout, this.#_.config); */
+     
       /* Initial sizing; requestAnimationFrame reduces flickering risk. */
       requestAnimationFrame(() => {
-        Plotly.Plots.resize(this.#_.container);
+        this.resize();
       });
       /* Responsiveness */
       app.addEventListener("_resize_x", this.#_.onresize);
@@ -116,14 +118,24 @@ const Plot = author(
       this.append(this.#_.container);
     }
 
+    redraw() {
+      Exception.if(!this.isConnected, `Not DOM-connected.`);
+      Plotly.redraw(this.#_.container);
+      return this;
+    }
+
     /* Updates layout. */
     relayout(updates) {
-      Exception.if(
-        !this.isConnected,
-        `'relayout' not avilable, when disconnected.`
-      );
+      Exception.if(!this.isConnected, `Not DOM-connected.`);
       Plotly.relayout(this.#_.container, updates);
       return this;
+    }
+
+    resize() {
+      Exception.if(!this.isConnected, `Not DOM-connected.`);
+      Plotly.Plots.resize(this.#_.container);
+      return this;
+
     }
 
     /* Updates component and handles special Plotly related items. */

@@ -10,8 +10,6 @@ import { Line } from "./types/line";
 import { Pie } from "./types/pie";
 import {Stacked} from './types/stacked'
 
-const { Exception, Mixins, app, author, element, freeze, mix, stateMixin } =
-  await use("@/rollo/");
 
 
 export { Axis, Bar, Bubble, Layout, Line, Pie, Plot, Plotly, Stacked };

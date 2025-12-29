@@ -1,5 +1,3 @@
-import { Plotly } from "../plotly.js";
-
 const { Exception, is, merge, typeName } = await use("@/rollo/");
 
 /* Controller for trace ops. */
@@ -15,65 +13,6 @@ class Traces {
     return this.#_.data.length;
   }
 
-  /* Adds single trace.
-  NOTE Maintained as Plotly's canonical approach to adding/insering traces. 
-  However, use 'insert' instead. */
-  add(updates, index) {
-    if (is.undefined(index)) {
-      Plotly.addTraces(this.#_.owner.container, updates);
-    } else {
-      /* Silently append, if index out of range */
-      if (index > this.size) {
-        index = this.size;
-      }
-      Plotly.addTraces(this.#_.owner.container, updates, index);
-    }
-    return this.#_.owner;
-  }
-
-  /* Changes or removes single trace by index or name.
-  NOTE Faster goto alternative to 'update' and 'delete'. 
-  Mutates trace in-place and triggers a redraw to avoid
-  Plotly's restyle machinery (and its per-attribute array wrapping). */
-  change(index, updates) {
-    if (is.string(index)) {
-      index = this.index(index, { strict: !!updates });
-    } else {
-      /* Index provided as int; need to check it if 'update' mode
-      (overkill to check, e.g., type and non-negative) */
-      Exception.if(updates && index >= this.size, `Invalid index: ${index}.`);
-    }
-    if (updates) {
-      const trace = this.#_.data[index];
-      merge(trace, updates);
-    } else {
-      if (is.null(index)) {
-        /* Nothing to remove -> silently abort */
-        return this.#_.owner;
-      }
-      /* As per convention, falsy 'updates' removes the trace. */
-      this.#_.data.splice(index, 1);
-    }
-    /* Redraw after in-place mutation. */
-    Plotly.redraw(this.#_.owner.container);
-    return this.#_.owner;
-  }
-
-  /* Removes single trace by index or name.
-  NOTE Maintained as Plotly's canonical approach to deleting traces. 
-  However, use 'change' instead. */
-  delete(index) {
-    if (is.string(index)) {
-      index = this.index(index, { strict: false });
-      if (is.null(index)) {
-        /* Nothing to remove -> silently abort */
-        return this.#_.owner;
-      }
-    }
-    Plotly.deleteTraces(this.#_.owner.container, index);
-    return this.#_.owner;
-  }
-
   /* Returns index by name. */
   index(name, { strict = false } = {}) {
     let index = 0;
@@ -87,35 +26,121 @@ class Traces {
     return null;
   }
 
-  /* Inserts single trace.
-  NOTE Faster goto alternative to 'add' and 'prepend'. 
-  Mutates trace in-place and triggers a redraw to avoid
-  Plotly's restyle machinery. */
+  /* Inserts single trace relative to trace by index or name.
+  Appends if invalid reference. */
   insert(updates, index) {
-    /* Silently append, if no index or index out of range */
-    if (is.undefined(index) || index > this.size) {
-      index = this.size;
+    if (is.string(index)) {
+      index = this.index(index, { strict: true });
+    } else {
+      /* Silently append, if no index or index out of range */
+      if (is.undefined(index) || index > this.size) {
+        index = this.size;
+      }
     }
     this.#_.data.splice(index, 0, updates);
-    Plotly.redraw(this.#_.owner.container);
+    this.#_.owner.redraw();
     return this.#_.owner;
   }
 
-  /* Prepends single trace.
-  NOTE Maintained as Plotly's canonical approach to prepending traces. 
-  However, use 'insert' instead. */
-  prepend(updates) {
-    Plotly.prependTraces(this.#_.owner.container, updates);
+  /* Removes single trace by index or name. */
+  remove(index) {
+    if (is.string(index)) {
+      index = this.index(index, { strict: false });
+      if (is.null(index)) {
+        /* Nothing to remove -> silently abort */
+        return this.#_.owner;
+      }
+    } else {
+      if (index >= this.size) {
+        /* Nothing to remove -> silently abort */
+        return this.#_.owner;
+      }
+    }
+    this.#_.data.splice(index, 1);
+    /* Redraw after in-place mutation. */
+    this.#_.owner.redraw();
+    return this.#_.owner;
+  }
+
+  /* Updates single trace by index or name. Falsy 'updates' removes. */
+  update(index, updates) {
+    if (!updates) {
+      return this.remove(index);
+    }
+    if (is.string(index)) {
+      index = this.index(index, { strict: true });
+    } else {
+      /* Index provided as int -> validate */
+      Exception.if(index >= this.size, `Invalid index: ${index}.`);
+    }
+    const trace = this.#_.data[index];
+    merge(trace, updates);
+    /* Redraw after in-place mutation. */
+    this.#_.owner.redraw();
+    return this.#_.owner;
+  }
+
+  /* Inserts single trace relative to trace by index or name.
+  Appends if invalid reference.
+  NOTE Use 'insert' instead. Cheap to keep as a Plotly-canonical approach; 
+  perhaps useful in special cases. */
+  _insert(updates, index) {
+    if (is.string(index)) {
+      index = this.index(index, { strict: true });
+      this.#_.owner.plotly.addTraces(updates, index);
+    } else {
+      if (is.undefined(index)) {
+        /* Silently append, if no index */
+        this.#_.owner.plotly.addTraces(updates);
+      } else {
+        if (index === 0) {
+          this.#_.owner.plotly.prependTraces(updates);
+        } else {
+          /* Silently append, if index out of range */
+          if (index > this.size) {
+            index = this.size;
+          }
+          this.#_.owner.plotly.addTraces(updates, index);
+        }
+      }
+    }
+    return this.#_.owner;
+  }
+
+  /* Removes single trace by index or name.
+  NOTE Use 'remove' instead. Cheap to keep as a Plotly-canonical approach; 
+  perhaps useful in special cases. */
+  _remove(index) {
+    if (is.string(index)) {
+      index = this.index(index, { strict: false });
+      if (is.null(index)) {
+        /* Nothing to remove -> silently abort */
+        return this.#_.owner;
+      }
+    } else {
+      if (index >= this.size) {
+        /* Nothing to remove -> silently abort */
+        return this.#_.owner;
+      }
+    }
+    this.#_.owner.plotly.deleteTraces(index);
     return this.#_.owner;
   }
 
   /* Updates single trace.
-  NOTE Maintained as Plotly's canonical approach to updating traces 
-  (or something close to that). However, use 'change' instead. */
-  update(index, updates) {
+  NOTE Use 'update' instead. Cheap to keep as a Plotly-canonical approach
+  (or something close to that); perhaps useful in special cases. */
+  _update(index, updates) {
+    if (!updates) {
+      return this._remove(index);
+    }
     if (is.string(index)) {
       index = this.index(index, { strict: true });
+    } else {
+      /* Index provided as int -> validate */
+      Exception.if(index >= this.size, `Invalid index: ${index}.`);
     }
+
     /* Wrap array values in an outer array so Plotly applies them to 
     the one trace only; e.g., { y: [1,2,3] } -> { y: [[1,2,3]] } */
     const wrapped = {};
@@ -125,10 +150,9 @@ class Traces {
           value.length === 1 && Array.isArray(value[0]) ? value : [value];
         continue;
       }
-      /* Let non-array values pass unchanged */
       wrapped[key] = value;
     }
-    Plotly.restyle(this.#_.owner.container, wrapped, index);
+    this.#_.owner.plotly.restyle(wrapped, index);
     return this.#_.owner;
   }
 }
