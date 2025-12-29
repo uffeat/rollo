@@ -9,9 +9,7 @@ const { frame } = await use("@/frame/");
 export default new (class {
   #_ = {};
 
-  constructor() {
-
-  }
+  constructor() {}
 
   get page() {
     if (!this.#_.page) {
@@ -45,14 +43,6 @@ export default new (class {
     /* Render */
     const manifest = await use("@/content/blog/_manifest.json");
     const paths = manifest.map(([path, timestamp]) => path);
-
-
-    
-
-
-
-
-
 
     //console.log("paths:", paths);////
     for (let path of paths) {

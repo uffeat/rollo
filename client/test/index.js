@@ -51,3 +51,5 @@ const run = (() => {
 export {};
 
 
+//
+await run('/content/background.test.js')

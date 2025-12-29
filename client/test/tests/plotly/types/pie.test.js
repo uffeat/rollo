@@ -13,12 +13,9 @@ export default async () => {
     "container pt-3",
     { parent: frame },
     component.h1({ text: "Quick plot" }),
-    function() {
-      Pie({ Good: 19, Bad: 26, Ugly: 55 }).then((plot) => this.append(plot))
-
-
-    },
-   
+    function () {
+      Pie({ Good: 19, Bad: 26, Ugly: 55 }).then((plot) => this.append(plot));
+    }
     /* Could also do:
     await Pie({ Good: 19, Bad: 26, Ugly: 55 })
     or

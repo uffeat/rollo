@@ -13,26 +13,6 @@ const {
   stateMixin,
 } = await use("@/rollo/");
 
-//
-//
-
-//
-//
-
-//
-//
-const Plotly = (() => {
-  let result;
-  return async () => {
-    if (!result) {
-      result = (await use("/plotly/")).Plotly;
-    }
-    return result;
-  };
-})();
-//
-//
-
 const Factory = author(
   class extends mix(HTMLElement, {}, ...Mixins(stateMixin)) {
     #_ = {
@@ -63,7 +43,6 @@ const Factory = author(
 
     setup(Plotly, ...args) {
       this.#_.Plotly = Plotly;
-
       const owner = this;
       this.#_.plotly = new Proxy(() => {}, {
         get(target, key) {
@@ -198,50 +177,16 @@ Goodies:
 - Piggybacks on app components resize observer to provide responsive plots
   (much better than Plotly's built-in 'responsive' config).
 - Integrates Plotly-specifics into Rollo-components' standard 'update' method,
-  but also exposes a 'traces' controller for trace-specific stuff and `relayout`
-  for layout updates.
+  but also exposes a plot-specific members for dynamic plot control.
 NOTE
-- To decouple from connection LC keep component connected or roll custom.
+- To decouple from connection LC (not recommended) keep component connected.
 */
-let P;
-const Plot = (...args) => {
+export const Plot = async (...args) => {
   const plot = Factory();
 
-  if (P) {
-    console.log("Plotly already loaded."); ////
-    plot.setup(P, ...args);
-    return plot;
-  }
-
-  const spinner = component.div('flex justify-center',
-    component.div(
-      "spinner-border !size-32 mt-8",
-      { role: "status" },
-      component.span("visually-hidden", "Loading...")
-    )
-  );
- 
-
-  plot.append(spinner);
-  const { promise, resolve } = Promise.withResolvers();
-
-  console.log("Loading Plotly..."); ////
-
-  use("/plotly/").then((mod) => {
-    const { Plotly } = mod;
-    P = Plotly;
-    plot.setup(P, ...args);
-
-    console.log("Plot component setup completed"); ////
-
-    resolve(plot);
-
-    setTimeout(() => {
-      spinner.remove();
-    }, 0);
-  });
-
-  return promise;
+  const { Plotly } = await use("/plotly/");
+  plot.setup(Plotly, ...args);
+  return plot;
 };
 
-export { Plot };
+
