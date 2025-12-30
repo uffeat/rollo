@@ -3,7 +3,6 @@ title: Drink Beer
 image: https://images.unsplash.com/photo-1608270586620-248524c67de9?w=1200
 abstract: Science has uncovered some legitimate reasons why moderate beer consumption might not be the guilty pleasure we thought it was. From bone density to heart health, discover the surprising perks of your favorite brew.
 created: 2025-07-09 17:25
-template: /blog/card.jinja
 ---
 
 # The Surprising Benefits of Drinking Beer (Science Says So!)

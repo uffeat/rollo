@@ -1,5 +1,8 @@
+/* A data store that is populated "in the background", 
+but allows for eager access should that be needed. */
+
 import { pop } from "@/tools/object";
-const { Exception, defineMethod } = await use("@/rollo/");
+const { Exception } = await use("@/rollo/");
 
 /* Extend Map to provide 'use' method */
 class Items extends Map {
@@ -15,14 +18,15 @@ class Items extends Map {
   }
 }
 
+/* For path-shortening */
+const START = "/blog".length;
+
 /* Here we do incur an upfront "import cost", but it's low.
 NOTE Could "then-wrap", but that would complicate things, so keep as-is for now. */
 const manifest = await use("@/content/blog/_manifest.json");
 const paths = manifest.map(([path, timestamp]) => path);
 /* Create items store for holding data and friends */
 const items = new Items();
-/* For path-shortening */
-const START = "/blog".length;
 for (const path of paths) {
   /* Create 'item' object primed with PwR to enable handling of eager 
   retrieval. Since 'item' is mutable, it can later be changed without tinkering 
@@ -38,7 +42,8 @@ for (const [path, item] of items.entries()) {
   MD-files to JSON */
   use(`@/content/blog${path}.json`)
     .then((data) => {
-      /* Repackage data and store in item */
+      /* Repackage data and store in item.
+      NOTE Do specific destructuring to weed out any unused data. */
       const { html, meta } = data;
       const { abstract, image, title } = meta;
       item.data = { abstract, html, image, title };
@@ -55,6 +60,5 @@ for (const [path, item] of items.entries()) {
       reject(error);
     });
 }
-
 
 export { items };

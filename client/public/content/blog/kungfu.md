@@ -3,7 +3,6 @@ title: Wing Chun
 image: /images/wingchun.png
 abstract: Compact Southern Chinese kung fu system emphasizing economy of motion, centerline theory, and relaxed structure.
 created: 2025-11-09 17:25
-template: /blog/card.jinja
 ---
 
 

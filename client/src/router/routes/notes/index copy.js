@@ -24,6 +24,10 @@ export default new (class {
     /* Render cards (non-blocking).
     NOTE Since 'cards' is image-rich, the component is rendered once and 
     related data removed from 'items'. */
+
+
+
+    
     for (const path of items.keys()) {
       items.use(path).then((data) => {
         const [abstract, image, title] = pop(

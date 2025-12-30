@@ -22,7 +22,6 @@ Nav(
       ["/about", "About"],
       ["/bar", "Bar"],
       ["/notes", "Notes"],
-      ["/blog", "Blog"],
       ["/articles", "Articles"],
       ["/terms", "Terms"],
       

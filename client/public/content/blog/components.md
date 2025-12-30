@@ -3,7 +3,6 @@ title: Components
 image: /images/components.jpg
 abstract: Flexitarian vice marfa franzen blog austin jawn organic venmo grailed lomo tofu hexagon skateboard wolf. Roof party DIY cred PBR&B la croix, tousled butcher unicorn meggings pok pok ugh stumptown poke. 
 created: 2025-08-08 17:25
-template: /blog/card.jinja
 ---
 
 # Viral blackbird

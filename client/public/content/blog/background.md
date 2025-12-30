@@ -3,7 +3,6 @@ title: Background
 image: /images/background.jpg
 abstract: Neutra in readymade cray drinking vinegar, eiusmod quinoa aute cornhole. Listicle actually single-origin coffee letterpress, eu banh mi ipsum fam biodiesel heirloom cillum iPhone.
 created: 2025-07-07 17:25
-template: /blog/card.jinja
 ---
 
 # Chillwave 

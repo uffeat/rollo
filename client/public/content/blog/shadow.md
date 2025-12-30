@@ -3,7 +3,6 @@ title: Shadow
 image: /images/shadow.jpg
 abstract: Put a bird on it bodega boys hell of blackbird spyplane pickled. 8-bit palo santo ascot 90's hashtag. Narwhal 3 wolf moon quinoa PBR&B photo booth exercitation occupy master cleanse tumblr plaid migas deserunt slow-carb fixie church-key.
 created: 2025-12-09 17:25
-template: /blog/card.jinja
 ---
 
 # Hammock cloud

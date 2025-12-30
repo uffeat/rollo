@@ -3,7 +3,6 @@ title: Hair
 image: /images/hair.jpg
 abstract: Offal lyft meditation, cloud bread cronut selfies humblebrag bushwick squid flexitarian umami waistcoat affogato. Fam four loko roof party, shabby chic ennui plaid gochujang street art blackbird spyplane kickstarter try-hard.
 created: 2025-07-09 17:25
-template: /blog/card.jinja
 ---
 
 # Sartorial

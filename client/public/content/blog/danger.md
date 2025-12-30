@@ -31,6 +31,3 @@ Risk climbs with heat, poverty, and proximity to water. Rural communities face m
 - Wear boots and use lights at night in snake country.
 - Give rivers and murky banks wide clearance.
 
-# Image credit
-
-Image via Wikimedia Commons: Saw scaled viper Echis carinatus by Dr. Raju Kasambe. https://commons.wikimedia.org/wiki/File:Saw-scaled_Viper_Echis_carinatus_by_Dr._Raju_Kasambe_DSCN8698_(2).jpg

@@ -3,7 +3,6 @@ title: Mustang
 image: /images/mustang.jpg
 abstract: I'm baby fixie occupy palo santo, waistcoat af kombucha quis. Gochujang nostrud laborum hammock portland lumbersexual keffiyeh neutral milk hotel quinoa veniam. Franzen yuccie truck messenger bag gatekeep, tattooed shaman cronut knausgaard intelligentsia cray vibecession.
 created: 2025-12-12 17:25
-template: /blog/card.jinja
 ---
 
 # Reprehenderit
