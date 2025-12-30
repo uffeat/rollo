@@ -66,12 +66,10 @@ export default async () => {
     event.preventDefault();
     const target = event.target;
     const link = target.tagName === "A" ? target : target.closest("a");
-
     if (link) {
       const card = target.closest(".card");
       if (card) {
         const path = card.attribute.path;
-
         items.use(path).then((data) => {
           const { html } = data;
           const post = Post({ html, path });
