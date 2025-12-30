@@ -83,7 +83,7 @@ const _ = (r) => {
   primitive(r) {
     return [null, void 0].includes(r) || ["bigint", "boolean", "number", "string", "symbol"].includes(typeof r);
   }
-}(), O = new class {
+}(), E = new class {
   if(t, e, s) {
     typeof t == "function" && (t = t()), t && this.raise(e, s);
   }
@@ -160,13 +160,13 @@ class L {
           data: y = {},
           once: j,
           run: S = !0
-        } = f.find((m, v) => !v && g.object(m)) || {}, E = (() => {
+        } = f.find((m, v) => !v && g.object(m)) || {}, O = (() => {
           const m = { data: { ...y } };
           return h && (m.condition = h), j && (m.once = j), m;
         })();
-        if (this.#e.registry.set(l, E), S) {
+        if (this.#e.registry.set(l, O), S) {
           const m = z.create(this.#e.owner);
-          m.detail = E, m.effect = l, (!h || h(this.#e.owner.current, m)) && l(this.#e.owner.current, m);
+          m.detail = O, m.effect = l, (!h || h(this.#e.owner.current, m)) && l(this.#e.owner.current, m);
         }
         return l;
       }
@@ -268,7 +268,7 @@ class A {
         return h === "effects" ? e.effects : h in e && g.function(e[h]) ? e[h].bind(e) : e.#t.current[h];
       },
       set(f, h, y) {
-        return O.if(
+        return E.if(
           h === "effects" || h in e && g.function(e[h]),
           `Reserved key: ${h}.`
         ), e.update({ [h]: y }), !0;
@@ -290,17 +290,17 @@ class A {
         const {
           data: j,
           hooks: S,
-          once: E = !1,
+          once: O = !1,
           run: m = !0
         } = y.find((b, T) => !T && g.object(b)) || {}, v = y.filter((b) => g.function(b)), p = L.create({ owner: e }), P = e.effects.add(
           (b, T) => {
             p.update(h(b, T));
           },
-          { data: j, once: E, run: m }
+          { data: j, once: O, run: m }
         );
         this.#e.registry.set(p, P);
         for (const b of v)
-          p.effects.add(b, { once: E, run: m });
+          p.effects.add(b, { once: O, run: m });
         if (S)
           for (const b of S)
             b.call(p);
@@ -345,11 +345,11 @@ class A {
             };
         })(), {
           data: S = {},
-          once: E,
+          once: O,
           run: m = !0
         } = y.find((p) => g.object(p)) || {}, v = (() => {
           const p = { data: { ...S } };
-          return j && (p.condition = j), E && (p.once = E), p;
+          return j && (p.condition = j), O && (p.once = O), p;
         })();
         if (this.#e.registry.set(h, v), m) {
           const p = z.create(this.#e.owner);
@@ -511,12 +511,12 @@ const he = (...r) => A.create(...r).$, at = (...r) => {
   return new Proxy(() => {
   }, {
     get(e, s) {
-      O.if(!(s in t), `Invalid key: ${s}`);
+      E.if(!(s in t), `Invalid key: ${s}`);
       const n = t[s];
       return g.function(n) ? n.bind(t) : n;
     },
     set(e, s, n) {
-      return O.if(!(s in t), `Invalid key: ${s}`), t[s] = n, !0;
+      return E.if(!(s in t), `Invalid key: ${s}`), t[s] = n, !0;
     },
     apply(e, s, n) {
       return t.update(...n), t.current;
@@ -978,7 +978,7 @@ const _t = (r, t) => class extends r {
     return e ? e.call(this) ?? this : this;
   }
 };
-class Ot {
+class Et {
   #t = {};
   constructor(t) {
     this.#t.owner = t;
@@ -1008,11 +1008,11 @@ class Ot {
     }), this.#t.owner;
   }
 }
-const Et = (r, t, ...e) => class extends r {
+const Ot = (r, t, ...e) => class extends r {
   static __name__ = "insert";
   #t = {};
   __new__(...s) {
-    super.__new__?.(...s), this.#t.insert = new Ot(this);
+    super.__new__?.(...s), this.#t.insert = new Et(this);
   }
   /* Inserts elements. 
   Syntactical alternative to insertAdjacentElement with a leaner syntax and 
@@ -1443,7 +1443,7 @@ const qt = (r, t) => class extends r {
         "./mixins/find.js": jt,
         "./mixins/for_.js": vt,
         "./mixins/hook.js": xt,
-        "./mixins/insert.js": Et,
+        "./mixins/insert.js": Ot,
         "./mixins/novalidation.js": At,
         "./mixins/on.js": Ct,
         "./mixins/owner.js": zt,
@@ -1498,7 +1498,7 @@ const qt = (r, t) => class extends r {
   {},
   {
     get(r, t) {
-      return t === "from" ? (e, { convert: s = !0 } = {}) => s ? Dt(e) : C[t]({ innerHTML: e }) : Ft(t);
+      return t === "from" ? (e, { as: s = "div", convert: n = !0 } = {}) => n ? Dt(e, { as: s }) : C[s]({ innerHTML: e }) : Ft(t);
     }
   }
 );
@@ -1528,11 +1528,11 @@ function Ft(r) {
   const t = Ut(r), e = new t();
   return H(e);
 }
-function Dt(r) {
-  const t = document.createElement("div");
-  t.innerHTML = r;
-  const e = Array.from(t.children, (s) => Kt(s));
-  return e.length > 1 ? C.div(...e) : e[0];
+function Dt(r, { as: t = "div" } = {}) {
+  const e = document.createElement("div");
+  e.innerHTML = r;
+  const s = Array.from(e.children, (n) => Kt(n));
+  return s.length > 1 ? C[t](...s) : s[0];
 }
 function V(r) {
   const t = C[r.tagName.toLowerCase()]();
@@ -1624,7 +1624,7 @@ const Qt = new class {
     ), "?" + new URLSearchParams(t).toString().replaceAll("=true", "");
   }
 }(), Bt = (r, t) => {
-  if (type(r) !== "Object" || type(t) !== "Object" || Object.keys(r).length !== Object.keys(t).length)
+  if (!g.object(r) || !g.object(t) || Object.keys(r).length !== Object.keys(t).length)
     return !1;
   for (const [e, s] of Object.entries(r))
     if (t[e] !== s)
@@ -1781,12 +1781,12 @@ const x = new class {
   get(r, t) {
     if (t === "router")
       return x;
-    O.if(!(t in x), `Invalid key: ${t}`);
+    E.if(!(t in x), `Invalid key: ${t}`);
     const e = x[t];
     return typeof e == "function" ? e.bind(x) : e;
   },
   set(r, t, e) {
-    return O.if(!(t in x), `Invalid key: ${t}`), x[t] = e, !0;
+    return E.if(!(t in x), `Invalid key: ${t}`), x[t] = e, !0;
   },
   apply(r, t, e) {
     return x.use(...e);
@@ -1797,7 +1797,7 @@ const x = new class {
   has(r, t) {
     return x.routes.has(t);
   }
-}), Q = "a", Oe = rt(
+}), Q = "a", Ee = rt(
   class extends Z(
     document.createElement(Q).constructor,
     {},
@@ -1835,7 +1835,7 @@ const x = new class {
   },
   "nav-link",
   Q
-), Ee = (r) => (nt.effects.add(
+), Oe = (r) => (nt.effects.add(
   (t) => {
     const e = r.find(".active");
     e && e.classes.remove("active");
@@ -1915,7 +1915,7 @@ class K {
     return this;
   }
   #e(t, e, s) {
-    (!("cssRules" in t) || !("insertRule" in t)) && O.raise(
+    (!("cssRules" in t) || !("insertRule" in t)) && E.raise(
       "Invalid container.",
       () => console.error("container:", t)
     );
@@ -1934,7 +1934,7 @@ class K {
     }
   }
   #s(t, e) {
-    "cssRules" in t || O.raise(
+    "cssRules" in t || E.raise(
       "Invalid container.",
       () => console.error("container:", t)
     );
@@ -1949,7 +1949,7 @@ class K {
     return !t.startsWith("@keyframes") && e && this.#n(e) ? `@keyframes ${t}` : t;
   }
   #o(t, ...e) {
-    (!("cssRules" in t) || !("deleteRule" in t)) && O.raise(
+    (!("cssRules" in t) || !("deleteRule" in t)) && E.raise(
       "Invalid container.",
       () => console.error("container:", t)
     );
@@ -1961,7 +1961,7 @@ class K {
     return t;
   }
   #r(t, e = {}) {
-    t instanceof CSSRule || O.raise("Invalid rule.", () => console.error("rule:", t));
+    t instanceof CSSRule || E.raise("Invalid rule.", () => console.error("rule:", t));
     for (let [s, n] of Object.entries(e))
       if (n !== void 0) {
         if (s.startsWith("__") ? s = `--${s.slice(2)}` : s.startsWith("--") || (s = $(s.trim())), n === !1) {
@@ -2393,11 +2393,11 @@ const Me = (r) => Array.from(new Set(r)), Ne = (r, t = (e) => e) => {
   )
 ));
 export {
-  O as Exception,
+  E as Exception,
   ct as Future,
   F as Mixins,
-  Ee as Nav,
-  Oe as NavLink,
+  Oe as Nav,
+  Ee as NavLink,
   A as Reactive,
   L as Ref,
   q as Sheet,

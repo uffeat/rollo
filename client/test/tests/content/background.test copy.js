@@ -3,8 +3,7 @@
 */
 import { pop } from "@/tools/object";
 
-const { Exception, component, defineMethod, toTop, router, NavLink } =
-  await use("@/rollo/");
+const { Exception, component, defineMethod } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
 
 /* Here we do incur an upfront "import cost", but it's low.
@@ -31,11 +30,13 @@ for (const [path, item] of items.entries()) {
       /* Repackage data and store in item */
       const { html, meta } = data;
       const { abstract, image, title } = meta;
-      item.data = { abstract, html, image, title };
+      item.data = Object.freeze({ abstract, html, image, title });
       /* Resolve to item.data in service of eager retrieval */
       resolve(item.data);
       /* Promise no longer needed */
       delete item.promise;
+      /* Item is now complete, so freeze */
+      Object.freeze(item);
     })
     /* Since we build items from manifest, error-handling is probably redundant?
     ... but cheap to keep. */
@@ -47,50 +48,40 @@ for (const [path, item] of items.entries()) {
 NOTE It would be more elegant to create a custom Items class or to create a 
 proxy based on 'items' and 'use'... but probably overkill as long as 
 this is just a local pattern. */
-defineMethod(items, "use", async (path) => {
+defineMethod(items, 'use', async (path) => {
   Exception.if(!items.has(path), `Invalid path: ${path}.`);
   const item = items.get(path);
   await item?.promise;
   return item.data;
-});
+})
 
 /* Test */
 export default async () => {
   frame.clear();
 
-  const cards = component.div(
-    "grid md:grid-cols-2 xl:grid-cols-3 gap-y-3 md:gap-4 xl:gap-5"
-  );
-  const page = component.main("container p-3", { parent: frame }, cards);
-  page.on.click((event) => {
-    event.preventDefault();
-    const target = event.target;
-    const link = target.tagName === "A" ? target : target.closest("a");
+  
+  await (async () => {
+    const data = await items.use("/mustang");
+    console.log("data:", data);
+  })();
 
-    if (link) {
-      const card = target.closest(".card");
-      if (card) {
-        const path = card.attribute.path;
+  await (async () => {
+    const data = await items.use("/mustang");
+    console.log("data:", data);
+  })();
 
-        items.use(path).then((data) => {
-          const { html } = data;
-          const post = Post({ html, path });
-          console.log("post:", post); ////
-        });
-      }
-    }
-  });
-
-  /* Render cards.
-    NOTE Since 'cards' is image-rich, the component is rendered once and 
-    related data removed from 'items'. */
-  for (const path of items.keys()) {
-    items.use(path).then((data) => {
-      const [abstract, image, title] = pop(data, "abstract", "image", "title");
-      const card = Card({ path, abstract, image, title });
+  await (async () => {
+    const cards = component.div(
+      "grid md:grid-cols-2 xl:grid-cols-3 gap-y-3 md:gap-4 xl:gap-5"
+    );
+    const page = component.main("container p-3", { parent: frame }, cards);
+    for (const path of items.keys()) {
+      const data = await items.use(path);
+      
+      const card = Card(data);
       cards.append(card);
-    });
-  }
+    }
+  })();
 };
 
 function Card({ path, abstract, image, title }) {
@@ -112,25 +103,7 @@ function Card({ path, abstract, image, title }) {
     ),
     component.div("card-footer min-h-8")
   );
-  card.attribute.path = path;
+  card.attribute.card = path;
+
   return card;
-}
-
-function Post({ html, path }) {
-  const item = items.get(path);
-  console.log("item:", item); ////
-
-  //console.log("html:", html); ////
-  const post = component.from(html, { convert: false });
-
-  post.attribute.path = path;
-  //replaceImages(post);
-  for (const link of post.querySelectorAll(`a[href]`)) {
-    const path = link.getAttribute("href");
-    if (path.startsWith("/")) {
-      link.parentElement.classList.add("nav");
-      link.replaceWith(NavLink("nav-link", { path, text: link.textContent }));
-    }
-  }
-  return post;
 }

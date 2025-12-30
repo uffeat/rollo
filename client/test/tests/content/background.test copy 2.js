@@ -58,39 +58,46 @@ defineMethod(items, "use", async (path) => {
 export default async () => {
   frame.clear();
 
-  const cards = component.div(
-    "grid md:grid-cols-2 xl:grid-cols-3 gap-y-3 md:gap-4 xl:gap-5"
-  );
-  const page = component.main("container p-3", { parent: frame }, cards);
-  page.on.click((event) => {
-    event.preventDefault();
-    const target = event.target;
-    const link = target.tagName === "A" ? target : target.closest("a");
+  (() => {
+    const cards = component.div(
+      "grid md:grid-cols-2 xl:grid-cols-3 gap-y-3 md:gap-4 xl:gap-5"
+    );
+    const page = component.main("container p-3", { parent: frame }, cards);
+    page.on.click((event) => {
+      event.preventDefault();
+      const target = event.target;
+      const link = target.tagName === "A" ? target : target.closest("a");
 
-    if (link) {
-      const card = target.closest(".card");
-      if (card) {
-        const path = card.attribute.path;
+      if (link) {
+        const card = target.closest(".card");
+        if (card) {
+          const path = card.attribute.path;
 
-        items.use(path).then((data) => {
-          const { html } = data;
-          const post = Post({ html, path });
-          console.log("post:", post); ////
-        });
+          items.use(path).then((data) => {
+            const { html } = data;
+            const post = Post({ html, path });
+            console.log("post:", post); ////
+          });
+        }
       }
-    }
-  });
+    });
 
-  /* Render cards.
+    /* Render cards.
     NOTE Since 'cards' is image-rich, the component is rendered once and 
     related data removed from 'items'. */
-  for (const path of items.keys()) {
-    items.use(path).then((data) => {
-      const [abstract, image, title] = pop(data, "abstract", "image", "title");
-      const card = Card({ path, abstract, image, title });
-      cards.append(card);
-    });
-  }
+    for (const path of items.keys()) {
+      items.use(path).then((data) => {
+        const [abstract, image, title] = pop(
+          data,
+          "abstract",
+          "image",
+          "title"
+        );
+        const card = Card({ path, abstract, image, title });
+        cards.append(card);
+      });
+    }
+  })();
 };
 
 function Card({ path, abstract, image, title }) {

@@ -1,10 +1,10 @@
+import { is } from "../tools/is";
 import { Query } from "./query";
 
 const match = (target, other) => {
-  if (type(target) !== "Object" || type(other) !== "Object") {
+  if (!is.object(target) || !is.object(other)) {
     return false;
   }
-
   if (Object.keys(target).length !== Object.keys(other).length) {
     return false;
   }

@@ -6,7 +6,7 @@ const { component, NavLink } = await use("@/rollo/");
 export const posts = new Map();
 
 /* Returns post component rendered from html and with any internal links 
-  replaced with .nav-wrapped NavLinks. */
+replaced with .nav-wrapped NavLinks. */
 export const Post = ({ html, path }) => {
   const post = component.div({ innerHTML: html, slot: "post" });
   post.attribute.post = path;
