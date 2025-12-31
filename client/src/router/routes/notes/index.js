@@ -1,6 +1,6 @@
 import "@/use";
 import { pop } from "@/tools/object";
-import { items } from "./items";
+import { items, paths } from "./items";
 import { Card } from "./card";
 import { Post } from "./post";
 
@@ -24,21 +24,34 @@ export default new (class {
     /* Render cards (non-blocking).
     NOTE Since 'cards' is image-rich, the component is rendered once and 
     related data removed from 'items'. */
-    for (const path of items.keys()) {
-      items.use(path).then((data) => {
-        const [abstract, image, title] = pop(
-          data,
-          "abstract",
-          "image",
-          "title"
-        );
-        /* No more changes to data -> freeze */
-        Object.freeze(data);
-        const card = Card({ path, abstract, image, title });
-        this.#_.cards.append(card);
-      });
-    }
+    const stack = [...paths];
+    const next = () => {
+      if (!stack.length) return;
+      const path = stack.shift();
+      items
+        .use(path)
+        .then((data) => {
+          const [abstract, image, title] = pop(
+            data,
+            "abstract",
+            "image",
+            "title"
+          );
+          /* No more changes to data -> freeze */
+          Object.freeze(data);
+          const card = Card({ path, abstract, image, title });
+          this.#_.cards.append(card);
+          next(); // Process next item
+        })
+        .catch((error) => {
+          Exception.raise(`Could not load card: ${path}`, () =>
+            console.error(error)
+          );
+        });
+    };
+    next();
 
+    /* State -> view */
     this.page.$.effects.add(
       (change, message) => {
         const previous = message.owner.previous.view;

@@ -2,21 +2,58 @@
 /d3/force.test.js
 */
 
-import cssText from "./force.css?raw";
-
 const { d3 } = await use("@/d3");
-const { component, Sheet } = await use("@/rollo/");
+const { app, component, html, css } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
 
-Sheet.create(cssText).use();
+css`
+  #graph {
+    width: 100%;
+    height: 300px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #graph > svg {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+    background: transparent;
+  }
+
+  #graph line.link {
+    stroke: var(--bs-light);
+    stroke-opacity: 0.6;
+  }
+
+  #graph circle.node {
+    stroke-width: 1;
+    cursor: grab;
+    stroke: var(--bs-light);
+    fill: var(--bs-success);
+  }
+
+  #graph circle.node:active {
+    cursor: grabbing;
+  }
+
+  #graph text.label {
+    font-size: 0.75rem;
+    pointer-events: none;
+    stroke: var(--bs-primary);
+  }
+`.use();
 
 export default async () => {
   frame.clear(":not([slot])");
 
-  const container = component.div("container", {
+  const container = component.div("container my-3", {
     id: "graph",
     parent: frame,
-    innerHTML: `<svg role="img" aria-label="Graph"></svg>`,
+    innerHTML: html`<svg role="img" aria-label="Graph"></svg>`,
   });
 
   const RADIUS = 8;
@@ -38,7 +75,7 @@ export default async () => {
     { source: "C", target: "E" },
   ];
 
-  const svg = d3.select("#graph>svg");
+  const svg = d3.select("#graph > svg");
 
   const width = svg.node().clientWidth;
   const height = svg.node().clientHeight;
@@ -127,7 +164,7 @@ export default async () => {
     d.fy = null;
   }
 
-  window.addEventListener("resize", () => {
+  app.on._resize((event) => {
     const w = svg.node().clientWidth;
     const h = svg.node().clientHeight;
     simulation.force("center", d3.forceCenter(w / 2, h / 2));

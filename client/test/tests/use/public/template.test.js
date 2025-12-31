@@ -4,7 +4,7 @@
 
 import "@/use";
 
-const { component, declare } = await use("@/rollo/");
+const { component, css } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
 
 export default async () => {
@@ -12,9 +12,9 @@ export default async () => {
 
   const container = component.main("container.mt-3", {
     parent: frame,
-    ...declare.display.flex,
-    ...declare.flexDirection.column,
-    ...declare.alignItems.end,
+    ...css.display.flex,
+    ...css.flexDirection.column,
+    ...css.alignItems.end,
     innerHTML: await use("/test/foo.template"),
   });
 };

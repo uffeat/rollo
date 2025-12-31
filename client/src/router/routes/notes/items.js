@@ -24,7 +24,7 @@ const START = "/blog".length;
 /* Here we do incur an upfront "import cost", but it's low.
 NOTE Could "then-wrap", but that would complicate things, so keep as-is for now. */
 const manifest = await use("@/content/blog/_manifest.json");
-const paths = manifest.map(([path, timestamp]) => path);
+const paths = Object.freeze(manifest.map(([path, timestamp]) => path.slice(START)));
 /* Create items store for holding data and friends */
 const items = new Items();
 for (const path of paths) {
@@ -32,8 +32,7 @@ for (const path of paths) {
   retrieval. Since 'item' is mutable, it can later be changed without tinkering 
   with ordered 'items'. */
   const item = Promise.withResolvers();
-  /* Store item with path key stripped of '/blog' prefix  */
-  items.set(path.slice(START), item);
+  items.set(path, item);
 }
 /* Start "background" building */
 for (const [path, item] of items.entries()) {
@@ -61,4 +60,4 @@ for (const [path, item] of items.entries()) {
     });
 }
 
-export { items };
+export { items, paths };

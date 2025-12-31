@@ -2,29 +2,10 @@
 /app/breakpoints.test.js
 */
 
-
-import cssText from "./breakpoints.css?raw";
-
-const { component, element, Sheet, css, app, breakpoints } = await use("@/rollo/");
+const { component, element, Sheet, css, app, breakpoints } = await use(
+  "@/rollo/"
+);
 const { frame } = await use("@/frame/");
-
-Sheet.create(cssText).use();
-
-
-const { Plotly } = await use("/plotly/");
-
-const sheet = Sheet.create({
-  ".plotly .modebar": {
-    //backgroundColor: css.important("gray"),
-    boxShadow: css.important(null),
-  },
-
-  ".plotly:hover .modebar": {
-    //backgroundColor: css.important("pink"),
-  },
-});
-
-sheet.use();
 
 export default async () => {
   frame.clear(":not([slot])");
@@ -34,103 +15,22 @@ export default async () => {
     console.log("sm satisfied:", event.detail ?? app.$.sm);
   });
 
-  const plotContainer =element.div();
-
-  //plotContainer.classList.add('container')
-
-  //plotContainer.style.border = `2px solid ${css.__.bsGray400}`;
-  //plotContainer.style.alignSelf = "stretch";
-
-  Plotly.newPlot(
-    plotContainer,
-    /* data */
-    [
-      {
-        x: [576],
-        y: [""],
-        type: "bar",
-        orientation: "h",
-        marker: {
-          color: css.__.bsGray400,
-        },
-      },
-    ],
-    /* layout */
-    {
-      height: 500,
-      margin: {
-        l: 50,
-        r: 50,
-        b: 100,
-        t: 100,
-        pad: 4,
-      },
-      paper_bgcolor: "rgba(0,0,0,0)", // transparent outside background
-      plot_bgcolor: "rgba(0,0,0,0)", // transparent plot area
-      font: { color: "white" }, // make all text white
-      xaxis: {
-        range: [0, 1600],
-        color: "white", // axis lines + ticks
-        gridcolor: "rgba(255,255,255,0.2)", // subtle grid (optional)
-      },
-      yaxis: {
-        color: "white",
-      },
-    },
-    /* config */
-    {
-      displaylogo: false,
-      responsive: true,
-    }
-  );
-
   app.effects.add(
     (change, message) => {
       //console.log("state:", app.state);
       const current = app.state.current;
-      if (current.xxl) {
-        Plotly.restyle(plotContainer, "x", [[breakpoints.xxl]]);
-        Plotly.restyle(plotContainer, "marker.color", [css.__.bsBlue]);
-        return;
-      }
-      if (current.xl) {
-        Plotly.restyle(plotContainer, "x", [[breakpoints.xl]]);
-        Plotly.restyle(plotContainer, "marker.color", [css.__.bsPurple]);
-        return;
-      }
-      if (current.lg) {
-        Plotly.restyle(plotContainer, "x", [[breakpoints.lg]]);
-        Plotly.restyle(plotContainer, "marker.color", [css.__.bsYellow]);
-        return;
-      }
-
-      if (current.md) {
-        Plotly.restyle(plotContainer, "x", [[breakpoints.md]]);
-        Plotly.restyle(plotContainer, "marker.color", [css.__.bsOrange]);
-        return;
-      }
-
-      if (current.sm) {
-        Plotly.restyle(plotContainer, "x", [[breakpoints.sm]]);
-        Plotly.restyle(plotContainer, "marker.color", [css.__.bsRed]);
-        return;
-      }
-
-      Plotly.restyle(plotContainer, "marker.color", [css.__.bsGray400]);
     },
-    ["sm", "md", "lg", "xl", "xxl"]
+    ["sm", "md", "lg", "xl", "2xl"]
   );
 
   const container = component.div(
     "container",
     {
       parent: frame,
+
       ...css.display.flex,
       ...css.flexDirection.column,
       ...css.alignItems.end,
-      margin: css.rem(1),
-
-      border: "2px solid green",
     },
     component.h2({
       text: "XS",
@@ -147,7 +47,7 @@ export default async () => {
     ["md", css.__.bsOrange],
     ["lg", css.__.bsYellow],
     ["xl", css.__.bsPurple],
-    ["xxl", css.__.bsBlue],
+    ["2xl", css.__.bsBlue],
   ].forEach(([breakpoint, color]) => {
     const element = component.h2("invisible", {
       text: breakpoint.toUpperCase(),
@@ -160,8 +60,4 @@ export default async () => {
       [breakpoint]
     );
   });
-
-  container.append(plotContainer);
-
-  Plotly.Plots.resize(plotContainer);
 };

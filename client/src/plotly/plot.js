@@ -31,14 +31,6 @@ const Factory = author(
       this.#_.onresize = (event) => {
         this.resize();
       };
-
-      this.#_.spinner = component.div(
-        component.div(
-          "spinner-border",
-          { role: "status" },
-          component.span("visually-hidden", "Loading...")
-        )
-      );
     }
 
     setup(Plotly, ...args) {
@@ -188,5 +180,3 @@ export const Plot = async (...args) => {
   plot.setup(Plotly, ...args);
   return plot;
 };
-
-

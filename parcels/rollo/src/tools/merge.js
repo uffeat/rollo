@@ -1,8 +1,6 @@
 import { is } from "./is";
 import { type } from "./type";
 
-
-
 /* Merges nested structures. Arrays are treated as atomic values by default 
 (replaced entirely), but a function for custom array handling can be provided. 
 Implements the "undefined-means-delete" Rollo convention for objects. 

@@ -10,11 +10,22 @@ export const component = new Proxy(
   {
     get(_, tag) {
       if (tag === "from") {
-        return (html, { as = "div", convert = true } = {}) => {
+        return (html, { as, convert = true, ...updates } = {}) => {
           if (convert) {
-            return htmlToComponent(html, {as});
+            const nodes = htmlToComponent(html);
+            if (nodes.length === 1) {
+              if (as) {
+                /* Optional wrap */
+                return component[as](updates, nodes[0]);
+              }
+              /* No wrap */
+              return nodes[0].update(updates);
+            }
+            /* Force wrap */
+            return component[as || "div"](updates, ...nodes);
           }
-          return component[as]({ innerHTML: html });
+          /* No conversion */
+          return component[as || "div"]({ innerHTML: html, ...updates });
         };
       }
       return Factory(tag);
@@ -72,15 +83,12 @@ function Factory(tag) {
   return factory(instance);
 }
 
-/* Returns component with tree from html. 
-NOTE If the html has multiple top-level elements, the tree is wrapped in a 
-component with the 'as' tag. If the html only has a single top-level element
-'as' is ignored. */
-function htmlToComponent(html, { as = "div" } = {}) {
+/* Returns component with tree from html. */
+function htmlToComponent(html) {
   const wrapper = document.createElement("div");
   wrapper.innerHTML = html;
   const nodes = Array.from(wrapper.children, (c) => elementToComponent(c));
-  return nodes.length > 1 ? component[as](...nodes) : nodes[0];
+  return nodes;
 }
 
 /* Returns component from element tag and attributes.
