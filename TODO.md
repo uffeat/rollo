@@ -1,6 +1,4 @@
 # Features
-- Spaces
-- Static data
 - User
 - Stripe
 - Data store

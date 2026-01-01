@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Anvil</title>
     <script type="module">
+      
+      const parentOrigin = " http://localhost:3869";
+
       window.addEventListener("message", (event) => {
         //console.log("event:", event);
         const data = event.data;
@@ -15,7 +18,7 @@
         console.log("origin:", origin);
       });
 
-      window.parent.postMessage({data: 42})
+      window.parent.postMessage({ data: 42 });
     </script>
   </head>
   <body></body>
