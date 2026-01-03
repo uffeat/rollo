@@ -437,49 +437,24 @@ export const assets = new (class Assets {
       if (!this.sources.has(path.source)) {
         UseError.raise(`Invalid source: ${path.source}`);
       }
-      const { timeout } = options;
-      if (timeout) {
-        const { promise, resolve, reject } = Promise.withResolvers();
-        const timer = setTimeout(() => {
-          const error = new UseError(
-            `Importing '${path.full}' took longer than ${timeout}ms.`
-          );
-          this.meta.DEV ? reject(error) : resolve(error);
-        }, timeout);
-        const sourcePromise = (() => {
-          try {
-            return this.sources.get(path.source)(
-              { options: { ...options }, owner: this, path },
-              ...args
-            );
-          } catch (error) {
-            return Promise.reject(error);
-          }
-        })();
-        sourcePromise
-          .then((result) => {
-            clearTimeout(timer);
-            resolve(result);
-          })
-          .catch((error) => {
-            clearTimeout(timer);
-            this.meta.DEV ? reject(error) : resolve(error);
-          });
-        
-        result = await promise;
-      } else {
-        result = await this.sources.get(path.source)(
-          { options: { ...options }, owner: this, path },
-          ...args
-        );
-      }
+
+      result = await this.sources.get(path.source)(
+        { options: { ...options }, owner: this, path },
+        ...args
+      );
     }
+
     /* Escape */
     if (path.detail.escape) return result;
     /* Error */
     if (result instanceof Error) return result;
     /* Raw */
-    if (options.raw) return result;
+    if (options.raw) {
+      if (options.spec) {
+        return Object.freeze({source: path.source, text: result, type: path.type });
+      }
+      return result;
+    }
     /* Transform */
     if (path.detail.transform !== false && this.types.has(path.type)) {
       const transformer = this.types.get(path.type);
@@ -506,6 +481,7 @@ export const assets = new (class Assets {
         result = processed;
       }
     }
+
     return result;
   }
 })();
