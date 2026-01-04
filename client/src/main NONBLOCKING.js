@@ -2,20 +2,17 @@
 import "@/main.css";
 import "@/use";
 import "@/router";
-
-
 import Anvil from "@/anvil";
+
+
+
 const { anvil } = await Anvil;
+
 anvil.echo(42).then((data) => {
   console.log("data:", data);
 });
-
 
 /*
-
-anvil.echo(42).then((data) => {
-  console.log("data:", data);
-});
 
 
 

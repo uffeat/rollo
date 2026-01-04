@@ -3,13 +3,44 @@ import "@/main.css";
 import "@/use";
 import "@/router";
 
-
+/*
 import Anvil from "@/anvil";
 const { anvil } = await Anvil;
 anvil.echo(42).then((data) => {
   console.log("data:", data);
 });
+*/
+const { Exception, app, component, is } = await use("@/rollo/");
+const src = "https://rollohdev.anvil.app/index";
 
+const iframe = component.iframe({
+  src,
+  //slot: "data",
+  id: "anvil",
+  name: "anvil",
+});
+
+/* Get access to contentWindow (handshake) */
+const promise = new Promise((resolve) => {
+  const onready = (event) => {
+    if (event.origin !== src) {
+      //return;
+    }
+    if (event.data !== "ready") {
+      return;
+    }
+
+    console.log("event.origin:", event.origin);
+
+
+    //window.removeEventListener("message", onready);
+    resolve(iframe.contentWindow);
+  };
+  window.addEventListener("message", onready);
+});
+app.append(iframe);
+const contentWindow = await promise;
+console.log("contentWindow:", contentWindow);
 
 /*
 
