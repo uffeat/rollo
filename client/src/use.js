@@ -263,6 +263,8 @@ export const assets = new (class Assets {
           typeof import.meta !== "undefined" &&
           typeof import.meta.env !== "undefined" &&
           import.meta.env.MODE;
+
+        this.#_.env = this.#_.DEV ? 'development' : 'production';
       }
 
       get DEV() {
@@ -281,6 +283,10 @@ export const assets = new (class Assets {
 
       get detail() {
         return this.#_.detail;
+      }
+
+      get env() {
+        return this.#_.env;
       }
 
       get origin() {
