@@ -6,7 +6,8 @@ restriced access to HTTP-endpoints and access to this app's import engine. */
 
 
 
-const _origin = use.meta.DEV ? "https://rollohdev.anvil.app" : "https://rolloh.anvil.app";
+//const _origin = use.meta.DEV ? "https://rollohdev.anvil.app" : "https://rolloh.anvil.app";
+const _origin = "https://rollohdev.anvil.app"
 
 console.log("Loading..."); ////
 
