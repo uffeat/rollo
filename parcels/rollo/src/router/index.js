@@ -95,7 +95,7 @@ const Router = new (class Router {
 
     if (!this.#_.initialized) {
       /* Enable back/forward navigation */
-      window.parent.addEventListener("popstate", async (event) => {
+      window.addEventListener("popstate", async (event) => {
         await this.use(this.#specifierFromLocation(), {
           context: "pop",
         });
@@ -130,7 +130,7 @@ const Router = new (class Router {
           this.#_.url = url;
           return () => {
             if (!context) {
-              window.parent.history.pushState({}, "", url.full);
+              history.pushState({}, "", url.full);
             }
           };
         } else {
@@ -142,7 +142,7 @@ const Router = new (class Router {
         this.#_.url = url;
         return () => {
           if (!context) {
-            window.parent.history.pushState({}, "", url.full);
+            history.pushState({}, "", url.full);
           }
         };
       }
@@ -238,10 +238,9 @@ const Router = new (class Router {
   }
 
   #specifierFromLocation() {
-    const _location = window.parent.location
-    return _location.search
-      ? `${_location.pathname}${_location.search}${_location.hash}`
-      : `${_location.pathname}${_location.hash}`;
+    return location.search
+      ? `${location.pathname}${location.search}${location.hash}`
+      : `${location.pathname}${location.hash}`;
   }
 })();
 
