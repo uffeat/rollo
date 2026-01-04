@@ -7,9 +7,7 @@ if (window !== window.parent) {
   const { Exception, app, Sheet, component, element, css, typeName, is } =
     await use("@/rollo/");
 
-  const _origin = use.meta.DEV
-    ? "https://rollohdev.anvil.app"
-    : "https://rolloh.anvil.app";
+  const _origin = use.meta.DEV ? "https://rollohdev.anvil.app" : "https://rolloh.anvil.app";
 
   const request = (target, data, { timeout } = {}) => {
     const { promise, resolve, reject } = Promise.withResolvers();
@@ -62,17 +60,56 @@ if (window !== window.parent) {
     }
   );
 
-  /* Test */
-  await (async () => {
-    const result = await anvil.echo(42);
-    console.log("result:", result);
-  })();
+  const result = await anvil.echo(42);
+  console.log("result:", result);
 
-  await (async () => {
-    const result = await anvil.echo('foo');
-    console.log("result:", result);
-  })();
+  //console.log('iframe sending ready')
+  //window.parent.postMessage("ready", _origin);
 }
+
+/*
+import Anvil from "@/anvil";
+const { anvil } = await Anvil;
+anvil.echo(42).then((data) => {
+  console.log("data:", data);
+});
+*/
+
+/*
+
+anvil.echo(42).then((data) => {
+  console.log("data:", data);
+});
+
+
+
+console.log('Loading...')
+const { anvil, request } = await Anvil("https://rollohdev.anvil.app");
+console.log('Loaded')
+
+
+const { Exception, app, Sheet, component, element, css, typeName, is } =
+  await use("@/rollo/");
+const { frame } = await use("@/frame/");
+*/
+
+/*
+anvil.echo(42).then((data) => {
+    console.log("data:", data);
+  });
+
+ try {
+    await anvil.bad();
+  } catch (error) {
+    console.log("Error as expected:", error.message);
+  }
+
+  try {
+    await anvil.noexist();
+  } catch (error) {
+    console.log("Error as expected:", error.message);
+  }
+    */
 
 if (import.meta.env.DEV) {
   /* Initialize DEV testbench */
