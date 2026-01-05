@@ -41,9 +41,7 @@ export const Anvil = async (src) => {
   app.append(iframe);
   const contentWindow = await promise;
 
-  /* Provide access to assets. 
-
-  */
+  /* Provide access to assets. */
   window.addEventListener("message", async (event) => {
     if (
       event.origin !== src ||

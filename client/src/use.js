@@ -264,7 +264,7 @@ export const assets = new (class Assets {
           typeof import.meta.env !== "undefined" &&
           import.meta.env.MODE;
 
-        this.#_.env = this.#_.DEV ? 'development' : 'production';
+        this.#_.env = this.#_.DEV ? "development" : "production";
       }
 
       get DEV() {
@@ -457,7 +457,12 @@ export const assets = new (class Assets {
     /* Raw */
     if (options.raw) {
       if (options.spec) {
-        return Object.freeze({source: path.source, text: result, type: path.type });
+        return Object.freeze({
+          path: path.full,
+          source: path.source,
+          text: result,
+          type: path.type,
+        });
       }
       return result;
     }
