@@ -4,12 +4,24 @@ import "@/use";
 import "@/router";
 
 if (window !== window.parent) {
-  const { Exception, app, Sheet, component, element, css, typeName, is } =
-    await use("@/rollo/");
+  const {
+    Exception,
+    app,
+    Sheet,
+    component,
+    element,
+    css,
+    router,
+    typeName,
+    is,
+  } = await use("@/rollo/");
 
+  /*
   const _origin = use.meta.DEV
     ? "https://rollohdev.anvil.app"
     : "https://rolloh.anvil.app";
+  */
+ const _origin = "https://rollohdev.anvil.app"
 
   const request = (target, data, { timeout } = {}) => {
     const { promise, resolve, reject } = Promise.withResolvers();
@@ -62,6 +74,35 @@ if (window !== window.parent) {
     }
   );
 
+  window.addEventListener("message", async (event) => {
+    console.log("event.origin:", event.origin); ////
+    if (
+      event.origin !== _origin ||
+      !is.object(event.data) ||
+      event.data.type !== "router"
+    ) {
+      return;
+    }
+    const { path } = event.data;
+    await router.use(path);
+  });
+
+  window.addEventListener("message", async (event) => {
+    if (
+      event.origin !== _origin ||
+      !is.object(event.data) ||
+      event.data.type !== "use"
+    ) {
+      return;
+    }
+    const { specifier } = event.data;
+    const spec = await use(specifier, { raw: true, spec: true });
+    /* NOTE the 'raw' and 'spec' options ensure that the iframe gets
+    the asset as text along with type, so that the iframe can do
+    type-dependent asset construction. */
+    window.parent.postMessage({ type: "use", spec, specifier }, _origin);
+  });
+
   /* Test */
   await (async () => {
     const result = await anvil.echo(42);
@@ -69,7 +110,7 @@ if (window !== window.parent) {
   })();
 
   await (async () => {
-    const result = await anvil.echo('foo');
+    const result = await anvil.echo("foo");
     console.log("result:", result);
   })();
 }
