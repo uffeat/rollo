@@ -21,7 +21,7 @@ if (window !== window.parent) {
     ? "https://rollohdev.anvil.app"
     : "https://rolloh.anvil.app";
   */
- const _origin = "https://rollohdev.anvil.app"
+ const _origin = "https://rollohdev.anvil.app";
 
   const request = (target, data, { timeout } = {}) => {
     const { promise, resolve, reject } = Promise.withResolvers();
