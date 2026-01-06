@@ -27,6 +27,7 @@ import {
 // tools
 import { Exception } from "./src/tools/exception";
 import { Future } from "./src/tools/future";
+import { TaggedSets } from "./src/tools/tagged_sets";
 import {
   camelToKebab,
   camelToPascal,
@@ -90,6 +91,7 @@ export {
   // tools
   Exception,
   Future,
+  TaggedSets,
   camelToKebab,
   camelToPascal,
   defineMethod,

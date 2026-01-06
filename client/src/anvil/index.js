@@ -1,22 +1,20 @@
-const { Exception, app, component, is } = await use("@/rollo/");
-
 /* Sets up iframe that embeds Anvil-served app and returns bridge tools. 
 NOTE Intended as a non-visual DOM-aware stateful "super-worker" with non-cors 
 restriced access to HTTP-endpoints and access to this app's import engine. */
 
-const _origin = use.meta.DEV
-  ? "https://rollohdev.anvil.app"
-  : "https://rolloh.anvil.app";
+const { Exception, TaggedSets, app, component, freeze, is } = await use(
+  "@/rollo/"
+);
 
 const iframe = component.iframe({
-  src: `${_origin}`,
+  src: `${use.meta.anvil.origin}`,
   slot: "data",
   id: "anvil",
   name: "anvil",
   title: "anvil",
 });
 
-/* Get access to contentWindow (handshake) */
+/* Get access to contentWindow */
 const promise = new Promise((resolve) => {
   iframe.on.load({ once: true }, (event) => {
     resolve(iframe.contentWindow);
@@ -25,35 +23,88 @@ const promise = new Promise((resolve) => {
 app.append(iframe);
 const contentWindow = await promise;
 
-/* Provide access to assets. */
+/* Give Anvil app access to assets. */
 window.addEventListener("message", async (event) => {
   if (
-    event.origin !== _origin ||
+    event.origin !== use.meta.anvil.origin ||
     !is.object(event.data) ||
     event.data.type !== "use"
   ) {
     return;
   }
-
   const { specifier } = event.data;
-
   const port = event.ports[0];
   const spec = await use(specifier, { raw: true, spec: true });
-
   /* NOTE the 'raw' and 'spec' options ensure that the iframe gets
-    the asset as text along with type, so that the iframe can do
-    type-dependent asset construction. */
+  the asset as text along with type, so that the iframe can do
+  type-dependent asset construction. */
   port.postMessage({ type: "use", spec, specifier });
   port.close();
 });
 
+/* */
+const receivers = new (class {
+  #_ = {
+    registry: new TaggedSets(),
+  };
+  constructor() {
+    this.#_.onmessage = (event) => {
+      if (
+        event.origin !== use.meta.anvil.origin ||
+        !is.object(event.data) ||
+        event.data.type !== "push"
+      ) {
+        return;
+      }
+      const { data, target } = event.data;
+
+      const effects = this.#_.registry.values(target);
+      if (effects) {
+        if (is.array(data) || is.object(data)) {
+          freeze(data);
+        }
+        for (const effect of effects) {
+          effect(data, { effect, name: target });
+        }
+      }
+    };
+
+    this.start;
+  }
+
+  get runs() {
+    this.#_.runs;
+  }
+
+  add(name, effect) {
+    this.#_.registry.add(name, effect);
+  }
+
+  clear(name) {
+    this.#_.registry.clear(name);
+  }
+
+  remove(name, effect) {
+    this.#_.registry.remove(name, effect);
+  }
+
+  start() {
+    window.addEventListener("message", this.#_.onmessage);
+    this.#_.runs = true;
+  }
+
+  stop() {
+    window.removeEventListener("message", this.#_.onmessage);
+    this.#_.runs = false;
+  }
+})();
+
 /* Returns promise that resolves to iframe target result.
-  NOTE This is the work-horse and the core parent->iframe->parent bridge. */
+NOTE This is the work-horse and the core parent->iframe->parent bridge. */
 const request = (target, data, { timeout } = {}) => {
   const { promise, resolve, reject } = Promise.withResolvers();
   /* Create dedicated channel for the specific request */
   const channel = new MessageChannel();
-
   const timer = (() => {
     if (is.undefined(timeout)) {
       return;
@@ -63,7 +114,6 @@ const request = (target, data, { timeout } = {}) => {
       reject(new Error(`Timeout for: ${target}`));
     }, timeout);
   })();
-
   /* Listen on port1 for the response */
   channel.port1.onmessage = (event) => {
     Exception.if(
@@ -83,9 +133,11 @@ const request = (target, data, { timeout } = {}) => {
     channel.port1.close();
   };
   /* Send request with port2 transferred to iframe */
-  contentWindow.postMessage({ type: "request", target, data }, _origin, [
-    channel.port2,
-  ]);
+  contentWindow.postMessage(
+    { type: "request", target, data },
+    use.meta.anvil.origin,
+    [channel.port2]
+  );
   return promise;
 };
 
@@ -101,4 +153,4 @@ const anvil = new Proxy(
   }
 );
 
-export { anvil };
+export { anvil, receivers };

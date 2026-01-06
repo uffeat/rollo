@@ -33,6 +33,10 @@ export class TaggedSets {
   }
 
   clear(key) {
+    if (key === undefined) {
+      this.#_.registry.clear();
+      return;
+    }
     if (this.#_.registry.has(key)) {
       const registry = this.#_.registry.get(key);
       registry.clear();

@@ -265,6 +265,20 @@ export const assets = new (class Assets {
           import.meta.env.MODE;
 
         this.#_.env = this.#_.DEV ? "development" : "production";
+
+        const owner = this;
+
+        this.#_.anvil = new (class {
+          #_ = {};
+          constructor() {
+            this.#_.origin = owner.DEV
+              ? "https://rollohdev.anvil.app"
+              : "https://rolloh.anvil.app";
+          }
+          get origin() {
+            return this.#_.origin;
+          }
+        })();
       }
 
       get DEV() {
@@ -274,6 +288,10 @@ export const assets = new (class Assets {
       /* Returns flag that indicates if running in Vite env. */
       get VITE() {
         return this.#_.VITE;
+      }
+
+      get anvil() {
+        return this.#_.anvil;
       }
 
       /* Returns prefix for access to public. */

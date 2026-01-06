@@ -1054,6 +1054,10 @@ class U {
     }
   }
   clear(t) {
+    if (t === void 0) {
+      this.#t.registry.clear();
+      return;
+    }
     this.#t.registry.has(t) && (this.#t.registry.get(t).clear(), this.#t.registry.delete(t));
   }
   has(t, e) {
@@ -2405,6 +2409,7 @@ export {
   A as Reactive,
   L as Ref,
   q as Sheet,
+  U as TaggedSets,
   w as app,
   st as author,
   Vt as breakpoints,
