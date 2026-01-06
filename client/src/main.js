@@ -4,6 +4,14 @@ import "@/use";
 import { anvil } from "@/anvil";
 import "@/router";
 
+anvil.receiver.effects.add((change) => {
+  console.log("change:", change);
+});
+
+anvil.receivers.effects.add("main", (data) => {
+  console.log("data:", data);
+});
+
 /* Test */
 await (async () => {
   const result = await anvil.echo(42);

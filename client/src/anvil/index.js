@@ -2,28 +2,19 @@
 NOTE Intended as a non-visual DOM-aware stateful "super-worker" with non-cors 
 restriced access to HTTP-endpoints and access to this app's import engine. */
 
-const { Exception, TaggedSets, app, component, freeze, is } = await use(
-  "@/rollo/"
-);
+const { Exception, Reactive, TaggedSets, app, component, match, merge, freeze, is } =
+  await use("@/rollo/");
 
 const iframe = component.iframe({
-  src: `${use.meta.anvil.origin}`,
+  src: `${use.meta.anvil.origin}/embedded?foo=42&bar&stuff`,
   slot: "data",
   id: "anvil",
   name: "anvil",
   title: "anvil",
 });
 
-/* Get access to contentWindow */
-const promise = new Promise((resolve) => {
-  iframe.on.load({ once: true }, (event) => {
-    resolve(iframe.contentWindow);
-  });
-});
-app.append(iframe);
-const contentWindow = await promise;
-
-/* Give Anvil app access to assets. */
+/* Give Anvil app access to assets. 
+NOTE Flow: iframe -> parent -> iframe. */
 window.addEventListener("message", async (event) => {
   if (
     event.origin !== use.meta.anvil.origin ||
@@ -42,65 +33,171 @@ window.addEventListener("message", async (event) => {
   port.close();
 });
 
-/* */
-const receivers = new (class {
+/* Wrapped version of 'Reactive' updated by iworker. 
+NOTE Flow: iframe -> parent. */
+const receiver = new (class {
   #_ = {
-    registry: new TaggedSets(),
+    state: new Reactive(),
   };
   constructor() {
     this.#_.onmessage = (event) => {
       if (
         event.origin !== use.meta.anvil.origin ||
         !is.object(event.data) ||
-        event.data.type !== "push"
+        event.data.type !== "receiver"
       ) {
         return;
       }
-      const { data, target } = event.data;
-
-      const effects = this.#_.registry.values(target);
-      if (effects) {
-        if (is.array(data) || is.object(data)) {
-          freeze(data);
-        }
-        for (const effect of effects) {
-          effect(data, { effect, name: target });
-        }
-      }
+      const { data } = event.data;
+      Exception.if(!is.object(event.data), `Invalid 'event.data' type.`, () =>
+        console.error("event.data:", event.data)
+      );
+      this.#_.state.update(data);
     };
 
-    this.start;
+    this.start();
   }
 
-  get runs() {
-    this.#_.runs;
+  get active() {
+    return this.#_.active;
   }
 
-  add(name, effect) {
-    this.#_.registry.add(name, effect);
+  get computed() {
+    return this.#_.state.computed;
   }
 
-  clear(name) {
-    this.#_.registry.clear(name);
+  get change() {
+    return this.#_.state.change;
   }
 
-  remove(name, effect) {
-    this.#_.registry.remove(name, effect);
+  get current() {
+    return this.#_.state.current;
+  }
+
+  get effects() {
+    return this.#_.state.effects;
+  }
+
+  get previous() {
+    return this.#_.state.previous;
+  }
+
+  get size() {
+    return this.#_.state.size;
+  }
+
+  get session() {
+    return this.#_.state.session;
   }
 
   start() {
     window.addEventListener("message", this.#_.onmessage);
-    this.#_.runs = true;
+    this.#_.active = true;
   }
 
   stop() {
     window.removeEventListener("message", this.#_.onmessage);
-    this.#_.runs = false;
+    this.#_.active = false;
   }
 })();
 
+/* Somewhat similar to 'receiver', but 
+- stateless (except for queue)
+- not limited to flat objects
+- effects orgnaised across any number of 'tags' (i.e., "channels"/"domains")
+- no change-detection
+- no conditional effects.
+NOTE 
+Flow: iframe -> parent.
+Consuming code can implement change-detection, conditional effects etc.
+*/
+const receivers = new (class {
+  #_ = {
+    registry: new TaggedSets(),
+    queue: new Map(),
+  };
+  constructor() {
+    const owner = this;
+    this.#_.onmessage = (event) => {
+      if (
+        event.origin !== use.meta.anvil.origin ||
+        !is.object(event.data) ||
+        event.data.type !== "receivers"
+      ) {
+        return;
+      }
+      const { data, target } = event.data;
+      Exception.if(!is.object(event.data) && !is.array(event.data), `Invalid 'event.data' type.`, () =>
+        console.error("event.data:", event.data)
+      );
+
+      const effects = this.#_.registry.values(target);
+      if (effects) {
+        if (this.#_.queue.has(target)) {
+          merge(data, this.#_.queue.get(target));
+          this.#_.queue.delete(target);
+        }
+        freeze(data);
+        for (const effect of effects) {
+          effect(data, { effect, name: target });
+        }
+      } else {
+        if (this.#_.queue.has(target)) {
+          merge(data, this.#_.queue.get(target));
+        } else {
+          this.#_.queue.set(target, data);
+        }
+      }
+    };
+
+    this.#_.effects = new (class {
+      add(name, effect) {
+        owner.#_.registry.add(name, effect);
+      }
+
+      clear(name) {
+        owner.#_.registry.clear(name);
+      }
+
+      remove(name, effect) {
+        owner.#_.registry.remove(name, effect);
+      }
+    })();
+
+    this.start();
+  }
+
+  get active() {
+    return this.#_.active;
+  }
+
+  get effects() {
+    return this.#_.effects;
+  }
+
+  start() {
+    window.addEventListener("message", this.#_.onmessage);
+    this.#_.active = true;
+  }
+
+  stop() {
+    window.removeEventListener("message", this.#_.onmessage);
+    this.#_.active = false;
+  }
+})();
+
+/* Get access to contentWindow */
+const promise = new Promise((resolve, reject) => {
+  iframe.on.load({ once: true }, (event) => {
+    resolve(iframe.contentWindow);
+  });
+});
+app.append(iframe);
+const contentWindow = await promise;
+
 /* Returns promise that resolves to iframe target result.
-NOTE This is the work-horse and the core parent->iframe->parent bridge. */
+NOTE This is the work-horse.
+Flow: parent -> iframe -> parent. */
 const request = (target, data, { timeout } = {}) => {
   const { promise, resolve, reject } = Promise.withResolvers();
   /* Create dedicated channel for the specific request */
@@ -116,10 +213,8 @@ const request = (target, data, { timeout } = {}) => {
   })();
   /* Listen on port1 for the response */
   channel.port1.onmessage = (event) => {
-    Exception.if(
-      !is.object(event.data),
-      `'event.data' should be a plain object.`,
-      () => console.error("event.data:", event.data)
+    Exception.if(!is.object(event.data), `Invalid 'event.data' type.`, () =>
+      console.error("event.data:", event.data)
     );
     if (!is.undefined(timer)) {
       clearTimeout(timer);
@@ -146,6 +241,12 @@ const anvil = new Proxy(
   {},
   {
     get(_, key) {
+      if (key === "receiver") {
+        return receiver;
+      }
+      if (key === "receivers") {
+        return receivers;
+      }
       return (...args) => {
         return request(key, ...args);
       };
@@ -153,4 +254,29 @@ const anvil = new Proxy(
   }
 );
 
-export { anvil, receivers };
+if (import.meta.env.DEV) {
+  const BROKEN = 3000;
+  const SLOW = 1000;
+  const test = (timeout, { retry = true } = {}) => {
+    const expected = crypto.randomUUID();
+    anvil
+      .echo(expected, { timeout })
+      .then((echo) => {
+        Exception.if(echo !== expected, `Incorrect echo.`);
+        console.info("Connection verified.");
+      })
+      .catch((error) => {
+        if (retry) {
+          console.warn(`Verifying again in the background...`);
+          test(BROKEN, { retry: false });
+        } else {
+          console.error(error);
+          throw new Error(`Connection could not be verified.`);
+        }
+      });
+  };
+  console.info("Verifying Anvil connection in the background...");
+  test(SLOW, { retry: true });
+}
+
+export { anvil };
