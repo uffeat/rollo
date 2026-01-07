@@ -26,6 +26,7 @@ class main(Files, Minify):
                 ".html",
                 ".js",
                 ".json",
+                ".py",
                 ".svg",
                 ".template",
             ]:
@@ -59,10 +60,8 @@ class main(Files, Minify):
                 continue
             if file.suffix == ".js":
                 encoded = encode(text)
-
                 ##
                 ##
-                # Plotly seems to be a problem, so do some printing
                 if "plotly" in file.name:
                     ...
                     ##print(text)
@@ -78,6 +77,11 @@ class main(Files, Minify):
                 encoded = encode(text)
                 rules.append(self.create_asset_rule(path, encoded))
                 continue
+            if file.suffix == ".py":
+                encoded = encode(text)
+                rules.append(self.create_asset_rule(path, encoded))
+                continue
+
             if file.suffix == ".svg":
                 minified = self.minify_html(text)
                 encoded = encode(minified)
@@ -134,4 +138,3 @@ main = main()
 
 if __name__ == "__main__":
     main()
-

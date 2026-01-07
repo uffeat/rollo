@@ -2,8 +2,17 @@
 NOTE Intended as a non-visual DOM-aware stateful "super-worker" with non-cors 
 restriced access to HTTP-endpoints and access to this app's import engine. */
 
-const { Exception, Reactive, TaggedSets, app, component, match, merge, freeze, is } =
-  await use("@/rollo/");
+const {
+  Exception,
+  Reactive,
+  TaggedSets,
+  app,
+  component,
+  match,
+  merge,
+  freeze,
+  is,
+} = await use("@/rollo/");
 
 const iframe = component.iframe({
   src: `${use.meta.anvil.origin}/embedded?foo=42&bar&stuff`,
@@ -127,8 +136,10 @@ const receivers = new (class {
         return;
       }
       const { data, target } = event.data;
-      Exception.if(!is.object(event.data) && !is.array(event.data), `Invalid 'event.data' type.`, () =>
-        console.error("event.data:", event.data)
+      Exception.if(
+        !is.object(event.data) && !is.array(event.data),
+        `Invalid 'event.data' type.`,
+        () => console.error("event.data:", event.data)
       );
 
       const effects = this.#_.registry.values(target);
@@ -236,6 +247,61 @@ const request = (target, data, { timeout } = {}) => {
   return promise;
 };
 
+const run = async (path, ...args) => {
+  const text = await use(path);
+  const kwargs = args.find((a, i) => !i && is.object(a)) || {};
+  args = args.filter((a, i) => i || !is.object(a));
+  const { promise, resolve, reject } = Promise.withResolvers();
+  const channel = new MessageChannel();
+  channel.port1.onmessage = (event) => {
+    if (event.data.error) {
+      reject(event.data.error);
+    } else {
+      resolve(event.data.data);
+    }
+    channel.port1.close();
+  };
+
+  contentWindow.postMessage(
+    { type: "run", text, args, kwargs },
+    use.meta.anvil.origin,
+    [channel.port2]
+  );
+  return promise;
+};
+
+const _run = (text, path, kwargs, ...args) => {
+  const { promise, resolve, reject } = Promise.withResolvers();
+  const channel = new MessageChannel();
+  channel.port1.onmessage = (event) => {
+    if (event.data.error) {
+      reject(event.data.error);
+    } else {
+      resolve(event.data.data);
+    }
+    channel.port1.close();
+  };
+  contentWindow.postMessage(
+    { type: "run", text, path, args, kwargs },
+    use.meta.anvil.origin,
+    [channel.port2]
+  );
+  return promise;
+};
+
+use.types.add("py", (text, { path }) => {
+  //console.log("path.path:", path.path); ///
+  return (kwargs, ...args) => {
+    return _run(text, path.path, kwargs, ...args);
+  };
+});
+
+use.redirects.add((specifier, options, ...args) => {
+  if (specifier.startsWith("@/") && specifier.endsWith(".py")) {
+    return `/parcels${specifier.slice(1)}`;
+  }
+});
+
 /* Wraps 'request' for a more 'RPC-like' DX. */
 const anvil = new Proxy(
   {},
@@ -279,4 +345,4 @@ if (import.meta.env.DEV) {
   test(SLOW, { retry: true });
 }
 
-export { anvil };
+export { anvil, run };
