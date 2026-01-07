@@ -1,4 +1,5 @@
 import "@/use";
+import { anvil } from "@/anvil";
 
 const { component } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
@@ -16,6 +17,11 @@ export default new (class {
       );
     }
     return this.#_.page;
+  }
+
+  async setup() {
+    const result = await anvil.echo("ABOUT");
+  console.log("result:", result);
   }
 
   enter(meta, url, ...paths) {

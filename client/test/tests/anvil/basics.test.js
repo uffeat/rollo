@@ -2,7 +2,7 @@
 /anvil/basics.test.js
 */
 
-import { Anvil } from "@/anvil";
+import { anvil } from "@/anvil";
 
 const { component, app } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
@@ -11,11 +11,13 @@ export default async () => {
   frame.clear(":not([slot])");
   frame.close();
 
-  const { anvil, request } = await Anvil("https://rollohdev.anvil.app");
+  await (async () => {
+    const result = await anvil.echo(42);
+    console.log("result:", result);
+  })();
 
-  anvil.echo(42).then((data) => {
-    console.log("data:", data);
-  });
-
- 
+  await (async () => {
+    const result = await anvil.echo("foo");
+    console.log("result:", result);
+  })();
 };

@@ -15,8 +15,6 @@ const run = (() => {
     })
   );
 
-  //console.log("loaders:", loaders);////
-
   /* Add 'tests' source to import engine */
   use.sources.add("tests", async ({ path }) => {
     if (!(path.path in loaders)) {
@@ -50,6 +48,3 @@ const run = (() => {
 
 export {};
 
-
-//
-//await run('/content/background.test.js')

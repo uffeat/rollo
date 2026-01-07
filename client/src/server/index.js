@@ -27,14 +27,11 @@ const server = new (class {
     this.#_.api = new Proxy(
       {},
       {
-        get(_, name) {
+        get(_, target) {
           return async (data) => {
             data = { data };
-            if (key) {
-              data.__key__ = key;
-            }
             return owner.#fetch(
-              `${url}/_/api/${name}?submission=${submission()}`,
+              `${url}/_/api/main?submission=${submission()}&target=${target}`,
               data
             );
           };
