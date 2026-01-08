@@ -40,7 +40,7 @@ class InputFile {
   }
 
   async json() {
-    return JSON.stringify(await this.object());
+    return JSON.stringify(await this.dto());
   }
 
   async dto() {
