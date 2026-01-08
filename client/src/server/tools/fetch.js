@@ -11,8 +11,6 @@ const _fetch = async (url, data) => {
     ...options,
   });
 
-  console.log("response:", response); ////
-
   const parsed = await response.json();
   Exception.if("__error__" in parsed, parsed.__error__);
   return freeze(parsed);

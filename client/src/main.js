@@ -6,10 +6,6 @@ import "@/iworker";
 /* Set up routes */
 import "@/router";
 
-
-
-
-
 if (import.meta.env.DEV) {
   /* Initialize DEV testbench */
   await import("../test");
