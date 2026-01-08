@@ -1,30 +1,12 @@
-/* Initialize import engine and load main sheet (with Tailwind) */
+/* Initialize import engine */
 import "@/main.css";
 import "@/use";
+/* Initialize iworker */
 import "@/iworker";
+/* Set up routes */
 import "@/router";
 
-import { server } from "@/server";
 
-await (async () => {
-  const result = await server.echo(42);
-  console.log("result:", result);
-})();
-
-await (async () => {
-  const result = await server.echo(43);
-  console.log("result:", result);
-})();
-
-await (async () => {
-  const result = await server.foo();
-  console.log("result:", result);
-})();
-
-await (async () => {
-  const result = await server.bar({bar: 'BAR'});
-  console.log("result:", result);
-})();
 
 
 

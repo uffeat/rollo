@@ -1,7 +1,7 @@
 /*
 /server/echo.test.js
 */
-import { api, rpc } from "@/server";
+import { server } from "@/server";
 
 const { component } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
@@ -12,16 +12,22 @@ export default async () => {
   const page = component.div("container.p-3", { parent: frame });
 
   await (async () => {
-    const { data, meta } = await api.echo({ ding: 42, dong: true, foo: "FOO" });
-    console.log("data:", data);
-    console.log("meta:", meta);
+    const result = await server.echo(42);
+    console.log("result:", result);
   })();
 
-  /*
-await (async () => {
-  const { data, meta } = await rpc.echo({ ding: 42, dong: true, foo: "FOO" });
-  console.log("data:", data);
-  console.log("meta:", meta);
-})();
-*/
+  await (async () => {
+    const result = await server.echo(43);
+    console.log("result:", result);
+  })();
+
+  await (async () => {
+    const result = await server.foo();
+    console.log("result:", result);
+  })();
+
+  await (async () => {
+    const result = await server.bar({ bar: "BAR" });
+    console.log("result:", result);
+  })();
 };
