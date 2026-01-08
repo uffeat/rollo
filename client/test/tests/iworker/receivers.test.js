@@ -1,8 +1,8 @@
 /*
-/anvil/receiver.test.js
+/iworker/receivers.test.js
 */
 
-import { anvil } from "@/anvil";
+import { iworker } from "@/iworker";
 import text from "./scripts/parent.py?raw";
 
 const { component, app } = await use("@/rollo/");
@@ -12,9 +12,9 @@ export default async () => {
   frame.clear(":not([slot])");
   frame.close();
 
-  anvil.receiver.effects.add((change) => {
-    console.log("change:", change);
+  iworker.receivers.effects.add("main", (data) => {
+    console.log("data:", data);
   });
 
-  await anvil.run({ text });
+  await iworker.run({ text });
 };

@@ -1,5 +1,5 @@
 /*
-/anvil/foo.test.js
+/iworker/foo.test.js
 */
 
 

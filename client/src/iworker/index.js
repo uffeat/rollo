@@ -35,9 +35,9 @@ const { Exception, app, component, is } = await use("@/rollo/");
 const iframe = component.iframe({
   src: `${use.meta.companion.origin}/embedded`,
   slot: "data",
-  id: "anvil",
-  name: "anvil",
-  title: "anvil",
+  id: "iworker",
+  name: "iworker",
+  title: "iworker",
 });
 
 /* Get access to contentWindow */
@@ -53,7 +53,7 @@ request.window = contentWindow;
 run.window = contentWindow;
 
 /* Wraps 'request' and additional tools for a more 'RPC-like' DX. */
-const anvil = new Proxy(
+const iworker = new Proxy(
   {},
   {
     get(_, key) {
@@ -79,7 +79,7 @@ if (import.meta.env.DEV) {
   const SLOW = 1000;
   const test = (timeout, { retry = true } = {}) => {
     const expected = crypto.randomUUID();
-    anvil
+    iworker
       .echo(expected, { timeout })
       .then((echo) => {
         Exception.if(echo !== expected, `Incorrect echo.`);
@@ -95,8 +95,8 @@ if (import.meta.env.DEV) {
         }
       });
   };
-  console.info("Verifying Anvil connection...");
+  console.info("Verifying iworker connection...");
   test(SLOW, { retry: true });
 }
 
-export { anvil };
+export { iworker };

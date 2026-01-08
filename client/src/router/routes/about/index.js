@@ -1,5 +1,5 @@
 import "@/use";
-import { anvil } from "@/anvil";
+import { iworker } from "@/iworker";
 
 const { component } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
@@ -7,21 +7,17 @@ const { frame } = await use("@/frame/");
 export default new (class {
   #_ = {};
 
- 
-
   get page() {
     if (!this.#_.page) {
-      this.#_.page = component.main(
-        "container pt-3",
-        component.h1({ text: "About" })
-      );
+      this.#_.page = component.main("container pt-3");
     }
     return this.#_.page;
   }
 
   async setup() {
-    const result = await anvil.echo("ABOUT");
-  console.log("result:", result);
+    // TEST
+    const text = await iworker.echo("About");
+    this.page.append(component.h1({ text }));
   }
 
   enter(meta, url, ...paths) {

@@ -1,7 +1,7 @@
 /* Initialize import engine and load main sheet (with Tailwind) */
 import "@/main.css";
 import "@/use";
-import "@/anvil";
+import "@/iworker";
 import "@/router";
 
 import { server } from "@/server";
