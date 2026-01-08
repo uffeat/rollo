@@ -4,10 +4,29 @@ import "@/use";
 import "@/anvil";
 import "@/router";
 
-import { api } from "@/server";
+import { server } from "@/server";
 
-const result = await api.echo(42)
-console.log('result:', result)
+await (async () => {
+  const result = await server.echo(42);
+  console.log("result:", result);
+})();
+
+await (async () => {
+  const result = await server.echo(43);
+  console.log("result:", result);
+})();
+
+await (async () => {
+  const result = await server.foo();
+  console.log("result:", result);
+})();
+
+await (async () => {
+  const result = await server.bar({bar: 'BAR'});
+  console.log("result:", result);
+})();
+
+
 
 if (import.meta.env.DEV) {
   /* Initialize DEV testbench */

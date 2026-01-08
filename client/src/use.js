@@ -267,7 +267,7 @@ export const assets = new (class Assets {
 
         const owner = this;
 
-        this.#_.anvil = new (class {
+        this.#_.companion = new (class {
           #_ = {};
           constructor() {
             this.#_.origin = owner.DEV
@@ -289,13 +289,13 @@ export const assets = new (class Assets {
         return this.#_.VITE;
       }
 
-      get anvil() {
-        return this.#_.anvil;
-      }
-
       /* Returns prefix for access to public. */
       get base() {
         return this.#_.base;
+      }
+
+      get companion() {
+        return this.#_.companion;
       }
 
       get detail() {

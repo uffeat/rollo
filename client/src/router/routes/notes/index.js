@@ -1,10 +1,9 @@
 import "@/use";
-import { pop } from "@/tools/object";
 import { items, paths } from "./items";
 import { Card } from "./card";
 import { Post } from "./post";
 
-const { Exception, component, toTop, router, NavLink } = await use("@/rollo/");
+const { Exception, component, pop, toTop, router, NavLink } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
 
 export default new (class {

@@ -33,7 +33,7 @@ import { run } from "./tools/run";
 const { Exception, app, component, is } = await use("@/rollo/");
 
 const iframe = component.iframe({
-  src: `${use.meta.anvil.origin}/embedded`,
+  src: `${use.meta.companion.origin}/embedded`,
   slot: "data",
   id: "anvil",
   name: "anvil",

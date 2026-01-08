@@ -37,6 +37,7 @@ import {
   pascalToCamel,
   pascalToKebab,
 } from "./src/tools/case";
+import { clear } from "./src/tools/clear";
 import { defineMethod, defineProperty, defineValue } from "./src/tools/define";
 import { delay } from "./src/tools/delay";
 import { element, updateElement } from "./src/tools/element";
@@ -47,20 +48,20 @@ import { match } from "./src/tools/match";
 import { merge } from "./src/tools/merge";
 import { mixup } from "./src/tools/mixup";
 import { pipe } from "./src/tools/pipe";
+import { pop } from "./src/tools/pop";
+import { remove } from "./src/tools/remove";
 import { toTop } from "./src/tools/scroll";
 import { type, typeName } from "./src/tools/type";
 // tools/array
 import { deduplicate } from "./src/tools/array/deduplicate";
 import { range } from "./src/tools/array/range";
-import { remove as removeFromArray } from "./src/tools/array/remove";
 // tools/number
-import { isNumeric } from "./src/tools/number/numeric";
-import { match as matchNumber } from "./src/tools/number/match";
-import { round as roundNumber } from "./src/tools/number/round";
+import { equal } from "./src/tools/number/equal";
+import { round } from "./src/tools/number/round";
 // tools/object
-import { clear as clearObject } from "./src/tools/object/clear";
 import { difference as objectDifference } from "./src/tools/object/difference";
 import { intersection as objectIntersection } from "./src/tools/object/intersection";
+
 
 export {
   // app
@@ -94,6 +95,7 @@ export {
   TaggedSets,
   camelToKebab,
   camelToPascal,
+  clear,
   defineMethod,
   defineProperty,
   defineValue,
@@ -111,6 +113,8 @@ export {
   pascalToCamel,
   pascalToKebab,
   pipe,
+  pop,
+  remove,
   toTop,
   type,
   typeName,
@@ -118,13 +122,10 @@ export {
   // tools/array
   deduplicate,
   range,
-  removeFromArray,
   // tools/number
-  isNumeric,
-  matchNumber,
-  roundNumber,
+  equal,
+  round,
   // tools/object
-  clearObject,
   objectDifference,
   objectIntersection,
 };

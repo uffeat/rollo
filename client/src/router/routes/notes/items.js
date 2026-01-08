@@ -1,8 +1,8 @@
 /* A data store that is populated "in the background", 
 but allows for eager access should that be needed. */
 
-import { pop } from "@/tools/object";
-const { Exception } = await use("@/rollo/");
+
+const { Exception, pop } = await use("@/rollo/");
 
 /* Extend Map to provide 'use' method */
 class Items extends Map {

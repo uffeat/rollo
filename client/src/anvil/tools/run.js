@@ -33,7 +33,7 @@ export const run = new (class {
     };
     this.window.postMessage(
       { type: "run", text, path, args, kwargs },
-      use.meta.anvil.origin,
+      use.meta.companion.origin,
       [channel.port2]
     );
     return promise;

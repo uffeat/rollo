@@ -4,7 +4,7 @@ const { is } = await use("@/rollo/");
 NOTE Flow: iframe -> parent -> iframe. */
 window.addEventListener("message", async (event) => {
   if (
-    event.origin !== use.meta.anvil.origin ||
+    event.origin !== use.meta.companion.origin ||
     !is.object(event.data) ||
     event.data.type !== "use"
   ) {

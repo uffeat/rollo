@@ -50,6 +50,22 @@ export const is = new (class {
     return type(value) === "Null";
   }
 
+  /* Checks if string value contains only digits - allowing for 
+  - a single decimal mark ('.' or ',') and 
+  - a leading '-'
+  - null and ''. 
+  */
+  numeric(value) {
+    if (typeof value !== "string") {
+      return false;
+    }
+    if (value === null || value === "") {
+      return true;
+    }
+    const pattern = /^-?\d*[.,]?\d*$/;
+    return pattern.test(value);
+  }
+
   number(value) {
     return type(value) === "Number" && !Number.isNaN(value);
   }
@@ -111,6 +127,4 @@ export const is = new (class {
       ["bigint", "boolean", "number", "string", "symbol"].includes(typeof value)
     );
   }
-
-  
 })();

@@ -44,7 +44,7 @@ export const request = new (class {
     /* Send request with port2 transferred to iframe */
     this.window.postMessage(
       { type: "request", target, data },
-      use.meta.anvil.origin,
+      use.meta.companion.origin,
       [channel.port2]
     );
     return promise;

@@ -9,7 +9,7 @@ export const receiver = new (class {
   constructor() {
     this.#_.onmessage = (event) => {
       if (
-        event.origin !== use.meta.anvil.origin ||
+        event.origin !== use.meta.companion.origin ||
         !is.object(event.data) ||
         event.data.type !== "receiver"
       ) {

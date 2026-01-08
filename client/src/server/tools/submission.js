@@ -1,3 +1,3 @@
-let submission = 0;
-/* Returns running unique submission id. */
-export default () => submission++;
+let value = 0;
+/* Returns running unique id int. */
+export const Submission = () => value++;
