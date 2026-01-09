@@ -15,6 +15,19 @@ export default async () => {
   frame.close();
 
   const foo = await use('/foo.py')
-  const result = await foo({stuff: true}, 42)
+  const result = await foo({stuff: true}, 42) // "FOO" + console side effects
   console.log("result:", result);
+
+  /* /foo.py lives in /public an looks like this:
+
+  def main(use, *args, **kwargs):
+    
+    print("args:", args)
+    print("kwargs:", kwargs)
+
+    return "FOO"
+
+  */
 };
+
+

@@ -17,7 +17,9 @@ export default async () => {
   })();
 
   await (async () => {
-    const result = await iworker.echo("foo");
+    const result = await iworker.echo({ foo: 42 });
     console.log("result:", result);
   })();
 };
+
+

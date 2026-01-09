@@ -38,6 +38,9 @@ const iframe = component.iframe({
   id: "iworker",
   name: "iworker",
   title: "iworker",
+  //
+  //visibility: 'hidden',
+  //height: 0
 });
 
 /* Get access to contentWindow */
