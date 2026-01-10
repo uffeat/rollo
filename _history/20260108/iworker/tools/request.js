@@ -13,25 +13,18 @@ export const request = new (class {
 
   /* Returns promise that resolves to iframe target result.
   NOTE This is the work-horse. */
-  request(name,  ...args) {
-    /* Parse args to
-    - enable kwargs omission 
-    - extract special items (Rollo dunder convention) */
-    const _kwargs = args.find((a, i) => !i && is.object(a)) || {}
-    args = args.filter((a, i) => i || !is.object(a))
-    const { __timeout__, ...kwargs } = _kwargs
-
+  request(target, data, { timeout } = {}) {
     const { promise, resolve, reject } = Promise.withResolvers();
     /* Create dedicated channel for the specific request */
     const channel = new MessageChannel();
     const timer = (() => {
-      if (is.undefined(__timeout__)) {
+      if (is.undefined(timeout)) {
         return;
       }
       return setTimeout(() => {
         channel.port1.close();
-        reject(new Error(`Timeout for: ${name}`));
-      }, __timeout__);
+        reject(new Error(`Timeout for: ${target}`));
+      }, timeout);
     })();
     /* Listen for response */
     channel.port1.onmessage = (event) => {
@@ -44,13 +37,13 @@ export const request = new (class {
       if (event.data.error) {
         reject(event.data.error);
       } else {
-        resolve(event.data.result);
+        resolve(event.data.data);
       }
       channel.port1.close();
     };
     /* Send request with port2 transferred to iframe */
     this.window.postMessage(
-      { type: "request", name, kwargs, args },
+      { type: "request", target, data },
       use.meta.companion.origin,
       [channel.port2]
     );

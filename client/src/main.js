@@ -30,6 +30,17 @@ component.input("form-control", {
   },
 });
 
+component.input("form-control", {
+  type: "file",
+  parent: frame,
+  "on.change": async (event) => {
+    const file = event.target.files[0];
+    const json = await InputFile.create(file).json();
+    const result = await iworker.pilot(json);
+    console.log("result:", result);
+  },
+});
+
 if (import.meta.env.DEV) {
   /* Initialize DEV testbench */
   await import("../test");

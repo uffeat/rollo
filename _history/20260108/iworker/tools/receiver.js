@@ -15,11 +15,10 @@ export const receiver = new (class {
       ) {
         return;
       }
-      
+      const { data } = event.data;
       Exception.if(!is.object(event.data), `Invalid 'event.data' type.`, () =>
         console.error("event.data:", event.data)
       );
-      const { data } = event.data;
       this.#_.state.update(data);
     };
 

@@ -27,28 +27,28 @@ export const receivers = new (class {
       ) {
         return;
       }
-      const { data, name } = event.data;
+      const { data, target } = event.data;
       Exception.if(
         !is.object(event.data) && !is.array(event.data),
         `Invalid 'event.data' type.`,
         () => console.error("event.data:", event.data)
       );
 
-      const effects = this.#_.registry.values(name);
+      const effects = this.#_.registry.values(target);
       if (effects) {
-        if (this.#_.queue.has(name)) {
-          merge(data, this.#_.queue.get(name));
-          this.#_.queue.delete(name);
+        if (this.#_.queue.has(target)) {
+          merge(data, this.#_.queue.get(target));
+          this.#_.queue.delete(target);
         }
         freeze(data);
         for (const effect of effects) {
-          effect(data, { effect, name: name });
+          effect(data, { effect, name: target });
         }
       } else {
-        if (this.#_.queue.has(name)) {
-          merge(data, this.#_.queue.get(name));
+        if (this.#_.queue.has(target)) {
+          merge(data, this.#_.queue.get(target));
         } else {
-          this.#_.queue.set(name, data);
+          this.#_.queue.set(target, data);
         }
       }
     };

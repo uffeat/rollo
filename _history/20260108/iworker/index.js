@@ -33,7 +33,7 @@ import { run } from "./tools/run";
 const { Exception, app, component, is } = await use("@/rollo/");
 
 const iframe = component.iframe({
-  src: `${use.meta.companion.origin}/iworker`,
+  src: `${use.meta.companion.origin}/embedded`,
   slot: "data",
   id: "iworker",
   name: "iworker",
@@ -77,16 +77,29 @@ const iworker = new Proxy(
 );
 
 /* Verify connection */
-if (import.meta.env.DEV) {
-  const expected = crypto.randomUUID();
-  const result = await iworker.echo({}, expected);
-  
-  const [kwargs, args] = result;
-  const actual = args.at(0);
-  //console.log("actual:", actual);////
-  Exception.if(actual !== expected, `Incorrect echo.`);
-  console.info("iworker connection verified.");
+if (import.meta.env.DEVXXX) {
+  const BROKEN = 4000;
+  const SLOW = 1000;
+  const test = (timeout, { retry = true } = {}) => {
+    const expected = crypto.randomUUID();
+    iworker
+      .echo(expected, { timeout })
+      .then((echo) => {
+        Exception.if(echo !== expected, `Incorrect echo.`);
+        console.info("Connection verified.");
+      })
+      .catch((error) => {
+        if (retry) {
+          console.warn(`Verifying again...`);
+          test(BROKEN, { retry: false });
+        } else {
+          console.error(error);
+          throw new Error(`Connection could not be verified.`);
+        }
+      });
+  };
+  console.info("Verifying iworker connection...");
+  test(SLOW, { retry: true });
 }
-
 
 export { iworker };

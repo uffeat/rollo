@@ -27,7 +27,7 @@ export const run = new (class {
       if (event.data.error) {
         reject(event.data.error);
       } else {
-        resolve(event.data.result);
+        resolve(event.data.data);
       }
       channel.port1.close();
     };
