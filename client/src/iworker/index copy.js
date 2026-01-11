@@ -43,32 +43,38 @@ const iframe = component.iframe({
 });
 
 /* Get access to contentWindow */
-
-await new Promise((resolve, reject) => {
+const promise = new Promise((resolve, reject) => {
   iframe.on.load({ once: true }, (event) => {
-    resolve(true);
+    resolve(iframe.contentWindow);
   });
-  app.append(iframe);
 });
+app.append(iframe);
+const contentWindow = await promise;
 
-await new Promise((resolve, reject) => {
-  const onready = (event) => {
-    if (
-      event.origin !== use.meta.companion.origin ||
-      !is.object(event.data) ||
-      event.data.type !== "ready"
-    ) {
-      return;
-    }
-    console.log("iworker says ready!");
-    window.removeEventListener("message", onready);
-    resolve(true);
-  };
-  window.addEventListener("message", onready);
-});
+//
+const onready = (event) => {
+  if (
+    event.origin !== use.meta.companion.origin ||
+    !is.object(event.data) ||
+    event.data.type !== "ready"
+  ) {
+    return;
+  }
 
-request.window = iframe.contentWindow;
-run.window = iframe.contentWindow;
+  console.log('iworker says ready!')
+
+  
+
+  window.removeEventListener("message", onready);
+};
+window.addEventListener("message", onready);
+
+//
+
+request.window = contentWindow;
+run.window = contentWindow;
+
+console.log("HERE");
 
 /* Wraps 'request' and additional tools for a more 'RPC-like' DX. */
 const iworker = new Proxy(
@@ -91,8 +97,16 @@ const iworker = new Proxy(
   }
 );
 
+//
+setTimeout(async () => {
+  const actual = await iworker.echo({}, 42);
+  console.log("actual:", actual); ////
+}, 4000);
+
+//
+
 /* Verify connection */
-if (import.meta.env.DEV) {
+if (import.meta.env.DEVXXX) {
   const expected = crypto.randomUUID();
   const result = await iworker.echo({}, expected);
 

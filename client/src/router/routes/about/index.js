@@ -1,6 +1,6 @@
 import "@/use";
 import { iworker } from "@/iworker";
-import { server } from "@/server";
+//import { server } from "@/server";
 
 const { component } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
@@ -23,8 +23,8 @@ export default new (class {
     })();
 
     await (async () => {
-      const {result: text} = await server.echo("... stuff");
-      this.page.append(component.h2({ text }));
+      //const {result: text} = await server.echo("... stuff");
+      //this.page.append(component.h2({ text }));
     })();
   }
 
