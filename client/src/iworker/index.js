@@ -43,13 +43,9 @@ const iframe = component.iframe({
 });
 
 /* Get access to contentWindow */
+app.append(iframe);
 
-await new Promise((resolve, reject) => {
-  iframe.on.load({ once: true }, (event) => {
-    resolve(true);
-  });
-  app.append(iframe);
-});
+
 
 await new Promise((resolve, reject) => {
   const onready = (event) => {
