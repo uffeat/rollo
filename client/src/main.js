@@ -7,7 +7,6 @@ import { iworker } from "@/iworker";
 import "@/router";
 import { server } from "@/server";
 
-
 const { InputFile, component } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
 
@@ -17,7 +16,7 @@ component.input("form-control", {
   "on.change": async (event) => {
     const file = event.target.files[0];
     const dto = await InputFile.create(file).dto();
-    const result = await iworker.pilot(dto);
+    const result = await iworker.pilot({dto});
     console.log("result:", result);
     /* { meta: {
       env: "development",
@@ -46,8 +45,9 @@ component.input("form-control", {
   parent: frame,
   "on.change": async (event) => {
     const file = event.target.files[0];
-    const json = await InputFile.create(file).json();
-    const result = await server.pilot({file: json});
+    const inputFile = InputFile.create(file);
+    const json = await inputFile.json();
+    const result = await server.pilot({ file: json });
     console.log("result:", result);
   },
 });
