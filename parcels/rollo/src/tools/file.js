@@ -1,4 +1,3 @@
-
 export class InputFile {
   static create = (...args) => new InputFile(...args);
 

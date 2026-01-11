@@ -18,7 +18,7 @@ export default new (class {
   async setup() {
     // TEST
     await (async () => {
-      const text = await iworker.echo("About");
+      const [{text=''}] = await iworker.echo({text: "About"});
       this.page.append(component.h1({ text }));
     })();
 

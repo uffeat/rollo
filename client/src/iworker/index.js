@@ -17,9 +17,10 @@ for testing only. If needed yet other patterns will be added; largely a
 question of combining existing patterns and tools, so easy to implement
 
 Re performance...
-Loading the iworker introduces some latency. However, in PROD, the Anvil
+Awaiting iworker ready signal introduces some latency. However, in PROD, the Anvil
 service worker kicks in and the latency becomes acceptable - perhaps 1s. 
-This does not happen in DEV, presumably because it's not https.
+This does not happen in DEV, presumably because it's not https - also causes the 
+console to explode; however, harmless and only DEV,
 The loading latency hardly affects the app per se, but only "time-to-bridge".
 Parent <-> iworkers coms feel almost instantaneous. However, watch out for
 initial coms, of course subject to iworker loading. */
@@ -32,6 +33,7 @@ import { run } from "./tools/run";
 const { Exception, app, component, is } = await use("@/rollo/");
 
 const iframe = component.iframe({
+  parent: app,
   src: `${use.meta.companion.origin}/iworker`,
   slot: "data",
   id: "iworker",
@@ -42,11 +44,7 @@ const iframe = component.iframe({
   //height: 0
 });
 
-/* Get access to contentWindow */
-app.append(iframe);
-
-
-
+/* Wait for ready signal */
 await new Promise((resolve, reject) => {
   const onready = (event) => {
     if (
@@ -56,17 +54,17 @@ await new Promise((resolve, reject) => {
     ) {
       return;
     }
-    console.log("iworker says ready!");
     window.removeEventListener("message", onready);
     resolve(true);
   };
   window.addEventListener("message", onready);
 });
 
+/* Complete helpers */
 request.window = iframe.contentWindow;
 run.window = iframe.contentWindow;
 
-/* Wraps 'request' and additional tools for a more 'RPC-like' DX. */
+/* Create bridge */
 const iworker = new Proxy(
   {},
   {
@@ -91,11 +89,13 @@ const iworker = new Proxy(
 if (import.meta.env.DEV) {
   const expected = crypto.randomUUID();
   const result = await iworker.echo({}, expected);
-
   const [kwargs, args] = result;
   const actual = args.at(0);
   //console.log("actual:", actual);////
-  Exception.if(actual !== expected, `Incorrect echo.`);
+  Exception.if(
+    actual !== expected,
+    `iworker connection could not be verified.`
+  );
   console.info("iworker connection verified.");
 }
 

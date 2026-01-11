@@ -13,13 +13,13 @@ export const request = new (class {
 
   /* Returns promise that resolves to iframe target result.
   NOTE This is the work-horse. */
-  request(name,  ...args) {
+  request(name, ...args) {
     /* Parse args to
     - enable kwargs omission 
     - extract special items (Rollo dunder convention) */
-    const _kwargs = args.find((a, i) => !i && is.object(a)) || {}
-    args = args.filter((a, i) => i || !is.object(a))
-    const { __timeout__, ...kwargs } = _kwargs
+    const _kwargs = args.find((a, i) => !i && is.object(a)) || {};
+    args = args.filter((a, i) => i || !is.object(a));
+    const { __timeout__, ...kwargs } = _kwargs;
 
     const { promise, resolve, reject } = Promise.withResolvers();
     /* Create dedicated channel for the specific request */

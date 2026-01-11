@@ -5,10 +5,10 @@ import "@/use";
 import { iworker } from "@/iworker";
 /* Set up routes */
 import "@/router";
+import { server } from "@/server";
 
-import { InputFile } from "./tools";
 
-const { component } = await use("@/rollo/");
+const { InputFile, component } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
 
 component.input("form-control", {
@@ -37,6 +37,17 @@ component.input("form-control", {
     const file = event.target.files[0];
     const json = await InputFile.create(file).json();
     const result = await iworker.pilot(json);
+    console.log("result:", result);
+  },
+});
+
+component.input("form-control", {
+  type: "file",
+  parent: frame,
+  "on.change": async (event) => {
+    const file = event.target.files[0];
+    const json = await InputFile.create(file).json();
+    const result = await server.pilot({file: json});
     console.log("result:", result);
   },
 });
