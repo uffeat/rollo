@@ -59,7 +59,16 @@ export class InputFile {
       }
     }
 
-    const content = await this[encoding];
+    let content;
+    if (encoding === "base64") {
+      content = await this.base64();
+    } else if (encoding === "binary") {
+      content = await this.binary();
+    } else if (encoding === "dataURL") {
+      content = await this.dataURL();
+    } else if (encoding === "text") {
+      content = await this.text();
+    }
 
     return {
       content,
@@ -70,8 +79,8 @@ export class InputFile {
   }
 
   /* Use for sending the file representation directly to the server`. */
-  async json() {
-    return JSON.stringify(await this.dto({ auto: true, encoding: "dataURL" }));
+  async json({ auto = true, encoding = "base64" } = {}) {
+    return JSON.stringify(await this.dto({ auto, encoding }));
   }
 
   async text() {
@@ -84,7 +93,8 @@ export class InputFile {
       const slice = this.file.slice(0, 5120);
       const buffer = await slice.arrayBuffer();
       const bytes = new Uint8Array(buffer);
-      /* First check: Attempt 'utf-8' decoding. Error, if invalid sequences (common in binary) */
+      /* First check: Attempt 'utf-8' decoding. Error, if invalid sequences 
+      (common in binary) */
       const decoder = new TextDecoder("utf-8", { fatal: true });
       const text = decoder.decode(bytes);
       /* Second check: Plain text should nto contain Null bytes
