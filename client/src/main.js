@@ -7,6 +7,12 @@ import "@/use";
 import "@/router";
 //import { server } from "@/server";
 
+window.addEventListener("message", async (event) => {
+  if (event.origin !== use.meta.companion.origin) {
+    return;
+  }
+  console.log('event.data:', event.data)
+});
 
 if (import.meta.env.DEV) {
   /* Initialize DEV testbench */
