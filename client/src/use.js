@@ -294,6 +294,10 @@ export const assets = new (class Assets {
         return this.#_.base;
       }
 
+      set base(base) {
+        this.#_.base = base
+      }
+
       get companion() {
         return this.#_.companion;
       }
@@ -969,5 +973,10 @@ to avoid Vercel-injections.
     return pseudo;
   });
 })();
+
+
+if (!use.meta.DEV) {
+  use.meta.base = "https://rolloh.vercel.app";
+}
 
 window.dispatchEvent(new CustomEvent("_use"));

@@ -974,5 +974,9 @@ to avoid Vercel-injections.
   });
 })();
 
+if (!use.meta.DEV) {
+  use.meta.base = "https://rolloh.vercel.app";
+}
+
 window.dispatchEvent(new CustomEvent("_use"));
 
