@@ -2517,6 +2517,7 @@ const He = (s) => Array.from(new Set(s)), Ie = (s, t = (e) => e) => {
   )
 ));
 export {
+  Kt as Component,
   E as Exception,
   at as Future,
   H as InputFile,

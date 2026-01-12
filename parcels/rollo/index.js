@@ -3,6 +3,7 @@ import "./assets/rollo.css";
 import { app, breakpoints } from "./src/app";
 // component
 import {
+  Component,
   author,
   factory,
   component,
@@ -69,6 +70,7 @@ export {
   app,
   breakpoints,
   // component
+  Component,
   author,
   factory,
   component,

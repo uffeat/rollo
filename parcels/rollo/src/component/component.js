@@ -28,7 +28,7 @@ export const component = new Proxy(
           return component[as || "div"]({ innerHTML: html, ...updates });
         };
       }
-      return Factory(tag);
+      return Component(tag);
     },
   }
 );
@@ -73,7 +73,7 @@ function create(tag) {
 }
 
 /* Returns instance factory for basic non-autonomous web component. */
-function Factory(tag) {
+export function Component(tag) {
   const cls = create(tag);
   const instance = new cls();
   /* According to specs, I think it should be:
