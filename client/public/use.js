@@ -294,6 +294,10 @@ export const assets = new (class Assets {
         return this.#_.base;
       }
 
+      set base(base) {
+        this.#_.base = base
+      }
+
       get companion() {
         return this.#_.companion;
       }
