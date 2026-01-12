@@ -1,7 +1,17 @@
+
+
+/*
+
+TODO
+
+
+Add dataUrl - and use directly in py
+
+*/
+
+
 export class InputFile {
   static create = (...args) => new InputFile(...args);
-
-  static encodings = Object.freeze(["base64", "binary", "dataURL", "text"]);
 
   #_ = {};
 
@@ -22,17 +32,25 @@ export class InputFile {
   }
 
   async base64() {
-    const dataURL = await this.dataURL();
-    /* Extract base64
-    NOTE Using .split(';base64,')[1] is clean, but would create extra array in memory.
-    indexOf + substring is slightly more performant. */
-    const result = dataURL.substring(dataURL.indexOf(";base64,") + 8);
-    return result;
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        /* result shape: `data:text/plain;base64,SGkh` -> extract pure base64.
+        NOTE Using .split(';base64,')[1] is clean, but would create extra array in memory.
+        indexOf + substring is slightly more performant. */
+        const result = reader.result.substring(
+          reader.result.indexOf(";base64,") + 8
+        );
+        resolve(result);
+      };
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(this.file);
+    });
   }
 
-  async binary() {
-    const binary = await this.file.arrayBuffer();
-    return binary;
+  async buffer() {
+    const buffer = await this.file.arrayBuffer();
+    return buffer;
   }
 
   async dataURL() {
@@ -48,37 +66,28 @@ export class InputFile {
   }
 
   /* Use for sending the file representation with `postMessage`. */
-  async dto({ auto = true, encoding = "binary" } = {}) {
-    if (!InputFile.encodings.includes(encoding)) {
-      throw new Error(`Unsupported encoding: ${encoding}`);
-    }
-
-    if (auto && encoding !== "text") {
-      if (await this.isText()) {
-        encoding = "text";
-      }
-    }
-
-    const content = await this[encoding];
-
+  async dto({ auto = true, base64 = false } = {}) {
+    const [BASE64, BINARY, DATA_URL, TEXT] = ["base64", "binary", 'dataURL', "text"];
+    const encoding =
+      auto && (await this.#isText()) ? TEXT : base64 ? BASE64 : BINARY;
     return {
-      content,
+      name: this.name,
       content_type: this.type,
       encoding,
-      name: this.name,
+      content: await (encoding === TEXT
+        ? this.file.text()
+        : encoding === BASE64
+        ? this.base64()
+        : this.buffer()),
     };
   }
 
   /* Use for sending the file representation directly to the server`. */
   async json() {
-    return JSON.stringify(await this.dto({ auto: true, encoding: "dataURL" }));
+    return JSON.stringify(await this.dto({ auto: true, base64: true }));
   }
 
-  async text() {
-    return this.file.text();
-  }
-
-  async isText() {
+  async #isText() {
     try {
       /* Sample */
       const slice = this.file.slice(0, 5120);
