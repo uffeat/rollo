@@ -254,15 +254,7 @@ export const assets = new (class Assets {
   }
 })();
 
-const use = async (...args) => {
-  return assets.get(...args)
-}
 
-use.meta = assets.meta
-use.processors = assets.processors
-use.sources = assets.sources
-use.types = assets.types
-globalThis.use = use
 
 
 /** Register out-of-the-box sources. */
@@ -270,7 +262,7 @@ globalThis.use = use
 /* Register asset carrier sheet as source (@/). */
 (() => {
   const cache = new Map();
-  use.sources.add("@", ({ path }) => {
+  assets.sources.add("@", ({ path }) => {
     if (cache.has(path.full)) {
       return cache.get(path.full);
     }
@@ -293,7 +285,7 @@ globalThis.use = use
 /** Register out-of-the-box transformers and processors for native types. */
 
 /* Add css support. */
-use.types
+assets.types
   .add(
     "css",
     (() => {
@@ -301,7 +293,7 @@ use.types
       return async (text, { path }) => {
         /* Type guard */
         if (!(typeof text === "string")) return;
-        const { Sheet } = await use("@/rollo/");
+        const { Sheet } = await assets.get("@/rollo/");
         const key = path.full;
         if (cache.has(key)) return cache.get(key);
         const result = Sheet.create(text, key);
@@ -324,7 +316,7 @@ use.types
   });
 
 /* Add js support. */
-use.types.add(
+assets.types.add(
   "js",
   (() => {
     const cache = new Map();
@@ -374,7 +366,7 @@ use.types.add(
 );
 
 /* Add json support. */
-use.types.add("json", (result) => {
+assets.types.add("json", (result) => {
   /* Type guard */
   if (!(typeof result === "string")) return;
   return JSON.parse(result);
@@ -385,11 +377,9 @@ use.types.add("json", (result) => {
 await new Promise((resolve) => {
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = `${use.meta.base}/anvil/assets.css`;
+  link.href = `${assets.meta.base}/anvil/assets.css`;
   link.onload = async () => {
     resolve(true);
   };
   document.head.append(link);
 });
-
-export { use };
