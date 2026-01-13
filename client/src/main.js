@@ -19,26 +19,29 @@ await (async () => {
     }
   `.use();
 
+  const LINK_STYLE = "nav-link link-light";
+  const D_NONE = 'd-none'
+
   const signup = component.a(
-    "nav-link link-light",
+    LINK_STYLE,
     { title: "Sign up", _action: "signup" },
     "Sign up"
   );
 
   const login = component.a(
-    "nav-link link-light",
+    LINK_STYLE,
     { title: "Log in", _action: "login" },
     "Log in"
   );
 
   const delete_user = component.a(
-    "nav-link link-light d-none",
+    `${LINK_STYLE} ${D_NONE}`,
     { title: "Log in", _action: "delete_user" },
     "Delete account"
   );
 
   const logout = component.a(
-    "nav-link link-light d-none",
+    `${LINK_STYLE} ${D_NONE}`,
     { title: "Log out", _action: "logout" },
     "Log out"
   );
@@ -47,26 +50,27 @@ await (async () => {
     ({ user }) => {
       console.log("user:", user);
       if (user) {
-        login.classes.add('d-none')
-        signup.classes.add('d-none')
-        logout.classes.remove('d-none')
-        delete_user.classes.remove('d-none')
+        login.classes.add(D_NONE);
+        signup.classes.add(D_NONE);
+        logout.classes.remove(D_NONE);
+        delete_user.classes.remove(D_NONE);
       } else {
-        login.classes.remove('d-none')
-        signup.classes.remove('d-none')
-        logout.classes.add('d-none')
-        delete_user.classes.add('d-none')
-        
+        login.classes.remove(D_NONE);
+        signup.classes.remove(D_NONE);
+        logout.classes.add(D_NONE);
+        delete_user.classes.add(D_NONE);
       }
     },
     ["user"]
   );
 
-  const processing = ref(false)
-  processing.effects.add((current)=> {
-    console.log("current:", current);
-
-  }, {run: false})
+  const processing = ref(false);
+  processing.effects.add(
+    (current) => {
+      console.log("current:", current);
+    },
+    { run: false }
+  );
 
   const nav = component.nav(
     "nav",
@@ -91,22 +95,22 @@ await (async () => {
       });
       const { ok, user, message } = result;
       if (ok) {
-        console.log("Logged in as:", user);////
+        //console.log("Logged in as:", user); ////
       } else {
         console.warn(message);
       }
-      return
+      return;
     }
 
     if (action === "logout") {
       const result = await iworker[`user:${action}`]();
       const { ok, message } = result;
       if (ok) {
-        console.log("Logged out");////
+        //console.log("Logged out"); ////
       } else {
-        console.warn(message);////
+        console.warn(message); ////
       }
-      return
+      return;
     }
 
     if (action === "signup") {
@@ -116,27 +120,22 @@ await (async () => {
       });
       const { ok, user, message } = result;
       if (ok) {
-        console.log("Signed up as:", user);////
+        //console.log("Signed up as:", user); ////
       } else {
-        console.warn(message);////
+        console.warn(message); ////
       }
-      return
+      return;
     }
 
     if (action === "delete_user") {
-      const result = await iworker[`user:${action}`]();
-
-      console.log("result:", result);////
-
-      /*
-      const { ok, message } = result;
+      const { result } = await iworker[`user:${action}`]();
+      const { ok } = result;
       if (ok) {
-        console.log("Account deleted");
+        //console.log("Account deleted");////
       } else {
-        console.warn(message);
+        console.warn("Account not found");
       }
-        */
-      return
+      return;
     }
   });
 })();
