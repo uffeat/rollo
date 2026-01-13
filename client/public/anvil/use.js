@@ -139,8 +139,7 @@ export const assets = new (class Assets {
   };
 
   constructor() {
-    const assets = this;
-
+    
     this.#_.meta = new (class Meta {
       get base() {
         return "https://rolloh.vercel.app";
@@ -255,30 +254,16 @@ export const assets = new (class Assets {
   }
 })();
 
-const _use = new Proxy(async () => {}, {
-  get: (target, key, receiver) => {
-    if (key === "assets") return assets;
-    const value = assets[key];
-    if (typeof value === "function") {
-      return value.bind(assets);
-    }
-    return value;
-  },
-  set: (target, key, value, receiver) => {
-    assets[key] = value;
-    return true;
-  },
-  apply: (target, thisArg, args) => {
-    return assets.get(...args);
-  },
-});
+const use = async (...args) => {
+  return assets.get(...args)
+}
 
-Object.defineProperty(globalThis, "use", {
-  configurable: true,
-  enumerable: true,
-  writable: true,
-  value: _use,
-});
+use.meta = assets.meta
+use.processors = assets.processors
+use.sources = assets.sources
+use.types = assets.types
+globalThis.use = use
+
 
 /** Register out-of-the-box sources. */
 
@@ -407,4 +392,4 @@ await new Promise((resolve) => {
   document.head.append(link);
 });
 
-export { _use as use };
+export { use };
