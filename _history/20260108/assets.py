@@ -60,6 +60,17 @@ class main(Files, Minify):
                 continue
             if file.suffix == ".js":
                 encoded = encode(text)
+                ##
+                ##
+                if "plotly" in file.name:
+                    ...
+                    ##print(text)
+                    ##print(encoded)
+                    ##import base64
+                    ##decoded = base64.b64decode(encoded)
+                    ##print(decoded)
+                ##
+                ##
                 rules.append(self.create_asset_rule(path, encoded))
                 continue
             if file.suffix == ".json":
@@ -70,6 +81,7 @@ class main(Files, Minify):
                 encoded = encode(text)
                 rules.append(self.create_asset_rule(path, encoded))
                 continue
+
             if file.suffix == ".svg":
                 minified = self.minify_html(text)
                 encoded = encode(minified)
@@ -97,28 +109,15 @@ class main(Files, Minify):
             + self.minify_css("\n".join(rules))
             + "\n".join(style_rules)
         )
-        # Write main sheet
+        # Write to main sheet
         self.write(
             "client/src/main.css",
             css,
         )
 
-        # For Anvil import
-        asset_css = (
-            f"/*{timestamp}*/\n"
-            + self.minify_css("\n".join(rules))
-        )
-        style_css = (
-            f"/*{timestamp}*/\n"
-            + "\n".join(style_rules)
-        )
         self.write(
-            "client/public/anvil/assets.css",
-            asset_css,
-        )
-        self.write(
-            "client/public/anvil/styles.css",
-            style_css,
+            "client/public/anvil/main.css",
+            css,
         )
 
         # Inform
