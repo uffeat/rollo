@@ -256,7 +256,7 @@ export const assets = new (class Assets {
 })();
 
 const _use = new Proxy(async () => {}, {
-  get(target, key, receiver) {
+  get: (target, key, receiver) => {
     if (key === "assets") return assets;
     const value = assets[key];
     if (typeof value === "function") {
@@ -264,11 +264,11 @@ const _use = new Proxy(async () => {}, {
     }
     return value;
   },
-  set(target, key, value, receiver) {
+  set: (target, key, value, receiver) => {
     assets[key] = value;
     return true;
   },
-  apply(target, thisArg, args) {
+  apply: (target, thisArg, args) => {
     return assets.get(...args);
   },
 });
