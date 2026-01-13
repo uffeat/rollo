@@ -4,37 +4,8 @@ import { mix } from "./tools/mix";
 import { Mixins, mixins } from "./mixins/mixins";
 import { registry } from "./tools/registry";
 
-/* Returns instance factory for basic non-autonomous web component. */
-export const component = new Proxy(
-  {},
-  {
-    get(_, tag) {
-      if (tag === "from") {
-        return (html, { as, convert = true, ...updates } = {}) => {
-          if (convert) {
-            const nodes = htmlToComponent(html);
-            if (nodes.length === 1) {
-              if (as) {
-                /* Optional wrap */
-                return component[as](updates, nodes[0]);
-              }
-              /* No wrap */
-              return nodes[0].update(updates);
-            }
-            /* Force wrap */
-            return component[as || "div"](updates, ...nodes);
-          }
-          /* No conversion */
-          return component[as || "div"]({ innerHTML: html, ...updates });
-        };
-      }
-      return Component(tag);
-    },
-  }
-);
-
 /* Registers native web component from tag and returns component class. */
-function create(tag) {
+const create = (tag) => {
   const key = `x-${tag}`;
   if (registry.has(key)) {
     return registry.get(key);
@@ -73,7 +44,7 @@ function create(tag) {
 }
 
 /* Returns instance factory for basic non-autonomous web component. */
-export function Component(tag) {
+export const Component = (tag) => {
   const cls = create(tag);
   const instance = new cls();
   /* According to specs, I think it should be:
@@ -82,6 +53,39 @@ export function Component(tag) {
   all modern browsers. */
   return factory(instance);
 }
+
+
+/* Returns instance factory for basic non-autonomous web component. */
+export const component = new Proxy(
+  {},
+  {
+    get(target, tag, receiver) {
+      if (tag === "from") {
+        return (html, { as, convert = true, ...updates } = {}) => {
+          if (convert) {
+            const nodes = htmlToComponent(html);
+            if (nodes.length === 1) {
+              if (as) {
+                /* Optional wrap */
+                return component[as](updates, nodes[0]);
+              }
+              /* No wrap */
+              return nodes[0].update(updates);
+            }
+            /* Force wrap */
+            return component[as || "div"](updates, ...nodes);
+          }
+          /* No conversion */
+          return component[as || "div"]({ innerHTML: html, ...updates });
+        };
+      }
+      return Component(tag);
+    },
+  }
+);
+
+
+
 
 /* Returns component with tree from html. */
 function htmlToComponent(html) {
