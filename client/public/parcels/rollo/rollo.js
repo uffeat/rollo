@@ -1724,7 +1724,7 @@ const x = new class {
   /* Invokes route from initial location. 
   NOTE Should be called once router has been set up. */
   async setup({ error: t, redirect: e, routes: r, strict: n = !0 } = {}) {
-    return this.#t.config.error = t, this.#t.config.strict = n, Object.assign(this.#t.config.redirect, e), r && this.routes.add({ ...r }), this.#t.initialized || (window.addEventListener("popstate", async (i) => {
+    return this.#t.config.error = t, this.#t.config.strict = n, Object.assign(this.#t.config.redirect, e), r && this.routes.add({ ...r }), this.#t.initialized || (window.parent.addEventListener("popstate", async (i) => {
       await this.use(this.#n(), {
         context: "pop"
       });
@@ -1735,11 +1735,14 @@ const x = new class {
   /* Invokes route. */
   async use(t, { context: e, strict: r } = {}) {
     t in this.#t.config.redirect && (t = this.#t.config.redirect[t]), r = r === void 0 ? this.#t.config.strict : r;
-    const n = Y.create(t), i = this.#t.url ? n.match(this.#t.url) ? void 0 : (this.#t.url = n, () => {
-      e || history.pushState({}, "", n.full);
-    }) : (this.#t.url = n, () => {
-      e || history.pushState({}, "", n.full);
-    });
+    const n = Y.create(t), i = (() => {
+      const c = window.parent.history;
+      return this.#t.url ? n.match(this.#t.url) ? void 0 : (this.#t.url = n, () => {
+        e || c.pushState({}, "", n.full);
+      }) : (this.#t.url = n, () => {
+        e || c.pushState({}, "", n.full);
+      });
+    })();
     if (!i)
       return this;
     this.#t.session++;
@@ -1788,7 +1791,8 @@ const x = new class {
     r.length && (t = `${t}/${r.join("/")}`), w.$({ path: t }), this.#t.states.path(t, {}, e, ...r);
   }
   #n() {
-    return location.search ? `${location.pathname}${location.search}${location.hash}` : `${location.pathname}${location.hash}`;
+    const t = window.parent.location;
+    return t.search ? `${t.pathname}${t.search}${t.hash}` : `${t.pathname}${t.hash}`;
   }
 }(), ot = new Proxy(async () => {
 }, {
