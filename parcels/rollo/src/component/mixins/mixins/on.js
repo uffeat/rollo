@@ -151,7 +151,7 @@ export default (parent, config) => {
     event_handler({ type, once } = {}) {
       return (handler) => {
         if (!type) {
-          type = handler.__name__.slice(2);
+          type = handler.name.slice(2);
         }
         super.addEventListener(type, handler, { once });
         return handler;
