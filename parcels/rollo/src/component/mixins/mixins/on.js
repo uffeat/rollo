@@ -147,19 +147,6 @@ export default (parent, config) => {
       });
     }
 
-    //
-    event_handler({ type, once } = {}) {
-      return (handler) => {
-        if (!type) {
-          type = handler.name.slice(2);
-        }
-        super.addEventListener(type, handler, { once });
-        return handler;
-      };
-    }
-
-    //
-
     /* Adds event handler with the special on-syntax. */
     get on() {
       return this.#_.on;

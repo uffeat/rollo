@@ -1224,11 +1224,6 @@ const zt = (s, t) => class extends s {
       }
     });
   }
-  //
-  event_handler({ type: r, once: n } = {}) {
-    return (i) => (r || (r = i.name.slice(2)), super.addEventListener(r, i, { once: n }), i);
-  }
-  //
   /* Adds event handler with the special on-syntax. */
   get on() {
     return this.#t.on;
