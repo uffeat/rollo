@@ -102,8 +102,11 @@ class main(Files, Minify):
             "client/src/main.css",
             css,
         )
-
         # For Anvil import
+        self.write(
+            "client/public/anvil/main.css",
+            css,
+        )
         asset_css = (
             f"/*{timestamp}*/\n"
             + self.minify_css("\n".join(rules))
