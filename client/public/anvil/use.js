@@ -277,7 +277,7 @@ export const assets = new (class Assets {
           #_ = {};
           constructor() {
             if (owner.embedded) {
-              this.#_.origin = window.parent.origin;
+              this.#_.origin = window.parent.location.origin;
             } else {
               this.#_.origin = owner.DEV
                 ? "https://rollohdev.anvil.app"

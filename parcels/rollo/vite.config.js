@@ -11,11 +11,10 @@ export default defineConfig({
     outDir: "../../client/public/parcels/rollo",
     minify: true, //
     target: "es2022",
-
     rollupOptions: {
         external: (id) => {
-          // Never treat aliased src imports as external
-          //if (id.startsWith("@")) return false;
+          /* Never treat aliased src imports as external. 
+          If (id.startsWith("@")) return false; */
           return (
             (id.includes("/test/") && !id.includes("/src/")) ||
             id.endsWith(".test.js")

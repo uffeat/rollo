@@ -1,8 +1,7 @@
 /*
 /server/echo.test.js
 */
-import { server } from "@/server";
-
+const { server } = await use("@/server");
 const { component } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
 

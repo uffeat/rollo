@@ -5,7 +5,8 @@ import "@/use";
 import { iworker } from "@/iworker";
 /* Set up routes */
 import "@/router";
-import { server } from "@/server";
+
+
 
 const { InputFile, app, component, is, css, ref } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
@@ -20,7 +21,7 @@ await (async () => {
   `.use();
 
   const LINK_STYLE = "nav-link link-light";
-  const D_NONE = 'd-none'
+  const D_NONE = "d-none";
 
   const signup = component.a(
     LINK_STYLE,

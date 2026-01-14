@@ -7,7 +7,6 @@ import "./test.css";
 import * as parcel from "../index";
 use.add("@/rollo/rollo.js", parcel);
 
-
 document.documentElement.dataset.bsTheme = "dark";
 
 /* Returns function that runs test from path */

@@ -5,7 +5,7 @@ import "../use";
 import "./test.css";
 /* Overload to use live parcel */
 import * as parcel from "../index";
-use.add("@/d3.js", parcel);
+use.add("@/server.js", parcel);
 
 document.documentElement.dataset.bsTheme = "dark";
 
