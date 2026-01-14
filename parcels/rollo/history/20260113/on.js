@@ -1,6 +1,7 @@
-import { typeName } from "../../../tools/type";
+import { typeName } from '../../../tools/type'
 import { TaggedSets } from "../../../tools/tagged_sets";
 import { defineValue } from "../../../tools/define";
+
 
 const START = "on.".length;
 
@@ -147,19 +148,6 @@ export default (parent, config) => {
       });
     }
 
-    //
-    event_handler({ type, once } = {}) {
-      return (handler) => {
-        if (!type) {
-          type = handler.__name__.slice(2);
-        }
-        super.addEventListener(type, handler, { once });
-        return handler;
-      };
-    }
-
-    //
-
     /* Adds event handler with the special on-syntax. */
     get on() {
       return this.#_.on;
@@ -183,6 +171,7 @@ export default (parent, config) => {
         track = false,
         ...options
       } = args.find((a, i) => i && typeName(a) === "Object") || {};
+
       /* Track */
       if (track && !once) {
         this.#_.registry.add(type, handler);
