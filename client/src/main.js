@@ -4,7 +4,7 @@ import "@/use";
 /* Initialize iworker */
 import { iworker } from "@/iworker";
 /* Set up routes */
-import "@/router";
+import "@/routes";
 
 
 

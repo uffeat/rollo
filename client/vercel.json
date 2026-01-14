@@ -41,6 +41,11 @@
     },
 
     {
+      "source": "/tools/:match*",
+      "destination": "/tools/:match*"
+    },
+
+    {
       "source": "/robots.txt",
       "destination": "/robots.txt"
     },

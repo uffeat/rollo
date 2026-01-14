@@ -38,6 +38,8 @@ import {
   kebabToSnake,
   pascalToCamel,
   pascalToKebab,
+  capitalize,
+  isUpper
 } from "./src/tools/case";
 import { clear } from "./src/tools/clear";
 import { defineMethod, defineProperty, defineValue } from "./src/tools/define";
@@ -99,6 +101,7 @@ export {
   TaggedSets,
   camelToKebab,
   camelToPascal,
+  capitalize,
   clear,
   defineMethod,
   defineProperty,
@@ -108,6 +111,7 @@ export {
   freeze,
   html,
   is,
+  isUpper,
   match,
   merge,
   mixup,
