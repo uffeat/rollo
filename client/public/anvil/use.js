@@ -253,11 +253,17 @@ export const assets = new (class Assets {
         /* NOTE Refraining from using Vite's `import.meta.env.DEV` 
         makes consumption in a non-Vite context possible. */
         this.#_.DEV = location.hostname === "localhost";
+
+        this.#_.embedded = window !== window.parent;
+
+        /* NOTE Port-aware base allows access to public when testing parcels. */
         this.#_.base = "";
-        if (this.DEV && location.port !== PORT) {
+        if (this.embedded) {
+          this.#_.base = "https://rolloh.vercel.app";
+        } else if (this.DEV && location.port !== PORT) {
           this.#_.base = `http://localhost:${PORT}`;
         }
-        /* NOTE Port-aware base allows access to public when testing parcels. */
+
         this.#_.VITE =
           typeof import.meta !== "undefined" &&
           typeof import.meta.env !== "undefined" &&
@@ -270,9 +276,13 @@ export const assets = new (class Assets {
         this.#_.companion = new (class {
           #_ = {};
           constructor() {
-            this.#_.origin = owner.DEV
-              ? "https://rollohdev.anvil.app"
-              : "https://rolloh.anvil.app";
+            if (owner.embedded) {
+              this.#_.origin = window.parent.origin;
+            } else {
+              this.#_.origin = owner.DEV
+                ? "https://rollohdev.anvil.app"
+                : "https://rolloh.anvil.app";
+            }
           }
           get origin() {
             return this.#_.origin;
@@ -295,7 +305,7 @@ export const assets = new (class Assets {
       }
 
       set base(base) {
-        this.#_.base = base
+        this.#_.base = base;
       }
 
       get companion() {
@@ -304,6 +314,10 @@ export const assets = new (class Assets {
 
       get detail() {
         return this.#_.detail;
+      }
+
+      get embedded() {
+        return this.#_.embedded;
       }
 
       get env() {
@@ -973,10 +987,5 @@ to avoid Vercel-injections.
     return pseudo;
   });
 })();
-
-
-if (!use.meta.DEV) {
-  use.meta.base = "https://rolloh.vercel.app";
-}
 
 window.dispatchEvent(new CustomEvent("_use"));

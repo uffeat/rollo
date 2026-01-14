@@ -102,19 +102,19 @@ class main(Files, Minify):
             "client/src/main.css",
             css,
         )
-        # For Anvil import
+
+        # Anvil
+
+        # Copy use.js
+        self.write('client/public/anvil/use.js', self.read("client/src/use.js"))
+        # Copy main.css
         self.write(
             "client/public/anvil/main.css",
             css,
         )
-        asset_css = (
-            f"/*{timestamp}*/\n"
-            + self.minify_css("\n".join(rules))
-        )
-        style_css = (
-            f"/*{timestamp}*/\n"
-            + "\n".join(style_rules)
-        )
+        # Create asset-only sheet
+        asset_css = f"/*{timestamp}*/\n" + self.minify_css("\n".join(rules))
+        style_css = f"/*{timestamp}*/\n" + "\n".join(style_rules)
         self.write(
             "client/public/anvil/assets.css",
             asset_css,
