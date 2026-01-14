@@ -1,11 +1,14 @@
-import { stateMixin } from "../state/index";
+import { stateMixin } from "../state";
+import { is } from "../tools/is";
 import { factory } from "./tools/factory";
 import { mix } from "./tools/mix";
 import { Mixins, mixins } from "./mixins/mixins";
 import { registry } from "./tools/registry";
 
 /* Registers native web component from tag and returns component class. */
-const create = (tag) => {
+const create = (...args) => {
+  const tag = args.find((a) => is.string(a));
+
   const key = `x-${tag}`;
   if (registry.has(key)) {
     return registry.get(key);
@@ -41,7 +44,7 @@ const create = (tag) => {
       }
     }
   );
-}
+};
 
 /* Returns instance factory for basic non-autonomous web component. */
 export const Component = (tag) => {
@@ -52,8 +55,7 @@ export const Component = (tag) => {
   ... but the current implementation actually works better - tested across 
   all modern browsers. */
   return factory(instance);
-}
-
+};
 
 /* Returns instance factory for basic non-autonomous web component. */
 export const component = new Proxy(
@@ -83,9 +85,6 @@ export const component = new Proxy(
     },
   }
 );
-
-
-
 
 /* Returns component with tree from html. */
 function htmlToComponent(html) {

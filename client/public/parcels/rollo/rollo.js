@@ -1506,46 +1506,44 @@ const Ht = (s, t) => class extends s {
   values() {
     return this.#t.registry.values();
   }
-}(), S = new Proxy(
+}(), Ft = (...s) => {
+  const t = s.find((o) => d.string(o)), e = `x-${t}`;
+  if (q.has(e))
+    return q.get(e);
+  const r = document.createElement(t), n = r.constructor;
+  if (n === HTMLUnknownElement)
+    throw new Error(`'${t}' is not native.`);
+  const i = K("!text", I);
+  return "textContent" in r && i.push(N.text), t === "form" && i.push(N.novalidation), t === "label" && i.push(N.for_), q.add(
+    class nt extends D(n, {}, ...i) {
+      static __key__ = e;
+      static __native__ = t;
+      static create = (...c) => {
+        const u = new nt();
+        return Z(u)(...c);
+      };
+      __new__(...c) {
+        super.__new__?.(...c), this.setAttribute("web-component", "");
+      }
+    }
+  );
+}, Kt = (s) => {
+  const t = Ft(s), e = new t();
+  return Z(e);
+}, S = new Proxy(
   {},
   {
-    get(s, t) {
-      return t === "from" ? (e, { as: r, convert: n = !0, ...i } = {}) => {
-        if (n) {
-          const o = Yt(e);
-          return o.length === 1 ? r ? S[r](i, o[0]) : o[0].update(i) : S[r || "div"](i, ...o);
+    get(s, t, e) {
+      return t === "from" ? (r, { as: n, convert: i = !0, ...o } = {}) => {
+        if (i) {
+          const c = Yt(r);
+          return c.length === 1 ? n ? S[n](o, c[0]) : c[0].update(o) : S[n || "div"](o, ...c);
         }
-        return S[r || "div"]({ innerHTML: e, ...i });
+        return S[n || "div"]({ innerHTML: r, ...o });
       } : Kt(t);
     }
   }
 );
-function Ft(s) {
-  const t = `x-${s}`;
-  if (q.has(t))
-    return q.get(t);
-  const e = document.createElement(s), r = e.constructor;
-  if (r === HTMLUnknownElement)
-    throw new Error(`'${s}' is not native.`);
-  const n = K("!text", I);
-  return "textContent" in e && n.push(N.text), s === "form" && n.push(N.novalidation), s === "label" && n.push(N.for_), q.add(
-    class nt extends D(r, {}, ...n) {
-      static __key__ = t;
-      static __native__ = s;
-      static create = (...o) => {
-        const c = new nt();
-        return Z(c)(...o);
-      };
-      __new__(...o) {
-        super.__new__?.(...o), this.setAttribute("web-component", "");
-      }
-    }
-  );
-}
-function Kt(s) {
-  const t = Ft(s), e = new t();
-  return Z(e);
-}
 function Yt(s) {
   const t = document.createElement("div");
   return t.innerHTML = s, Array.from(t.children, (r) => Bt(r));
