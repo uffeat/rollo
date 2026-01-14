@@ -1533,15 +1533,13 @@ const Ht = (s, t) => class extends s {
 }, S = new Proxy(
   {},
   {
-    get(s, t, e) {
-      return t === "from" ? (r, { as: n, convert: i = !0, ...o } = {}) => {
-        if (i) {
-          const c = Yt(r);
-          return c.length === 1 ? n ? S[n](o, c[0]) : c[0].update(o) : S[n || "div"](o, ...c);
-        }
-        return S[n || "div"]({ innerHTML: r, ...o });
-      } : Kt(t);
-    }
+    get: (s, t, e) => t === "from" ? (r, { as: n, convert: i = !0, ...o } = {}) => {
+      if (i) {
+        const c = Yt(r);
+        return c.length === 1 ? n ? S[n](o, c[0]) : c[0].update(o) : S[n || "div"](o, ...c);
+      }
+      return S[n || "div"]({ innerHTML: r, ...o });
+    } : Kt(t)
   }
 );
 function Yt(s) {

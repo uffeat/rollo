@@ -6,9 +6,7 @@ import { Mixins, mixins } from "./mixins/mixins";
 import { registry } from "./tools/registry";
 
 /* Registers native web component from tag and returns component class. */
-const create = (...args) => {
-  const tag = args.find((a) => is.string(a));
-
+const create = (tag) => {
   const key = `x-${tag}`;
   if (registry.has(key)) {
     return registry.get(key);
@@ -61,7 +59,7 @@ export const Component = (tag) => {
 export const component = new Proxy(
   {},
   {
-    get: (target, tag, receiver) => {
+    get(target, tag, receiver) {
       if (tag === "from") {
         return (html, { as, convert = true, ...updates } = {}) => {
           if (convert) {
