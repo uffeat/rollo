@@ -1534,6 +1534,7 @@ const Ht = (r, t) => class extends r {
   {},
   {
     get(...r) {
+      console.log("args:", r);
       const t = r.find((e) => l.string(e));
       return console.log("tag:", t), t === "from" ? (e, { as: s, convert: n = !0, ...i } = {}) => {
         if (n) {

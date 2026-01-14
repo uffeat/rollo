@@ -62,6 +62,10 @@ export const component = new Proxy(
   {},
   {
     get(...args) {
+
+      console.log('args:', args)////
+
+
       const tag = args.find((a) => is.string(a));
 
       console.log('tag:', tag)////
