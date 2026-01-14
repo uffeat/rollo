@@ -1,6 +1,5 @@
 /* Lightweight version of `/src/use.js` intended for Anvil */
-
-
+const import_ = Function("u", "return import(u)");
 
 const type = (value) => Object.prototype.toString.call(value).slice(8, -1);
 
@@ -134,12 +133,9 @@ class Registry {
 }
 
 export const assets = new (class Assets {
-  #_ = {
-    import: Function("u", "return import(u)"),
-  };
+  #_ = {};
 
   constructor() {
-    
     this.#_.meta = new (class Meta {
       get base() {
         return "https://rolloh.vercel.app";
@@ -190,7 +186,7 @@ export const assets = new (class Assets {
     const url = URL.createObjectURL(
       new Blob([text], { type: "text/javascript" })
     );
-    const result = await this.#_.import(url);
+    const result = await import_(url);
     URL.revokeObjectURL(url);
     return result;
   }
@@ -254,10 +250,127 @@ export const assets = new (class Assets {
   }
 })();
 
-
-
-
 /** Register out-of-the-box sources. */
+
+/* Register public assets as source (/). */
+assets.sources.add(
+  "/",
+  (() => {
+    const cache = new Map();
+    const fetching = new Map();
+    const loading = new Map();
+    return async ({ options, owner, path }) => {
+      const { as, raw } = options;
+      /* Global sheet by link (FOUC-free) */
+      if (path.type === "css" && as === undefined && raw !== true) {
+        const href = `${owner.meta.base}${path.path}`;
+        let link = document.head.querySelector(
+          `link[rel="stylesheet"][href="${href}"]`
+        );
+        if (link) {
+          if (loading.has(href)) return loading.get(href);
+          return link;
+        }
+        link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = href;
+        const { promise, resolve, reject } = Promise.withResolvers();
+        loading.set(href, promise);
+        link.addEventListener(
+          "load",
+          (event) => {
+            resolve(link);
+            loading.delete(href);
+          },
+          { once: true }
+        );
+        link.addEventListener(
+          "error",
+          (event) => {
+            loading.delete(href);
+            reject(new Error(`Failed to load sheet: ${href}`));
+          },
+          { once: true }
+        );
+        document.head.append(link);
+        return await promise;
+      }
+      if (path.type === "js" && raw !== true) {
+        /* Old-school script */
+        if (as === "script") {
+          const src = `${owner.meta.base}${path.path}`;
+          let script = document.head.querySelector(`script[src="${src}"]`);
+          if (script) {
+            if (loading.has(src)) return loading.get(src);
+            return true;
+          }
+          script = document.createElement("script");
+          script.src = src;
+          const { promise, resolve, reject } = Promise.withResolvers();
+          loading.set(src, promise);
+          script.addEventListener(
+            "load",
+            (event) => {
+              loading.delete(src);
+              resolve(true);
+            },
+            { once: true }
+          );
+          script.addEventListener(
+            "error",
+            (event) => {
+              loading.delete(src);
+              reject(new Error(`Failed to load script: ${src}`));
+            },
+            { once: true }
+          );
+          document.head.append(script);
+          return await promise;
+        }
+        /* Module */
+        if (as === undefined) {
+          return await import_(`${owner.meta.base}${path.path}`);
+        }
+      }
+      /* Text-based asset */
+      if (cache.has(path.full)) {
+        return cache.get(path.full);
+      }
+      if (fetching.has(path.full)) {
+        const promise = fetching.get(path.full);
+        const result = await promise;
+        fetching.delete(path.full);
+        return result;
+      } else {
+        const { promise, resolve, reject } = Promise.withResolvers();
+        fetching.set(path.full, promise);
+        try {
+          const result = (
+            await (
+              await fetch(`${owner.meta.base}${path.path}`, {
+                cache: "no-store",
+              })
+            ).text()
+          ).trim();
+          
+          const tester = document.createElement("div");
+          tester.innerHTML = result;
+          if (tester.querySelector(`meta[index]`)) {
+            throw new Error(`Invalid path: ${path.full}`)
+          }
+          cache.set(path.full, result);
+          resolve(result);
+          return result;
+        } catch (error) {
+          reject(error);
+          throw error;
+        } finally {
+          fetching.delete(path.full);
+        }
+      }
+    };
+  })()
+);
 
 /* Register asset carrier sheet as source (@/). */
 (() => {
@@ -372,8 +485,7 @@ assets.types.add("json", (result) => {
   return JSON.parse(result);
 });
 
-
-
+/* Add carrier sheet */
 await new Promise((resolve) => {
   const link = document.createElement("link");
   link.rel = "stylesheet";
