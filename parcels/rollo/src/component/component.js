@@ -61,7 +61,12 @@ export const Component = (tag) => {
 export const component = new Proxy(
   {},
   {
-    get: (target, tag, receiver) => {
+    get(...args) {
+      const tag = args.find((a) => is.string(a));
+
+      console.log('tag:', tag)////
+
+
       if (tag === "from") {
         return (html, { as, convert = true, ...updates } = {}) => {
           if (convert) {
