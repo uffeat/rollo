@@ -6,7 +6,6 @@ const { app, css, component } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
 
 export default async () => {
-
   const container = component.div(
     "container",
     {
@@ -45,6 +44,4 @@ export default async () => {
       [breakpoint]
     );
   });
-  
-
 };

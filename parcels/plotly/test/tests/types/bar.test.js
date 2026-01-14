@@ -1,8 +1,7 @@
 /* 
-/plotly/types/bar.test.js
+/types/bar.test.js
 */
-import { Bar, Bubble, Line, Pie, Stacked } from "@/plotly";
-
+const { Bar, Bubble, Line, Pie, Stacked } = await use("@/plotly/");
 const { component } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
 

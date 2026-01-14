@@ -1,0 +1,40 @@
+/* Generic plotly sheet for dark mode.
+NOTE 
+- Requires reboot or Bootstrap. 
+- Scoped to Plot component (primary use case), but also to components with a 
+  `plotly-component` attr to allow for custom usage.
+*/
+
+@import "tailwindcss";
+
+:is(plotly-component, [plotly-component]) {
+  /* Space around mode bar */
+  .modebar-container {
+    top: 8px !important;
+    right: 8px !important;
+  }
+
+  /* Colors */
+  .main-svg,
+  .modebar-group {
+    background-color: transparent !important;
+  }
+  .legend .bg {
+    fill: transparent !important;
+  }
+  .modebar button svg path {
+    fill: var(--bs-gray-600) !important;
+  }
+  .modebar:hover button svg path {
+    fill: var(--bs-light) !important;
+  }
+
+  .gridlayer :is(.xgrid, .ygrid) {
+    stroke-opacity: 0.2 !important;
+  }
+
+  .zerolinelayer :is(.yzl, .xzl) {
+    stroke-opacity: 0.6 !important;
+    stroke: var(--bs-light) !important;
+  }
+}

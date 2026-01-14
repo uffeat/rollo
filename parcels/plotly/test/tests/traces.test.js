@@ -1,8 +1,8 @@
 /* 
-/plotly/traces.test.js
+/traces.test.js
 */
-import { Axis, Plot, Layout } from "@/plotly";
 
+const { Axis, Plot, Layout } = await use("@/plotly/");
 const { component } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
 

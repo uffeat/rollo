@@ -1,7 +1,7 @@
 import "@/use";
 import { Spinner } from "@/tools";
-import { Bar } from "@/plotly";
 
+const { Bar } = await use("@/plotly/");
 const { component } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
 
