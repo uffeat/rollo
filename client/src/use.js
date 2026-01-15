@@ -478,13 +478,11 @@ export const assets = new (class Assets {
       if (!this.sources.has(path.source)) {
         UseError.raise(`Invalid source: ${path.source}`);
       }
-
       result = await this.sources.get(path.source)(
         { options: { ...options }, owner: this, path },
         ...args
       );
     }
-
     /* Escape */
     if (path.detail.escape) return result;
     /* Error */
