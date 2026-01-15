@@ -378,6 +378,16 @@ export const assets = new (class Assets {
     });
   }
 
+  /* . */
+  get anvil() {
+    return this.#_.anvil;
+  }
+
+  /* . */
+  set anvil(anvil) {
+    this.#_.anvil = anvil;
+  }
+
   /* Returns detail for ad-hoc data. */
   get detail() {
     return this.#_.detail;
