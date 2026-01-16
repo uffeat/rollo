@@ -6,18 +6,20 @@ import { iworker } from "@/iworker";
 /* Set up routes */
 import "@/routes";
 
+
+
+
 const { InputFile, app, component, is, css, ref } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
 
-//
-//
-component.button("btn.btn-primary", { text: "Primary", parent: frame });
-component.button("btn.btn-secondary", { text: "Secondary", parent: frame });
-component.a( { text: "Link", parent: frame });
-component.input('form-control', {parent: frame });
+use('/test/bar.css').then((link) => console.log('link:', link));
+use('/test/bar.css').then((link) => console.log('link:', link));
+use('/test/bar.css').then((link) => console.log('link:', link));
+use('/test/bar.css').then((link) => console.log('link:', link));
+await use('/test/bar.css');
+use('/test/bar.css').then((link) => console.log('link:', link));
 
-//
-//
+
 
 await (async () => {
   // TODO Wrap in 'user' util

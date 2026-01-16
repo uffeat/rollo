@@ -1,32 +1,4 @@
-const typeName = (value) => Object.prototype.toString.call(value).slice(8, -1);
-
-const is = new (class {
-  
-
-  element(value) {
-    return value instanceof HTMLElement;
-  }
-
-  function(value) {
-    return typeof value === "function";
-  }
-
-  null(value) {
-    return typeName(value) === "Null";
-  }
-
-  object(value) {
-    return typeName(value) === "Object";
-  }
-
-  string(value) {
-    return typeName(value) === "String";
-  }
-
-  undefined(value) {
-    return typeName(value) === "Undefined";
-  }
-})();
+const type = (value) => Object.prototype.toString.call(value).slice(8, -1);
 
 /* Custom error for throwing import-engine specific errors. */
 export class UseError extends Error {
@@ -68,6 +40,7 @@ export class Path {
 
   constructor(specifier) {
     this.#_.specifier = specifier;
+
     const [path, search] = specifier.split("?");
 
     /* Build query */
@@ -252,67 +225,62 @@ class Redirects {
 /* Caching utility with inflight management. */
 export class Store {
   #_ = {
-    /* Create combined cache/inflight map */
-    registry: new Map(),
+    cache: new Map(),
+    processing: new Map(),
   };
 
-  get __registry__() {
-    return this.#_.registry;
+  get __cache__() {
+    return this.#_.cache;
   }
 
-  /* Deletes item in registry by key. */
+  get __processing__() {
+    return this.#_.processing;
+  }
+
+  /* Deletes item by key in cache and processing registries. */
   clear(key) {
-    this.#_.registry.delete(key);
+    this.#_.cache.delete(key);
+    this.#_.processing.delete(key);
   }
 
-  /* Returns result. */
+  /* */
   async get(key) {
-    if (this.#_.registry.has(key)) {
-      const stored = this.#_.registry.get(key);
-      if ("result" in stored) {
-        return stored.result;
-      }
-      if ("promise" in stored) {
-        const result = await stored.promise;
-        delete stored.promise;
-        stored.result = result;
-        return result;
-      }
+    if (this.#_.cache.has(key)) {
+      return this.#_.cache.get(key);
     }
-    return null;
+    if (this.#_.processing.has(key)) {
+      const promise = this.#_.processing.get(key);
+      const result = await promise;
+      this.#_.processing.delete(key);
+      return result;
+    }
   }
 
-  /* Checks if key in registry. */
+  /* Checks is key in cache or processing. */
   has(key) {
-    return this.#_.registry.has(key);
+    return this.#_.cache.has(key) || this.#_.processing.has(key);
   }
 
   /* Checks if processing. */
   processing(key) {
-    const stored = this.#_.registry.get(key) || {};
-    return "promise" in stored;
+    return this.#_.processing.has(key);
   }
 
-  /* Returns functions for storing result. */
-  setup(key) {
-    UseError.if(
-      this.#_.registry.has(key),
-      `'setup' already used for key: ${key}`
-    );
+  /* Returns functions for  */
+  setup(key, { cache = true } = {}) {
     const pwr = Promise.withResolvers();
-    /* Store plain mutable storage object to avoid tinkering with map */
-    const stored = { promise: pwr.promise };
-    this.#_.registry.set(key, stored);
+    this.#_.processing.set(key, pwr.promise);
     return {
       resolve: (result) => {
-        stored.result = result;
-        delete stored.promise;
+        if (cache) {
+          this.#_.cache.set(key, result);
+        }
+        this.#_.processing.delete(key);
         pwr.resolve(result);
         return result;
       },
       reject: (error) => {
-        /* Wipe from registry */
-        this.#_.registry.delete(key);
+        this.clear(key);
         pwr.reject(error);
         return error;
       },
@@ -451,7 +419,7 @@ export const assets = new (class Assets {
         get(target, key) {
           if (key === "assets") return assets;
           const value = assets[key];
-          if (is.function(value)) {
+          if (typeof value === "function") {
             return value.bind(assets);
           }
           return value;
@@ -517,10 +485,10 @@ export const assets = new (class Assets {
   - manually making objects use-importable (only do when really necessary)
   - overloading asset when testing parcels (knock yourself out!). */
   add(key, value) {
-    if (is.string(value)) {
+    if (typeof key === "string") {
       this.#_.added.set(key, value);
     } else {
-      /* key assumed to be a plain object or module */
+      /* key assumed to be a plain object */
       for (const [k, v] of Object.entries(key)) {
         this.add(k, v);
       }
@@ -542,8 +510,8 @@ export const assets = new (class Assets {
 
   /* Returns asset. */
   async get(specifier, ...args) {
-    const options = { ...(args.find((a) => is.object(a)) || {}) };
-    args = args.filter((a) => !is.object(a));
+    const options = { ...(args.find((a) => type(a) === "Object") || {}) };
+    args = args.filter((a) => type(a) !== "Object");
     if (this.meta.DEV) {
       /* Redirect */
       specifier = this.redirects.redirect(specifier, options, ...args);
@@ -554,12 +522,14 @@ export const assets = new (class Assets {
     if (this.#_.added.has(path.full)) {
       /* Added assets */
       result = this.#_.added.get(path.full);
-      if (is.function(result)) {
+      if (typeof result === "function") {
         result = await result({ path });
       }
     } else {
       /* Get assets from registered source (nothing from added) */
-      UseError.if(!this.sources.has(path.source),`Invalid source: ${path.source}`)
+      if (!this.sources.has(path.source)) {
+        UseError.raise(`Invalid source: ${path.source}`);
+      }
       result = await this.sources.get(path.source)(
         { options: { ...options }, owner: this, path },
         ...args
@@ -675,33 +645,47 @@ NOTE
     - cannot be utf-8 serialized.
 */
 (() => {
+  const cache = new Map();
+  const processing = new Map();
+
   const store = new Store();
+
   use.sources.add("/", async ({ options, owner, path }) => {
     const { as, raw } = options;
     /* Global sheet by link (FOUC-free) */
-    if (path.type === "css" && !as && !raw) {
-      /* NOTE 
-      - Returns actual link, since link can be meaningfully removed.
-      - 'error' event does not fire reliably, therefore attempt raw 
+    if (path.type === "css" && as === undefined && raw !== true) {
+      /* NOTE 'error' event does not fire reliably, therefore attempt raw 
         import, which will throw for invalid paths; it carries a small perf
         penalty, so only do in DEV. */
       if (use.meta.DEV) {
         await use(path.path, { raw: true });
       }
+
       const href = `${owner.meta.base}${path.path}`;
       let link = document.head.querySelector(
         `link[rel="stylesheet"][href="${href}"]`
       );
+
+      //console.log("cache:", store.__cache__); ////
+      //console.log("processing:", store.__processing__); ////
+      //console.log("Is processing:", store.processing(href)); ////
+
       if (link) {
-        /* link in DOM -> no need to keep on store */
+        /* XXX Should not be necessary to explicitly clear, since done in resolve
+        ... but it is. Perhaps an uncontrolled race condition? */
         store.clear(href);
         return link;
       }
+
       if (store.has(href)) {
         link = await store.get(href);
         return link;
       }
-      const { resolve, reject } = store.setup(href);
+
+      //console.log("Creating link:", href); ////
+
+      const { resolve, reject } = store.setup(href, { cache: false });
+
       link = document.createElement("link");
       link.rel = "stylesheet";
       link.href = href;
@@ -710,37 +694,56 @@ NOTE
       document.head.append(link);
       return link;
     }
-    if (path.type === "js" && !raw) {
+
+    if (path.type === "js" && raw !== true) {
       /* Old-school script */
       if (as === "script") {
         const src = `${owner.meta.base}${path.path}`;
         let script = document.head.querySelector(`script[src="${src}"]`);
         if (script) {
-          /* script in DOM -> no need to keep on store */
-          store.clear(src);
+          if (processing.has(src)) return processing.get(src);
           return true;
         }
-        if (store.has(src)) {
-          return true;
-        }
-        const { resolve, reject } = store.setup(src);
         script = document.createElement("script");
         script.src = src;
-        script.addEventListener("load", () => resolve(true), { once: true });
-        script.onerror = () => reject(new UseError(`Failed to load: ${src}`));
+        const { promise, resolve, reject } = Promise.withResolvers();
+        processing.set(src, promise);
+        script.addEventListener(
+          "load",
+          (event) => {
+            processing.delete(src);
+            resolve(true);
+          },
+          { once: true }
+        );
+        script.addEventListener(
+          "error",
+          (event) => {
+            processing.delete(src);
+            reject(new UseError(`Failed to load script: ${src}`));
+          },
+          { once: true }
+        );
         document.head.append(script);
-        return true;
+        return await promise;
       }
       /* Module */
-      if (!as) {
+      if (as === undefined) {
         return await owner.import(`${owner.meta.base}${path.path}`);
       }
     }
     /* Text-based asset */
-    if (store.has(path.full)) {
-      return await store.get(path.full);
+    if (cache.has(path.full)) {
+      return cache.get(path.full);
+    }
+    if (processing.has(path.full)) {
+      const promise = processing.get(path.full);
+      const result = await promise;
+      processing.delete(path.full);
+      return result;
     } else {
-      const { resolve, reject } = store.setup(path.full);
+      const { promise, resolve, reject } = Promise.withResolvers();
+      processing.set(path.full, promise);
       try {
         const result = (
           await (
@@ -749,20 +752,19 @@ NOTE
             })
           ).text()
         ).trim();
-        /* HACK Invalid paths resolve to index.html, which has a special meta; 
-        regular assets do not. The test carries a small perf penalty, so only 
-        do in DEV. */
-        if (use.meta.DEV) {
-          const tester = document.createElement("div");
-          tester.innerHTML = result;
-          UseError.if(
-            tester.querySelector(`meta[index]`),
-            `Invalid path: ${path.full}`
-          );
+        const tester = document.createElement("div");
+        tester.innerHTML = result;
+        if (tester.querySelector(`meta[index]`)) {
+          UseError.raise(`Invalid path: ${path.full}`);
         }
-        return resolve(result);
+        cache.set(path.full, result);
+        resolve(result);
+        return result;
       } catch (error) {
-        throw reject(error);
+        reject(error);
+        throw error;
+      } finally {
+        processing.delete(path.full);
       }
     }
   });
@@ -813,7 +815,7 @@ use.types
       const cache = new Map();
       return async (text, { path }) => {
         /* Type guard */
-        if (!is.string(text)) return;
+        if (!(typeof text === "string")) return;
         const { Sheet } = await use("@/rollo/");
         const key = path.full;
         if (cache.has(key)) return cache.get(key);
@@ -825,12 +827,10 @@ use.types
   )
   .processors.add("css", async (result, options, ...args) => {
     /* Type guard */
-    if (typeName(result) !== "CSSStyleSheet") return;
+    if (type(result) !== "CSSStyleSheet") return;
     const targets = args.filter(
       (a) =>
-        typeName(a) === "HTMLDocument" ||
-        a instanceof ShadowRoot ||
-        a.shadowRoot
+        type(a) === "HTMLDocument" || a instanceof ShadowRoot || a.shadowRoot
     );
     if (targets.length) {
       /* NOTE sheet.use() adopts to document, therefore check targets' length */
@@ -846,7 +846,7 @@ use.processors.add(
     /* Options guard */
     if (!options.convert) return;
     /* Type guard */
-    if (!is.string(text)) return;
+    if (!(typeof text === "string")) return;
     const { component } = await use("@/rollo/");
     return component.from(text);
   }
@@ -862,10 +862,11 @@ use.processors.add(
   const store = new Store();
   use.types.add("js", async (text, { options, owner, path }) => {
     /* Type guard */
-    if (!is.string(text)) return;
+    if (!(typeof text === "string")) return;
     let result;
     const { as } = options;
     const key = as === "function" ? `${path.full}?${as}` : path.full;
+
     if (store.has(key)) {
       return await store.get(key);
     }
@@ -894,10 +895,10 @@ use.processors.add(
 - Text -> JS object.
 - Does not cache to avoid mutation issues. 
 */
-use.types.add("json", (text) => {
+use.types.add("json", (result) => {
   /* Type guard */
-  if (!is.string(text)) return;
-  return JSON.parse(text);
+  if (!(typeof result === "string")) return;
+  return JSON.parse(result);
 });
 
 /** Register out-of-the-box transformers and processors for common non-native assets. */
@@ -913,7 +914,7 @@ NOTE Caches by default, but possible to opt out. */
       return cache.get(path.full);
     }
     /* Type guard */
-    if (!is.string(text)) return;
+    if (!(typeof text === "string")) return;
     const { marked } = await use("@/marked");
     let result;
     if (text.startsWith("---")) {
@@ -944,7 +945,7 @@ to avoid Vercel-injections and Anvil asset registration.
   const cache = new Map();
   use.processors.add("x.html", "x.template", async (result, { path }) => {
     /* Type guard */
-    if (!is.string(text)) return;
+    if (!(typeof result === "string")) return;
     const { component, Sheet } = await use("@/rollo/");
     if (cache.has(path.full)) return cache.get(path.full);
     const fragment = component.div({ innerHTML: result });

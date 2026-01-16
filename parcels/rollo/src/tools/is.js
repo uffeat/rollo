@@ -35,7 +35,7 @@ export const is = new (class {
   }
 
   function(value) {
-    return ["AsyncFunction", "Function"].includes(type(value));
+    return typeof value === 'function'
   }
 
   map(value) {
