@@ -1,4 +1,4 @@
-import '../use'
+import "../use";
 
 import { Submission } from "./tools/submission";
 import _fetch from "./tools/fetch";
@@ -20,3 +20,4 @@ export const server = new Proxy(
   }
 );
 
+use.compose("server", server);

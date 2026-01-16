@@ -1,5 +1,5 @@
-let i = 0;
-const c = () => i++, { Exception: _, is: a } = await use("@/rollo/"), p = {
+let c = 0;
+const i = () => c++, { Exception: _, is: a } = await use("@/rollo/"), p = {
   method: "POST",
   headers: { "content-type": "text/plain; charset=utf-8" }
 }, u = async (e, ...t) => {
@@ -10,17 +10,18 @@ const c = () => i++, { Exception: _, is: a } = await use("@/rollo/"), p = {
     ...p
   })).json();
   return _.if("__error__" in o, o.__error__), o;
-}, d = (e, ...t) => u(e, ...t), h = new Proxy(
+}, d = (e, ...t) => u(e, ...t), f = new Proxy(
   {},
   {
     get(e, t) {
       return async (...n) => d(
-        `${use.meta.companion.origin}/_/api/main?name=${t}&submission=${c()}`,
+        `${use.meta.companion.origin}/_/api/main?name=${t}&submission=${i()}`,
         ...n
       );
     }
   }
 );
+use.compose("server", f);
 export {
-  h as server
+  f as server
 };

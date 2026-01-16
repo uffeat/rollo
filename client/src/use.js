@@ -455,16 +455,6 @@ export const assets = new (class Assets {
     });
   }
 
-  /* . */
-  get anvil() {
-    return this.#_.anvil;
-  }
-
-  /* . */
-  set anvil(anvil) {
-    this.#_.anvil = anvil;
-  }
-
   /* Returns detail for ad-hoc data. */
   get detail() {
     return this.#_.detail;
@@ -1014,6 +1004,10 @@ to avoid Vercel-injections and Anvil asset registration.
     return pseudo;
   });
 })();
+
+/* */
+const { component } = await use("@/rollo/");
+use.compose("component", component);
 
 window.dispatchEvent(new CustomEvent("_use"));
 
