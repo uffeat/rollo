@@ -1,8 +1,6 @@
 const typeName = (value) => Object.prototype.toString.call(value).slice(8, -1);
 
 const is = new (class {
-  
-
   element(value) {
     return value instanceof HTMLElement;
   }
@@ -11,20 +9,12 @@ const is = new (class {
     return typeof value === "function";
   }
 
-  null(value) {
-    return typeName(value) === "Null";
-  }
-
   object(value) {
     return typeName(value) === "Object";
   }
 
   string(value) {
     return typeName(value) === "String";
-  }
-
-  undefined(value) {
-    return typeName(value) === "Undefined";
   }
 })();
 
@@ -354,10 +344,8 @@ export const assets = new (class Assets {
         } else if (this.DEV && location.port !== PORT) {
           this.#_.base = `http://localhost:${PORT}`;
         }
-        this.#_.VITE =
-          typeof import.meta !== "undefined" &&
-          typeof import.meta.env !== "undefined" &&
-          import.meta.env.MODE;
+        this.#_.VITE = import.meta && import.meta.env && import.meta.env.MODE;
+
         this.#_.env = this.#_.DEV ? "development" : "production";
 
         const owner = this;
@@ -559,7 +547,10 @@ export const assets = new (class Assets {
       }
     } else {
       /* Get assets from registered source (nothing from added) */
-      UseError.if(!this.sources.has(path.source),`Invalid source: ${path.source}`)
+      UseError.if(
+        !this.sources.has(path.source),
+        `Invalid source: ${path.source}`
+      );
       result = await this.sources.get(path.source)(
         { options: { ...options }, owner: this, path },
         ...args
@@ -957,7 +948,7 @@ to avoid Vercel-injections and Anvil asset registration.
     /* Get exposed components */
     const components = Object.fromEntries(
       Object.entries(mod).filter(([k, v]) => {
-        return v instanceof HTMLElement;
+        return is.element(v);
       })
     );
     /* Prepare context */
