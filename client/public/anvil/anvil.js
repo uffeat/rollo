@@ -385,28 +385,7 @@ assets.types.add("json", (result) => {
   return JSON.parse(result);
 });
 
-Object.defineProperty(globalThis, "use", {
-  configurable: false,
-  enumerable: true,
-  writable: false,
-  value: new Proxy(async () => {}, {
-    get(target, key) {
-      if (key === "assets") return assets;
-      const value = assets[key];
-      if (typeof value === "function") {
-        return value.bind(assets);
-      }
-      return value;
-    },
-    set(target, key, value) {
-      assets[key] = value;
-      return true;
-    },
-    apply(target, thisArg, args) {
-      return assets.get(...args);
-    },
-  }),
-});
+
 
 /* Add carrier sheet */
 await new Promise((resolve) => {
