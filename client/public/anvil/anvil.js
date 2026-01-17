@@ -1,7 +1,6 @@
 /* Lightweight version of `/src/use.js` intended for Anvil */
-const import_ = Function("u", "return import(u)");
 
-const type = (value) => Object.prototype.toString.call(value).slice(8, -1);
+const typeName = (value) => Object.prototype.toString.call(value).slice(8, -1);
 
 class Path {
   static create = (arg) => {
@@ -133,7 +132,9 @@ class Registry {
 }
 
 export const assets = new (class Assets {
-  #_ = {};
+  #_ = {
+    import: Function("u", "return import(u)"),
+  };
 
   constructor() {
     this.#_.meta = new (class Meta {
@@ -193,21 +194,9 @@ export const assets = new (class Assets {
     return this.#_.types;
   }
 
-  async module(text, path) {
-    if (path) {
-      text = `${text}\n//# sourceURL=${path}`;
-    }
-    const url = URL.createObjectURL(
-      new Blob([text], { type: "text/javascript" }),
-    );
-    const result = await import_(url);
-    URL.revokeObjectURL(url);
-    return result;
-  }
-
   async get(specifier, ...args) {
-    const options = { ...(args.find((a) => type(a) === "Object") || {}) };
-    args = args.filter((a) => type(a) !== "Object");
+    const options = { ...(args.find((a) => typeName(a) === "Object") || {}) };
+    args = args.filter((a) => typeName(a) !== "Object");
     const path = Path.create(specifier);
     let result;
     /* Import */
@@ -262,6 +251,22 @@ export const assets = new (class Assets {
     }
     return result;
   }
+
+  async import(u) {
+    return this.#_.import(u);
+  }
+
+  async module(text, path) {
+    if (path) {
+      text = `${text}\n//# sourceURL=${path}`;
+    }
+    const url = URL.createObjectURL(
+      new Blob([text], { type: "text/javascript" }),
+    );
+    const result = await this.import(url);
+    URL.revokeObjectURL(url);
+    return result;
+  }
 })();
 
 /** Register out-of-the-box sources. */
@@ -310,10 +315,12 @@ assets.types
   )
   .processors.add("css", async (result, options, ...args) => {
     /* Type guard */
-    if (type(result) !== "CSSStyleSheet") return;
+    if (typeName(result) !== "CSSStyleSheet") return;
     const targets = args.filter(
       (a) =>
-        type(a) === "HTMLDocument" || a instanceof ShadowRoot || a.shadowRoot,
+        typeName(a) === "HTMLDocument" ||
+        a instanceof ShadowRoot ||
+        a.shadowRoot,
     );
     if (targets.length) {
       /* NOTE sheet.use() adopts to document, therefore check targets' length */
@@ -376,6 +383,29 @@ assets.types.add("json", (result) => {
   /* Type guard */
   if (!(typeof result === "string")) return;
   return JSON.parse(result);
+});
+
+Object.defineProperty(globalThis, "use", {
+  configurable: false,
+  enumerable: true,
+  writable: false,
+  value: new Proxy(async () => {}, {
+    get(target, key) {
+      if (key === "assets") return assets;
+      const value = assets[key];
+      if (typeof value === "function") {
+        return value.bind(assets);
+      }
+      return value;
+    },
+    set(target, key, value) {
+      assets[key] = value;
+      return true;
+    },
+    apply(target, thisArg, args) {
+      return assets.get(...args);
+    },
+  }),
 });
 
 /* Add carrier sheet */
