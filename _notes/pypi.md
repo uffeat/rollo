@@ -1,4 +1,6 @@
 pip install stripe
+pip install argon2-cffi
+
 pip install bcrypt
 
 pip install anvil-uplink
