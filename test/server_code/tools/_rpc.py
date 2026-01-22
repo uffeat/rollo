@@ -1,49 +1,52 @@
+import json
 import traceback
+from anvil import BlobMedia
 from anvil.server import callable as callable_
-from ._blob import Blob
 from ._env import PROD, env
 
 
 class rpc:
     """."""
 
-    def __init__(self, name: str = None, binary=True, **options):
-        self.name = name
-        self.binary = binary
+    def __init__(self, **options):
+        # NOTE Using '**options' provides flexibility for polymorphic targets.
         self.options = options
 
     def __call__(self, target: type):
-        self.name = self.name if self.name else target.__name__.lower()
+        name = self.options.get("name", target.__name__.lower())
 
-        def wrapper(*args, submission=None, **kwargs):
-            # Interpret submission
-            submission = None if submission is None else int(submission)
+        def wrapper(request: dict = None, submission: int = None):
+            """NOTE Do work inside wrapper to avoid costs unrelated to the 
+            current target."""
+            # Extract arguments for target
+            args, kwargs = request.get("args", []), request.get("kwargs", {})
             # Prepare meta
             meta = dict(
                 env=env,
-                name=self.name,
-                session_id=None, # XXX Cannot access 'session' from Uplink
+                name=name,
+                session_id=None,  # XXX Cannot access 'session' from Uplink
                 submission=submission,
                 type="rpc",
             )
             # Get result from target
-            if PROD:
+            try:
+                # NOTE Copy meta to guard against mutation in target
                 result = target()(*args, meta={**meta}, **kwargs)
-            else:
-                # NOTE try-except carries a cost, so only do in DEV
-                try:
-                    result = target()(*args, meta={**meta}, **kwargs)
-                except:
-                    result = dict(__error__=traceback.format_exc())
+            except:
+                return dict(__error__=traceback.format_exc(), meta=meta)
+            if callable(result):
+                result = result()
+            # Send response
+            if self.options.get("binary"):
+                content = json.dumps(result).encode("utf-8")
+                # 
+                """HACK Use 'name' as pseudo response headers -> client can read 
+                'meta' without opening up blob"""
+                return BlobMedia("response", content, name=json.dumps(meta))
+            return dict(result=result, meta=meta)
 
-            result = result() if callable(result) else result
-            result = dict(result=result, meta=meta)
-
-            if self.binary:
-                result = Blob(content=result, content_type="data", name=self.name).blob
-            return result
-
-        wrapper.__name__ = self.name
+        # Rename wrapper to ensure correct registration key
+        wrapper.__name__ = name
         # Register
         callable_()(wrapper)
         return target  # Enables stacking
