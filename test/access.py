@@ -9,7 +9,7 @@ from anvil.server import (
 
 
 def main():
-    """."""
+    """Provides DEV client access to server api's and iworker."""
     key = (json.loads((Path.cwd() / "secrets.json").read_text(encoding="utf-8")))[
         "development"
     ]["server"]

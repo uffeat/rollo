@@ -2,7 +2,7 @@ import json
 import traceback
 from anvil import BlobMedia
 from anvil.server import callable as callable_
-from ._env import PROD, env
+from ._env import env
 
 
 class rpc:
