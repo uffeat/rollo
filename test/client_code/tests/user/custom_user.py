@@ -14,8 +14,8 @@ def main(use):
   get_user_button = element.button('Get user', parent=menu)
   @element.on(get_user_button)
   def click(event):
-    row = use.anvil.users.get_user()
-    print('row:', row)
+    result = rpc.get_user()
+    print('result:', result)
 
 
   signup_button = element.button('Sign up', parent=menu)
@@ -35,7 +35,7 @@ def main(use):
   logout_button = element.button('Log out', parent=menu)
   @element.on(logout_button)
   def click(event):
-    result = use.anvil.users.logout()
+    result = rpc.logout_user()
     print('result:', result)
 
 

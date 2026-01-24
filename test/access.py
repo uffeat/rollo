@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 from anvil.server import (
-    callable as rpc,
+    callable as callable_,
     connect,
     wait_forever as keep_connection,
 )
@@ -16,7 +16,7 @@ def main():
 
     connect(key)
 
-    @rpc
+    @callable_
     def access():
         return True
 

@@ -2,16 +2,14 @@ import json
 from pathlib import Path
 from anvil.server import (
     HttpResponse,
-    callable as rpc,
+    callable as callable_,
     connect,
-    http_endpoint as api,
+    http_endpoint,
     wait_forever as keep_connection,
 )
 
 UTF_8 = "utf-8"
 TESTS = "test/client_code/tests"
-
-
 
 
 def main():
@@ -27,7 +25,7 @@ def main():
         ]["server"]
     )
 
-    @api("/test")
+    @http_endpoint("/test")
     def test(path: str = None):
         if path:
             body = (Path.cwd() / f"{TESTS}/{path}").read_text(encoding=UTF_8)
@@ -40,7 +38,7 @@ def main():
             },
         )
 
-    @rpc
+    @callable_
     def test(path: str = None):
         if path:
             return (Path.cwd() / f"{TESTS}/{path}").read_text(encoding=UTF_8)
