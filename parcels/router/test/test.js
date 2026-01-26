@@ -54,4 +54,4 @@ const run = (() => {
 })();
 
 /* Current test */
-//await run("/basics.test.js"); ////
+await run("/basics.test.js"); ////
