@@ -1,6 +1,6 @@
 import "../../use";
 
-const { NavLink } = await use("@/rollo/");
+const { NavLink } = await use("@/router/");
 const { frame } = await use("@/frame/");
 
 export class Route {

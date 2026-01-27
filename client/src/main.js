@@ -6,13 +6,9 @@ import { iworker } from "@/iworker";
 /* Set up routes */
 import "@/routes";
 
-const hashed = new URLSearchParams(window.location.search).get("email");
-console.log(hashed)
-
 
 const { InputFile, app, component, is, css, ref } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
-
 const { server } = await use("@/server");
 
 

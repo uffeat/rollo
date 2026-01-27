@@ -2,6 +2,7 @@ import "../../use";
 import { Routes } from "./routes";
 import { Url } from "./url";
 
+const { Exception, ref } = await use("@/rollo/");
 
 const Router = new (class Router {
   #_ = {

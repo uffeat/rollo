@@ -1,6 +1,7 @@
 import "../../../use";
 
-const { NavLink, component } = await use("@/rollo/");
+const { component } = await use("@/rollo/");
+const { NavLink } = await use("@/router/");
 
 export const Post = ({ html, path }) => {
   const post = component.from(html, { convert: false });

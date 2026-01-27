@@ -1,1 +1,1 @@
-#app{position:relative;height:100vh;overflow-x:hidden;display:flex;flex-direction:column}[nav-link]{cursor:pointer}nav.nav.router{[nav-link]{font-size:var(--fontSize, 1.125rem)}[nav-link].active{font-weight:var(--fontWeight, 600)}}
+#app{position:relative;height:100vh;overflow-x:hidden;display:flex;flex-direction:column}

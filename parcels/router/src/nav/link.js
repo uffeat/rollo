@@ -2,8 +2,12 @@ import "../../use";
 import { router } from "../router";
 import { Query } from "../tools/query";
 
-const { Mixins, author, mix, stateMixin } =
-  await use("@/rollo/");
+const { Mixins, author, mix, stateMixin, registry } = await use("@/rollo/");
+
+
+console.log("registry:", registry); ////
+
+console.log("About to register NavLink"); ////
 
 const TAG = "a";
 export const NavLink = author(

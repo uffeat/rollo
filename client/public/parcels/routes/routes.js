@@ -1,4 +1,4 @@
-const { NavLink: k } = await use("@/rollo/"), { frame: g } = await use("@/frame/");
+const { NavLink: k } = await use("@/router/"), { frame: g } = await use("@/frame/");
 class l {
   static create = (...t) => new l(...t);
   #t = {};
@@ -32,15 +32,15 @@ class l {
     this.page.remove();
   }
 }
-const { component: v } = await use("@/rollo/"), j = l.create({
-  page: v.main("container pt-3", v.h1({ text: "About" }))
-}), { Bar: L } = await use("@/plotly/"), { component: w } = await use("@/rollo/"), { Spinner: A } = await use("/tools/spinner"), N = new class extends l {
+const { component: w } = await use("@/rollo/"), j = l.create({
+  page: w.main("container pt-3", w.h1({ text: "About" }))
+}), { Bar: L } = await use("@/plotly/"), { component: v } = await use("@/rollo/"), { Spinner: A } = await use("/tools/spinner"), N = new class extends l {
   #t = {};
   constructor() {
     super({
-      page: w.main(
+      page: v.main(
         "container pt-3",
-        w.h1({ text: "Bar chart" })
+        v.h1({ text: "Bar chart" })
       )
     });
   }
@@ -84,8 +84,8 @@ for (const o of y) {
 for (const [o, t] of d.entries()) {
   const [e, s] = O(t, "resolve", "reject");
   use(`@/content/blog${o}.json`).then((a) => {
-    const { html: r, meta: n } = a, { abstract: c, image: p, title: h } = n;
-    t.data = { abstract: c, html: r, image: p, title: h }, e(t.data), delete t.promise, Object.freeze(t);
+    const { html: r, meta: n } = a, { abstract: c, image: p, title: u } = n;
+    t.data = { abstract: c, html: r, image: p, title: u }, e(t.data), delete t.promise, Object.freeze(t);
   }).catch((a) => {
     s(a);
   });
@@ -109,7 +109,7 @@ const { component: i } = await use("@/rollo/"), T = ({ path: o, abstract: t, ima
     i.div("card-footer min-h-8")
   );
   return a.attribute.path = o, a;
-}, { NavLink: W, component: x } = await use("@/rollo/"), q = ({ html: o, path: t }) => {
+}, { component: x } = await use("@/rollo/"), { NavLink: W } = await use("@/router/"), q = ({ html: o, path: t }) => {
   const e = x.from(o, { convert: !1 });
   for (const s of e.querySelectorAll("img")) {
     const a = s.getAttribute("src");
@@ -120,12 +120,12 @@ const { component: i } = await use("@/rollo/"), T = ({ path: o, abstract: t, ima
     a.startsWith("/") && (s.parentElement.classList.add("nav"), s.replaceWith(W("nav-link", { path: a, text: s.textContent })));
   }
   return e;
-}, { Exception: C, component: u, pop: H, toTop: I, router: R } = await use("@/rollo/"), B = new class extends l {
+}, { Exception: C, component: h, pop: H, toTop: I } = await use("@/rollo/"), { router: R } = await use("@/router/"), B = new class extends l {
   #t = {};
   constructor() {
-    super({ page: u.main("container my-3") }), this.#t.cards = u.div(
+    super({ page: h.main("container my-3") }), this.#t.cards = h.div(
       "grid md:grid-cols-2 xl:grid-cols-3 gap-y-3 md:gap-4 xl:gap-5"
-    ), this.#t.post = u.div(), this.page.append(this.#t.cards, this.#t.post);
+    ), this.#t.post = h.div(), this.page.append(this.#t.cards, this.#t.post);
     const o = [...y], t = () => {
       if (!o.length) return;
       const e = o.shift();
@@ -154,8 +154,8 @@ const { component: i } = await use("@/rollo/"), T = ({ path: o, abstract: t, ima
           this.#t.cards.classes.add("hidden");
           const n = `/${r}`;
           d.use(n).then((c) => {
-            const { html: p } = c, h = q({ html: p, path: n });
-            this.#t.post.detail.root.append(h), I(this.#t.post);
+            const { html: p } = c, u = q({ html: p, path: n });
+            this.#t.post.detail.root.append(u), I(this.#t.post);
           });
         } else
           this.#t.cards.classes.remove("hidden");
@@ -172,8 +172,8 @@ const { component: i } = await use("@/rollo/"), T = ({ path: o, abstract: t, ima
       if (n.tagName === "A" ? n : n.closest("a")) {
         const p = n.closest(".card");
         if (p) {
-          const h = p.attribute.path;
-          await R(`${o}${h}`);
+          const u = p.attribute.path;
+          await R(`${o}${u}`);
         }
       }
     });
@@ -201,7 +201,7 @@ const { component: i } = await use("@/rollo/"), T = ({ path: o, abstract: t, ima
       a:hover {
         text-decoration: underline;
       }
-    `, a = u.div();
+    `, a = h.div();
     this.#t.post.attachShadow({ mode: "open" }), this.#t.post.shadowRoot.append(a), this.#t.post.detail.root = a, Object.freeze(this.#t.post.detail), e.use(this.#t.post), s.use(this.#t.post);
   }
   /* Route LC. Runs every time route becomes active. */
@@ -213,7 +213,7 @@ const { component: i } = await use("@/rollo/"), T = ({ path: o, abstract: t, ima
   update(o, t, ...e) {
     this.page.$.view = e.at(0) || null;
   }
-}(), { component: b, router: M } = await use("@/rollo/"), { frame: D } = await use("@/frame/"), f = l.create({
+}(), { component: b } = await use("@/rollo/"), { router: M } = await use("@/router/"), { frame: D } = await use("@/frame/"), f = l.create({
   page: b.main("container pt-3", b.h1({ text: "Home" })),
   path: "/",
   text: "Home"
@@ -230,18 +230,18 @@ const { component: m } = await use("@/rollo/"), { frame: $ } = await use("@/fram
     m.h1({ text: "Page not found" })
   ), e = m.p({ parent: t });
   o ? (o instanceof Error && (o = o.message), e.text = o) : e.clear(), $.clear(":not([slot])"), $.append(t);
-}, { Nav: Y, component: Z } = await use("@/rollo/"), { frame: G } = await use("@/frame/"), J = Y(
-  Z.nav("nav router flex flex-col gap-y-1 p-1", {
+}, { component: Y } = await use("@/rollo/"), { Nav: Z } = await use("@/router/"), { frame: G } = await use("@/frame/"), J = Z(
+  Y.nav("nav router flex flex-col gap-y-1 p-1", {
     slot: "side",
     parent: G
   })
-), { NavLink: K, router: _, capitalize: Q } = await use("@/rollo/");
+), { capitalize: K } = await use("@/rollo/"), { NavLink: Q, router: _ } = await use("@/router/");
 for (let [o, t] of Object.entries(
   /* @__PURE__ */ Object.assign({ "./routes/about/index.js": j, "./routes/bar/index.js": N, "./routes/notes/index.js": B })
 )) {
   o = `/${o.split("/").at(-2)}`;
-  const e = Q(o.slice(1));
-  K("nav-link", {
+  const e = K(o.slice(1));
+  Q("nav-link", {
     text: e,
     path: o,
     title: e,

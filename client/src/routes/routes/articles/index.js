@@ -4,7 +4,8 @@ import { createElement } from "react";
 import { Articles } from "./articles.jsx";
 import scopes from "./post.module.css";
 
-const { component, toTop, NavLink, router } = await use("@/rollo/");
+const { component, toTop } = await use("@/rollo/");
+const { Nav, NavLink, router } = await use("@/router/");
 const { frame } = await use("@/frame/");
 const { Route, nav } = await use("@/routes/");
 

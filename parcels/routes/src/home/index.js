@@ -2,7 +2,8 @@ import "../../use";
 
 import { Route } from "../tools/route";
 
-const { component, router } = await use("@/rollo/");
+const { component } = await use("@/rollo/");
+const { router } = await use("@/router/");
 const { frame } = await use("@/frame/");
 
 const route = Route.create({

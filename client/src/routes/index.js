@@ -2,7 +2,8 @@ import "@/use";
 
 import './routes/articles'
 
-const { component, Nav, NavLink, router } = await use("@/rollo/");
+const { component } = await use("@/rollo/");
+const { Nav, NavLink, router } = await use("@/router/");
 const { frame } = await use("@/frame/");
 const { Route, nav, setup } = await use("@/routes/");
 

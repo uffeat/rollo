@@ -30,8 +30,6 @@ export const registry = new (class {
       native = cls.__native__;
     }
 
-    
-
     /* Prepare definition args */
     const definition = [key, cls];
     if (native) {
@@ -40,10 +38,10 @@ export const registry = new (class {
     /* Define */
     customElements.define(...definition);
 
-    
-
     /* Register */
     this.#_.registry.set(key, cls);
+
+    console.log("Registering component with key:", key); ////
 
     return cls;
   }

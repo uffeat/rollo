@@ -4,7 +4,8 @@ import { items, paths } from "./items";
 import { Card } from "./card";
 import { Post } from "./post";
 
-const { Exception, component, pop, toTop, router } = await use("@/rollo/");
+const { Exception, component, pop, toTop } = await use("@/rollo/");
+const { router } = await use("@/router/");
 
 export default new (class extends Route {
   #_ = {};

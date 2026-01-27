@@ -12,8 +12,6 @@ import {
   mixins,
   registry,
 } from "./src/component";
-// router
-import { Nav, NavLink, router } from "./src/router";
 // sheet
 import { css, Sheet } from "./src/sheet";
 // state
@@ -39,7 +37,7 @@ import {
   pascalToCamel,
   pascalToKebab,
   capitalize,
-  isUpper
+  isUpper,
 } from "./src/tools/case";
 import { clear } from "./src/tools/clear";
 import { defineMethod, defineProperty, defineValue } from "./src/tools/define";
@@ -66,7 +64,6 @@ import { round } from "./src/tools/number/round";
 import { difference as objectDifference } from "./src/tools/object/difference";
 import { intersection as objectIntersection } from "./src/tools/object/intersection";
 
-
 export {
   // app
   app,
@@ -80,10 +77,6 @@ export {
   Mixins,
   mixins,
   registry,
-  // router
-  Nav,
-  NavLink,
-  router,
   // sheet
   css,
   Sheet,

@@ -5,9 +5,11 @@ import "../use";
 import "./test.css";
 /* Overload to use live parcel */
 import * as parcel from "../index";
-use.add("@/routes/routes.js", parcel);
+use.add("@/router/router.js", parcel);
 
 document.documentElement.dataset.bsTheme = "dark";
+
+
 
 /* Returns function that runs test from path */
 const run = (() => {
