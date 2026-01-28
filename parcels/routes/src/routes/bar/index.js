@@ -1,24 +1,26 @@
 import "../../../use";
-import { Route } from "../../tools/route";
 
+const { Route } = await use("@/router/");
 const { Bar } = await use("@/plotly/");
 const { component } = await use("@/rollo/");
+const { frame } = await use("@/frame/");
 const { Spinner } = await use("/tools/spinner");
 
-export default new (class extends Route {
+const route = new (class extends Route {
   #_ = {};
 
   constructor() {
     super({
       page: component.main(
         "container pt-3",
-        component.h1({ text: "Bar chart" })
+        component.h1({ text: "Bar chart" }),
       ),
     });
   }
 
   async enter() {
-    await super.enter();
+    frame.clear(":not([slot])");
+    frame.append(this.page);
 
     if (!this.#_.plot) {
       const spinner = Spinner({
@@ -37,7 +39,7 @@ export default new (class extends Route {
         { "New York": [90, 40, 60] },
         { "San Francisco": [10, 80, 45] }
         */
-        { "New York": [90, 40, 60], "San Francisco": [10, 80, 45] }
+        { "New York": [90, 40, 60], "San Francisco": [10, 80, 45] },
       );
       spinner.remove();
 
@@ -45,3 +47,5 @@ export default new (class extends Route {
     }
   }
 })();
+
+export { route as default };

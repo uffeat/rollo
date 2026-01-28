@@ -1,16 +1,16 @@
 import "../use";
 import "./home";
 import error from "./error";
-import { Route } from "./tools/route";
 import { nav } from "./tools/nav";
 
 const { capitalize } = await use("@/rollo/");
-const { NavLink, router } = await use("@/router/");
+const { NavLink, router, Route } = await use("@/router/");
 
 /* Define module-based routes and navs */
 for (let [path, route] of Object.entries(
-  import.meta.glob("./routes/**/index.js", { eager: true, import: "default" })
+  import.meta.glob("./routes/**/index.js", { eager: true, import: "default" }),
 )) {
+  //console.log("route:", route); ////
   path = `/${path.split("/").at(-2)}`;
   const text = capitalize(path.slice(1));
   NavLink("nav-link", {
@@ -29,4 +29,4 @@ const setup = async () => {
   });
 };
 
-export { Route, nav, setup };
+export { nav, setup };

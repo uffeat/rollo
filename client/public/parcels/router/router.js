@@ -1,4 +1,4 @@
-class w {
+class m {
   #t = {
     registry: /* @__PURE__ */ new Map()
   };
@@ -45,16 +45,16 @@ const d = new class {
       )
     ), "?" + new URLSearchParams(t).toString().replaceAll("=true", "");
   }
-}(), { is: f } = await use("@/rollo/"), m = (i, t) => {
-  if (!f.object(i) || !f.object(t) || Object.keys(i).length !== Object.keys(t).length)
+}(), { is: l } = await use("@/rollo/"), b = (i, t) => {
+  if (!l.object(i) || !l.object(t) || Object.keys(i).length !== Object.keys(t).length)
     return !1;
   for (const [s, e] of Object.entries(i))
     if (t[s] !== e)
       return !1;
   return !0;
 };
-class l {
-  static create = (...t) => new l(...t);
+class f {
+  static create = (...t) => new f(...t);
   #t = {};
   constructor(t) {
     const s = new URL(t, location.origin);
@@ -75,17 +75,17 @@ class l {
     return this.#t.query;
   }
   match(t) {
-    return t.path === this.path && t.hash === this.hash && m(t.query, this.query);
+    return t.path === this.path && t.hash === this.hash && b(t.query, this.query);
   }
 }
-const { Exception: p, ref: b } = await use("@/rollo/"), a = new class {
+const { Exception: p, ref: $ } = await use("@/rollo/"), a = new class {
   #t = {
     config: { redirect: {} },
     session: 0
   };
   constructor() {
-    this.#t.routes = new w(), this.#t.states = {
-      path: b({ owner: this, name: "path" })
+    this.#t.routes = new m(), this.#t.states = {
+      path: $({ owner: this, name: "path" })
     };
   }
   /* Returns effects controller. */
@@ -117,54 +117,54 @@ const { Exception: p, ref: b } = await use("@/rollo/"), a = new class {
   /* Invokes route. */
   async use(t, { context: s, strict: e } = {}) {
     t in this.#t.config.redirect && (t = this.#t.config.redirect[t]), e = e === void 0 ? this.#t.config.strict : e;
-    const r = l.create(t), n = (() => {
-      const u = window.parent.history;
+    const r = f.create(t), n = (() => {
+      const h = window.parent.history;
       return this.#t.url ? r.match(this.#t.url) ? void 0 : (this.#t.url = r, () => {
-        s || u.pushState({}, "", r.full);
+        s || h.pushState({}, "", r.full);
       }) : (this.#t.url = r, () => {
-        s || u.pushState({}, "", r.full);
+        s || h.pushState({}, "", r.full);
       });
     })();
     if (!n)
       return this;
     this.#t.session++;
-    const o = await (async () => {
-      const { path: u, residual: c, route: h } = await this.#r(r.path) || {};
-      if (!h) {
+    const u = await (async () => {
+      const { path: h, residual: c, route: o } = await this.#r(r.path) || {};
+      if (!o) {
         this.#t.route = null;
         return;
       }
       return async () => {
-        this.#e(u, r.query, ...c), h === this.#t.route ? h.update && await h.update(
+        this.#e(h, r.query, ...c), o === this.#t.route ? o.update && await o.update(
           { session: this.#t.session },
           r.query,
           ...c
-        ) : (this.#t.route && this.#t.route.exit && await this.#t.route.exit({ session: this.#t.session }), h.enter && await h.enter(
+        ) : (this.#t.route && this.#t.route.exit && await this.#t.route.exit({ session: this.#t.session }), o.enter && await o.enter(
           { session: this.#t.session },
           r.query,
           ...c
-        ), this.#t.route = h);
+        ), this.#t.route = o);
       };
     })();
-    if (!o) {
+    if (!u) {
       if (n(), this.#e(r.path, r.query), e) {
-        const u = `Invalid path: ${r.path}`;
+        const h = `Invalid path: ${r.path}`;
         if (this.#t.config.error)
-          this.#t.config.error(u);
+          this.#t.config.error(h);
         else
-          throw new Error(u);
+          throw new Error(h);
       }
       return this;
     }
-    return n(), await o(), this;
+    return n(), await u(), this;
   }
   async #r(t) {
     const s = t.slice(1).split("/");
     for (let e = s.length - 1; e >= 0; e--) {
       const r = `/${s.slice(0, e + 1).join("/")}`;
       if (this.routes.has(r)) {
-        const n = s.slice(e + 1), o = await this.routes.get(r);
-        return { path: r, route: o, residual: n };
+        const n = s.slice(e + 1), u = await this.routes.get(r);
+        return { path: r, route: u, residual: n };
       }
     }
   }
@@ -176,7 +176,7 @@ const { Exception: p, ref: b } = await use("@/rollo/"), a = new class {
     const t = window.parent.location;
     return t.search ? `${t.pathname}${t.search}${t.hash}` : `${t.pathname}${t.hash}`;
   }
-}(), $ = new Proxy(async () => {
+}(), y = new Proxy(async () => {
 }, {
   get(i, t) {
     if (t === "router")
@@ -198,30 +198,39 @@ const { Exception: p, ref: b } = await use("@/rollo/"), a = new class {
     return a.routes.has(t);
   }
 });
-class y {
-  static create = (...t) => new y(...t);
+class w {
+  static create = (...t) => new w(...t);
   #t = {};
-  constructor({ page: t, path: s } = {}) {
-    this.#t.page = t, this.#t.path = s;
+  constructor({ enter: t, exit: s, page: e, path: r, setup: n, update: u } = {}) {
+    t && (this.#t.enter = t), s ? this.#t.exit = s : this.#t.exit = (h) => this.page.remove(), e && (this.#t.page = e), r && (this.#t.path = r), n && (this.#t.setup = n), u && (this.#t.update = u);
   }
   get page() {
     return this.#t.page;
   }
+  get path() {
+    return this.#t.path;
+  }
   async setup(t) {
+    if (this.#t.setup)
+      return await this.#t.setup(t);
   }
   async enter(t, s, ...e) {
+    if (this.#t.enter)
+      return await this.#t.enter(t, s, ...e);
   }
-  update(t, s, ...e) {
+  async update(t, s, ...e) {
+    if (this.#t.update)
+      return await this.#t.update(t, s, ...e);
   }
   async exit(t) {
-    this.page.remove();
+    return await this.#t.exit(t);
   }
 }
-const { Mixins: q, author: j, mix: v, stateMixin: x } = await use("@/rollo/"), g = "a", E = j(
-  class extends v(
+const { Mixins: q, author: x, mix: j, stateMixin: v } = await use("@/rollo/"), g = "a", E = x(
+  class extends j(
     document.createElement(g).constructor,
     {},
-    ...q(x)
+    ...q(v)
   ) {
     #t = {};
     constructor() {
@@ -229,7 +238,7 @@ const { Mixins: q, author: j, mix: v, stateMixin: x } = await use("@/rollo/"), g
         if (this.path) {
           i.preventDefault();
           const t = this.#t.query ? this.path + d.stringify(this.#t.query) : this.path;
-          await $(t);
+          await y(t);
         }
       };
     }
@@ -255,7 +264,7 @@ const { Mixins: q, author: j, mix: v, stateMixin: x } = await use("@/rollo/"), g
   },
   "nav-link",
   g
-), L = (i) => (router.effects.add(
+), L = (i) => (y.effects.add(
   (t) => {
     const s = i.find(".active");
     s && s.classes.remove("active");
@@ -267,6 +276,6 @@ const { Mixins: q, author: j, mix: v, stateMixin: x } = await use("@/rollo/"), g
 export {
   L as Nav,
   E as NavLink,
-  y as Route,
-  $ as router
+  w as Route,
+  y as router
 };

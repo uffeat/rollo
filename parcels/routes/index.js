@@ -1,2 +1,2 @@
 import "./assets/routes.css";
-export { Route, nav, setup } from "./src";
+export { nav, setup } from "./src";

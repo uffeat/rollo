@@ -5,9 +5,9 @@ import { Articles } from "./articles.jsx";
 import scopes from "./post.module.css";
 
 const { component, toTop } = await use("@/rollo/");
-const { Nav, NavLink, router } = await use("@/router/");
+const { Nav, NavLink, router, Route } = await use("@/router/");
 const { frame } = await use("@/frame/");
-const { Route, nav } = await use("@/routes/");
+const { nav } = await use("@/routes/");
 
 const route = new (class extends Route {
   #_ = {};
@@ -16,7 +16,6 @@ const route = new (class extends Route {
     super({
       page: component.main("container my-3"),
       path: "/articles",
-      text: "Articles",
     });
     this.#_.root = component.div({ "[root]": true, parent: this.page });
   }
@@ -47,7 +46,7 @@ const route = new (class extends Route {
             component.img({
               alt: image.getAttribute("alt"),
               src: `${use.meta.base}${src}`,
-            })
+            }),
           );
         }
       }
@@ -57,7 +56,7 @@ const route = new (class extends Route {
         if (path.startsWith("/")) {
           link.parentElement.classList.add("nav");
           link.replaceWith(
-            NavLink("nav-link", { path, text: link.textContent })
+            NavLink("nav-link", { path, text: link.textContent }),
           );
         }
       }
@@ -67,12 +66,13 @@ const route = new (class extends Route {
 
     const reactRoot = createRoot(this.#_.root);
     reactRoot.render(
-      createElement(Articles, { root: this.#_.root, cards, posts })
+      createElement(Articles, { root: this.#_.root, cards, posts }),
     );
   }
 
   async enter(meta, url, ...paths) {
-    await super.enter();
+    frame.clear(":not([slot])");
+    frame.append(this.page);
     /* Default to null, since undefined state is ignored */
     this.#_.root.$.post = paths.at(0) || null;
   }
@@ -85,4 +85,9 @@ const route = new (class extends Route {
 
 router.routes.add(route.path, route);
 
-nav.append(route.link);
+NavLink("nav-link", {
+  text: "Articles",
+  path: route.path,
+  title: "Articles",
+  parent: nav,
+});

@@ -1,57 +1,25 @@
-const { NavLink: k } = await use("@/router/"), { frame: g } = await use("@/frame/");
-class l {
-  static create = (...t) => new l(...t);
-  #t = {};
-  constructor({ page: t, path: e, text: s } = {}) {
-    this.#t.page = t, this.#t.path = e, this.#t.text = s;
-  }
-  get page() {
-    return this.#t.page;
-  }
-  get path() {
-    return this.#t.path;
-  }
-  get link() {
-    return k("nav-link", {
-      text: this.text,
-      path: this.path,
-      title: this.text
-    });
-  }
-  get text() {
-    return this.#t.text;
-  }
-  async setup(t) {
-  }
-  async enter(t, e, ...s) {
-    g.clear(":not([slot])"), g.append(this.page);
-  }
-  update(t, e, ...s) {
-  }
-  async exit(t) {
-    this.page.remove();
-  }
+const { Route: R } = await use("@/router/"), { component: w } = await use("@/rollo/"), L = "/about", A = w.main("container pt-3", w.h1({ text: "About" }));
+function N() {
+  frame.clear(":not([slot])"), frame.append(this.page);
 }
-const { component: w } = await use("@/rollo/"), j = l.create({
-  page: w.main("container pt-3", w.h1({ text: "About" }))
-}), { Bar: L } = await use("@/plotly/"), { component: v } = await use("@/rollo/"), { Spinner: A } = await use("/tools/spinner"), N = new class extends l {
+const z = R.create({ enter: N, page: A, path: L }), { Route: O } = await use("@/router/"), { Bar: S } = await use("@/plotly/"), { component: g } = await use("@/rollo/"), { frame: v } = await use("@/frame/"), { Spinner: E } = await use("/tools/spinner"), P = new class extends O {
   #t = {};
   constructor() {
     super({
-      page: v.main(
+      page: g.main(
         "container pt-3",
-        v.h1({ text: "Bar chart" })
+        g.h1({ text: "Bar chart" })
       )
     });
   }
   async enter() {
-    if (await super.enter(), !this.#t.plot) {
-      const o = A({
+    if (v.clear(":not([slot])"), v.append(this.page), !this.#t.plot) {
+      const t = E({
         parent: this.page,
         size: "8rem",
         marginTop: "3rem"
       });
-      this.#t.plot = await L(
+      this.#t.plot = await S(
         {
           xaxis: "Animal",
           yaxis: "Population",
@@ -62,35 +30,35 @@ const { component: w } = await use("@/rollo/"), j = l.create({
         { "San Francisco": [10, 80, 45] }
         */
         { "New York": [90, 40, 60], "San Francisco": [10, 80, 45] }
-      ), o.remove(), this.page.append(this.#t.plot);
+      ), t.remove(), this.page.append(this.#t.plot);
     }
   }
-}(), { Exception: z, pop: O } = await use("@/rollo/");
-class S extends Map {
+}(), { Exception: T, pop: W } = await use("@/rollo/");
+class C extends Map {
   constructor() {
     super();
   }
-  async use(t) {
-    z.if(!this.has(t), `Invalid key: ${t}.`);
-    const e = this.get(t);
+  async use(o) {
+    T.if(!this.has(o), `Invalid key: ${o}.`);
+    const e = this.get(o);
     return await e?.promise, e.data;
   }
 }
-const E = 5, P = await use("@/content/blog/_manifest.json"), y = Object.freeze(P.map(([o, t]) => o.slice(E))), d = new S();
-for (const o of y) {
-  const t = Promise.withResolvers();
-  d.set(o, t);
+const q = 5, I = await use("@/content/blog/_manifest.json"), k = Object.freeze(I.map(([t, o]) => t.slice(q))), h = new C();
+for (const t of k) {
+  const o = Promise.withResolvers();
+  h.set(t, o);
 }
-for (const [o, t] of d.entries()) {
-  const [e, s] = O(t, "resolve", "reject");
-  use(`@/content/blog${o}.json`).then((a) => {
-    const { html: r, meta: n } = a, { abstract: c, image: p, title: u } = n;
-    t.data = { abstract: c, html: r, image: p, title: u }, e(t.data), delete t.promise, Object.freeze(t);
+for (const [t, o] of h.entries()) {
+  const [e, s] = W(o, "resolve", "reject");
+  use(`@/content/blog${t}.json`).then((a) => {
+    const { html: r, meta: n } = a, { abstract: c, image: p, title: l } = n;
+    o.data = { abstract: c, html: r, image: p, title: l }, e(o.data), delete o.promise, Object.freeze(o);
   }).catch((a) => {
     s(a);
   });
 }
-const { component: i } = await use("@/rollo/"), T = ({ path: o, abstract: t, image: e, title: s }) => {
+const { component: i } = await use("@/rollo/"), _ = ({ path: t, abstract: o, image: e, title: s }) => {
   const a = i.div(
     "card",
     {},
@@ -104,58 +72,58 @@ const { component: i } = await use("@/rollo/"), T = ({ path: o, abstract: t, ima
         "nav-link cursor-pointer hover:underline! hover:underline-offset-6! hover:decoration-2!",
         i.h1("card-title", { text: s, title: s })
       ),
-      i.p("card-text", { text: t })
+      i.p("card-text", { text: o })
     ),
     i.div("card-footer min-h-8")
   );
-  return a.attribute.path = o, a;
-}, { component: x } = await use("@/rollo/"), { NavLink: W } = await use("@/router/"), q = ({ html: o, path: t }) => {
-  const e = x.from(o, { convert: !1 });
+  return a.attribute.path = t, a;
+}, { component: $ } = await use("@/rollo/"), { NavLink: B } = await use("@/router/"), H = ({ html: t, path: o }) => {
+  const e = $.from(t, { convert: !1 });
   for (const s of e.querySelectorAll("img")) {
     const a = s.getAttribute("src");
-    a.startsWith("/") && s.replaceWith(x.img({ src: `${use.meta.base}${a}` }));
+    a.startsWith("/") && s.replaceWith($.img({ src: `${use.meta.base}${a}` }));
   }
   for (const s of e.querySelectorAll("a[href]")) {
     const a = s.getAttribute("href");
-    a.startsWith("/") && (s.parentElement.classList.add("nav"), s.replaceWith(W("nav-link", { path: a, text: s.textContent })));
+    a.startsWith("/") && (s.parentElement.classList.add("nav"), s.replaceWith(B("nav-link", { path: a, text: s.textContent })));
   }
   return e;
-}, { Exception: C, component: h, pop: H, toTop: I } = await use("@/rollo/"), { router: R } = await use("@/router/"), B = new class extends l {
+}, { Exception: M, component: u, pop: D, toTop: F } = await use("@/rollo/"), { router: Y } = await use("@/router/"), { Route: Z } = await use("@/router/"), { frame: x } = await use("@/frame/"), G = new class extends Z {
   #t = {};
   constructor() {
-    super({ page: h.main("container my-3") }), this.#t.cards = h.div(
+    super({ page: u.main("container my-3") }), this.#t.cards = u.div(
       "grid md:grid-cols-2 xl:grid-cols-3 gap-y-3 md:gap-4 xl:gap-5"
-    ), this.#t.post = h.div(), this.page.append(this.#t.cards, this.#t.post);
-    const o = [...y], t = () => {
-      if (!o.length) return;
-      const e = o.shift();
-      d.use(e).then((s) => {
-        const [a, r, n] = H(
+    ), this.#t.post = u.div(), this.page.append(this.#t.cards, this.#t.post);
+    const t = [...k], o = () => {
+      if (!t.length) return;
+      const e = t.shift();
+      h.use(e).then((s) => {
+        const [a, r, n] = D(
           s,
           "abstract",
           "image",
           "title"
         );
         Object.freeze(s);
-        const c = T({ path: e, abstract: a, image: r, title: n });
-        this.#t.cards.append(c), t();
+        const c = _({ path: e, abstract: a, image: r, title: n });
+        this.#t.cards.append(c), o();
       }).catch((s) => {
-        C.raise(
+        M.raise(
           `Could not load card: ${e}`,
           () => console.error(s)
         );
       });
     };
-    t(), this.page.$.effects.add(
+    o(), this.page.$.effects.add(
       (e, s) => {
         s.owner.previous.view && this.#t.post.detail.root.clear();
         const r = e.view;
         if (r) {
           this.#t.cards.classes.add("hidden");
           const n = `/${r}`;
-          d.use(n).then((c) => {
-            const { html: p } = c, u = q({ html: p, path: n });
-            this.#t.post.detail.root.append(u), I(this.#t.post);
+          h.use(n).then((c) => {
+            const { html: p } = c, l = H({ html: p, path: n });
+            this.#t.post.detail.root.append(l), F(this.#t.post);
           });
         } else
           this.#t.cards.classes.remove("hidden");
@@ -165,19 +133,19 @@ const { component: i } = await use("@/rollo/"), T = ({ path: o, abstract: t, ima
     );
   }
   /* Route LC. Runs only once! */
-  async setup(o) {
+  async setup(t) {
     this.page.on.click(async (r) => {
       r.preventDefault();
       const n = r.target;
       if (n.tagName === "A" ? n : n.closest("a")) {
         const p = n.closest(".card");
         if (p) {
-          const u = p.attribute.path;
-          await R(`${o}${u}`);
+          const l = p.attribute.path;
+          await Y(`${t}${l}`);
         }
       }
     });
-    const { css: t } = await use("@/rollo/"), e = await use("@/bootstrap/reboot.css"), s = t`
+    const { css: o } = await use("@/rollo/"), e = await use("@/bootstrap/reboot.css"), s = o`
       :is(h1, h2, h3, h4, h5, h6) {
         color: var(--bs-link-color);
       }
@@ -201,60 +169,60 @@ const { component: i } = await use("@/rollo/"), T = ({ path: o, abstract: t, ima
       a:hover {
         text-decoration: underline;
       }
-    `, a = h.div();
+    `, a = u.div();
     this.#t.post.attachShadow({ mode: "open" }), this.#t.post.shadowRoot.append(a), this.#t.post.detail.root = a, Object.freeze(this.#t.post.detail), e.use(this.#t.post), s.use(this.#t.post);
   }
   /* Route LC. Runs every time route becomes active. */
-  async enter(o, t, ...e) {
-    await super.enter(), this.page.$.view = e.at(0) || null;
+  async enter(t, o, ...e) {
+    x.clear(":not([slot])"), x.append(this.page), this.page.$.view = e.at(0) || null;
   }
   /* Route LC. Runs every time the active route get a sub route (or query), 
   e.g., /notes/foo -> /notes/bar. */
-  update(o, t, ...e) {
+  update(t, o, ...e) {
     this.page.$.view = e.at(0) || null;
   }
-}(), { component: b } = await use("@/rollo/"), { router: M } = await use("@/router/"), { frame: D } = await use("@/frame/"), f = l.create({
-  page: b.main("container pt-3", b.h1({ text: "Home" })),
-  path: "/",
-  text: "Home"
-});
-M.routes.add(f.path, f);
-f.link.update({
+}(), { component: J } = await use("@/rollo/"), { Nav: K } = await use("@/router/"), { frame: Q } = await use("@/frame/"), U = K(
+  J.nav("nav router flex flex-col gap-y-1 p-1", {
+    slot: "side",
+    parent: Q
+  })
+), { component: b } = await use("@/rollo/"), { router: V, Route: X, NavLink: tt } = await use("@/router/"), { frame: m } = await use("@/frame/"), f = "/", et = b.main("container pt-3", b.h1({ text: "Home" }));
+function ot() {
+  m.clear(":not([slot])"), m.append(this.page);
+}
+const st = X.create({ enter: ot, page: et, path: f });
+V.routes.add(f, st);
+tt("nav-link", {
+  path: f,
   innerHTML: await use("/favicon.svg"),
   slot: "home",
-  parent: D
+  parent: m
 });
-const { component: m } = await use("@/rollo/"), { frame: $ } = await use("@/frame/"), F = (o) => {
-  const t = m.main(
+const { component: d } = await use("@/rollo/"), { frame: y } = await use("@/frame/"), at = (t) => {
+  const o = d.main(
     "container",
-    m.h1({ text: "Page not found" })
-  ), e = m.p({ parent: t });
-  o ? (o instanceof Error && (o = o.message), e.text = o) : e.clear(), $.clear(":not([slot])"), $.append(t);
-}, { component: Y } = await use("@/rollo/"), { Nav: Z } = await use("@/router/"), { frame: G } = await use("@/frame/"), J = Z(
-  Y.nav("nav router flex flex-col gap-y-1 p-1", {
-    slot: "side",
-    parent: G
-  })
-), { capitalize: K } = await use("@/rollo/"), { NavLink: Q, router: _ } = await use("@/router/");
-for (let [o, t] of Object.entries(
-  /* @__PURE__ */ Object.assign({ "./routes/about/index.js": j, "./routes/bar/index.js": N, "./routes/notes/index.js": B })
+    d.h1({ text: "Page not found" })
+  ), e = d.p({ parent: o });
+  t ? (t instanceof Error && (t = t.message), e.text = t) : e.clear(), y.clear(":not([slot])"), y.append(o);
+}, { capitalize: nt } = await use("@/rollo/"), { NavLink: rt, router: j, Route: it } = await use("@/router/");
+for (let [t, o] of Object.entries(
+  /* @__PURE__ */ Object.assign({ "./routes/about/index.js": z, "./routes/bar/index.js": P, "./routes/notes/index.js": G })
 )) {
-  o = `/${o.split("/").at(-2)}`;
-  const e = K(o.slice(1));
-  Q("nav-link", {
+  t = `/${t.split("/").at(-2)}`;
+  const e = nt(t.slice(1));
+  rt("nav-link", {
     text: e,
-    path: o,
+    path: t,
     title: e,
-    parent: J
-  }), _.routes.add(o, t);
+    parent: U
+  }), j.routes.add(t, o);
 }
-const U = async () => {
-  await _.setup({
-    error: F
+const ct = async () => {
+  await j.setup({
+    error: at
   });
 };
 export {
-  l as Route,
-  J as nav,
-  U as setup
+  U as nav,
+  ct as setup
 };

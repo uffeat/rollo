@@ -1,17 +1,21 @@
 import "../../../use";
-import { Route } from "../../tools/route";
+
 import { items, paths } from "./items";
 import { Card } from "./card";
 import { Post } from "./post";
 
 const { Exception, component, pop, toTop } = await use("@/rollo/");
 const { router } = await use("@/router/");
+const { Route } = await use("@/router/");
+const { frame } = await use("@/frame/");
 
-export default new (class extends Route {
+
+const route = new (class extends Route {
   #_ = {};
 
   constructor() {
     super({ page: component.main("container my-3") });
+    
     this.#_.cards = component.div(
       "grid md:grid-cols-2 xl:grid-cols-3 gap-y-3 md:gap-4 xl:gap-5"
     );
@@ -145,7 +149,8 @@ export default new (class extends Route {
 
   /* Route LC. Runs every time route becomes active. */
   async enter(meta, url, ...paths) {
-    await super.enter();
+    frame.clear(":not([slot])");
+    frame.append(this.page);
     /* Default to null, since undefined state is ignored */
     this.page.$.view = paths.at(0) || null;
   }
@@ -157,3 +162,6 @@ export default new (class extends Route {
     this.page.$.view = paths.at(0) || null;
   }
 })();
+
+
+export { route as default };

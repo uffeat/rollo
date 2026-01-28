@@ -1,20 +1,22 @@
 import "../../use";
-
-import { Route } from "../tools/route";
+import { nav } from "../tools/nav";
 
 const { component } = await use("@/rollo/");
-const { router } = await use("@/router/");
+const { router, Route, NavLink } = await use("@/router/");
 const { frame } = await use("@/frame/");
 
-const route = Route.create({
-  page: component.main("container pt-3", component.h1({ text: "Home" })),
-  path: "/",
-  text: "Home",
-});
-
-router.routes.add(route.path, route);
-
-route.link.update({
+const path = "/";
+const page = component.main("container pt-3", component.h1({ text: "Home" }));
+function enter() {
+  frame.clear(":not([slot])");
+  frame.append(this.page);
+}
+/* Add route */
+const route = Route.create({ enter, page, path });
+router.routes.add(path, route);
+/* Add nav link */
+NavLink("nav-link", {
+  path,
   innerHTML: await use("/favicon.svg"),
   slot: "home",
   parent: frame,

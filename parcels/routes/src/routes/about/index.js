@@ -1,9 +1,14 @@
 import "../../../use";
 
-import { Route } from "../../tools/route";
-
+const { Route } = await use("@/router/");
 const { component } = await use("@/rollo/");
 
-export default Route.create({
-  page: component.main("container pt-3", component.h1({ text: "About" })),
-});
+const path = "/about";
+const page = component.main("container pt-3", component.h1({ text: "About" }));
+function enter() {
+  frame.clear(":not([slot])");
+  frame.append(this.page);
+}
+const route = Route.create({ enter, page, path });
+
+export {route as default}

@@ -2,7 +2,7 @@ import "@/use";
 import { useEffect, useRef } from "react";
 import { Card } from "./card.jsx";
 
-const { router } = await use("@/rollo/");
+const { router } = await use("@/router/");
 
 const SELECTOR = ".card a.nav-link";
 
