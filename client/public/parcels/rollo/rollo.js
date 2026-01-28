@@ -1495,7 +1495,7 @@ const kt = (r, t) => class extends r {
       value: e
     }) : e = r.__native__;
     const s = [t, r];
-    return e && s.push({ extends: e }), customElements.define(...s), this.#t.registry.set(t, r), console.log("Registering component with key:", t), r;
+    return e && s.push({ extends: e }), customElements.define(...s), this.#t.registry.set(t, r), r;
   }
   get(r) {
     return this.#t.registry.get(r);

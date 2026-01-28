@@ -3,9 +3,10 @@
 */
 
 const { component } = await use("@/rollo/");
-const { frame } = await use("@/frame/");
 
-export default () => {
+
+export default async () => {
+  const { frame } = await use("@/frame/");
   frame.clear(":not([slot])");
   
   component.menu(

@@ -41,7 +41,7 @@ export const registry = new (class {
     /* Register */
     this.#_.registry.set(key, cls);
 
-    console.log("Registering component with key:", key); ////
+    //console.log("Registered component with key:", key); ////
 
     return cls;
   }

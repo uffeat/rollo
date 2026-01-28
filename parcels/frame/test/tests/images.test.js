@@ -4,7 +4,7 @@ Tests scroll/overflow/flex behavior.
 */
 
 const { component, Sheet, css, toTop } = await use("@/rollo/");
-const { frame } = await use("@/frame/");
+
 
 
 
@@ -26,7 +26,14 @@ sheet.rules.add({
 
 console.log(sheet.rules.text);
 
-const main = component.main({
+
+
+export default async () => {
+  const { frame } = await use("@/frame/");
+  frame.clear(`:not([slot])`);
+  frame.clear(`[slot="side"]`);
+
+  const main = component.main({
   parent: frame,
   "on._connect": (event) => {
     sheet.use();
@@ -35,10 +42,6 @@ const main = component.main({
     sheet.unuse();
   },
 });
-
-export default () => {
-  frame.clear(`:not([slot])`);
-  frame.clear(`[slot="side"]`);
 
   component.button("btn.btn-danger", {
     text: "Clear",

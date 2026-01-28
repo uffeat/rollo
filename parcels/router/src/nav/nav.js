@@ -1,5 +1,5 @@
 import "../../use";
-
+import { router } from "../router";
 
 export const Nav = (nav) => {
   router.effects.add(

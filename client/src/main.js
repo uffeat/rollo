@@ -2,9 +2,9 @@
 import "@/main.css";
 import "@/use";
 /* Initialize iworker */
-import { iworker } from "@/iworker";
+//import { iworker } from "@/iworker";
 /* Set up routes */
-import "@/routes";
+//import "@/routes";
 
 
 const { InputFile, app, component, is, css, ref } = await use("@/rollo/");

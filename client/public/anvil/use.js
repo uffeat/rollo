@@ -70,8 +70,8 @@ export class Path {
             if (v === "true") return [k, true];
             const probe = Number(v);
             return [k, Number.isNaN(probe) ? v : probe];
-          }).filter(([k, v]) => !["false", "null", "undefined"].includes(v))
-        )
+          }).filter(([k, v]) => !["false", "null", "undefined"].includes(v)),
+        ),
       );
     } else {
       this.#_.query = null;
@@ -287,7 +287,7 @@ export class Store {
   setup(key) {
     UseError.if(
       this.#_.registry.has(key),
-      `'setup' already used for key: ${key}`
+      `'setup' already used for key: ${key}`,
     );
     const pwr = Promise.withResolvers();
     /* Store plain mutable storage object to avoid tinkering with map */
@@ -495,14 +495,7 @@ export const assets = new (class Assets {
   - manually making objects use-importable (only do when really necessary)
   - overloading asset when testing parcels (knock yourself out!). */
   add(key, value) {
-    if (is.string(value)) {
-      this.#_.added.set(key, value);
-    } else {
-      /* key assumed to be a plain object or module */
-      for (const [k, v] of Object.entries(key)) {
-        this.add(k, v);
-      }
-    }
+    this.#_.added.set(key, value);
     return this;
   }
 
@@ -539,11 +532,11 @@ export const assets = new (class Assets {
       /* Get assets from registered source (nothing from added) */
       UseError.if(
         !this.sources.has(path.source),
-        `Invalid source: ${path.source}`
+        `Invalid source: ${path.source}`,
       );
       result = await this.sources.get(path.source)(
         { options: { ...options }, owner: this, path },
-        ...args
+        ...args,
       );
     }
     /* Escape */
@@ -568,7 +561,7 @@ export const assets = new (class Assets {
       const transformed = await transformer(
         result,
         { options: { ...options }, owner: this, path },
-        ...args
+        ...args,
       );
       /* Ignore undefined. */
       if (transformed !== undefined) {
@@ -581,7 +574,7 @@ export const assets = new (class Assets {
       const processed = await processor(
         result,
         { options: { ...options }, owner: this, path },
-        ...args
+        ...args,
       );
       /* Ignore undefined. */
       if (processed !== undefined) {
@@ -603,7 +596,7 @@ export const assets = new (class Assets {
       text = `${text}\n//# sourceURL=${path}`;
     }
     const url = URL.createObjectURL(
-      new Blob([text], { type: "text/javascript" })
+      new Blob([text], { type: "text/javascript" }),
     );
     const result = await this.import(url);
     URL.revokeObjectURL(url);
@@ -671,7 +664,7 @@ NOTE
       }
       const href = `${owner.meta.base}${path.path}`;
       let link = document.head.querySelector(
-        `link[rel="stylesheet"][href="${href}"]`
+        `link[rel="stylesheet"][href="${href}"]`,
       );
       if (link) {
         /* link in DOM -> no need to keep on store */
@@ -738,7 +731,7 @@ NOTE
           tester.innerHTML = result;
           UseError.if(
             tester.querySelector(`meta[index]`),
-            `Invalid path: ${path.full}`
+            `Invalid path: ${path.full}`,
           );
         }
         return resolve(result);
@@ -802,7 +795,7 @@ use.types
         cache.set(key, result);
         return result;
       };
-    })()
+    })(),
   )
   .processors.add("css", async (result, options, ...args) => {
     /* Type guard */
@@ -811,7 +804,7 @@ use.types
       (a) =>
         typeName(a) === "HTMLDocument" ||
         a instanceof ShadowRoot ||
-        a.shadowRoot
+        a.shadowRoot,
     );
     if (targets.length) {
       /* NOTE sheet.use() adopts to document, therefore check targets' length */
@@ -830,7 +823,7 @@ use.processors.add(
     if (!is.string(text)) return;
     const { component } = await use("@/rollo/");
     return component.from(text);
-  }
+  },
 );
 
 /* Add js support.
@@ -861,7 +854,7 @@ use.processors.add(
       } else {
         result = await owner.module(
           `export const __path__ = "${path.path}";${text}`,
-          path.path
+          path.path,
         );
       }
       return resolve(result);
@@ -933,13 +926,13 @@ to avoid Vercel-injections and Anvil asset registration.
       `export const __path__ = "${path.path}";${fragment
         .querySelector("script")
         .textContent.trim()}`,
-      path.path
+      path.path,
     );
     /* Get exposed components */
     const components = Object.fromEntries(
       Object.entries(mod).filter(([k, v]) => {
         return is.element(v);
-      })
+      }),
     );
     /* Prepare context */
     const assets = {};
@@ -949,7 +942,7 @@ to avoid Vercel-injections and Anvil asset registration.
       if (element.hasAttribute("for")) {
         const target = element.getAttribute("for");
         const sheet = Sheet.create(
-          `[uid="${components[target].uid}"] { ${element.textContent.trim()} }`
+          `[uid="${components[target].uid}"] { ${element.textContent.trim()} }`,
         );
         if (element.hasAttribute("global")) {
           sheet.use();
