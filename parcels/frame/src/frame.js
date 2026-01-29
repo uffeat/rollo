@@ -1,7 +1,6 @@
 import "../use";
 
-const { app } = await use("@/rollo/");
-const { Mixins, author, component, mix } = await use("@/rollo/");
+const { app, Mixins, author, component, mix } = await use("@/rollo/");
 
 /* Get shadow sheets */
 const reboot = await use("@/bootstrap/reboot.css");
