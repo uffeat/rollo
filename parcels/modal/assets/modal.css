@@ -1,1 +1,14 @@
 @import "tailwindcss";
+
+.modal .modal-header {
+  border-bottom: none;
+}
+
+.modal .modal-footer {
+  border-top: none;
+}
+
+.modal h1.modal-title {
+ font-size: 2rem;
+ font-weight: 400;
+}

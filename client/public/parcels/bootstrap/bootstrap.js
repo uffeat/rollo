@@ -3270,5 +3270,6 @@ const ul = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   Tooltip: vt
 }, Symbol.toStringTag, { value: "Module" }));
 export {
+  mt as Modal,
   ul as bootstrap
 };
