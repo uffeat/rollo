@@ -80,11 +80,17 @@ class Modal {
 
     this.#_.modal = new BsModal(this.#_.host, options);
 
-    this.#_.dialog.on._close((event) => {
+    this.#_.host.on._close((event) => {
       //const value = event.detail;
       event.stopPropagation();
       this.#_.modal.hide();
     });
+
+    this.#_.host.on['hidden.bs.modal']((event) => {
+      
+    });
+
+
   }
 
   show() {
