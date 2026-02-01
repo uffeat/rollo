@@ -1,16 +1,11 @@
 import "../use";
 
-const { Modal: BsModal } = await use("@/bootstrap/");
+const { Modal } = await use("@/bootstrap/");
 
-console.log("BsModal:", BsModal); ////
+const { app, component, element, html, mixup } = await use("@/rollo/");
 
-const { app, component, element, html } = await use("@/rollo/");
-
-class Modal {
-  #_ = {};
-
-  constructor({
-    buttons,
+export const modal = async (
+  {
     centered,
     content,
     dismissible = true,
@@ -20,86 +15,132 @@ class Modal {
     style,
     tag = "div",
     title,
-  } = {}) {
-    const options = { backdrop: true };
+  } = {},
+  ...buttons
+) => {
+ 
 
-    this.#_.host = component.from(
-      html`<div id="_modal" class="modal ${fade ? "fade" : ""}" tabindex="-1">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <header class="modal-header">
-              <h1 class="modal-title"></h1>
-              <button
-                type="button"
-                class="btn-close"
-                aria-label="Close"
-                data-bs-dismiss="modal"
-              ></button>
-            </header>
-            <div class="modal-body"></div>
-            <footer class="modal-footer"></footer>
-          </div>
+  const options = { backdrop: true };
+
+  const host = component.from(
+    html`<div id="modal" class="modal ${fade ? "fade" : ""}" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <header class="modal-header">
+            <h1 class="modal-title"></h1>
+            <button
+              type="button"
+              class="btn-close"
+              aria-label="Close"
+              data-bs-dismiss="modal"
+            ></button>
+          </header>
+          <div class="modal-body"></div>
+          <footer class="modal-footer"></footer>
         </div>
-      </div>`,
+      </div>
+    </div>`,
+  );
+
+  document.body.append(host);
+
+  /* Extract tree components */
+  const tree = {};
+  tree.dialog = host.querySelector(".modal-dialog");
+  tree.content = host.querySelector(".modal-content");
+  tree.header = host.querySelector(".modal-header");
+  tree.body = host.querySelector(".modal-body");
+  tree.footer = host.querySelector(".modal-footer");
+  tree.dismiss = host.querySelector("button.btn-close");
+  tree.title = host.querySelector(".modal-title");
+  /* Action buttons */
+  if (buttons.length) {
+    tree.footer.append(...buttons);
+  } else {
+    tree.footer.remove();
+  }
+  /* Title */
+  if (title) {
+    tree.title.text = title;
+  } else {
+    tree.title.remove();
+  }
+  /* Dismissible */
+  if (dismissible) {
+    host.on.click((event) => {
+      /* Remove focus from hidden element */
+      if (event.target === tree.dismiss || event.target === host) {
+        event.target?.blur();
+      }
+    });
+  } else {
+    tree.dismiss.remove();
+    options.backdrop = "static";
+  }
+  /* Create Bootstrap modal */
+
+  const controller = new Modal(host, options);
+
+  /* Clean up */
+  host.on["hidden.bs.modal"]({ once: true }, (event) => {
+    event.stopPropagation();
+    controller.dispose();
+    host.remove();
+  });
+
+  return new Promise((resolve) => {
+    mixup(
+      host,
+      class {
+        get tree() {
+          return tree;
+        }
+
+        close(result) {
+          /* Remove focus from hidden element */
+          const active = document.activeElement;
+          if (active && this.contains(active)) {
+            active?.blur();
+          }
+          host.detail.result = result;
+          resolve(host.detail.result);
+          controller.hide();
+          return this;
+        }
+
+        show() {
+          controller.show();
+          return this;
+        }
+      },
     );
 
-    document.body.append(this.#_.host);
-
-    this.#_.dialog = this.#_.host.querySelector(".modal-dialog");
-    this.#_.content = this.#_.host.querySelector(".modal-content");
-    this.#_.header = this.#_.host.querySelector(".modal-header");
-    this.#_.body = this.#_.host.querySelector(".modal-body");
-    this.#_.footer = this.#_.host.querySelector(".modal-footer");
-    this.#_.dismissButton = this.#_.host.querySelector("button.btn-close");
-
-    if (buttons) {
-      this.#_.footer.append(...buttons);
-    } else {
-      this.#_.footer.remove();
-    }
+    /* Handle '_close' event */
+    host.on._close({ once: true }, (event) => {
+      event.stopPropagation();
+      const result = event.detail;
+      host.close(result);
+    });
 
     /* Body content */
     if (content) {
-      this.#_.body.append(content);
+      if (typeof content === "function") {
+        content = content(host);
+      }
+      tree.body.append(content);
     } else {
-      this.#_.body.remove();
+      tree.body.remove();
     }
 
-    /* Title */
-    this.#_.title = this.#_.host.querySelector(".modal-title");
-    if (title) {
-      this.#_.title.text = title;
-    } else {
-      this.#_.title.remove();
-    }
-    /* Dismissible */
-    if (!dismissible) {
-      this.#_.dismissButton.remove();
-      options.backdrop = "static";
-    }
-
-    this.#_.modal = new BsModal(this.#_.host, options);
-
-    this.#_.host.on._close((event) => {
-      //const value = event.detail;
+    host.on["hide.bs.modal"]({ once: true }, (event) => {
       event.stopPropagation();
-      this.#_.modal.hide();
+      if (!("result" in host.detail)) {
+        /* Not explicitly resolved -> resolve to null */
+        host.detail.result = null;
+        resolve(host.detail.result);
+      }
     });
 
-    this.#_.host.on['hidden.bs.modal']((event) => {
-      
-    });
-
-
-  }
-
-  show() {
-    this.#_.modal.show();
-    return this;
-  }
-}
-
-export const modal = async (...args) => {
-  const instance = new Modal(...args);
-  instance.show();
+    host.show();
+  });
 };

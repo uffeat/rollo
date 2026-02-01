@@ -19,9 +19,7 @@ const create = (tag) => {
   if ("textContent" in ref) {
     _mixins.push(mixins.text);
   }
-  if (tag === "form") {
-    _mixins.push(mixins.novalidation);
-  }
+
   if (tag === "label") {
     _mixins.push(mixins.for_);
   }

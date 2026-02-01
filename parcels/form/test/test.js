@@ -5,7 +5,7 @@ import "../use";
 import "./test.css";
 /* Overload to use live parcel */
 import * as parcel from "../index";
-use.add("@/modal/modal.js", parcel);
+use.add("@/form/form.js", parcel);
 
 document.documentElement.dataset.bsTheme = "dark";
 
@@ -57,4 +57,4 @@ const run = (() => {
 
 
 /* Current test */
-await run("/form.test.js"); ////
+await run("/basics.test.js"); ////

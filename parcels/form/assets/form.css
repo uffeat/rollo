@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+input-component {
+  width: 100%;
+}
+
+/* Label in high-position: Lift up */
+input-component:not(:has(input:placeholder-shown)) label,
+input-component:has(input:placeholder-shown:focus) label {
+  top: -2px !important;
+}
+
+input-component .form-text {
+  padding-left: .75rem;
+}
+
+input-component:has(input.is-invalid) .form-text {
+  color: var(--bs-form-invalid-color);
+}
