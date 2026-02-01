@@ -515,10 +515,15 @@ export const assets = new (class Assets {
   async get(specifier, ...args) {
     const options = { ...(args.find((a) => is.object(a)) || {}) };
     args = args.filter((a) => !is.object(a));
+    /* Redirect */
     if (this.meta.DEV) {
       /* Redirects typically involves chaging the specifier (and potentially 
       options), so that a public ('/) rather than a built ('@/) assets is used.
       Useful, when testing parcels. Expensive, therefore only do in DEV.
+      For redirects to work, the dev server for the main app must run. This
+      can be inconvenient when testing parcels that do not use redirects.
+      Therefore, registered redirects typically use a mechanism so that the
+      redirect only kicks in for a specific parcel.
       NOTE Pass in non-copied options to allow mutations */
       specifier = this.redirects.redirect(specifier, options, ...args);
     }

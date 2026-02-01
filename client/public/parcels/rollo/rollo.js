@@ -257,9 +257,9 @@ class z {
     return this;
   }
 }
-class O {
+class A {
   static __type__ = "Reactive";
-  static create = (...t) => new O(...t);
+  static create = (...t) => new A(...t);
   #t = {
     change: Object.freeze({}),
     current: {},
@@ -433,7 +433,7 @@ class O {
     return this.update(e, { silent: t });
   }
   copy() {
-    return O.create(
+    return A.create(
       { ...this.#t.current },
       {
         config: { match: this.config.match },
@@ -463,7 +463,7 @@ class O {
   /* Tests if other contains the same non-undefined items as current.
   NOTE Does not participate in reactivity, but useful extra, especially for testing. */
   match(t) {
-    if (t instanceof O)
+    if (t instanceof A)
       t = t.current;
     else if (p.object(t))
       t = Object.fromEntries(
@@ -490,7 +490,7 @@ class O {
     const { detail: s, silent: n = !1 } = t.find((u, a) => a && p.object(u)) || {};
     if (s && (this.#t.detail = s), !e)
       return this;
-    Array.isArray(e) ? e = Object.fromEntries(e) : e instanceof O ? e = e.current : e = { ...e };
+    Array.isArray(e) ? e = Object.fromEntries(e) : e instanceof A ? e = e.current : e = { ...e };
     const i = {};
     for (const [u, a] of Object.entries(e))
       if (!this.config.match(a, this.#t.current[u])) {
@@ -514,7 +514,7 @@ class O {
     return this;
   }
 }
-const ne = (...r) => O.create(...r).$, ie = (...r) => {
+const ne = (...r) => A.create(...r).$, ie = (...r) => {
   const t = z.create(...r);
   return new Proxy(() => {
   }, {
@@ -534,7 +534,7 @@ const ne = (...r) => O.create(...r).$, ie = (...r) => {
   static __name__ = "reactive";
   #t = {};
   constructor() {
-    super(), this.#t.state = O.create({ owner: this }), this.#t.state.effects.add(
+    super(), this.#t.state = A.create({ owner: this }), this.#t.state.effects.add(
       (t, e) => {
         this.update(t);
         const s = Object.fromEntries(
@@ -672,7 +672,7 @@ const Z = (r) => (...t) => {
     return super.prepend(...e), this;
   }
 };
-function A(r, { numbers: t = !1 } = {}) {
+function O(r, { numbers: t = !1 } = {}) {
   return t ? String(r).replace(/([A-Z]+)([A-Z][a-z])/g, "$1-$2").replace(/([a-z0-9])([A-Z])/g, "$1-$2").replace(/([A-Za-z])([0-9])/g, "$1-$2").replace(/([0-9])([A-Za-z])/g, "$1-$2").toLowerCase() : String(r).replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
 }
 function ce(r) {
@@ -720,14 +720,14 @@ const de = (r) => /^[A-Z]/.test(r), pe = (r) => (r.length > 0 && (r = r[0].toUpp
       }
       /* Returns attribute value. */
       get(i) {
-        if (i = A(i), !e.hasAttribute(i))
+        if (i = O(i), !e.hasAttribute(i))
           return null;
         const o = e.getAttribute(i);
         return this.#e(o);
       }
       /* Checks, if attribute set. */
       has(i) {
-        return i = A(i), e.hasAttribute(i);
+        return i = O(i), e.hasAttribute(i);
       }
       /* Returns attribute keys (names). */
       keys() {
@@ -735,7 +735,7 @@ const de = (r) => /^[A-Z]/.test(r), pe = (r) => (r.length > 0 && (r = r[0].toUpp
       }
       /* Sets one or more attribute values. Chainable with respect to component. */
       set(i, o) {
-        if (i = A(i), o === void 0)
+        if (i = O(i), o === void 0)
           return e;
         const c = this.#e(e.getAttribute(i));
         return o === c || ([!1, null].includes(o) ? e.removeAttribute(i) : o === !0 || !["number", "string"].includes(typeof o) ? e.setAttribute(i, "") : e.setAttribute(i, o), e.dispatchEvent(
@@ -979,6 +979,9 @@ const lt = (r, t) => class extends r {
   /* Sets 'for' attribute. */
   set for_(e) {
     e ? this.setAttribute("for", e) : this.removeAttribute("for");
+  }
+  bind(e) {
+    return e.id = e.uid, this.setAttribute("for", e.id), this;
   }
 }, bt = (r, t) => class extends r {
   static __name__ = "hook";
@@ -1277,7 +1280,7 @@ const Et = (r, t) => class extends r {
       }
     return this;
   }
-}, Ot = (r, t) => class extends r {
+}, At = (r, t) => class extends r {
   static __name__ = "owner";
   #t = {};
   get owner() {
@@ -1286,7 +1289,7 @@ const Et = (r, t) => class extends r {
   set owner(e) {
     this.#t.owner = e, this.attribute && (this.attribute = e && "uid" in e ? e.uid : e);
   }
-}, At = (r, t) => class extends r {
+}, Ot = (r, t) => class extends r {
   static __name__ = "parent";
   #t = {};
   /* Returns parent. */
@@ -1385,7 +1388,9 @@ let Rt = 0;
 const Pt = (r, t) => class extends r {
   static __name__ = "uid";
   __new__(...e) {
-    super.__new__?.(...e), this.setAttribute("uid", `uid${Rt++}`);
+    super.__new__?.(...e);
+    const s = `uid${Rt++}`;
+    this.setAttribute("uid", s);
   }
   /* Returns uid. */
   get uid() {
@@ -1447,8 +1452,8 @@ const Pt = (r, t) => class extends r {
         "./mixins/hook.js": bt,
         "./mixins/insert.js": jt,
         "./mixins/on.js": Et,
-        "./mixins/owner.js": Ot,
-        "./mixins/parent.js": At,
+        "./mixins/owner.js": At,
+        "./mixins/parent.js": Ot,
         "./mixins/props.js": $t,
         "./mixins/send.js": St,
         "./mixins/style.js": Ct,
@@ -1726,7 +1731,7 @@ class D {
     t instanceof CSSRule || E.raise("Invalid rule.", () => console.error("rule:", t));
     for (let [s, n] of Object.entries(e))
       if (n !== void 0) {
-        if (s.startsWith("__") ? s = `--${s.slice(2)}` : s.startsWith("--") || (s = A(s.trim())), n === !1) {
+        if (s.startsWith("__") ? s = `--${s.slice(2)}` : s.startsWith("--") || (s = O(s.trim())), n === !1) {
           t.style.removeProperty(s);
           continue;
         }
@@ -1855,7 +1860,7 @@ const Bt = document.documentElement, B = new class {
       {},
       {
         get(r, t) {
-          return `var(--${A(t, { numbers: !0 })})`;
+          return `var(--${O(t, { numbers: !0 })})`;
         }
       }
     );
@@ -1865,7 +1870,7 @@ const Bt = document.documentElement, B = new class {
       {},
       {
         get(r, t) {
-          return getComputedStyle(Bt).getPropertyValue(`--${A(t, { numbers: !0 })}`).trim();
+          return getComputedStyle(Bt).getPropertyValue(`--${O(t, { numbers: !0 })}`).trim();
         }
       }
     );
@@ -1902,7 +1907,7 @@ const Bt = document.documentElement, B = new class {
       {},
       {
         get(e, s) {
-          return { [t]: A(s, { numbers: !0 }) };
+          return { [t]: O(s, { numbers: !0 }) };
         }
       }
     ) : t === "media" ? Vt : (e) => `${e}${t === "pct" ? "%" : t}`;
@@ -2119,7 +2124,7 @@ const X = (r, t) => {
   return e;
 }, Ee = (r, ...t) => Ft(r, t), F = (r) => Object.fromEntries(
   Object.entries(r).filter(([t, e]) => e !== void 0)
-), Oe = (r, t, e = (s, n) => s === n) => {
+), Ae = (r, t, e = (s, n) => s === n) => {
   const s = [[r, t]];
   for (; s.length > 0; ) {
     const [n, i] = s.pop(), [o, c] = [m(n), m(i)];
@@ -2144,7 +2149,7 @@ const X = (r, t) => {
     }
   }
   return !0;
-}, Ae = (r, t, e) => {
+}, Oe = (r, t, e) => {
   const s = [[r, t]];
   for (; s.length; ) {
     const [n, i] = s.pop();
@@ -2268,14 +2273,14 @@ export {
   nt as Future,
   H as InputFile,
   tt as Mixins,
-  O as Reactive,
+  A as Reactive,
   z as Ref,
   N as Sheet,
   I as TaggedSets,
   w as app,
   It as author,
   qt as breakpoints,
-  A as camelToKebab,
+  O as camelToKebab,
   ce as camelToPascal,
   pe as capitalize,
   we as clear,
@@ -2296,8 +2301,8 @@ export {
   ue as kebabToCamel,
   ae as kebabToPascal,
   fe as kebabToSnake,
-  Oe as match,
-  Ae as merge,
+  Ae as match,
+  Oe as merge,
   Q as mix,
   U as mixins,
   $e as mixup,

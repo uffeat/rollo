@@ -16,7 +16,9 @@ export const Form = author(
 
     __new__(...args) {
       super.__new__?.(...args);
-      this.attribute.form = true;
+      this.attribute.webComponent = true;
+      this.noValidate = true
+
     }
   },
   "form-component",

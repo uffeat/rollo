@@ -6,7 +6,8 @@ export default (parent, config) => {
 
     __new__(...args) {
       super.__new__?.(...args);
-      this.setAttribute("uid", `uid${count++}`);
+      const uid = `uid${count++}`;
+      this.setAttribute("uid", uid);
     }
 
     /* Returns uid. */

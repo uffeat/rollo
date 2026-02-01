@@ -1,15 +1,17 @@
 @import "tailwindcss";
 
-form[form] {
+form[web-component] {
   width: 100%;
-  display: flex;
+}
+
+form[web-component] input-component {
 }
 
 input-component {
   width: 100%;
 }
 
-/* Label in high-position: Lift up */
+/* Change Bootstrap default placement of label in high-position. */
 input-component:not(:has(input:placeholder-shown)) label,
 input-component:has(input:placeholder-shown:focus) label {
   top: -2px !important;

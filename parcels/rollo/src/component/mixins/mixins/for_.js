@@ -14,5 +14,12 @@ export default (parent, config) => {
         this.removeAttribute("for");
       }
     }
+
+    bind(element) {
+      element.id = element.uid
+      this.setAttribute("for", element.id);
+      return this
+
+    }
   };
 };

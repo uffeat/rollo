@@ -12,24 +12,37 @@ export const Input = author(
 
     __new__(...args) {
       super.__new__?.(...args);
-
+      /** Build tree */
       this.tree.floating = component.div("form-floating", { parent: this });
-
       this.tree.input = component.input("form-control", {
         /* Enable Bootstrap float */
         placeholder: " ",
         /* Prevent browser default error title */
         title: " ",
       });
-      this.tree.input.id = this.tree.input.uid;
-
-      this.tree.label = component.label({
-        for_: this.tree.input.id,
+      this.tree.label = component.label().bind(this.tree.input);
+      this.tree.floating.append(this.tree.input, this.tree.label);
+      this.tree.message = component.div(".form-text", { parent: this });
+      Object.freeze(this.tree);
+      /* blur -> visited state. Also validates. */
+      this.tree.input.on.blur({ once: true }, (event) => {
+        this.attribute.visited = true;
+        this.validate();
       });
 
-      this.tree.floating.append(this.tree.input, this.tree.label);
-
-      this.tree.message = component.div(".form-text", { parent: this });
+      /* input -> value state */
+      this.tree.input.on.input((event) => {
+        this.$.value = this.tree.input.value;
+      });
+      /* value state -> displayed value and value attr. Also validates. */
+      this.$.effects.add(
+        ({ value }, message) => {
+          this.tree.input.value = value;
+          this.attribute.value = value ? value : null;
+          this.validate();
+        },
+        ["value"],
+      );
     }
 
     get label() {
@@ -45,7 +58,17 @@ export const Input = author(
     }
 
     set name(name) {
+      this.attribute.name = name;
       this.tree.input.name = name;
+    }
+
+    get required() {
+      return this.tree.input.required;
+    }
+
+    set required(required) {
+      this.text = 'Required'
+      this.tree.input.required = required;
     }
 
     get text() {
@@ -69,23 +92,25 @@ export const Input = author(
     }
 
     get value() {
-      return this.tree.input.value.trim();
+      return this.$.value;
     }
 
     set value(value) {
-      this.tree.input.value = value;
+      this.$.value = value;
     }
 
     validate() {
       const valid = this.tree.input.checkValidity();
-      console.log("valid:", valid); ////
 
-      this.tree.input.classes.if(!valid, "is-invalid");
+      this.tree.message.text = valid ? null : 'Required'
 
-      if (valid) {
-        //this.tree.input
-      } else {
+      if (this.attribute.visited) {
+        this.tree.input.classes.if(!valid, "is-invalid");
+
+        
       }
+
+      return valid;
     }
   },
   "input-component",
