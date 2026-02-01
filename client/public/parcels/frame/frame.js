@@ -1,8 +1,10 @@
-const { app: c } = await use("@/rollo/"), { Mixins: u, author: h, component: e, mix: l } = await use("@/rollo/"), g = await use("@/bootstrap/reboot.css"), m = await use("@/frame/shadow.css", { auto: !0 }), r = {
+const { app: c, Mixins: h, author: u, component: e, mix: l } = await use("@/rollo/"), g = await use("@/bootstrap/reboot.css"), m = await use("@/frame/shadow.css", {
+  auto: "frame"
+}), r = {
   close: await use("@/icons/close.svg"),
   menu: await use("@/icons/menu.svg")
-}, d = h(
-  class extends l(HTMLElement, {}, ...u()) {
+}, d = u(
+  class extends l(HTMLElement, {}, ...h()) {
     #t = {};
     constructor() {
       super();
@@ -23,11 +25,7 @@ const { app: c } = await use("@/rollo/"), { Mixins: u, author: h, component: e, 
           }),
           e.section(e.slot({ name: "top" }))
         ),
-        e.section(
-          "main",
-          o,
-          e.main(e.slot())
-        ),
+        e.section("main", o, e.main(e.slot())),
         e.footer()
       );
       this.attachShadow({ mode: "open" }).append(i), g.use(this), m.use(this), this.#t.config = new class {

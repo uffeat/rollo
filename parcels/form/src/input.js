@@ -1,8 +1,8 @@
 import "../use";
-const { app, Mixins, author, component, mix } = await use("@/rollo/");
+const { Mixins, author, component, mix, stateMixin } = await use("@/rollo/");
 
 export const Input = author(
-  class extends mix(HTMLElement, {}, ...Mixins()) {
+  class extends mix(HTMLElement, {}, ...Mixins(stateMixin)) {
     #_ = {
       tree: {},
     };

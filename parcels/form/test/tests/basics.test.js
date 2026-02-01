@@ -4,14 +4,19 @@
 
 const { component } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
-const { Input } = await use("@/form/");
+const { Form, Input } = await use("@/form/");
+
+
 
 
 export default async () => {
   frame.clear(":not([slot])");
 
-  const input = Input({
-    parent: frame, 
+  const form = Form({parent: frame,});
+
+  (()=> {
+    const input = Input('p-3', {
+    parent: form, 
     label: 'Foo',
     type: 'email',
     text: 'foofoo'
@@ -19,6 +24,10 @@ export default async () => {
 
   //input.tree.input.classes.add('is-invalid')
   input.validate()
+
+  })();
+
+  
 
  
 };

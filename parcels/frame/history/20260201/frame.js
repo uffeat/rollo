@@ -4,10 +4,7 @@ const { app, Mixins, author, component, mix } = await use("@/rollo/");
 
 /* Get shadow sheets */
 const reboot = await use("@/bootstrap/reboot.css");
-
-const shadowSheet = await use(`@/frame/shadow.css`, {
-  auto: "frame",
-});
+const shadowSheet = await use(`@/frame/shadow.css`, { auto: true });
 
 const icons = {
   close: await use("@/icons/close.svg"),
@@ -28,7 +25,7 @@ const Frame = author(
           ariaLabel: "Close",
           innerHTML: icons.close,
         }),
-        component.slot({ name: "side" }),
+        component.slot({ name: "side" })
       );
       const shadow = component.div(
         { id: "root" },
@@ -38,10 +35,12 @@ const Frame = author(
             ariaLabel: "Toggle",
             innerHTML: icons.menu,
           }),
-          component.section(component.slot({ name: "top" })),
+          component.section(component.slot({ name: "top" }))
         ),
-        component.section("main", side, component.main(component.slot())),
-        component.footer(),
+        component.section("main", 
+          side, 
+          component.main(component.slot())),
+        component.footer()
       );
       this.attachShadow({ mode: "open" }).append(shadow);
       reboot.use(this);
@@ -144,7 +143,7 @@ const Frame = author(
       this.attribute.open = !this.attribute.open;
     }
   },
-  "frame-component",
+  "frame-component"
 );
 
 export const frame = Frame({ id: "frame", parent: app });

@@ -213,7 +213,7 @@ class Registry {
   }
 }
 
-/* Utility for specifier manipulation in DEV. */
+/* Utility for specifier manipulation. */
 class Redirects {
   #_ = {
     registry: new Set(),
@@ -515,8 +515,16 @@ export const assets = new (class Assets {
   async get(specifier, ...args) {
     const options = { ...(args.find((a) => is.object(a)) || {}) };
     args = args.filter((a) => !is.object(a));
+    /* Redirect */
     if (this.meta.DEV) {
-      /* Redirect */
+      /* Redirects typically involves chaging the specifier (and potentially 
+      options), so that a public ('/) rather than a built ('@/) assets is used.
+      Useful, when testing parcels. Expensive, therefore only do in DEV.
+      For redirects to work, the dev server for the main app must run. This
+      can be inconvenient when testing parcels that do not use redirects.
+      Therefore, registered redirects typically use a mechanism so that the
+      redirect only kicks in for a specific parcel.
+      NOTE Pass in non-copied options to allow mutations */
       specifier = this.redirects.redirect(specifier, options, ...args);
     }
     const path = Path.create(specifier);
@@ -605,18 +613,20 @@ export const assets = new (class Assets {
 })();
 
 /** Register out-of-the-box redirects to ensures live loads during DEV 
-and fast loads in PROD.*/
+and fast loads in PROD. */
 
 // Converts `@/**/*.css` to `/parcels/**/*.css` specifiers and sets 'as'
 // option to 'sheet' (to avoid load by link).
 use.redirects.add((specifier, options, ...args) => {
   if (
-    options.auto &&
+    (options.auto === true || options.auto === document.title) &&
     specifier.startsWith("@/") &&
     specifier.endsWith(".css")
   ) {
     options.as = "sheet";
-    return `/parcels${specifier.slice(1)}`;
+    const _specifier = `/parcels${specifier.slice(1)}`;
+    console.log(`Redirecting ${specifier} -> ${_specifier} with options:`, options); ////
+    return _specifier;
   }
 });
 
@@ -624,13 +634,15 @@ use.redirects.add((specifier, options, ...args) => {
 // and `.template` types.
 use.redirects.add((specifier, options, ...args) => {
   if (
-    options.auto &&
+    (options.auto === true || options.auto === document.title) &&
     specifier.startsWith("@/") &&
     (specifier.endsWith(".json") ||
       specifier.endsWith(".html") ||
       specifier.endsWith(".template"))
   ) {
-    return `/parcels${specifier.slice(1)}`;
+    const _specifier = `/parcels${specifier.slice(1)}`;
+    console.log(`Redirecting ${specifier} -> ${_specifier}`); ////
+    return _specifier
   }
 });
 

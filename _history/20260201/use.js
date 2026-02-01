@@ -213,7 +213,7 @@ class Registry {
   }
 }
 
-/* Utility for specifier manipulation. */
+/* Utility for specifier manipulation in DEV. */
 class Redirects {
   #_ = {
     registry: new Set(),
@@ -516,10 +516,7 @@ export const assets = new (class Assets {
     const options = { ...(args.find((a) => is.object(a)) || {}) };
     args = args.filter((a) => !is.object(a));
     if (this.meta.DEV) {
-      /* Redirects typically involves chaging the specifier (and potentially 
-      options), so that a public ('/) rather than a built ('@/) assets is used.
-      Useful, when testing parcels. Expensive, therefore only do in DEV.
-      NOTE Pass in non-copied options to allow mutations */
+      /* Redirect */
       specifier = this.redirects.redirect(specifier, options, ...args);
     }
     const path = Path.create(specifier);
@@ -614,14 +611,12 @@ and fast loads in PROD. */
 // option to 'sheet' (to avoid load by link).
 use.redirects.add((specifier, options, ...args) => {
   if (
-    (options.auto === true || options.auto === document.title) &&
+    options.auto &&
     specifier.startsWith("@/") &&
     specifier.endsWith(".css")
   ) {
     options.as = "sheet";
-    const _specifier = `/parcels${specifier.slice(1)}`;
-    console.log(`Redirecting ${specifier} -> ${_specifier} with options:`, options); ////
-    return _specifier;
+    return `/parcels${specifier.slice(1)}`;
   }
 });
 
@@ -629,15 +624,13 @@ use.redirects.add((specifier, options, ...args) => {
 // and `.template` types.
 use.redirects.add((specifier, options, ...args) => {
   if (
-    (options.auto === true || options.auto === document.title) &&
+    options.auto &&
     specifier.startsWith("@/") &&
     (specifier.endsWith(".json") ||
       specifier.endsWith(".html") ||
       specifier.endsWith(".template"))
   ) {
-    const _specifier = `/parcels${specifier.slice(1)}`;
-    console.log(`Redirecting ${specifier} -> ${_specifier}`); ////
-    return _specifier
+    return `/parcels${specifier.slice(1)}`;
   }
 });
 

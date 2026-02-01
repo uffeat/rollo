@@ -1,2 +1,3 @@
 import "./assets/form.css";
-export { Input } from "./src/input.js";
+export { Form } from "./src/form";
+export { Input } from "./src/input";

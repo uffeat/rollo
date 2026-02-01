@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+form[form] {
+  width: 100%;
+  display: flex;
+}
+
 input-component {
   width: 100%;
 }
@@ -11,7 +16,7 @@ input-component:has(input:placeholder-shown:focus) label {
 }
 
 input-component .form-text {
-  padding-left: .75rem;
+  padding-left: 0.75rem;
 }
 
 input-component:has(input.is-invalid) .form-text {
