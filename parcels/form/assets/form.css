@@ -6,32 +6,4 @@ form[form-component] {
 
 input-component {
   display: block;
-  /*width: 100%;*/
-}
-
-input-component .form-floating {
-  width: inherit !important;
-}
-
-/* Change Bootstrap default placement of label in high-position. */
-input-component:not(:has(input:placeholder-shown)) label,
-input-component:has(input:placeholder-shown:focus) label {
-  top: -2px !important;
-}
-
-/* Change Bootstrap default placement of message. */
-input-component .form-text {
-  padding-left: 0.75rem;
-}
-
-/* Style message for invalid input. */
-input-component[state-visited]:not([state-valid]) .form-text {
-  color: var(--bs-form-invalid-color);
-}
-
-/* Ensure that empty messages have the same height as non-empty messages 
-to avoid vertical shifts. */
-input-component .form-text:empty::after {
-  content: "x";
-  visibility: hidden;
 }
