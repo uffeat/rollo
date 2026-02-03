@@ -57,4 +57,4 @@ const run = (() => {
 
 
 /* Current test */
-await run("/basics.test.js"); ////
+await run("/login.test.js"); ////

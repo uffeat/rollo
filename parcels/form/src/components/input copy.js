@@ -1,4 +1,4 @@
-import "../use";
+import "../../use";
 const { Mixins, author, component, mix, stateMixin } = await use("@/rollo/");
 
 export const Input = author(
@@ -12,6 +12,7 @@ export const Input = author(
 
     __new__(...args) {
       super.__new__?.(...args);
+      this.attribute.formControl = true;
       /** Build tree */
       this.tree.floating = component.div("form-floating", { parent: this });
       this.tree.input = component.input("form-control", {
@@ -26,10 +27,9 @@ export const Input = author(
       Object.freeze(this.tree);
       /* blur -> visited state. Also validates. */
       this.tree.input.on.blur({ once: true }, (event) => {
-        this.attribute.visited = true;
+        this.$.visited = true;
         this.validate();
       });
-
       /* input -> value state */
       this.tree.input.on.input((event) => {
         this.$.value = this.tree.input.value;
@@ -43,6 +43,16 @@ export const Input = author(
         },
         ["value"],
       );
+    }
+
+    __init__(...args) {
+      super.__init__?.(...args);
+      /* Defaults */
+      if (!this.attribute.type) {
+        this.type = "text";
+      }
+
+      this.validate();
     }
 
     get label() {
@@ -67,7 +77,7 @@ export const Input = author(
     }
 
     set required(required) {
-      this.text = 'Required'
+      this.text = required ? "Required" : null;
       this.tree.input.required = required;
     }
 
@@ -88,7 +98,12 @@ export const Input = author(
     }
 
     set type(type) {
+      this.attribute.type = type;
       this.tree.input.type = type;
+    }
+
+    get valid() {
+      return this.$.valid;
     }
 
     get value() {
@@ -101,14 +116,40 @@ export const Input = author(
 
     validate() {
       const valid = this.tree.input.checkValidity();
-
-      this.tree.message.text = valid ? null : 'Required'
-
-      if (this.attribute.visited) {
-        this.tree.input.classes.if(!valid, "is-invalid");
-
-        
+      /* Make valid reactive and show as state attr */
+      this.$.valid = valid;
+      /* Set message */
+      const validity = this.tree.input.validity;
+      this.tree.message.text = null;
+      if (validity.valueMissing) {
+        this.tree.message.text = "Required";
+      } else {
+        if (this.$.visited) {
+          if (validity.typeMismatch) {
+            this.tree.message.text = "Invalid format";
+          } else if (validity.patternMismatch) {
+            this.tree.message.text = "Invalid format";
+          } else if (validity.tooLong) {
+            this.tree.message.text = "Too long";
+          } else if (validity.tooShort) {
+            this.tree.message.text = "Too short";
+          } else if (validity.rangeOverflow) {
+            this.tree.message.text = "Too high";
+          } else if (validity.rangeUnderflow) {
+            this.tree.message.text = "Too low";
+          } else if (validity.customError) {
+            this.tree.message.text = this.tree.input.validationMessage;
+          } else {
+            if (!valid) {
+              this.tree.message.text = "Invalid";
+            }
+          }
+        }
       }
+      /* Style input */
+      this.tree.input.classes.if(!valid && this.$.visited, "is-invalid");
+      /* Trigger form-level validation; sets reative 'valid' state on form. */
+      this.parent?.validate();
 
       return valid;
     }

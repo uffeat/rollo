@@ -1,19 +1,23 @@
 @import "tailwindcss";
 
 
-.foo {
-  @apply rounded border border-orange-300;
-}
 
+/* Make images responsive */
 img {
   max-width: 100%;
+  height: auto;
 }
 
+/** Remove spinner from number inputs */
+/* General reset */
+input[type="number"] {
+  appearance: none;
+  box-sizing: border-box;
+}
 /* Firefox */
 input[type="number"] {
   -moz-appearance: textfield; /* legacy/ESR safety */
 }
-
 /* Chromium + Safari */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
@@ -22,10 +26,5 @@ input[type="number"]::-webkit-inner-spin-button {
   margin: 0; /* avoids old layout quirks */
 }
 
-/* Optional: if you also want to nuke any UA styling entirely */
-input[type="number"] {
-  appearance: none; /* modern generic reset */
-  box-sizing: border-box;
-}
 
 
