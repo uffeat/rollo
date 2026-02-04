@@ -1,6 +1,8 @@
 import { Mixins, author, component, mix } from "../component/index";
 import { stateMixin } from "../state/index";
 
+console.log('Creating app component')//
+
 const TAG = "div";
 
 const App = author(

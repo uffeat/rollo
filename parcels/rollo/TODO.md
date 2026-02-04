@@ -1,2 +1,0 @@
-# State
-`Reactive.computed` type-checks arrow/non-arrow to discriminate between effects and hooks. Reconsider this pattern; perhaps it's a good pragmatic solution, perhaps it's too odd. If kept, test thoroughly!

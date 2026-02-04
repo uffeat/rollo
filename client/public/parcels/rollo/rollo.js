@@ -1,4 +1,4 @@
-const m = (r) => {
+const g = (r) => {
   if (typeof r == "object") {
     if (r?.__type__)
       return r.__type__;
@@ -6,18 +6,18 @@ const m = (r) => {
       return r.constructor.__type__;
   }
   return Object.prototype.toString.call(r).slice(8, -1);
-}, R = m, p = new class {
+}, R = g, p = new class {
   array(r) {
-    return m(r) === "Array";
+    return g(r) === "Array";
   }
   arrow(r) {
     return typeof r == "function" && !r.hasOwnProperty("prototype") && r.toString().includes("=>");
   }
   async(r) {
-    return m(r) === "AsyncFunction";
+    return g(r) === "AsyncFunction";
   }
   boolean(r) {
-    return m(r) === "Boolean";
+    return g(r) === "Boolean";
   }
   /* Shorthand */
   bool(r) {
@@ -30,13 +30,13 @@ const m = (r) => {
     return typeof r == "function";
   }
   map(r) {
-    return m(r) === "Map";
+    return g(r) === "Map";
   }
   module(r) {
-    return m(r) === "Module";
+    return g(r) === "Module";
   }
   null(r) {
-    return m(r) === "Null";
+    return g(r) === "Null";
   }
   /* Checks if string value contains only digits - allowing for 
   - a single decimal mark ('.' or ',') and 
@@ -47,36 +47,36 @@ const m = (r) => {
     return typeof r != "string" ? !1 : r === null || r === "" ? !0 : /^-?\d*[.,]?\d*$/.test(r);
   }
   number(r) {
-    return m(r) === "Number" && !Number.isNaN(r);
+    return g(r) === "Number" && !Number.isNaN(r);
   }
   object(r) {
-    return m(r) === "Object";
+    return g(r) === "Object";
   }
   promise(r) {
-    return m(r) === "Promise";
+    return g(r) === "Promise";
   }
   set(r) {
-    return m(r) === "Set";
+    return g(r) === "Set";
   }
   string(r) {
-    return m(r) === "String";
+    return g(r) === "String";
   }
   /* Shorthand */
   str(r) {
     return this.string(r);
   }
   sync(r) {
-    return m(r) === "Function";
+    return g(r) === "Function";
   }
   undefined(r) {
-    return m(r) === "Undefined";
+    return g(r) === "Undefined";
   }
   /* Inspired by Python's `isinstance`, only with a slightly leaner syntax. */
   instance(r, ...t) {
     for (const e of t)
       if (e in this && this[e](r))
         return !0;
-    return t.includes(m(r));
+    return t.includes(g(r));
   }
   integer(r) {
     return this.number(r) && Number.isInteger(r);
@@ -158,9 +158,9 @@ class z {
       }
       add(h, ...l) {
         const f = (() => {
-          const g = l.find((_) => p.function(_));
-          if (g)
-            return g;
+          const m = l.find((_) => p.function(_));
+          if (m)
+            return m;
           const x = l.find((_) => Array.isArray(_));
           if (x)
             return (_) => x.includes(_);
@@ -168,13 +168,13 @@ class z {
           data: y = {},
           once: j,
           run: S = !0
-        } = l.find((g, x) => !x && p.object(g)) || {}, v = (() => {
-          const g = { data: { ...y } };
-          return f && (g.condition = f), j && (g.once = j), g;
+        } = l.find((m, x) => !x && p.object(m)) || {}, v = (() => {
+          const m = { data: { ...y } };
+          return f && (m.condition = f), j && (m.once = j), m;
         })();
         if (this.#e.registry.set(h, v), S) {
-          const g = C.create(this.#e.owner);
-          g.detail = v, g.effect = h, (!f || f(this.#e.owner.current, g)) && h(this.#e.owner.current, g);
+          const m = C.create(this.#e.owner);
+          m.detail = v, m.effect = h, (!f || f(this.#e.owner.current, m)) && h(this.#e.owner.current, m);
         }
         return h;
       }
@@ -299,16 +299,16 @@ class A {
           data: j,
           hooks: S,
           once: v = !1,
-          run: g = !0
+          run: m = !0
         } = y.find((b, T) => !T && p.object(b)) || {}, x = y.filter((b) => p.function(b)), _ = z.create({ owner: e }), L = e.effects.add(
           (b, T) => {
             _.update(f(b, T));
           },
-          { data: j, once: v, run: g }
+          { data: j, once: v, run: m }
         );
         this.#e.registry.set(_, L);
         for (const b of x)
-          _.effects.add(b, { once: v, run: g });
+          _.effects.add(b, { once: v, run: m });
         if (S)
           for (const b of S)
             b.call(_);
@@ -354,12 +354,12 @@ class A {
         })(), {
           data: S = {},
           once: v,
-          run: g = !0
+          run: m = !0
         } = y.find((_) => p.object(_)) || {}, x = (() => {
           const _ = { data: { ...S } };
           return j && (_.condition = j), v && (_.once = v), _;
         })();
-        if (this.#e.registry.set(f, x), g) {
+        if (this.#e.registry.set(f, x), m) {
           const _ = C.create(this.#e.owner);
           _.detail = x, _.effect = f, (!j || j(this.#e.owner.current, _)) && f(this.#e.owner.current, _);
         }
@@ -640,7 +640,7 @@ class ct {
   }
   /* Returns updates. */
   get updates() {
-    return this.#t.updates === void 0 && (this.#t.updates = this.#t.args.find((t, e) => m(t) === "Object") || {}), this.#t.updates;
+    return this.#t.updates === void 0 && (this.#t.updates = this.#t.args.find((t, e) => g(t) === "Object") || {}), this.#t.updates;
   }
 }
 const Z = (r) => (...t) => {
@@ -948,7 +948,7 @@ const lt = (r, t) => class extends r {
       )
     ), this;
   }
-}, mt = (r, t) => class extends r {
+}, gt = (r, t) => class extends r {
   static __name__ = "detail";
   #t = {
     detail: {}
@@ -957,7 +957,7 @@ const lt = (r, t) => class extends r {
   get detail() {
     return this.#t.detail;
   }
-}, gt = (r, t) => class extends r {
+}, mt = (r, t) => class extends r {
   static __name__ = "find";
   /* Unified alternative to 'querySelector' and 'querySelectorAll' 
   with a leaner syntax. */
@@ -1080,7 +1080,7 @@ class I {
     }
   }
 }
-const me = (r, t, e, {
+const ge = (r, t, e, {
   bind: s = !0,
   configurable: n = !0,
   enumerable: i = !0,
@@ -1090,7 +1090,7 @@ const me = (r, t, e, {
   enumerable: i,
   writable: o,
   value: e
-}), r), ge = (r, t, { bind: e = !0, configurable: s = !0, enumerable: n = !1, get: i, set: o } = {}) => {
+}), r), me = (r, t, { bind: e = !0, configurable: s = !0, enumerable: n = !1, get: i, set: o } = {}) => {
   e && (i = i.bind(r));
   const c = {
     configurable: s,
@@ -1446,8 +1446,8 @@ const Pt = (r, t) => class extends r {
         "./mixins/clear.js": ht,
         "./mixins/connect.js": dt,
         "./mixins/data.js": _t,
-        "./mixins/detail.js": mt,
-        "./mixins/find.js": gt,
+        "./mixins/detail.js": gt,
+        "./mixins/find.js": mt,
         "./mixins/for_.js": yt,
         "./mixins/hook.js": bt,
         "./mixins/insert.js": jt,
@@ -1563,7 +1563,9 @@ function Zt(r) {
   }
   return t;
 }
-const It = (r, t, e) => (W.add(r, t, e), M(r, "create", Z(r)), r.create), Y = "div", Dt = It(
+const It = (r, t, e) => (W.add(r, t, e), M(r, "create", Z(r)), r.create);
+console.log("Creating app component");
+const Y = "div", Dt = It(
   class extends Q(
     document.createElement(Y).constructor,
     {},
@@ -1792,7 +1794,7 @@ class N extends CSSStyleSheet {
   };
   constructor(...t) {
     super(), this.#t.rules = D.create(this), this.#t.targets = q.create(this), this.#t.text = t.find((n, i) => !i && typeof n == "string"), this.#t.path = t.find((n, i) => i && typeof n == "string");
-    const e = t.find((n) => m(n) === "Object"), s = t.find((n) => m(n) === "Object" && n !== e);
+    const e = t.find((n) => g(n) === "Object"), s = t.find((n) => g(n) === "Object" && n !== e);
     this.text && this.replaceSync(this.text), e && this.rules.add(e), Object.assign(this.detail, s);
   }
   /* Returns detail for ad-hoc data. */
@@ -2036,7 +2038,7 @@ function it(...r) {
   if (this.update)
     return this.update(...r);
   this.update = it.bind(this), this.setAttribute("element", "");
-  const t = r.find((c, u) => !u && typeof c == "string"), e = r.find((c, u) => u && typeof c == "string"), s = r.find((c) => m(c) === "Object") || {}, n = (() => {
+  const t = r.find((c, u) => !u && typeof c == "string"), e = r.find((c, u) => u && typeof c == "string"), s = r.find((c) => g(c) === "Object") || {}, n = (() => {
     const { parent: c } = s;
     if (c)
       return delete s.parent, c;
@@ -2127,7 +2129,7 @@ const X = (r, t) => {
 ), Ae = (r, t, e = (s, n) => s === n) => {
   const s = [[r, t]];
   for (; s.length > 0; ) {
-    const [n, i] = s.pop(), [o, c] = [m(n), m(i)];
+    const [n, i] = s.pop(), [o, c] = [g(n), g(i)];
     if (o !== c) return !1;
     if (!["Array", "Object"].includes(o)) {
       if (!e(n, i)) return !1;
@@ -2158,7 +2160,7 @@ const X = (r, t) => {
         delete n[o];
         continue;
       }
-      const u = n[o], a = [m(u), m(c)];
+      const u = n[o], a = [g(u), g(c)];
       if (a.every(p.object)) {
         s.push([u, c]);
         continue;
@@ -2287,8 +2289,8 @@ export {
   $ as component,
   be as css,
   ze as deduplicate,
-  me as defineMethod,
-  ge as defineProperty,
+  ge as defineMethod,
+  me as defineProperty,
   M as defineValue,
   je as delay,
   xe as element,
@@ -2321,7 +2323,7 @@ export {
   Pe as round,
   J as stateMixin,
   Te as toTop,
-  m as type,
+  g as type,
   R as typeName,
   it as updateElement
 };

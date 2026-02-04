@@ -1,3 +1,5 @@
+console.log('use.js')////
+
 const typeName = (value) => Object.prototype.toString.call(value).slice(8, -1);
 
 const is = new (class {
@@ -517,7 +519,7 @@ export const assets = new (class Assets {
     args = args.filter((a) => !is.object(a));
     /* Redirect */
     if (this.meta.DEV) {
-      /* Redirects typically involves chaging the specifier (and potentially 
+      /* Redirects typically involves changing the specifier (and potentially 
       options), so that a public ('/) rather than a built ('@/) assets is used.
       Useful, when testing parcels. Expensive, therefore only do in DEV.
       For redirects to work, the dev server for the main app must run. This
@@ -531,12 +533,21 @@ export const assets = new (class Assets {
     let result;
     /* Import */
     if (this.#_.added.has(path.full)) {
+
+      console.log('Using added asset:', path.full)////
+
+
       /* Added assets */
       result = this.#_.added.get(path.full);
       if (is.function(result)) {
         result = await result({ path });
       }
     } else {
+
+      console.log('Importing asset:', path.full)////
+
+
+
       /* Get assets from registered source (nothing from added) */
       UseError.if(
         !this.sources.has(path.source),
@@ -770,6 +781,11 @@ NOTE
     if (cache.has(path.full)) {
       return cache.get(path.full);
     }
+
+
+    console.log('Getting from sheet:', path.full)////
+
+
     const probe = document.createElement("meta");
     document.head.append(probe);
     probe.setAttribute("__path__", path.path);
@@ -864,6 +880,11 @@ use.processors.add(
           result = null;
         }
       } else {
+
+        console.log('Constructing module:', path.full)////
+
+
+
         result = await owner.module(
           `export const __path__ = "${path.path}";${text}`,
           path.path,
