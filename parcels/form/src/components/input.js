@@ -25,6 +25,8 @@ export const Input = author(
         </div>
       `);
       this.attachShadow({ mode: "open" }).append(this.shadow);
+      /* Adopting the full Bootstrap sheet to shadow may at first glance seem 
+      inefficent, but is actually fast and works smoothly. */
       bootstrap.use(this);
       css`
         #root {

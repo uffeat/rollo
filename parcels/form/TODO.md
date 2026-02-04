@@ -1,0 +1,1 @@
+- Enable input-group features by adding slotted children.
