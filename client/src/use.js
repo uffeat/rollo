@@ -1,4 +1,4 @@
-console.log('use.js')////
+//console.log('use.js')////
 
 const typeName = (value) => Object.prototype.toString.call(value).slice(8, -1);
 
@@ -544,7 +544,7 @@ export const assets = new (class Assets {
       }
     } else {
 
-      console.log('Importing asset:', path.full)////
+      //console.log('Importing asset:', path.full)////
 
 
 
@@ -783,7 +783,7 @@ NOTE
     }
 
 
-    console.log('Getting from sheet:', path.full)////
+    //console.log('Getting from sheet:', path.full)////
 
 
     const probe = document.createElement("meta");

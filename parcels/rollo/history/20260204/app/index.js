@@ -26,7 +26,7 @@ const App = author(
       this.attribute.webComponent = true;
     }
   },
-  "app-app",
+  "app-component",
   TAG
 );
 
