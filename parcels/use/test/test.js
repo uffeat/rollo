@@ -1,6 +1,9 @@
 /* Initialize import engine and load main sheet */
 import "../../../client/src/main.css";
 
+/* Load local sheet */
+import "./test.css";
+
 import * as parcel from "../index";
 
 document.documentElement.dataset.bsTheme = "dark";
@@ -50,4 +53,4 @@ const run = (() => {
 })();
 
 /* Current test */
-await run("/basics.test.js"); ////
+//await run("/basics.test.js"); ////
