@@ -4,6 +4,8 @@ const cls = class extends HTMLElement {
   }
 };
 
-customElements.define("sheet-reference", cls);
+if (!customElements.get("sheet-reference")) {
+  customElements.define("sheet-reference", cls);
+}
 
 export const reference = new cls();

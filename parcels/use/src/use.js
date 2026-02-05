@@ -1003,4 +1003,4 @@ window.dispatchEvent(new CustomEvent("_use"));
 
 /* NOTE Really no need to export 'use' (since global),
 but can help to silence linters. */
-export { use as default };
+export { use };

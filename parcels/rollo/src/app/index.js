@@ -1,7 +1,7 @@
 import { Mixins, author, component, mix } from "../component/index";
 import { stateMixin } from "../state/index";
 
-console.log('Creating app component')//
+console.log('Creating app component')////
 
 const TAG = "div";
 
@@ -26,7 +26,7 @@ const App = author(
       this.attribute.webComponent = true;
     }
   },
-  "app-app",
+  "app-component",////
   TAG
 );
 

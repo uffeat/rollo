@@ -1,4 +1,4 @@
-console.log('use.js')////
+//console.log('use.js')////
 
 const typeName = (value) => Object.prototype.toString.call(value).slice(8, -1);
 
@@ -497,6 +497,11 @@ export const assets = new (class Assets {
   - manually making objects use-importable (only do when really necessary)
   - overloading asset when testing parcels (knock yourself out!). */
   add(key, value) {
+
+    console.log(`Adding ${key}:`, value)////
+
+
+
     this.#_.added.set(key, value);
     return this;
   }
@@ -534,7 +539,7 @@ export const assets = new (class Assets {
     /* Import */
     if (this.#_.added.has(path.full)) {
 
-      console.log('Using added asset:', path.full)////
+      console.log('Importing added asset:', path.full)////
 
 
       /* Added assets */
@@ -544,7 +549,7 @@ export const assets = new (class Assets {
       }
     } else {
 
-      console.log('Importing asset:', path.full)////
+      console.log('Importing non-added asset:', path.full)////
 
 
 
@@ -636,7 +641,9 @@ use.redirects.add((specifier, options, ...args) => {
   ) {
     options.as = "sheet";
     const _specifier = `/parcels${specifier.slice(1)}`;
+
     console.log(`Redirecting ${specifier} -> ${_specifier} with options:`, options); ////
+    
     return _specifier;
   }
 });
@@ -652,7 +659,9 @@ use.redirects.add((specifier, options, ...args) => {
       specifier.endsWith(".template"))
   ) {
     const _specifier = `/parcels${specifier.slice(1)}`;
+
     console.log(`Redirecting ${specifier} -> ${_specifier}`); ////
+
     return _specifier
   }
 });
@@ -783,7 +792,7 @@ NOTE
     }
 
 
-    console.log('Getting from sheet:', path.full)////
+    console.log('Getting asset from sheet:', path.full)////
 
 
     const probe = document.createElement("meta");

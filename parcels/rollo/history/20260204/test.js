@@ -7,7 +7,6 @@ import "./test.css";
 import * as parcel from "../index";
 use.add("@/rollo/rollo.js", parcel);
 
-
 document.documentElement.dataset.bsTheme = "dark";
 
 /* Returns function that runs test from path */
@@ -22,7 +21,7 @@ const run = (() => {
       }),
     }).map(([k, v]) => {
       return [k.slice(START), v];
-    }),
+    })
   );
 
   use.sources.add("tests", async ({ path }) => {
@@ -52,10 +51,6 @@ const run = (() => {
           await run(path);
         }
       };
-    })(),
+    })()
   );
 })();
-
-
-//
-await run('/component/attributes.test.js')

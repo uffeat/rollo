@@ -1,12 +1,7 @@
 /* Initialize import engine and load main sheet */
 import "../../../client/src/main.css";
-import "../use";
-/* Load local sheet */
-import "./test.css";
-/* Overload to use live parcel */
-import * as parcel from "../index";
-use.add("@/rollo/rollo.js", parcel);
 
+import * as parcel from "../index";
 
 document.documentElement.dataset.bsTheme = "dark";
 
@@ -22,16 +17,14 @@ const run = (() => {
       }),
     }).map(([k, v]) => {
       return [k.slice(START), v];
-    }),
+    })
   );
-
   use.sources.add("tests", async ({ path }) => {
     if (!(path.path in loaders)) {
       throw new Error(`Invalid path:${path.full}`);
     }
     return await loaders[path.path]();
   });
-
   return async (path) => {
     const asset = await use(`tests${path}`);
     await asset.default();
@@ -52,10 +45,9 @@ const run = (() => {
           await run(path);
         }
       };
-    })(),
+    })()
   );
 })();
 
-
-//
-await run('/component/attributes.test.js')
+/* Current test */
+await run("/basics.test.js"); ////

@@ -14,7 +14,7 @@ export default defineConfig({
     rollupOptions: {
         external: (id) => {
           /* Never treat aliased src imports as external. 
-          If (id.startsWith("@")) return false; */
+          if (id.startsWith("@")) return false; */
           return (
             (id.includes("/test/") && !id.includes("/src/")) ||
             id.endsWith(".test.js")

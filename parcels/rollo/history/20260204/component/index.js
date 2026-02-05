@@ -5,4 +5,3 @@ export { Mixins, mixins } from "./mixins/mixins";
 export { registry } from "./tools/registry";
 export { Component, component } from "./component";
 export { author } from "./tools/author";
-

@@ -1,3 +1,9 @@
+/** WARNING
+ * 
+ * This version has bugs, likely related to 'Store'
+ * 
+ */
+
 const typeName = (value) => Object.prototype.toString.call(value).slice(8, -1);
 
 const is = new (class {
