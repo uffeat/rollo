@@ -202,6 +202,31 @@ class Registry {
   }
 }
 
+/* Tool for specifier manipulation in DEV */
+class Redirects {
+  #_ = {
+    registry: new Set(),
+  };
+
+  constructor(owner) {
+    this.#_.owner = owner;
+  }
+
+  add(redirector) {
+    this.#_.registry.add(redirector);
+    return this.#_.owner;
+  }
+
+  redirect(specifier, options, ...args) {
+    for (const redirector of this.#_.registry.values()) {
+      const result = redirector(specifier, options, ...args);
+      if (result) {
+        return result;
+      }
+    }
+    return specifier;
+  }
+}
 
 /* Import engine. 
 - Provides dynamic imports.
@@ -310,7 +335,8 @@ export const assets = new (class Assets {
         return location.origin;
       }
     })();
-   
+    /* Compose redirects */
+    this.#_.redirects = new Redirects(this);
     /* Compose sources */
     this.#_.sources = new Registry(this);
     /* Compose processors 
@@ -361,7 +387,12 @@ export const assets = new (class Assets {
     return this.#_.processors;
   }
 
-
+  /* Returns redirects controller. 
+  NOTE Only kicks in in DEV. Redirects are expensive and exist to enable 
+  access to unbuilt assets during DEV. */
+  get redirects() {
+    return this.#_.redirects;
+  }
 
   /* Returns sources controller. 
   NOTE Operates on 'path.source'. */
@@ -414,7 +445,10 @@ export const assets = new (class Assets {
   async get(specifier, ...args) {
     const options = { ...(args.find((a) => typeName(a) === "Object") || {}) };
     args = args.filter((a) => typeName(a) !== "Object");
-    
+    if (this.meta.DEV) {
+      /* Redirect */
+      specifier = this.redirects.redirect(specifier, options, ...args);
+    }
     const path = Path.create(specifier);
     let result;
     /* Import */
@@ -528,6 +562,42 @@ Object.defineProperty(globalThis, "use", {
   value: use,
 });
 
+/** Register out-of-the-box redirects to ensures live loads during DEV 
+and fast loads in PROD. */
+
+// Converts `@/**/*.css` to `/parcels/**/*.css` specifiers and sets 'as'
+// option to 'sheet' (to avoid load by link).
+use.redirects.add((specifier, options, ...args) => {
+  if (
+    (options.auto === true || options.auto === document.title) &&
+    specifier.startsWith("@/") &&
+    specifier.endsWith(".css")
+  ) {
+    options.as = "sheet";
+    const _specifier = `/parcels${specifier.slice(1)}`;
+    console.log(
+      `Redirecting ${specifier} -> ${_specifier} with options:`,
+      options,
+    ); ////
+    return _specifier;
+  }
+});
+
+// Converts `@/**/*.*` to `/parcels/**/*.*` specifiers for `.html`, `.json`,
+// and `.template` types.
+use.redirects.add((specifier, options, ...args) => {
+  if (
+    (options.auto === true || options.auto === document.title) &&
+    specifier.startsWith("@/") &&
+    (specifier.endsWith(".json") ||
+      specifier.endsWith(".html") ||
+      specifier.endsWith(".template"))
+  ) {
+    const _specifier = `/parcels${specifier.slice(1)}`;
+    console.log(`Redirecting ${specifier} -> ${_specifier}`); ////
+    return _specifier;
+  }
+});
 
 /** Register out-of-the-box sources. */
 
@@ -721,9 +791,7 @@ use.types
     if (typeName(result) !== "CSSStyleSheet") return;
     const targets = args.filter(
       (a) =>
-        typeName(a) === "HTMLDocument" ||
-        a instanceof ShadowRoot ||
-        a.shadowRoot,
+        typeName(a) === "HTMLDocument" || a instanceof ShadowRoot || a.shadowRoot,
     );
     if (targets.length) {
       /* NOTE sheet.use() adopts to document, therefore check targets' length */

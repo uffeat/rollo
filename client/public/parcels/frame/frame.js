@@ -1,21 +1,19 @@
-const { app: c, Mixins: h, author: u, component: e, mix: l } = await use("@/rollo/"), g = await use("@/bootstrap/reboot.css"), m = await use("@/frame/shadow.css", {
-  auto: "frame"
-}), r = {
+const { app: l, css: c, Mixins: d, author: g, component: e, mix: m } = await use("@/rollo/"), h = await use("@/bootstrap/reboot.css"), r = {
   close: await use("@/icons/close.svg"),
   menu: await use("@/icons/menu.svg")
-}, d = u(
-  class extends l(HTMLElement, {}, ...h()) {
+}, p = g(
+  class extends m(HTMLElement, {}, ...d()) {
     #t = {};
     constructor() {
       super();
-      const t = this, o = e.section(
+      const t = this, s = e.section(
         "side",
         e.button("toggle", {
           ariaLabel: "Close",
           innerHTML: r.close
         }),
         e.slot({ name: "side" })
-      ), i = e.div(
+      ), o = e.div(
         { id: "root" },
         e.header(
           e.slot({ name: "home" }),
@@ -25,10 +23,130 @@ const { app: c, Mixins: h, author: u, component: e, mix: l } = await use("@/roll
           }),
           e.section(e.slot({ name: "top" }))
         ),
-        e.section("main", o, e.main(e.slot())),
+        e.section("main", s, e.main(e.slot())),
         e.footer()
       );
-      this.attachShadow({ mode: "open" }).append(i), g.use(this), m.use(this), this.#t.config = new class {
+      this.attachShadow({ mode: "open" }).append(o), h.use(this), c`
+        #root {
+          position: relative;
+          width: 100%;
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          background-color: var(--bs-body-bg);
+        }
+
+        header {
+          --gap: 0.375rem;
+          display: flex;
+          align-items: center;
+          column-gap: var(--gap);
+          background-color: var(--bs-primary);
+          padding: var(--gap) 1rem;
+        }
+
+        header button {
+          display: flex;
+          background-color: transparent;
+          border: none;
+        }
+
+        header button svg {
+          --size: 2.4rem;
+          width: var(--size);
+          height: var(--size);
+          fill: var(--bs-light);
+        }
+
+        header button:hover svg {
+          fill: var(--bs-gray-300);
+        }
+
+        section:has(> slot[name="top"]) {
+          margin-left: auto;
+        }
+
+        section.main > section.side {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          width: min(var(--width), 100%);
+          display: flex;
+          flex-direction: column;
+          transform: translateX(0);
+          transition: transform var(--time) var(--easing);
+          background-color: var(--bs-body-bg);
+          opacity: 0.99;
+          padding: 0.5rem 0;
+          border-right: 1px solid var(--bs-border-color-translucent);
+          z-index: 100;
+          overflow-y: auto;
+        }
+
+        :host(:not([open])) section.main > section.side {
+          /* Overlay-style side action. */
+          transform: translateX(-100%);
+        }
+
+        /* Close button */
+        section.main > section.side button {
+          margin-left: auto;
+          display: flex;
+          background-color: transparent;
+          padding: 0.5rem;
+          border: none;
+          margin-bottom: 1rem;
+          margin-right: 0.25rem;
+        }
+        section.main > section.side button svg {
+          --size: 24px;
+          width: var(--size);
+          height: var(--size);
+          fill: var(--bs-light);
+        }
+        section.main > section.side button:hover svg {
+          fill: var(--bs-gray-500);
+        }
+
+        section.main > main {
+          flex-grow: 1;
+          width: 100%;
+          display: flex;
+          flex-wrap: wrap;
+          align-items: start;
+          background-color: transparent;
+        }
+
+        footer {
+          min-height: 100px;
+          display: flex;
+          padding: 0.375rem 1rem;
+          background-color: var(--bs-light-bg-subtle);
+          border-top: 1px solid var(--bs-border-color-translucent);
+          margin-top: auto !important;
+        }
+
+        @media (width >= 768px) {
+          /* Shift-style side action. */
+
+          section.main {
+            position: relative;
+            /* Push down to footer */
+            flex-grow: 1;
+          }
+
+          section.main > section.side {
+            height: 100%;
+          }
+          section.main > main {
+            transform: translateX(calc(1 * var(--width)));
+            transition: transform var(--time) var(--easing);
+          }
+          :host(:not([open])) section.main > main {
+            transform: translateX(0);
+          }
+        }
+      `.use(this), this.#t.config = new class {
         get easing() {
           return t.__.easing;
         }
@@ -40,22 +158,22 @@ const { app: c, Mixins: h, author: u, component: e, mix: l } = await use("@/roll
         }
         update({
           /* Defaults */
-          easing: s = "ease-in-out",
+          easing: i = "ease-in-out",
           time: n = "200ms",
           width: a = "300px"
         } = {}) {
-          t.__.easing = s, t.__.width = a, t.attribute.time = n, t.send("_config", { detail: { easing: s, time: n, width: a } });
+          t.__.easing = i, t.__.width = a, t.attribute.time = n, t.send("_config", { detail: { easing: i, time: n, width: a } });
         }
-      }(), this.config.update(), o.on.transitionstart((s) => {
+      }(), this.config.update(), s.on.transitionstart((i) => {
         this.attribute.open ? this.send("_open_start") : this.send("_close_start");
-      }), o.on.transitionend((s) => {
+      }), s.on.transitionend((i) => {
         this.attribute.open ? this.send("_close_end") : this.send("_open_end"), this.__.time = 0;
-      }), i.on.click((s) => {
-        if (i.contains(s.target) && s.target.closest(".toggle")) {
+      }), o.on.click((i) => {
+        if (o.contains(i.target) && i.target.closest(".toggle")) {
           this.toggle();
           return;
         }
-        (s.target.closest("main") || !i.contains(s.target) && !s.target.closest('[slot="side"]')) && this.close();
+        (i.target.closest("main") || !o.contains(i.target) && !i.target.closest('[slot="side"]')) && this.close();
       });
     }
     get config() {
@@ -72,7 +190,7 @@ const { app: c, Mixins: h, author: u, component: e, mix: l } = await use("@/roll
     }
   },
   "frame-component"
-), _ = d({ id: "frame", parent: c });
+), u = p({ id: "frame", parent: l });
 export {
-  _ as frame
+  u as frame
 };

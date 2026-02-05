@@ -1,5 +1,5 @@
 /* Initialize import engine and load main sheet */
-import "../../../client/src/main.css";
+import "../../client/src/main.css";
 
 /* Load local sheet */
 import "./test.css";

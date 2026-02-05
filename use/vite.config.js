@@ -8,7 +8,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   build: {
     emptyOutDir: false,
-    outDir: "../../client/public/parcels",
+    outDir: "../client/src",
     minify: true,
     target: "es2022",
     rollupOptions: {
