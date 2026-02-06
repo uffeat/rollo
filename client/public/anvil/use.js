@@ -1,43 +1,75 @@
-const b = {}, y = (a) => Object.prototype.toString.call(a).slice(8, -1);
 class p extends Error {
-  static raise = (e, s) => {
-    throw s?.(), new p(e);
+  static raise = (e, t) => {
+    throw t?.(), new p(e);
   };
-  static if = (e, s, n) => {
-    typeof e == "function" && (e = e()), e && p.raise(s, n);
+  static if = (e, t, i) => {
+    typeof e == "function" && (e = e()), e && p.raise(t, i);
   };
   constructor(e) {
     super(e), this.name = "UseError";
   }
 }
-class g {
-  static create = (e) => e instanceof g ? e : new g(e);
+const L = {}, w = location.hostname === "localhost", M = "3869", R = typeof import.meta < "u" && typeof L < "u" && "production", S = new class {
+  #e = {};
+  get origin() {
+    return this.#e.origin;
+  }
+  set origin(o) {
+    this.#e.origin = o;
+  }
+}();
+class k {
+  #e = {};
+  constructor() {
+    const e = "https://rolloh.vercel.app";
+    S.origin = w ? "https://rollohdev.anvil.app" : "https://rolloh.anvil.app", w ? location.port === M ? this.#e.base = "" : this.#e.base = `http://localhost:${M}` : location.origin === e ? this.#e.base = "" : this.#e.base = e;
+  }
+  get DEV() {
+    return w;
+  }
+  /* Returns flag that indicates if running in Vite env. */
+  get VITE() {
+    return R;
+  }
+  get base() {
+    return this.#e.base;
+  }
+  set base(e) {
+    this.#e.base = e;
+  }
+  get server() {
+    return S;
+  }
+}
+const q = new k();
+class y {
+  static create = (e) => e instanceof y ? e : new y(e);
   #e = {
     detail: {}
   };
   constructor(e) {
     this.#e.specifier = e;
-    const [s, n] = e.split("?");
-    n ? this.#e.query = Object.freeze(
+    const [t, i] = e.split("?");
+    i ? this.#e.query = Object.freeze(
       Object.fromEntries(
-        Array.from(new URLSearchParams(n), ([l, r]) => {
-          if (r = r.trim(), r === "") return [l, !0];
-          if (r === "true") return [l, !0];
-          const i = Number(r);
-          return [l, Number.isNaN(i) ? r : i];
-        }).filter(([l, r]) => !["false", "null", "undefined"].includes(r))
+        Array.from(new URLSearchParams(i), ([n, a]) => {
+          if (a = a.trim(), a === "") return [n, !0];
+          if (a === "true") return [n, !0];
+          const l = Number(a);
+          return [n, Number.isNaN(l) ? a : l];
+        }).filter(([n, a]) => !["false", "null", "undefined"].includes(a))
       )
     ) : this.#e.query = null;
-    let t = s.split("/");
-    if (this.#e.source = t.shift(), t.at(-1) === "" && (t[t.length - 1] = `${t[t.length - 2]}.js`), t.includes("")) {
-      const l = t.findIndex((i) => i === ""), r = t[l + 1];
-      t[l] = r.split(".")[0];
+    let s = t.split("/");
+    if (this.#e.source = s.shift(), s.at(-1) === "" && (s[s.length - 1] = `${s[s.length - 2]}.js`), s.includes("")) {
+      const n = s.findIndex((l) => l === ""), a = s[n + 1];
+      s[n] = a.split(".")[0];
     }
-    const c = t.at(-1);
-    if (c && !c.includes(".") && (t[t.length - 1] = `${c}.js`), this.#e.parts = Object.freeze(t), this.#e.path = `/${t.join("/")}`, this.#e.full = `${this.#e.source}${this.#e.path}`, this.#e.file = t.at(-1), this.#e.file) {
+    const r = s.at(-1);
+    if (r && !r.includes(".") && (s[s.length - 1] = `${r}.js`), this.#e.parts = Object.freeze(s), this.#e.path = `/${s.join("/")}`, this.#e.full = `${this.#e.source}${this.#e.path}`, this.#e.file = s.at(-1), this.#e.file) {
       this.#e.stem = this.#e.file.split(".").at(0), this.#e.type = this.#e.file.split(".").at(-1);
-      const [l, ...r] = this.#e.file.split(".");
-      this.#e.types = r.join(".");
+      const [n, ...a] = this.#e.file.split(".");
+      this.#e.types = a.join(".");
     }
   }
   /* Returns detail for ad-hoc data.
@@ -86,12 +118,12 @@ class g {
     return this.#e.types;
   }
 }
-class w {
+class b {
   #e = {
     detail: {}
   };
-  constructor(e, s) {
-    this.#e.owner = e, this.#e.registry = s || /* @__PURE__ */ new Map();
+  constructor(e, t) {
+    this.#e.owner = e, this.#e.registry = t || /* @__PURE__ */ new Map();
   }
   get detail() {
     return this.#e.detail;
@@ -102,8 +134,8 @@ class w {
   get size() {
     return this.#e.registry.size;
   }
-  add(e, s) {
-    return this.#e.registry.set(e, s), this.owner;
+  add(e, t) {
+    return this.#e.registry.set(e, t), this.owner;
   }
   get(e) {
     return this.#e.registry.get(e);
@@ -115,73 +147,29 @@ class w {
     return this.#e.registry.keys();
   }
 }
-const m = new class {
+const g = (o) => Object.prototype.toString.call(o).slice(8, -1), d = new class {
   #e = {
     added: /* @__PURE__ */ new Map(),
     detail: {},
-    /* Rebuild native 'import' to prevent Vite from barking */
+    // Rebuild native 'import' to prevent Vite from barking
     import: Function("u", "return import(u)")
   };
   constructor() {
-    this.#e.meta = new class {
-      #t = {
-        detail: {}
-      };
-      constructor() {
-        const s = "3869", n = "https://rolloh.vercel.app";
-        this.#t.VITE = typeof import.meta < "u" && typeof b < "u" && "production", this.#t.DEV = location.hostname === "localhost", this.#t.env = this.#t.DEV ? "development" : "production", this.#t.embedded = window !== window.parent, this.#t.companion = new class {
-          #s = {};
-          constructor(t) {
-            this.#s.owner = t, this.#s.owner.embedded ? this.#s.origin = window.parent.location.origin : this.#s.origin = this.#s.owner.DEV ? "https://rollohdev.anvil.app" : "https://rolloh.anvil.app";
-          }
-          get origin() {
-            return this.#s.origin;
-          }
-        }(this), this.embedded ? this.#t.base = n : this.DEV ? location.port === s ? this.#t.base = "" : this.#t.base = `http://localhost:${s}` : this.origin === this.companion.origin ? this.#t.base = n : this.#t.base = "";
-      }
-      get DEV() {
-        return this.#t.DEV;
-      }
-      /* Returns flag that indicates if running in Vite env. */
-      get VITE() {
-        return this.#t.VITE;
-      }
-      get base() {
-        return this.#t.base;
-      }
-      set base(s) {
-        this.#t.base = s;
-      }
-      get companion() {
-        return this.#t.companion;
-      }
-      get detail() {
-        return this.#t.detail;
-      }
-      get embedded() {
-        return this.#t.embedded;
-      }
-      get env() {
-        return this.#t.env;
-      }
-      get origin() {
-        return location.origin;
-      }
-    }(), this.#e.sources = new w(this), this.#e.processors = new class extends w {
+    this.#e.meta = q, this.#e.sources = new b(this), this.#e.processors = new class extends b {
       #t = {};
-      constructor(s) {
-        const n = /* @__PURE__ */ new Map();
-        super(s, n), this.#t.registry = n;
+      constructor(t) {
+        const i = /* @__PURE__ */ new Map();
+        super(t, i), this.#t.registry = i;
       }
-      add(...s) {
-        const n = s.pop();
-        for (const t of s)
-          this.#t.registry.set(t, n);
+      add(...t) {
+        const i = t.pop();
+        for (const s of t)
+          this.#t.registry.set(s, i);
         return this.owner;
       }
-    }(this), this.#e.types = new w(this);
+    }(this), this.#e.types = new b(this);
   }
-  /* TODO Use or kill. */
+  // TODO Use or kill.
   get anvil() {
     return this.#e.anvil;
   }
@@ -197,331 +185,299 @@ const m = new class {
   get meta() {
     return this.#e.meta;
   }
-  /* Returns processors controller. 
-  NOTE Operates on 'path.types'. */
+  /* Returns processors controller. */
   get processors() {
     return this.#e.processors;
   }
-  /* Returns sources controller. 
-  NOTE Operates on 'path.source'. */
+  /* Returns sources controller. */
   get sources() {
     return this.#e.sources;
   }
-  /* Returns types controller
-  NOTE Operates on 'path.type'. */
+  /* Returns types controller. */
   get types() {
     return this.#e.types;
   }
   /* Injects asset. 
-  NOTE Useful for
-  - manually making objects use-importable (only do when  really necessary)
-  - overloading asset when testing parcels (knock yourself out!). */
-  add(e, s) {
-    return this.#e.added.set(e, s), this;
+  NOTE Inteded for overloading when testing parcels. */
+  add(e, t) {
+    return this.#e.added.set(e, t), this;
   }
   /* Defines getter. */
-  compose(e, s) {
+  compose(e, t) {
     return Object.defineProperty(this, e, {
       configurable: !0,
       enumerable: !1,
       get() {
-        return s;
+        return t;
       }
     }), this;
   }
-  /* Returns asset.
-  NOTE 
-  - Import engine centerpiece.
-  - "Standard" flow:
-    1. Get asset text from source as per registered source handler.
-    2. Transform asset text to asset as per registered type handler.
-    3. Process (apply) asset as per registered processor.
-  - "Non-standard" flow examples:
-    - Source handler does all the work and skips transformations and processing;
-      especially relevant for public assets, which can be applied as "hypermedia".
-    - Arguments instructs return of raw asset (asset text).
-    - Path-specific asset injected, which ignores source handlers;
-      useful for testing.
-  */
-  async get(e, ...s) {
-    const n = { ...s.find((l) => y(l) === "Object") || {} };
-    s = s.filter((l) => y(l) !== "Object");
-    const t = g.create(e);
-    let c;
-    if (this.#e.added.has(t.full) ? (c = this.#e.added.get(t.full), typeof c == "function" && (c = await c({ path: t }))) : (this.sources.has(t.source) || p.raise(`Invalid source: ${t.source}`), c = await this.sources.get(t.source)(
-      { options: { ...n }, owner: this, path: t },
-      ...s
-    )), t.detail.escape || c instanceof Error) return c;
-    if (n.raw)
-      return n.spec ? Object.freeze({
-        path: t.full,
-        source: t.source,
-        text: c,
-        type: t.type
-      }) : c;
-    if (t.detail.transform !== !1 && this.types.has(t.type)) {
-      const r = await this.types.get(t.type)(
-        c,
-        { options: { ...n }, owner: this, path: t },
-        ...s
+  /* Returns and processes asset. */
+  async get(e, ...t) {
+    const i = { ...t.find((n) => g(n) === "Object") || {} };
+    t = t.filter((n) => g(n) !== "Object");
+    const s = y.create(e);
+    let r;
+    if (this.#e.added.has(s.full) ? (r = this.#e.added.get(s.full), typeof r == "function" && (r = await r({ path: s }))) : (this.sources.has(s.source) || p.raise(`Invalid source: ${s.source}`), r = await this.sources.get(s.source)(
+      { options: { ...i }, owner: this, path: s },
+      ...t
+    )), s.detail.escape || r instanceof Error) return r;
+    if (i.raw)
+      return i.spec ? Object.freeze({
+        path: s.full,
+        source: s.source,
+        text: r,
+        type: s.type
+      }) : r;
+    if (s.detail.transform !== !1 && this.types.has(s.type)) {
+      const a = await this.types.get(s.type)(
+        r,
+        { options: { ...i }, owner: this, path: s },
+        ...t
       );
-      r !== void 0 && (c = r);
+      a !== void 0 && (r = a);
     }
-    if (t.detail.process !== !1 && this.processors.has(t.types)) {
-      const r = await this.processors.get(t.types)(
-        c,
-        { options: { ...n }, owner: this, path: t },
-        ...s
+    if (s.detail.process !== !1 && this.processors.has(s.types)) {
+      const a = await this.processors.get(s.types)(
+        r,
+        { options: { ...i }, owner: this, path: s },
+        ...t
       );
-      r !== void 0 && (c = r);
+      a !== void 0 && (r = a);
     }
-    return c;
+    return r;
   }
-  /* Native import */
+  /* Returns module (native 'import' frunction) */
   async import(e) {
     return this.#e.import(e);
   }
-  /* Returns uncached constructed module.
-  NOTE Provided as a service to handlers. */
-  async module(e, s) {
-    s && (e = `${e}
-//# sourceURL=${s}`);
-    const n = URL.createObjectURL(
+  /* Returns uncached constructed module. */
+  // NOTE Provided as a service to handlers.
+  async module(e, t) {
+    t && (e = `${e}
+//# sourceURL=${t}`);
+    const i = URL.createObjectURL(
       new Blob([e], { type: "text/javascript" })
-    ), t = await this.import(n);
-    return URL.revokeObjectURL(n), t;
+    ), s = await this.import(i);
+    return URL.revokeObjectURL(i), s;
   }
-}(), h = new Proxy(async () => {
+}(), u = new Proxy(async () => {
 }, {
-  get(a, e) {
+  get(o, e) {
     if (e === "assets")
-      return m;
-    const s = m[e];
-    return typeof s == "function" ? s.bind(m) : s;
+      return d;
+    const t = d[e];
+    return typeof t == "function" ? t.bind(d) : t;
   },
-  set(a, e, s) {
-    return m[e] = s, !0;
+  set(o, e, t) {
+    return d[e] = t, !0;
   },
-  apply(a, e, s) {
-    return m.get(...s);
+  apply(o, e, t) {
+    return d.get(...t);
   }
 });
 Object.defineProperty(globalThis, "use", {
-  configurable: m.meta.DEV,
+  configurable: d.meta.DEV,
   enumerable: !0,
-  writable: m.meta.DEV,
-  value: h
+  writable: d.meta.DEV,
+  value: u
 });
-(() => {
-  const a = /* @__PURE__ */ new Map(), e = /* @__PURE__ */ new Map();
-  h.sources.add("/", async ({ options: s, owner: n, path: t }) => {
-    const { as: c, raw: l } = s;
-    if (t.type === "css" && c === void 0 && l !== !0) {
-      h.meta.DEV && await h(t.path, { raw: !0 });
-      const r = `${n.meta.base}${t.path}`;
-      let i = document.head.querySelector(
-        `link[rel="stylesheet"][href="${r}"]`
-      );
-      if (i)
-        return e.has(r) ? e.get(r) : i;
-      i = document.createElement("link"), i.rel = "stylesheet", i.href = r;
-      const { promise: f, resolve: o, reject: u } = Promise.withResolvers();
-      return e.set(r, f), i.addEventListener(
+window.dispatchEvent(new CustomEvent("_use"));
+const _ = /* @__PURE__ */ new Map(), h = /* @__PURE__ */ new Map();
+u.sources.add("/", async ({ options: o, owner: e, path: t }) => {
+  const { as: i, raw: s } = o;
+  if (t.type === "css" && i === void 0 && s !== !0) {
+    u.meta.DEV && await u(t.path, { raw: !0 });
+    const r = `${e.meta.base}${t.path}`;
+    let n = document.head.querySelector(
+      `link[rel="stylesheet"][href="${r}"]`
+    );
+    if (n)
+      return h.has(r) ? h.get(r) : n;
+    n = document.createElement("link"), n.rel = "stylesheet", n.href = r;
+    const { promise: a, resolve: l, reject: c } = Promise.withResolvers();
+    return h.set(r, a), n.addEventListener(
+      "load",
+      (f) => {
+        l(n), h.delete(r);
+      },
+      { once: !0 }
+    ), n.addEventListener(
+      "error",
+      (f) => {
+        h.delete(r), c(new p(`Failed to load sheet: ${r}`));
+      },
+      { once: !0 }
+    ), document.head.append(n), await a;
+  }
+  if (t.type === "js" && s !== !0) {
+    if (i === "script") {
+      const r = `${e.meta.base}${t.path}`;
+      let n = document.head.querySelector(`script[src="${r}"]`);
+      if (n)
+        return h.has(r) ? h.get(r) : !0;
+      n = document.createElement("script"), n.src = r;
+      const { promise: a, resolve: l, reject: c } = Promise.withResolvers();
+      return h.set(r, a), n.addEventListener(
         "load",
-        (d) => {
-          o(i), e.delete(r);
+        (f) => {
+          h.delete(r), l(!0);
         },
         { once: !0 }
-      ), i.addEventListener(
+      ), n.addEventListener(
         "error",
-        (d) => {
-          e.delete(r), u(new p(`Failed to load sheet: ${r}`));
+        (f) => {
+          h.delete(r), c(new p(`Failed to load script: ${r}`));
         },
         { once: !0 }
-      ), document.head.append(i), await f;
+      ), document.head.append(n), await a;
     }
-    if (t.type === "js" && l !== !0) {
-      if (c === "script") {
-        const r = `${n.meta.base}${t.path}`;
-        let i = document.head.querySelector(`script[src="${r}"]`);
-        if (i)
-          return e.has(r) ? e.get(r) : !0;
-        i = document.createElement("script"), i.src = r;
-        const { promise: f, resolve: o, reject: u } = Promise.withResolvers();
-        return e.set(r, f), i.addEventListener(
-          "load",
-          (d) => {
-            e.delete(r), o(!0);
-          },
-          { once: !0 }
-        ), i.addEventListener(
-          "error",
-          (d) => {
-            e.delete(r), u(new p(`Failed to load script: ${r}`));
-          },
-          { once: !0 }
-        ), document.head.append(i), await f;
-      }
-      if (c === void 0)
-        return await n.import(`${n.meta.base}${t.path}`);
+    if (i === void 0)
+      return await e.import(`${e.meta.base}${t.path}`);
+  }
+  if (_.has(t.full))
+    return _.get(t.full);
+  if (h.has(t.full)) {
+    const n = await h.get(t.full);
+    return h.delete(t.full), n;
+  } else {
+    const { promise: r, resolve: n, reject: a } = Promise.withResolvers();
+    h.set(t.full, r);
+    try {
+      const l = (await (await fetch(`${e.meta.base}${t.path}`, {
+        cache: "no-store"
+      })).text()).trim(), c = document.createElement("div");
+      return c.innerHTML = l, c.querySelector("meta[index]") && p.raise(`Invalid path: ${t.full}`), _.set(t.full, l), n(l), l;
+    } catch (l) {
+      throw a(l), l;
+    } finally {
+      h.delete(t.full);
     }
-    if (a.has(t.full))
-      return a.get(t.full);
-    if (e.has(t.full)) {
-      const i = await e.get(t.full);
-      return e.delete(t.full), i;
-    } else {
-      const { promise: r, resolve: i, reject: f } = Promise.withResolvers();
-      e.set(t.full, r);
-      try {
-        const o = (await (await fetch(`${n.meta.base}${t.path}`, {
-          cache: "no-store"
-        })).text()).trim(), u = document.createElement("div");
-        return u.innerHTML = o, u.querySelector("meta[index]") && p.raise(`Invalid path: ${t.full}`), a.set(t.full, o), i(o), o;
-      } catch (o) {
-        throw f(o), o;
-      } finally {
-        e.delete(t.full);
-      }
-    }
-  });
-})();
-(() => {
-  const a = /* @__PURE__ */ new Map();
-  h.sources.add("@", ({ path: e }) => {
-    if (a.has(e.full))
-      return a.get(e.full);
-    const s = document.createElement("meta");
-    document.head.append(s), s.setAttribute("__path__", e.path);
-    const n = getComputedStyle(s).getPropertyValue("--__asset__").trim();
-    s.remove(), n || p.raise(`Invalid path: ${e.full}`);
-    const t = atob(n.slice(1, -1));
-    return a.set(e.full, t), t;
-  });
-})();
-h.types.add(
-  "css",
-  /* @__PURE__ */ (() => {
-    const a = /* @__PURE__ */ new Map();
-    return async (e, { path: s }) => {
-      if (typeof e != "string") return;
-      const { Sheet: n } = await h("@/rollo/"), t = s.full;
-      if (a.has(t)) return a.get(t);
-      const c = n.create(e, t);
-      return a.set(t, c), c;
-    };
-  })()
-).processors.add("css", async (a, e, ...s) => {
-  if (y(a) !== "CSSStyleSheet") return;
-  const n = s.filter(
-    (t) => y(t) === "HTMLDocument" || t instanceof ShadowRoot || t.shadowRoot
-  );
-  n.length && a.use(...n);
+  }
 });
-h.processors.add(
+const v = /* @__PURE__ */ new Map();
+u.sources.add("@", ({ path: o }) => {
+  if (v.has(o.full))
+    return v.get(o.full);
+  const e = document.createElement("meta");
+  document.head.append(e), e.setAttribute("__path__", o.path);
+  const t = getComputedStyle(e).getPropertyValue("--__asset__").trim();
+  e.remove(), t || p.raise(`Invalid path: ${o.full}`);
+  const i = atob(t.slice(1, -1));
+  return v.set(o.full, i), i;
+});
+const $ = /* @__PURE__ */ new Map();
+u.types.add("css", async (o, { path: e }) => {
+  if (typeof o != "string") return;
+  const { Sheet: t } = await u("@/rollo/"), i = e.full;
+  if ($.has(i)) return $.get(i);
+  const s = t.create(o, i);
+  return $.set(i, s), s;
+});
+const j = /* @__PURE__ */ new Map(), m = /* @__PURE__ */ new Map();
+u.types.add("js", async (o, { options: e, owner: t, path: i }) => {
+  if (typeof o != "string") return;
+  let s;
+  const { as: r } = e, n = r === "function" ? `${i.full}?${r}` : i.full;
+  if (j.has(n))
+    return j.get(n);
+  if (m.has(n)) {
+    const l = await m.get(n);
+    return m.delete(n), l;
+  } else {
+    const { promise: a, resolve: l, reject: c } = Promise.withResolvers();
+    m.set(n, a);
+    try {
+      return r === "function" ? (s = Function(`return ${o}`)(), s === void 0 && (s = null)) : s = await t.module(
+        `export const __path__ = "${i.path}";${o}`,
+        i.path
+      ), l(s), j.set(n, s), s;
+    } catch (f) {
+      throw c(f), f;
+    } finally {
+      m.delete(n);
+    }
+  }
+});
+u.types.add("json", (o) => {
+  if (typeof o == "string")
+    return JSON.parse(o);
+});
+const E = /* @__PURE__ */ new Map();
+u.types.add("md", async (o, { options: e, path: t }) => {
+  if (e.raw) return;
+  if (e.cache !== !1 && E.has(t.full))
+    return E.get(t.full);
+  if (typeof o != "string") return;
+  const { marked: i } = await u("@/marked");
+  let s;
+  if (o.startsWith("---")) {
+    const { YAML: r } = await u("@/yaml"), [n, a] = o.split("---").slice(1), l = Object.freeze(r.parse(n)), c = i.parse(a);
+    s = Object.freeze({ meta: l, html: c });
+  } else
+    s = i.parse(o);
+  return e.cache !== !1 && E.set(t.full, s), s;
+});
+u.processors.add(
   "html",
   "template",
-  async (a, { options: e, owner: s, path: n }) => {
-    if (!e.convert || typeof a != "string") return;
-    const { component: t } = await h("@/rollo/");
-    return t.from(a);
+  async (o, { options: e, owner: t, path: i }) => {
+    if (!e.convert || typeof o != "string") return;
+    const { component: s } = await u("@/rollo/");
+    return s.from(o);
   }
 );
-(() => {
-  const a = /* @__PURE__ */ new Map(), e = /* @__PURE__ */ new Map();
-  h.types.add("js", async (s, { options: n, owner: t, path: c }) => {
-    if (typeof s != "string") return;
-    let l;
-    const { as: r } = n, i = r === "function" ? `${c.full}?${r}` : c.full;
-    if (a.has(i))
-      return a.get(i);
-    if (e.has(i)) {
-      const o = await e.get(i);
-      return e.delete(i), o;
-    } else {
-      const { promise: f, resolve: o, reject: u } = Promise.withResolvers();
-      e.set(i, f);
-      try {
-        return r === "function" ? (l = Function(`return ${s}`)(), l === void 0 && (l = null)) : l = await t.module(
-          `export const __path__ = "${c.path}";${s}`,
-          c.path
-        ), o(l), a.set(i, l), l;
-      } catch (d) {
-        throw u(d), d;
-      } finally {
-        e.delete(i);
-      }
-    }
-  });
-})();
-h.types.add("json", (a) => {
-  if (typeof a == "string")
-    return JSON.parse(a);
+u.processors.add("css", async (o, e, ...t) => {
+  if (g(o) !== "CSSStyleSheet") return;
+  const i = t.filter(
+    (s) => g(s) === "HTMLDocument" || s instanceof ShadowRoot || s.shadowRoot
+  );
+  i.length && o.use(...i);
 });
-(() => {
-  const a = /* @__PURE__ */ new Map();
-  h.types.add("md", async (e, { options: s, owner: n, path: t }) => {
-    if (s.raw) return;
-    if (s.cache !== !1 && a.has(t.full))
-      return a.get(t.full);
-    if (typeof e != "string") return;
-    const { marked: c } = await h("@/marked");
-    let l;
-    if (e.startsWith("---")) {
-      const { YAML: r } = await h("@/yaml"), [i, f] = e.split("---").slice(1), o = Object.freeze(r.parse(i)), u = c.parse(f);
-      l = Object.freeze({ meta: o, html: u });
+const A = /* @__PURE__ */ new Map();
+u.processors.add("x.html", "x.template", async (o, { path: e }) => {
+  if (typeof o != "string") return;
+  const { component: t, Sheet: i } = await u("@/rollo/");
+  if (A.has(e.full)) return A.get(e.full);
+  const s = t.div({ innerHTML: o }), r = await u.module(
+    `export const __path__ = "${e.path}";${s.querySelector("script").textContent.trim()}`,
+    e.path
+  ), n = Object.fromEntries(
+    Object.entries(r).filter(([c, f]) => f instanceof HTMLElement)
+  ), a = {};
+  for (const c of s.querySelectorAll("style")) {
+    if (c.hasAttribute("for")) {
+      const f = c.getAttribute("for"), O = i.create(
+        `[uid="${n[f].uid}"] { ${c.textContent.trim()} }`
+      );
+      c.hasAttribute("global") && O.use(), c.hasAttribute("name") && (a[c.getAttribute("name")] = O);
+      continue;
+    }
+    if (c.hasAttribute("global")) {
+      const f = i.create(c.textContent.trim()).use();
+      c.hasAttribute("name") && (a[c.getAttribute("name")] = f);
     } else
-      l = c.parse(e);
-    return s.cache !== !1 && a.set(t.full, l), l;
-  });
-})();
-(() => {
-  const a = /* @__PURE__ */ new Map();
-  h.processors.add("x.html", "x.template", async (e, { path: s }) => {
-    if (typeof e != "string") return;
-    const { component: n, Sheet: t } = await h("@/rollo/");
-    if (a.has(s.full)) return a.get(s.full);
-    const c = n.div({ innerHTML: e }), l = await h.module(
-      `export const __path__ = "${s.path}";${c.querySelector("script").textContent.trim()}`,
-      s.path
-    ), r = Object.fromEntries(
-      Object.entries(l).filter(([o, u]) => u instanceof HTMLElement)
-    ), i = {};
-    for (const o of c.querySelectorAll("style")) {
-      if (o.hasAttribute("for")) {
-        const u = o.getAttribute("for"), d = t.create(
-          `[uid="${r[u].uid}"] { ${o.textContent.trim()} }`
-        );
-        o.hasAttribute("global") && d.use(), o.hasAttribute("name") && (i[o.getAttribute("name")] = d);
+      a[c.hasAttribute("name") ? c.getAttribute("name") : "__sheet__"] = i.create(c.textContent.trim());
+  }
+  for (const c of s.querySelectorAll("template"))
+    a[c.hasAttribute("name") ? c.getAttribute("name") : "__template__"] = c.innerHTML.trim();
+  Object.freeze(a);
+  const l = { __type__: "Module", assets: a };
+  for (const [c, f] of Object.entries(r)) {
+    if (typeof f == "function") {
+      if (c === "setup") {
+        await f.call(a, a);
         continue;
       }
-      if (o.hasAttribute("global")) {
-        const u = t.create(o.textContent.trim()).use();
-        o.hasAttribute("name") && (i[o.getAttribute("name")] = u);
-      } else
-        i[o.hasAttribute("name") ? o.getAttribute("name") : "__sheet__"] = t.create(o.textContent.trim());
+      l[c] = f.bind(a);
+      continue;
     }
-    for (const o of c.querySelectorAll("template"))
-      i[o.hasAttribute("name") ? o.getAttribute("name") : "__template__"] = o.innerHTML.trim();
-    Object.freeze(i);
-    const f = { __type__: "Module", assets: i };
-    for (const [o, u] of Object.entries(l)) {
-      if (typeof u == "function") {
-        if (o === "setup") {
-          await u.call(i, i);
-          continue;
-        }
-        f[o] = u.bind(i);
-        continue;
-      }
-      f[o] = u;
-    }
-    return a.set(s.full, Object.freeze(f)), f;
-  });
-})();
-window.dispatchEvent(new CustomEvent("_use"));
+    l[c] = f;
+  }
+  return A.set(e.full, Object.freeze(l)), l;
+});
 export {
   p as UseError,
-  m as assets,
-  h as default
+  d as assets,
+  u as default
 };

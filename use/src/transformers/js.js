@@ -10,7 +10,7 @@ const cache = new Map();
 const processing = new Map();
 
 use.types.add("js", async (text, { options, owner, path }) => {
-  /* Type guard */
+  // Type guard
   if (!(typeof text === "string")) return;
   let result;
   const { as } = options;
@@ -30,7 +30,7 @@ use.types.add("js", async (text, { options, owner, path }) => {
       if (as === "function") {
         result = Function(`return ${text}`)();
         if (result === undefined) {
-          /* Since undefined results are ignored, convert to null */
+          // Since undefined results are ignored, convert to null
           result = null;
         }
       } else {

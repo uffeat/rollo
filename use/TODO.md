@@ -1,4 +1,0 @@
-- Split up into modules
-- Transfer non-standard handler to relevant parcels
-- Consider inlining core handlers (sources, types and processors)
-- Consider refactoring 'use' from proxy to patched-up function to avoid issues in Anvil... On the other hand, as long as 'assets' is exposed that can be used in Anvil instead.

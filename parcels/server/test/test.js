@@ -54,3 +54,6 @@ const run = (() => {
     })()
   );
 })();
+
+//
+await run('/echo.test.js')

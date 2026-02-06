@@ -5,7 +5,7 @@
 import { use } from "../use";
 
 use.types.add("json", (result) => {
-  /* Type guard */
+  // Type guard
   if (!(typeof result === "string")) return;
   return JSON.parse(result);
 });

@@ -11,7 +11,7 @@ export const server = new Proxy(
       return async (...args) => {
         return _fetch(
           `${
-            use.meta.companion.origin
+            use.meta.server.origin
           }/_/api/main?name=${name}&submission=${Submission()}`,
           ...args
         );
