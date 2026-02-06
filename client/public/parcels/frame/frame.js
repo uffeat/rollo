@@ -1,8 +1,8 @@
-const { app: l, css: c, Mixins: d, author: g, component: e, mix: m } = await use("@/rollo/"), h = await use("@/bootstrap/reboot.css"), r = {
+const { app: l, breakpoints: c, css: d, Mixins: m, author: g, component: e, mix: h } = await use("@/rollo/"), p = await use("@/bootstrap/reboot.css"), r = {
   close: await use("@/icons/close.svg"),
   menu: await use("@/icons/menu.svg")
-}, p = g(
-  class extends m(HTMLElement, {}, ...d()) {
+}, u = g(
+  class extends h(HTMLElement, {}, ...m()) {
     #t = {};
     constructor() {
       super();
@@ -26,7 +26,7 @@ const { app: l, css: c, Mixins: d, author: g, component: e, mix: m } = await use
         e.section("main", s, e.main(e.slot())),
         e.footer()
       );
-      this.attachShadow({ mode: "open" }).append(o), h.use(this), c`
+      this.attachShadow({ mode: "open" }).append(o), p.use(this), d`
         #root {
           position: relative;
           width: 100%;
@@ -62,7 +62,7 @@ const { app: l, css: c, Mixins: d, author: g, component: e, mix: m } = await use
           fill: var(--bs-gray-300);
         }
 
-        section:has(> slot[name="top"]) {
+        section:has(${'> slot[name="top"]'}) {
           margin-left: auto;
         }
 
@@ -126,7 +126,7 @@ const { app: l, css: c, Mixins: d, author: g, component: e, mix: m } = await use
           margin-top: auto !important;
         }
 
-        @media (width >= 768px) {
+        @media (${"width >= "}${c.md}px) {
           /* Shift-style side action. */
 
           section.main {
@@ -190,7 +190,7 @@ const { app: l, css: c, Mixins: d, author: g, component: e, mix: m } = await use
     }
   },
   "frame-component"
-), u = p({ id: "frame", parent: l });
+), b = u({ id: "frame", parent: l });
 export {
-  u as frame
+  b as frame
 };

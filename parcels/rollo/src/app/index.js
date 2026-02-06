@@ -1,15 +1,13 @@
 import { Mixins, author, component, mix } from "../component/index";
 import { stateMixin } from "../state/index";
 
-console.log('Creating app component')////
-
 const TAG = "div";
 
 const App = author(
   class extends mix(
     document.createElement(TAG).constructor,
     {},
-    ...Mixins(stateMixin)
+    ...Mixins(stateMixin),
   ) {
     #_ = {};
     constructor() {
@@ -19,15 +17,15 @@ const App = author(
       this.#_.shadow = component.div(
         { id: "root" },
         this.#_.slot,
-        this.#_.dataSlot
+        this.#_.dataSlot,
       );
       this.attachShadow({ mode: "open" }).append(this.#_.shadow);
       this.attribute.app = true;
       this.attribute.webComponent = true;
     }
   },
-  "app-component",////
-  TAG
+  "app-component",
+  TAG,
 );
 
 export const app = App({ id: "app", parent: document.body });
@@ -55,7 +53,7 @@ export const breakpoints = Object.freeze({
   md: 768,
   lg: 1024,
   xl: 1280,
-  '2xl': 1536,
+  "2xl": 1536,
 });
 for (const [key, value] of Object.entries(breakpoints)) {
   const query = window.matchMedia(`(width >= ${value}px)`);
@@ -111,6 +109,5 @@ app.$.effects.add(
       app.send("_resize_y", { detail: Y });
     }
   },
-  ["X", "Y"]
+  ["X", "Y"],
 );
-

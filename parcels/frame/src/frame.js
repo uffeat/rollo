@@ -1,6 +1,7 @@
 import "../use";
 
-const { app, css, Mixins, author, component, mix } = await use("@/rollo/");
+const { app, breakpoints, css, Mixins, author, component, mix } =
+  await use("@/rollo/");
 
 /* Get shadow sheets */
 const reboot = await use("@/bootstrap/reboot.css");
@@ -50,7 +51,7 @@ const Frame = author(
           flex-direction: column;
           background-color: var(--bs-body-bg);
         }
-
+        
         header {
           --gap: 0.375rem;
           display: flex;
@@ -77,7 +78,7 @@ const Frame = author(
           fill: var(--bs-gray-300);
         }
 
-        section:has(> slot[name="top"]) {
+        section:has(${'> slot[name="top"]'}) {
           margin-left: auto;
         }
 
@@ -141,7 +142,9 @@ const Frame = author(
           margin-top: auto !important;
         }
 
-        @media (width >= 768px) {
+        /* Interpolate query to use 'breakpoints' and to prevent the linter 
+        from (harmless) barking (does not like ' >='). */
+        @media (${"width >= "}${breakpoints.md}px) {
           /* Shift-style side action. */
 
           section.main {
@@ -184,7 +187,7 @@ const Frame = author(
           width = "300px",
         } = {}) {
           /* NOTE Store config items on components to avoid holding private 
-          values and to private an alternative way to config, i.e., directly 
+          values and to provide an alternative way to config, i.e., directly 
           on component. */
           owner.__.easing = easing;
           owner.__.width = width;

@@ -29,4 +29,6 @@ export default async () => {
     component.button("btn.btn-success", { text: "Button" }),
     component.button("btn.btn-success", { text: "Button" })
   );
+
+  component.a({text: 'Log in', parent: frame, slot: 'top'})
 };

@@ -1563,9 +1563,7 @@ function Zt(r) {
   }
   return t;
 }
-const It = (r, t, e) => (W.add(r, t, e), M(r, "create", Z(r)), r.create);
-console.log("Creating app component");
-const Y = "div", Dt = It(
+const It = (r, t, e) => (W.add(r, t, e), M(r, "create", Z(r)), r.create), Y = "div", Dt = It(
   class extends Q(
     document.createElement(Y).constructor,
     {},
@@ -1581,7 +1579,6 @@ const Y = "div", Dt = It(
     }
   },
   "app-component",
-  ////
   Y
 ), w = Dt({ id: "app", parent: document.body }), qt = Object.freeze({
   sm: 640,
