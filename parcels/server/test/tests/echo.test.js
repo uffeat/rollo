@@ -2,7 +2,7 @@
 /echo.test.js
 */
 
-const { Exception, match, component } = await use("@/rollo/");
+const { Exception, match } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
 const { server } = await use("@/server");
 
@@ -16,4 +16,10 @@ export default async () => {
   const { result: _dto, meta } = await use.server.echo(dto[0], ...dto[1]);
   Exception.if(!match(dto, _dto), `Server connection could not be verified.`);
   console.info("Server connection verified for:", meta);
+
+  await (async () => {
+    const response = await server.echo(42);
+    const result = response.result;
+    console.log("result:", result);
+  })();
 };
