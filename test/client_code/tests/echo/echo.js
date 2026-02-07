@@ -2,10 +2,37 @@
 echo/echo.js
 */
 
-export default () => {
+export default async () => {
+ 
 
-  console.log('result:', use('@@/echo/')(42))
+  await (async () => {
+    const echo = await use("@@/echo/");
+    const result = echo(42);
+    console.log("result:", result);
+  })();
 
+  await (async () => {
+    const echo = (await use("@/echo")).echo;
+    const result = echo(42);
+    console.log("result:", result);
+  })();
 
+  await (async () => {
+    const echo = (await use("/echo")).echo;
+    const result = echo(42);
+    console.log("result:", result);
+  })();
 
-}
+  await (async () => {
+    const echo = (await use("assets/echo.js")).echo;
+    const result = echo(42);
+    console.log("result:", result);
+  })();
+
+  await (async () => {
+    const echo = await use("rpc/echo", { spinner: true });
+    const response = await echo(42);
+    const result = response.result;
+    console.log("result:", result);
+  })();
+};
