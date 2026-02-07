@@ -20,7 +20,7 @@ export class Path {
 
     const [path, search] = specifier.split("?");
 
-    /* Build query */
+    // Build query
     if (search) {
       this.#_.query = Object.freeze(
         Object.fromEntries(
@@ -44,15 +44,15 @@ export class Path {
     handy during construction. However, the this.source getter returns '/' for 
     falsy (i.e., '') this.#_.source values. */
 
-    /** Handle shortcuts */
+    //* Handle shortcuts
 
-    /* Trailing '/' -> repeats last part with js type. Example: */
+    // Trailing '/' -> repeats last part with js type. Example:
     () => "@/foo/" === "@/foo/foo.js";
 
     if (parts.at(-1) === "") {
       parts[parts.length - 1] = `${parts[parts.length - 2]}.js`;
     }
-    /* '//' in path -> repeats next part without any types. Examples: */
+    // '//' in path -> repeats next part without any types. Examples:
     () => "/foo//bar.css" === "@/foo/foo.js";
     () => "@//foo.js" === "@/foo/foo.js";
 
@@ -61,13 +61,13 @@ export class Path {
       const next = parts[index + 1];
       parts[index] = next.split(".")[0];
     }
-    /* Missing type -> default to js */
+    // Missing type -> default to js
     const file = parts.at(-1);
     if (file && !file.includes(".")) {
       parts[parts.length - 1] = `${file}.js`;
     }
 
-    /** Build props */
+    // Build props
     this.#_.parts = Object.freeze(parts);
     this.#_.path = `/${parts.join("/")}`;
     this.#_.full = `${this.#_.source}${this.#_.path}`;
@@ -131,8 +131,20 @@ export class Path {
     return this.#_.type;
   }
 
+  /* Sets file type.
+  NOTE Intended for special use by handlers. */
+  set type(type) {
+    this.#_.type = type;
+  }
+
   /* Returns string with pseudo files types and declared file type. */
   get types() {
     return this.#_.types;
+  }
+
+  /* Sets file types.
+  NOTE Intended for special use by handlers. */
+  set types(types) {
+    this.#_.types = types;
   }
 }

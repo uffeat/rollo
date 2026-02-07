@@ -43,6 +43,10 @@ def main():
         if path:
             return (Path.cwd() / f"{TESTS}/{path}").read_text(encoding=UTF_8)
         return True
+    
+    @callable_
+    def access():
+        return True
 
     keep_connection()
 

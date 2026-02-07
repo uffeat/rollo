@@ -5,9 +5,6 @@ echo/echo.py
 
 def main(use):
 
-  
-
-  
     echo = use("@@/echo/")
     result = echo(42)
     print("result:", result)
@@ -28,7 +25,3 @@ def main(use):
     response = echo(42)
     result = response.get("result")
     print("result:", result)
-
-
-
-

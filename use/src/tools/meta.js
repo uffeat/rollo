@@ -1,7 +1,5 @@
-/* Create DEV flag that also works in a non-Vite context. */
+// Create DEV flag that also works in a non-Vite context.
 const DEV = location.hostname === "localhost";
-
-const PORT = "3869";
 
 /* Determine if running in Vite context */
 const VITE =
@@ -9,8 +7,9 @@ const VITE =
   typeof import.meta.env !== "undefined" &&
   import.meta.env.MODE;
 
-const server = new (class {
+const server = new (class Server {
   #_ = {};
+
   get origin() {
     return this.#_.origin;
   }
@@ -20,30 +19,28 @@ const server = new (class {
   }
 })();
 
-class Meta {
+export const meta = new (class Meta {
   #_ = {};
 
   constructor() {
-    const BASE = "https://rolloh.vercel.app";
-
-    /* Server */
-    server.origin = DEV
-      ? "https://rollohdev.anvil.app"
-      : "https://rolloh.anvil.app";
-
-    /* Base */
+    // Set base and server origin
     if (DEV) {
+      const PORT = "3869";
       if (location.port === PORT) {
         this.#_.base = "";
       } else {
-        /* Port-awareness allows access to dev public when testing parcels. */
+        // Port-awareness allows access to dev public when testing parcels
         this.#_.base = `http://localhost:${PORT}`;
       }
+      server.origin = "https://rollohdev.anvil.app";
     } else {
+      const BASE = "https://rolloh.vercel.app";
       if (location.origin === BASE) {
         this.#_.base = "";
+        server.origin = "https://rolloh.anvil.app";
       } else {
         this.#_.base = BASE;
+        server.origin = location.origin;
       }
     }
   }
@@ -68,6 +65,4 @@ class Meta {
   get server() {
     return server;
   }
-}
-
-export const meta = new Meta();
+})();

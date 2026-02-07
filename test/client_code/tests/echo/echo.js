@@ -39,7 +39,7 @@ export default async () => {
   await (async () => {
     const { server } = await use("@/server");
     const response = await server.echo(42);
-    const result = response.result;
-    console.log("result:", result);
+    //const result = response.result;
+    //console.log("result:", result);
   })();
 };
