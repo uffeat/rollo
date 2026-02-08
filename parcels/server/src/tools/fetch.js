@@ -18,6 +18,7 @@ const _fetch = async (url, ...args) => {
     ...options,
   });
   const parsed = await response.json();
+  parsed.response = response
   Exception.if("__error__" in parsed, parsed.__error__);
   return parsed;
 };

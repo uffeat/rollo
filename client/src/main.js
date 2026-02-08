@@ -6,16 +6,23 @@ import "@/use";
 /* Set up routes */
 import "@/routes";
 
-
 const { InputFile, app, component, is, css, ref } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
 const { server } = await use("@/server");
 
+await (async () => {
+  const { server } = await use("@/server");
+  const response = await server.cookie();
+  const result = response.result;
+  console.log("result:", result);
+})();
 
-
-
-
-
+await (async () => {
+  const { server } = await use("@/server");
+  const response = await server.cookie();
+  const result = response.result;
+  console.log("result:", result);
+})();
 
 if (import.meta.env.DEV) {
   /* Initialize DEV testbench */

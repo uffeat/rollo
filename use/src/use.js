@@ -35,7 +35,6 @@ const assets = new (class Assets {
     this.#_.types = new Registry(this);
   }
 
-  // TODO Use or kill.
   get anvil() {
     return this.#_.anvil;
   }
