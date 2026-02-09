@@ -12,7 +12,7 @@ export const server = new Proxy(
         return _fetch(
           `${
             use.meta.server.origin
-          }/_/api/main?name=${name}&submission=${Submission()}`,
+          }/_/api/main?name=${name}&session=${use.meta.session}&submission=${Submission()}`,
           ...args
         );
       };

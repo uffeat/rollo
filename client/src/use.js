@@ -9,7 +9,7 @@ class p extends Error {
     super(e), this.name = "UseError";
   }
 }
-const S = {}, M = location.hostname === "localhost", L = typeof import.meta < "u" && typeof S < "u" && "production", y = new class {
+const M = {}, L = location.hostname === "localhost", S = typeof import.meta < "u" && typeof M < "u" && "production", y = new class {
   #e = {};
   get origin() {
     return this.#e.origin;
@@ -20,20 +20,24 @@ const S = {}, M = location.hostname === "localhost", L = typeof import.meta < "u
 }(), R = new class {
   #e = {};
   constructor() {
-    if (M) {
+    if (L) {
       const e = "3869";
       location.port === e ? this.#e.base = "" : this.#e.base = `http://localhost:${e}`, y.origin = "https://rollohdev.anvil.app";
     } else {
       const e = "https://rolloh.vercel.app";
-      location.origin === e ? (this.#e.base = "", y.origin = "https://rolloh.anvil.app") : (this.#e.base = e, y.origin = location.origin);
+      location.origin === e ? (this.#e.base = "", y.origin = "https://rolloh.anvil.app") : (this.#e.base = e, y.origin = location.origin, this.#e.ANVIL = !0);
     }
+    this.#e.session = crypto.randomUUID();
+  }
+  get ANVIL() {
+    return this.#e.ANVIL || !1;
   }
   get DEV() {
-    return M;
+    return L;
   }
   /* Returns flag that indicates if running in Vite env. */
   get VITE() {
-    return L;
+    return S;
   }
   get base() {
     return this.#e.base;
@@ -43,6 +47,9 @@ const S = {}, M = location.hostname === "localhost", L = typeof import.meta < "u
   }
   get server() {
     return y;
+  }
+  get session() {
+    return this.#e.session;
   }
 }();
 class g {
@@ -182,7 +189,6 @@ const w = (a) => Object.prototype.toString.call(a).slice(8, -1), d = new class {
       }
     }(this), this.#e.types = new b(this);
   }
-  // TODO Use or kill.
   get anvil() {
     return this.#e.anvil;
   }
@@ -416,11 +422,11 @@ u.types.add("json", (a) => {
   if (typeof a == "string")
     return JSON.parse(a);
 });
-const E = /* @__PURE__ */ new Map();
+const A = /* @__PURE__ */ new Map();
 u.types.add("md", async (a, { options: e, path: t }) => {
   if (e.raw) return;
-  if (e.cache !== !1 && E.has(t.full))
-    return E.get(t.full);
+  if (e.cache !== !1 && A.has(t.full))
+    return A.get(t.full);
   if (typeof a != "string") return;
   const { marked: i } = await u("@/marked");
   let s;
@@ -429,7 +435,7 @@ u.types.add("md", async (a, { options: e, path: t }) => {
     s = Object.freeze({ meta: l, html: c });
   } else
     s = i.parse(a);
-  return e.cache !== !1 && E.set(t.full, s), s;
+  return e.cache !== !1 && A.set(t.full, s), s;
 });
 u.processors.add(
   "html",
@@ -447,11 +453,11 @@ u.processors.add("css", async (a, e, ...t) => {
   );
   i.length && a.use(...i);
 });
-const A = /* @__PURE__ */ new Map();
+const E = /* @__PURE__ */ new Map();
 u.processors.add("x.html", "x.template", async (a, { path: e }) => {
   if (typeof a != "string") return;
   const { component: t, Sheet: i } = await u("@/rollo/");
-  if (A.has(e.full)) return A.get(e.full);
+  if (E.has(e.full)) return E.get(e.full);
   const s = t.div({ innerHTML: a }), r = await u.module(
     `export const __path__ = "${e.path}";${s.querySelector("script").textContent.trim()}`,
     e.path
@@ -487,7 +493,7 @@ u.processors.add("x.html", "x.template", async (a, { path: e }) => {
     }
     l[c] = f;
   }
-  return A.set(e.full, Object.freeze(l)), l;
+  return E.set(e.full, Object.freeze(l)), l;
 });
 export {
   p as UseError,

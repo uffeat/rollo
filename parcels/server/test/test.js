@@ -56,4 +56,5 @@ const run = (() => {
 })();
 
 //
-await run('/echo.test.js')
+//await run('/echo.test.js')
+

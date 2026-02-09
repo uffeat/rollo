@@ -1,4 +1,4 @@
-// Create DEV flag that also works in a non-Vite context.
+// Create DEV flag that also works in a non-Vite context and across parcels.
 const DEV = location.hostname === "localhost";
 
 /* Determine if running in Vite context */
@@ -23,7 +23,7 @@ export const meta = new (class Meta {
   #_ = {};
 
   constructor() {
-    // Set base and server origin
+    // Set ANVIL, base and server origin
     if (DEV) {
       const PORT = "3869";
       if (location.port === PORT) {
@@ -41,8 +41,15 @@ export const meta = new (class Meta {
       } else {
         this.#_.base = BASE;
         server.origin = location.origin;
+        this.#_.ANVIL = true
       }
     }
+
+    this.#_.session = crypto.randomUUID()
+  }
+
+  get ANVIL() {
+    return this.#_.ANVIL || false;
   }
 
   get DEV() {
@@ -64,5 +71,9 @@ export const meta = new (class Meta {
 
   get server() {
     return server;
+  }
+
+  get session() {
+    return this.#_.session;
   }
 })();
