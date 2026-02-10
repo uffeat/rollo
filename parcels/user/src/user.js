@@ -155,6 +155,7 @@ if (use.meta.ANVIL) {
           const valid = form.valid;
           if (valid) {
             const { email, password } = form.data;
+            // TODO spinner
             const data = await user.login(email, password);
             //console.log("data:", data); ////
 
@@ -177,7 +178,7 @@ if (use.meta.ANVIL) {
     Logout: async () => {
       const ok = component.button(".btn.btn-primary", {
         text: "Yes",
-        $action: "logout",
+        $action: true,
       });
       const cancel = component.button(".btn.btn-secondary", {
         text: "No",
@@ -188,11 +189,13 @@ if (use.meta.ANVIL) {
         const footer = host.tree.footer;
         //console.log('footer:', footer)////
         footer.on.click(async (event) => {
-          const action = event.target.getAttribute("state-action");
-          if (!action) {
+          if (event.target?.tagName !== "BUTTON") {
             return;
           }
-          if (action === "logout") {
+
+          const action = event.target.attribute.stateAction;
+
+          if (action) {
             await user.logout();
             host.close(true);
           } else {
@@ -206,8 +209,11 @@ if (use.meta.ANVIL) {
       };
 
       const confirmed = await modal({ content, title: "Log out" }, ok, cancel);
-
-      console.log("confirmed:", confirmed);
+      //console.log("confirmed:", confirmed);////
+      if (confirmed) {
+        await user.logout()
+        
+      }
     },
 
     get: () => {
