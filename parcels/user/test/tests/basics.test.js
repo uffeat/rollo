@@ -2,29 +2,30 @@
 /basics.test.js
 */
 
-const { Exception, match } = await use("@/rollo/");
+const { Ref, component } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
 const { server } = await use("@/server");
-
-const getUser = async () => {
-  return Object.freeze(JSON.parse(localStorage.getItem("user") || null));
-};
-
-const login = async (email, password) => {
-  const { result } = await server.login(email, password);
-  localStorage.setItem("user", JSON.stringify(result));
-  return Object.freeze(result);
-};
+const { user } = await use("@/user/");
 
 export default async () => {
   frame.clear(":not([slot])");
 
+  
+
   await (async () => {
-    console.log("user:", await getUser());
+    //console.log("user.data:", user.data);
   })();
 
   await (async () => {
-    //const user = await login("uffeat@gmail.com", "f");
-    console.log("user:", await login("uffeat@gmail.com", "f"));
+    //const result = await Login();
+    //console.log("result:", result);
+  })();
+
+  await (async () => {
+    //const data = await user.login("uffeat@gmail.com", "f");
+    //console.log("user.data:", user.data);
+    //console.log("user:", await login("uffeat@gmail.com", "f"));
   })();
 };
+
+//uffeat@gmail.com

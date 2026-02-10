@@ -1,7 +1,10 @@
 import "../use";
 
-const { Ref } = await use("@/rollo/");
+const { Ref, component } = await use("@/rollo/");
+const { frame } = await use("@/frame/");
 const { server } = await use("@/server");
+const { Form, Input } = await use("@/form/");
+const { modal } = await use("@/modal/");
 
 export const user = new (class User {
   #_ = {
@@ -9,40 +12,148 @@ export const user = new (class User {
   };
 
   constructor() {
-    if (use.meta.DEV) {
+    if (use.meta.ANVIL) {
+      localStorage.removeItem("user");
+    } else {
+      // Get stored user
+      const data = Object.freeze(
+        JSON.parse(localStorage.getItem("user") || null),
+      );
+      if (data) {
+        this.#_.state.update(data);
+      }
+
       this.setup({
-        data: () => {
-          return Object.freeze(
-            JSON.parse(localStorage.getItem("user") || null),
+        Login: async () => {
+          const form = Form(
+            `flex flex-col gap-y-3 py-1`,
+            {},
+            Input({
+              type: "email",
+              label: "Email",
+              name: "email",
+              required: true,
+            }),
+            Input({
+              type: "password",
+              name: "password",
+              label: "Password",
+              required: true,
+            }),
           );
+
+          const submit = component.button(".btn.btn-primary", {
+            text: "Submit",
+            disabled: true,
+          });
+
+          form.$.effects.add(
+            ({ valid }, message) => {
+              submit.disabled = !valid;
+            },
+            ["valid"],
+          );
+
+          const content = (host) => {
+            submit.on.click(async (event) => {
+              const valid = form.valid;
+              if (valid) {
+                const { email, password } = form.data;
+                const data = await user.login(email, password);
+                //console.log("data:", data); ////
+                if (data.error) {
+                  console.log("error:", data.error); ////
+                } else {
+                  host.close(data);
+                }
+              } else {
+                // TODO Message
+              }
+            });
+            return form;
+          };
+          const result = await modal({ content, title: "Log in" }, submit);
+          return result;
         },
         login: async (email, password) => {
           const { result } = await server.login(email, password);
-          localStorage.setItem("user", JSON.stringify(result));
-          return Object.freeze(result);
+
+          if (result.ok) {
+            const data = { password, ...result.data };
+            localStorage.setItem("user", JSON.stringify(data));
+            return Object.freeze(data);
+          } else {
+            localStorage.removeItem("user");
+            return { error: result.message };
+          }
         },
       });
     }
   }
 
   get data() {
-    return this.#_.state.data()
+    return this.#_.state.current;
   }
 
   get effects() {
     return this.#_.state.effects;
   }
 
-  async login(email, password) {
-    return await this.#_.state.login(email, password);
+  async Login() {
+    return await this.#_.Login();
   }
 
-  setup({ data, login } = {}) {
-    if (data) {
-      this.#_.state.data = data;
+  async login(email, password) {
+    return await this.#_.login(email, password);
+  }
+
+  setup({ Login, change, login, logout, reset, signup } = {}) {
+    if (Login) {
+      this.#_.Login = Login;
     }
+
     if (login) {
-      this.#_.state.login = login;
+      this.#_.login = async (email, password) => {
+        const data = await login(email, password);
+        if (data.error) {
+          this.#_.email = null;
+          this.#_.password = null;
+          this.#_.state.update(null);
+          return data;
+        } else {
+          this.#_.email = email;
+          this.#_.password = password;
+          this.#_.state.update(data);
+          return data;
+        }
+      };
     }
   }
 })();
+
+const nav = component.nav(
+  "flex gap-3",
+  { parent: frame, slot: "top" },
+  component.a("nav-link cursor-pointer", {
+    text: "Log in",
+    _action: "login",
+  }),
+  component.a("nav-link cursor-pointer", {
+    text: "Log out",
+    _action: "logout",
+  }),
+);
+
+nav.on.click(async (event) => {
+  event.preventDefault();
+  const action = event.target?._action;
+  if (!action) {
+    return;
+  }
+
+  if (action === "login") {
+    const result = await user.Login();
+    console.log("result:", result);
+    return;
+  }
+});
