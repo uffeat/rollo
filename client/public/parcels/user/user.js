@@ -1,54 +1,57 @@
-const { Ref: p, component: l } = await use("@/rollo/"), { frame: w } = await use("@/frame/"), { server: h } = await use("@/server"), { Form: v, Input: d } = await use("@/form/"), { modal: y } = await use("@/modal/"), f = new class {
+const { Ref: y, component: i } = await use("@/rollo/"), { frame: v } = await use("@/frame/"), { server: p } = await use("@/server"), { Form: b, Input: w } = await use("@/form/"), { modal: L } = await use("@/modal/"), u = new class {
   #t = {
-    state: p.create(null)
+    state: y.create(null)
   };
   constructor() {
     if (use.meta.ANVIL)
       localStorage.removeItem("user");
     else {
-      const e = Object.freeze(
+      const t = Object.freeze(
         JSON.parse(localStorage.getItem("user") || null)
       );
-      e && this.#t.state.update(e), this.setup({
+      t && this.#t.state.update(t), this.setup({
         Login: async () => {
-          const t = v(
+          const e = b(
             "flex flex-col gap-y-3 py-1",
             {},
-            d({
+            w({
               type: "email",
               label: "Email",
               name: "email",
               required: !0
             }),
-            d({
+            w({
               type: "password",
               name: "password",
               label: "Password",
               required: !0
             })
-          ), a = l.button(".btn.btn-primary", {
+          ), a = i.button(".btn.btn-primary", {
             text: "Submit",
             disabled: !0
           });
-          return t.$.effects.add(
-            ({ valid: n }, i) => {
-              a.disabled = !n;
+          return e.$.effects.add(
+            ({ valid: c }, s) => {
+              a.disabled = !c;
             },
             ["valid"]
-          ), await y({ content: (n) => (a.on.click(async (i) => {
-            if (t.valid) {
-              const { email: s, password: m } = t.data, g = await f.login(s, m);
-              g.error ? console.log("error:", g.error) : n.close(g);
+          ), await L({ content: (c) => (a.on.click(async (s) => {
+            if (e.valid) {
+              const { email: r, password: h } = e.data, g = await u.login(r, h);
+              i.p(), g.error ? console.log("error:", g.error) : c.close(g);
             }
-          }), t), title: "Log in" }, a);
+          }), e), title: "Log in" }, a);
         },
-        login: async (t, a) => {
-          const { result: r } = await h.login(t, a);
-          if (r.ok) {
-            const o = { password: a, ...r.data };
-            return localStorage.setItem("user", JSON.stringify(o)), Object.freeze(o);
+        login: async (e, a) => {
+          const { result: o } = await p.login(e, a);
+          if (o.ok) {
+            const l = { password: a, ...o.data };
+            return localStorage.setItem("user", JSON.stringify(l)), Object.freeze(l);
           } else
-            return localStorage.removeItem("user"), { error: r.message };
+            return localStorage.removeItem("user"), { error: o.message };
+        },
+        logout: async () => {
+          await p.logout(), localStorage.removeItem("user");
         }
       });
     }
@@ -62,36 +65,52 @@ const { Ref: p, component: l } = await use("@/rollo/"), { frame: w } = await use
   async Login() {
     return await this.#t.Login();
   }
-  async login(e, t) {
-    return await this.#t.login(e, t);
+  async login(t, e) {
+    return await this.#t.login(t, e);
   }
-  setup({ Login: e, change: t, login: a, logout: r, reset: o, signup: n } = {}) {
-    e && (this.#t.Login = e), a && (this.#t.login = async (i, u) => {
-      const s = await a(i, u);
-      return s.error ? (this.#t.email = null, this.#t.password = null, this.#t.state.update(null), s) : (this.#t.email = i, this.#t.password = u, this.#t.state.update(s), s);
+  async logout() {
+    return await this.#t.logout();
+  }
+  setup({ Login: t, change: e, login: a, logout: o, reset: l, signup: c } = {}) {
+    t && (this.#t.Login = async () => {
+      const s = await t();
+      return s ? this.#t.state.update(s) : this.#t.state.update(null), s;
+    }), a && (this.#t.login = async (s, d) => {
+      const r = await a(s, d);
+      return r.error ? (this.#t.email = null, this.#t.password = null, this.#t.state.update(null), r) : (this.#t.email = s, this.#t.password = d, this.#t.state.update(r), r);
+    }), o && (this.#t.logout = async () => {
+      await o(), this.#t.state.update(null);
     });
   }
-}(), b = l.nav(
+}(), f = i.a("nav-link cursor-pointer", {
+  text: "Log in",
+  $action: "login"
+}), m = i.a("nav-link cursor-pointer", {
+  text: "Log out",
+  $action: "logout"
+}), S = i.nav(
   "flex gap-3",
-  { parent: w, slot: "top" },
-  l.a("nav-link cursor-pointer", {
-    text: "Log in",
-    _action: "login"
-  }),
-  l.a("nav-link cursor-pointer", {
-    text: "Log out",
-    _action: "logout"
-  })
+  { parent: v, slot: "top" },
+  f,
+  m
 );
-b.on.click(async (c) => {
-  c.preventDefault();
-  const e = c.target?._action;
-  if (e && e === "login") {
-    const t = await f.Login();
-    console.log("result:", t);
-    return;
+S.on.click(async (n) => {
+  n.preventDefault();
+  const t = n.target?.getAttribute("state-action");
+  if (t) {
+    if (t === "login") {
+      await u.Login();
+      return;
+    }
+    if (t === "logout") {
+      await u.logout();
+      return;
+    }
   }
 });
+u.effects.add((n) => {
+  console.log("current:", n), n ? (f.classes.add("d-none"), m.classes.remove("d-none")) : (f.classes.remove("d-none"), m.classes.add("d-none"));
+});
 export {
-  f as user
+  u as user
 };

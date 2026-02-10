@@ -61,6 +61,9 @@ export const user = new (class User {
                 const { email, password } = form.data;
                 const data = await user.login(email, password);
                 //console.log("data:", data); ////
+
+                const message = component.p();
+
                 if (data.error) {
                   console.log("error:", data.error); ////
                 } else {
@@ -77,7 +80,6 @@ export const user = new (class User {
         },
         login: async (email, password) => {
           const { result } = await server.login(email, password);
-
           if (result.ok) {
             const data = { password, ...result.data };
             localStorage.setItem("user", JSON.stringify(data));
@@ -86,6 +88,10 @@ export const user = new (class User {
             localStorage.removeItem("user");
             return { error: result.message };
           }
+        },
+        logout: async () => {
+          await server.logout();
+          localStorage.removeItem("user");
         },
       });
     }
@@ -107,9 +113,22 @@ export const user = new (class User {
     return await this.#_.login(email, password);
   }
 
+  async logout() {
+    return await this.#_.logout();
+  }
+
   setup({ Login, change, login, logout, reset, signup } = {}) {
     if (Login) {
-      this.#_.Login = Login;
+      this.#_.Login = async () => {
+        const data = await Login();
+        //console.log("data:", data); ////
+        if (data) {
+          this.#_.state.update(data);
+        } else {
+          this.#_.state.update(null);
+        }
+        return data;
+      };
     }
 
     if (login) {
@@ -128,32 +147,60 @@ export const user = new (class User {
         }
       };
     }
+
+    if (logout) {
+      this.#_.logout = async () => {
+        await logout();
+        this.#_.state.update(null);
+      };
+    }
   }
 })();
+
+const loginLink = component.a("nav-link cursor-pointer", {
+  text: "Log in",
+  $action: "login",
+});
+
+const logoutLink = component.a("nav-link cursor-pointer", {
+  text: "Log out",
+  $action: "logout",
+});
 
 const nav = component.nav(
   "flex gap-3",
   { parent: frame, slot: "top" },
-  component.a("nav-link cursor-pointer", {
-    text: "Log in",
-    _action: "login",
-  }),
-  component.a("nav-link cursor-pointer", {
-    text: "Log out",
-    _action: "logout",
-  }),
+  loginLink,
+  logoutLink,
 );
 
 nav.on.click(async (event) => {
   event.preventDefault();
-  const action = event.target?._action;
+  const action = event.target?.getAttribute("state-action");
   if (!action) {
     return;
   }
 
   if (action === "login") {
     const result = await user.Login();
-    console.log("result:", result);
+    //console.log("result:", result);////
     return;
+  }
+
+  if (action === "logout") {
+    await user.logout();
+
+    return;
+  }
+});
+
+user.effects.add((current) => {
+  console.log("current:", current); ////
+  if (current) {
+    loginLink.classes.add("d-none");
+    logoutLink.classes.remove("d-none");
+  } else {
+    loginLink.classes.remove("d-none");
+    logoutLink.classes.add("d-none");
   }
 });
