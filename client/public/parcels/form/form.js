@@ -1,8 +1,8 @@
-const { Mixins: r, author: a, mix: o, stateMixin: n } = await use("@/rollo/"), i = "form", v = a(
+const { Mixins: i, author: r, mix: o, stateMixin: a } = await use("@/rollo/"), s = "form", v = r(
   class extends o(
-    document.createElement(i).constructor,
+    document.createElement(s).constructor,
     {},
-    ...r(n)
+    ...i(a)
   ) {
     #t = {};
     constructor() {
@@ -11,32 +11,34 @@ const { Mixins: r, author: a, mix: o, stateMixin: n } = await use("@/rollo/"), i
     __new__(...t) {
       super.__new__?.(...t), this.attribute[this.constructor.__key__] = !0, this.attribute.webComponent = !0, this.noValidate = !0;
     }
+    get controls() {
+      return Array.from(this.children).filter((e) => e.attribute.formControl);
+    }
     get data() {
-      const t = {}, e = this.children;
-      for (const s of e)
-        t[s.name] = s.value;
+      const t = {};
+      for (const e of this.controls)
+        t[e.name] = e.value;
       return t;
     }
     get valid() {
       return this.$.valid;
     }
     validate() {
-      const t = this.children;
-      for (const e of t)
-        if (!e.valid)
+      for (const t of this.controls)
+        if (!t.valid)
           return this.$.valid = !1, !1;
       return this.$.valid = !0, !0;
     }
   },
   "form-component",
-  i
-), { Mixins: l, author: h, component: u, css: d, html: c, mix: p, stateMixin: m } = await use("@/rollo/"), f = await use("@/bootstrap/bootstrap.css"), g = h(
-  class extends p(HTMLElement, {}, ...l(m)) {
+  s
+), { Mixins: n, author: l, component: h, css: u, html: d, mix: c, stateMixin: m } = await use("@/rollo/"), p = await use("@/bootstrap/bootstrap.css"), g = l(
+  class extends c(HTMLElement, {}, ...n(m)) {
     #t = {
       tree: {}
     };
     constructor() {
-      super(), this.#t.shadow = u.from(c`
+      super(), this.#t.shadow = h.from(d`
         <!--NOTE Dark mode ported to shadow-->
         <div id="root" class="input-group" data-bs-theme="dark">
           <div class="form-floating">
@@ -45,7 +47,7 @@ const { Mixins: r, author: a, mix: o, stateMixin: n } = await use("@/rollo/"), i
             <div class="form-text"></div>
           </div>
         </div>
-      `), this.attachShadow({ mode: "open" }).append(this.shadow), f.use(this), d`
+      `), this.attachShadow({ mode: "open" }).append(this.shadow), p.use(this), u`
         #root {
           width: 100%;
         }
@@ -76,7 +78,7 @@ const { Mixins: r, author: a, mix: o, stateMixin: n } = await use("@/rollo/"), i
       }), this.tree.input.on.input((e) => {
         this.$.value = this.tree.input.value;
       }), this.$.effects.add(
-        ({ value: e }, s) => {
+        ({ value: e }, f) => {
           this.tree.input.value = e, this.attribute.value = e || null, this.validate();
         },
         ["value"]

@@ -2,7 +2,7 @@ const { component } = await use("@/rollo/");
 
 export const Spinner = ({ color = "primary", parent, size='1rem', ...updates } = {}) => {
   return component.div(
-    "flex justify-center",
+    ".d-flex.justify-content-center",
     { parent },
     component.div(
       `spinner-border text-${color}`,

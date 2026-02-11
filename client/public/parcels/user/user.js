@@ -1,6 +1,6 @@
-const { Ref: v, component: n } = await use("@/rollo/"), { frame: L } = await use("@/frame/"), { server: h } = await use("@/server"), { Form: x, Input: y } = await use("@/form/"), { modal: b } = await use("@/modal/"), c = new class {
+const { Ref: h, component: s } = await use("@/rollo/"), { frame: L } = await use("@/frame/"), { server: y } = await use("@/server"), { Form: x, Input: b } = await use("@/form/"), { modal: v } = await use("@/modal/"), { Spinner: S } = await use("/tools/spinner"), l = new class {
   #t = {
-    state: v.create(null)
+    state: h.create(null)
   };
   constructor() {
   }
@@ -16,8 +16,8 @@ const { Ref: v, component: n } = await use("@/rollo/"), { frame: L } = await use
   async Logout() {
     return await this.#t.Logout();
   }
-  async login(t, s) {
-    return await this.#t.login(t, s);
+  async login(t, a) {
+    return await this.#t.login(t, a);
   }
   async get() {
     return await this.#t.get();
@@ -27,125 +27,154 @@ const { Ref: v, component: n } = await use("@/rollo/"), { frame: L } = await use
   }
   async setup({
     Login: t,
-    Logout: s,
-    Signup: i,
-    change: o,
-    get: u,
-    login: g,
-    logout: r,
-    reset: w,
-    signup: d
+    Logout: a,
+    Signup: o,
+    change: i,
+    get: n,
+    login: c,
+    logout: g,
+    reset: m,
+    signup: w
   } = {}) {
     t && (this.#t.Login = async () => {
-      const a = await t();
-      return a ? this.#t.state.update(a) : this.#t.state.update(null), a;
-    }), s && (this.#t.Logout = async () => await s()), u && (this.#t.get = async () => {
-      const a = await u();
-      if (a) {
-        const { email: f, password: l } = a;
-        this.#t.email = f, this.#t.password = l, this.#t.state.update(a);
-      } else
-        this.#t.email = null, this.#t.password = null, this.#t.state.update(null);
-      return a;
-    }, await this.get()), g && (this.#t.login = async (a, f) => {
-      const l = await g(a, f);
-      return l.error ? (this.#t.email = null, this.#t.password = null, this.#t.state.update(null), l) : (this.#t.email = a, this.#t.password = f, this.#t.state.update(l), l);
-    }), r && (this.#t.logout = async () => {
-      await r(), this.#t.state.update(null);
+      const e = await t();
+      return e && this.#t.state.update(e), e;
+    }), a && (this.#t.Logout = async () => {
+      const e = await a();
+      return e && this.#t.state.update(null), e;
+    }), n && (this.#t.get = async () => {
+      const e = await n();
+      return this.#t.state.update(e || null), e;
+    }, await this.get()), c && (this.#t.login = async (e, u) => {
+      const d = await c(e, u);
+      return d.error ? this.#t.state.update(null) : this.#t.state.update(d), d;
+    }), g && (this.#t.logout = async () => {
+      const e = await g();
+      return this.#t.state.update(null), e;
     });
   }
 }();
-use.meta.ANVIL ? localStorage.removeItem("user") : await c.setup({
-  Login: async () => {
-    const e = x(
-      "flex flex-col gap-y-3 py-1",
-      {},
-      y({
-        type: "email",
-        label: "Email",
-        name: "email",
-        required: !0
-      }),
-      y({
-        type: "password",
-        name: "password",
-        label: "Password",
-        required: !0
-      })
-    ), t = n.button(".btn.btn-primary", {
-      text: "Submit",
-      disabled: !0
-    });
-    return e.$.effects.add(
-      ({ valid: o }, u) => {
-        t.disabled = !o;
-      },
-      ["valid"]
-    ), await b({ content: (o) => (t.on.click(async (u) => {
-      if (e.valid) {
-        const { email: r, password: w } = e.data, d = await c.login(r, w);
-        n.p(), d.error ? console.log("error:", d.error) : o.close(d);
-      }
-    }), e), title: "Log in" }, t);
-  },
-  Logout: async () => {
-    const e = n.button(".btn.btn-primary", {
-      text: "Yes",
-      $action: "logout"
-    }), t = n.button(".btn.btn-secondary", {
-      text: "No"
-    }), i = await b({ content: (o) => (o.tree.footer.on.click(async (g) => {
-      const r = g.target.getAttribute("state-action");
-      r && (r === "logout" ? (await c.logout(), o.close(!0)) : o.close(!1));
-    }), n.p({
-      text: "Do you wish to log out?"
-    })), title: "Log out" }, e, t);
-    console.log("confirmed:", i);
-  },
-  get: () => Object.freeze(
-    JSON.parse(localStorage.getItem("user") || null)
-  ),
-  login: async (e, t) => {
-    const { result: s } = await h.login(e, t);
-    if (s.ok) {
-      const i = { password: t, ...s.data };
-      return localStorage.setItem("user", JSON.stringify(i)), Object.freeze(i);
-    } else
-      return localStorage.removeItem("user"), { error: s.message };
-  },
-  logout: async () => {
-    await h.logout(), localStorage.removeItem("user");
-  }
-});
-const m = n.a("nav-link cursor-pointer", {
+if (use.meta.ANVIL)
+  localStorage.removeItem("user");
+else {
+  const r = (t) => s.div(
+    ".alert.alert-danger.alert-dismissible",
+    { role: "alert" },
+    s.div({ text: t }),
+    s.button(".btn-close", {
+      type: "button",
+      "data.bsDismiss": "alert",
+      ariaLabel: "Close"
+    })
+  );
+  await l.setup({
+    Login: async () => {
+      const t = x(
+        "flex flex-col gap-y-3 py-1",
+        {},
+        b({
+          type: "email",
+          label: "Email",
+          name: "email",
+          required: !0
+        }),
+        b({
+          type: "password",
+          name: "password",
+          label: "Password",
+          required: !0
+        })
+      ), a = s.button(".btn.btn-primary", {
+        type: "button",
+        text: "Submit",
+        disabled: !0
+      });
+      return t.$.effects.add(
+        ({ valid: n }, c) => {
+          a.disabled = !n;
+        },
+        ["valid"]
+      ), await v({ content: (n) => (a.on.click(async (c) => {
+        if (t.clear(".alert"), t.valid) {
+          const { email: m, password: w } = t.data;
+          n.tree.content.update({ position: "relative" });
+          const e = S({
+            parent: n.tree.content,
+            position: "absolute",
+            top: "40%",
+            size: "6rem"
+          }), u = await l.login(m, w);
+          e.remove(), u.error ? t.append(r(u.error)) : n.close(u);
+        }
+      }), t), title: "Log in" }, a);
+    },
+    Logout: async () => {
+      if (await v(
+        { content: (o) => (o.tree.footer.on.click(async (i) => {
+          if (i.target?.tagName === "BUTTON")
+            if (i.target.attribute.logout) {
+              const n = await l.logout();
+              o.close(n);
+            } else
+              o.close();
+        }), s.p({
+          text: "Do you wish to log out?"
+        })), title: "Log out" },
+        s.button(".btn.btn-primary", {
+          text: "Yes",
+          "[logout]": !0
+        }),
+        s.button(".btn.btn-secondary", {
+          text: "No"
+        })
+      ))
+        return await l.logout();
+    },
+    get: () => Object.freeze(
+      JSON.parse(localStorage.getItem("user") || null)
+    ),
+    login: async (t, a) => {
+      const { result: o } = await y.login(t, a);
+      if (o.ok) {
+        const i = { password: a, ...o.data };
+        return localStorage.setItem("user", JSON.stringify(i)), Object.freeze(i);
+      } else
+        return localStorage.removeItem("user"), { error: o.message };
+    },
+    logout: async () => {
+      await y.logout(), localStorage.removeItem("user");
+    }
+  });
+}
+const f = s.a("nav-link cursor-pointer", {
   text: "Log in",
   $action: "login"
-}), p = n.a("nav-link cursor-pointer", {
+}), p = s.a("nav-link cursor-pointer", {
   text: "Log out",
   $action: "logout"
-}), k = n.nav(
+}), k = s.nav(
   "flex gap-3",
   { parent: L, slot: "top" },
-  m,
+  f,
   p
 );
-k.on.click(async (e) => {
-  e.preventDefault();
-  const t = e.target?.getAttribute("state-action");
+k.on.click(async (r) => {
+  r.preventDefault();
+  const t = r.target?.getAttribute("state-action");
   if (t) {
     if (t === "login") {
-      await c.Login();
+      await l.Login();
       return;
     }
     if (t === "logout") {
-      await c.Logout();
+      await l.Logout();
       return;
     }
   }
 });
-c.effects.add((e) => {
-  e ? (m.classes.add("d-none"), p.classes.remove("d-none")) : (m.classes.remove("d-none"), p.classes.add("d-none"));
+l.effects.add((r) => {
+  r ? (f.classes.add("d-none"), p.classes.remove("d-none")) : (f.classes.remove("d-none"), p.classes.add("d-none"));
 });
 export {
-  c as user
+  l as user
 };

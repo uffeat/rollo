@@ -6,8 +6,6 @@ const { server } = await use("@/server");
 const { Form, Input } = await use("@/form/");
 const { modal } = await use("@/modal/");
 
-const { Spinner } = await use("/tools/spinner");
-
 export const user = new (class User {
   #_ = {
     state: Ref.create(null),
@@ -109,20 +107,6 @@ export const user = new (class User {
 if (use.meta.ANVIL) {
   localStorage.removeItem("user");
 } else {
-  // Helpers
-  const Message = (text) => {
-    return component.div(
-      ".alert.alert-danger.alert-dismissible",
-      { role: "alert" },
-      component.div({ text }),
-      component.button(".btn-close", {
-        type: "button",
-        "data.bsDismiss": "alert",
-        ariaLabel: "Close",
-      }),
-    );
-  };
-
   await user.setup({
     Login: async () => {
       const form = Form(
@@ -142,8 +126,9 @@ if (use.meta.ANVIL) {
         }),
       );
 
+      const message = component.p({parent: form});
+
       const submit = component.button(".btn.btn-primary", {
-        type: "button",
         text: "Submit",
         disabled: true,
       });
@@ -156,33 +141,27 @@ if (use.meta.ANVIL) {
       );
 
       const content = (host) => {
-        //console.log("host.tree:", host.tree); ////
-
         submit.on.click(async (event) => {
-          form.clear(".alert");
           const valid = form.valid;
           if (valid) {
             const { email, password } = form.data;
             // TODO spinner
-            host.tree.content.update({ position: "relative" });
-
-            const spinner = Spinner({
-              parent: host.tree.content,
-              position: "absolute",
-              top: "40%",
-              size: "6rem",
-            });
             const data = await user.login(email, password);
-            spinner.remove();
-
             //console.log("data:", data); ////
 
+            
+
             if (data.error) {
-              //console.log("error:", data.error); ////
-              form.append(Message(data.error));
+              console.log("error:", data.error); ////
+              //message.text = data.error
+
+
             } else {
+              //message.text = null
               host.close(data);
             }
+          } else {
+            // TODO Message
           }
         });
         return form;

@@ -21,10 +21,14 @@ export const Form = author(
       this.noValidate = true;
     }
 
+    get controls() {
+      const controls = Array.from(this.children).filter((c) => c.attribute.formControl);
+      return controls;
+    }
+
     get data() {
       const result = {};
-      const controls = this.children;
-      for (const control of controls) {
+      for (const control of this.controls) {
         result[control.name] = control.value;
       }
       return result;
@@ -35,8 +39,7 @@ export const Form = author(
     }
 
     validate() {
-      const controls = this.children;
-      for (const control of controls) {
+      for (const control of this.controls) {
         if (!control.valid) {
           this.$.valid = false;
           return false;
