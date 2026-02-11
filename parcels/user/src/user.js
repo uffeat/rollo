@@ -141,8 +141,8 @@ export const user = new (class User {
       this.#_.reset = async (email) => {
         const result = await reset(email);
 
-        
-        console.log("result from reset:", result); ////
+
+        //console.log("result from reset:", result); ////
         this.#_.state.update(null);
         return result;
       };
