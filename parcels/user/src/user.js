@@ -1,6 +1,6 @@
 import "../use";
 
-const { Ref, component } = await use("@/rollo/");
+const { Ref, app, component } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
 const { server } = await use("@/server");
 const { Form, Input } = await use("@/form/");
@@ -33,6 +33,14 @@ export const user = new (class User {
 
   async login(email, password) {
     return await this.#_.login(email, password);
+  }
+
+  async Signup() {
+    return await this.#_.Signup();
+  }
+
+  async signup(email, password) {
+    return await this.#_.signup(email, password);
   }
 
   async get() {
@@ -75,6 +83,17 @@ export const user = new (class User {
       };
     }
 
+    if (Signup) {
+      this.#_.Signup = async () => {
+        const data = await Signup();
+        //console.log("data:", data); ////
+        if (data) {
+          this.#_.state.update(data);
+        }
+        return data;
+      };
+    }
+
     if (get) {
       this.#_.get = async () => {
         const data = await get();
@@ -101,6 +120,18 @@ export const user = new (class User {
         const result = await logout();
         this.#_.state.update(null);
         return result;
+      };
+    }
+
+    if (signup) {
+      this.#_.signup = async (email, password) => {
+        const data = await signup(email, password);
+        if (data.error) {
+          this.#_.state.update(null);
+        } else {
+          this.#_.state.update(data);
+        }
+        return data;
       };
     }
   }
@@ -157,15 +188,12 @@ if (use.meta.ANVIL) {
 
       const content = (host) => {
         //console.log("host.tree:", host.tree); ////
-
         submit.on.click(async (event) => {
           form.clear(".alert");
           const valid = form.valid;
           if (valid) {
             const { email, password } = form.data;
-            // TODO spinner
             host.tree.content.update({ position: "relative" });
-
             const spinner = Spinner({
               parent: host.tree.content,
               position: "absolute",
@@ -174,9 +202,7 @@ if (use.meta.ANVIL) {
             });
             const data = await user.login(email, password);
             spinner.remove();
-
             //console.log("data:", data); ////
-
             if (data.error) {
               //console.log("error:", data.error); ////
               form.append(Message(data.error));
@@ -224,6 +250,65 @@ if (use.meta.ANVIL) {
       }
     },
 
+    Signup: async () => {
+      const form = Form(
+        `flex flex-col gap-y-3 py-1`,
+        {},
+        Input({
+          type: "email",
+          label: "Email",
+          name: "email",
+          required: true,
+        }),
+        Input({
+          type: "password",
+          name: "password",
+          label: "Password",
+          required: true,
+        }),
+      );
+
+      const submit = component.button(".btn.btn-primary", {
+        type: "button",
+        text: "Submit",
+        disabled: true,
+      });
+
+      form.$.effects.add(
+        ({ valid }, message) => {
+          submit.disabled = !valid;
+        },
+        ["valid"],
+      );
+
+      const content = (host) => {
+        submit.on.click(async (event) => {
+          form.clear(".alert");
+          const valid = form.valid;
+          if (valid) {
+            const { email, password } = form.data;
+            host.tree.content.update({ position: "relative" });
+            const spinner = Spinner({
+              parent: host.tree.content,
+              position: "absolute",
+              top: "40%",
+              size: "6rem",
+            });
+            const data = await user.signup(email, password);
+            spinner.remove();
+            if (data.error) {
+              form.append(Message(data.error));
+            } else {
+              host.close(data);
+            }
+          }
+        });
+        return form;
+      };
+      const result = await modal({ content, title: "Sign up" }, submit);
+      return result;
+    },
+
     get: () => {
       // Get stored user
       const data = Object.freeze(
@@ -246,54 +331,58 @@ if (use.meta.ANVIL) {
       await server.logout();
       localStorage.removeItem("user");
     },
+    signup: async (email, password) => {
+      const { result } = await server.signup(email, password);
+      if (result.ok) {
+        const data = { password, ...result.data };
+        localStorage.setItem("user", JSON.stringify(data));
+        return Object.freeze(data);
+      } else {
+        localStorage.removeItem("user");
+        return { error: result.message };
+      }
+    },
   });
 }
-
-const loginLink = component.a("nav-link cursor-pointer", {
-  text: "Log in",
-  $action: "login",
-});
-
-const logoutLink = component.a("nav-link cursor-pointer", {
-  text: "Log out",
-  $action: "logout",
-});
 
 // Setup nav
 const nav = component.nav(
   "flex gap-3",
-  { parent: frame, slot: "top" },
-  loginLink,
-  logoutLink,
+  { parent: frame, slot: "top", "[user]": true },
+  component.a("nav-link cursor-pointer", {
+    text: "Log in",
+    "[action]": "login",
+  }),
+  component.a("nav-link cursor-pointer", {
+    text: "Sign up",
+    "[action]": "signup",
+  }),
+  component.a("nav-link cursor-pointer", {
+    text: "Log out",
+    "[action]": "logout",
+    "[user]": true,
+  }),
 );
-
 nav.on.click(async (event) => {
   event.preventDefault();
-  const action = event.target?.getAttribute("state-action");
+  const action = event.target.attribute.action;
   if (!action) {
     return;
   }
-
   if (action === "login") {
-    const result = await user.Login();
-    //console.log("result:", result);////
+    await user.Login();
     return;
   }
-
   if (action === "logout") {
     await user.Logout();
-
+    return;
+  }
+  if (action === "signup") {
+    await user.Signup();
     return;
   }
 });
 
 user.effects.add((current) => {
-  //console.log("current:", current); ////
-  if (current) {
-    loginLink.classes.add("d-none");
-    logoutLink.classes.remove("d-none");
-  } else {
-    loginLink.classes.remove("d-none");
-    logoutLink.classes.add("d-none");
-  }
+  app.$.user = current;
 });

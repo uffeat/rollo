@@ -1,4 +1,4 @@
-const { Ref: h, component: s } = await use("@/rollo/"), { frame: L } = await use("@/frame/"), { server: y } = await use("@/server"), { Form: x, Input: b } = await use("@/form/"), { modal: v } = await use("@/modal/"), { Spinner: S } = await use("/tools/spinner"), l = new class {
+const { Ref: h, app: S, component: s } = await use("@/rollo/"), { frame: x } = await use("@/frame/"), { server: w } = await use("@/server"), { Form: b, Input: m } = await use("@/form/"), { modal: y } = await use("@/modal/"), { Spinner: v } = await use("/tools/spinner"), u = new class {
   #t = {
     state: h.create(null)
   };
@@ -19,6 +19,12 @@ const { Ref: h, component: s } = await use("@/rollo/"), { frame: L } = await use
   async login(t, a) {
     return await this.#t.login(t, a);
   }
+  async Signup() {
+    return await this.#t.Signup();
+  }
+  async signup(t, a) {
+    return await this.#t.signup(t, a);
+  }
   async get() {
     return await this.#t.get();
   }
@@ -28,13 +34,13 @@ const { Ref: h, component: s } = await use("@/rollo/"), { frame: L } = await use
   async setup({
     Login: t,
     Logout: a,
-    Signup: o,
-    change: i,
-    get: n,
-    login: c,
-    logout: g,
-    reset: m,
-    signup: w
+    Signup: n,
+    change: o,
+    get: r,
+    login: p,
+    logout: d,
+    reset: f,
+    signup: g
   } = {}) {
     t && (this.#t.Login = async () => {
       const e = await t();
@@ -42,22 +48,28 @@ const { Ref: h, component: s } = await use("@/rollo/"), { frame: L } = await use
     }), a && (this.#t.Logout = async () => {
       const e = await a();
       return e && this.#t.state.update(null), e;
-    }), n && (this.#t.get = async () => {
+    }), n && (this.#t.Signup = async () => {
       const e = await n();
+      return e && this.#t.state.update(e), e;
+    }), r && (this.#t.get = async () => {
+      const e = await r();
       return this.#t.state.update(e || null), e;
-    }, await this.get()), c && (this.#t.login = async (e, u) => {
-      const d = await c(e, u);
-      return d.error ? this.#t.state.update(null) : this.#t.state.update(d), d;
-    }), g && (this.#t.logout = async () => {
-      const e = await g();
+    }, await this.get()), p && (this.#t.login = async (e, i) => {
+      const c = await p(e, i);
+      return c.error ? this.#t.state.update(null) : this.#t.state.update(c), c;
+    }), d && (this.#t.logout = async () => {
+      const e = await d();
       return this.#t.state.update(null), e;
+    }), g && (this.#t.signup = async (e, i) => {
+      const c = await g(e, i);
+      return c.error ? this.#t.state.update(null) : this.#t.state.update(c), c;
     });
   }
 }();
 if (use.meta.ANVIL)
   localStorage.removeItem("user");
 else {
-  const r = (t) => s.div(
+  const l = (t) => s.div(
     ".alert.alert-danger.alert-dismissible",
     { role: "alert" },
     s.div({ text: t }),
@@ -67,18 +79,18 @@ else {
       ariaLabel: "Close"
     })
   );
-  await l.setup({
+  await u.setup({
     Login: async () => {
-      const t = x(
+      const t = b(
         "flex flex-col gap-y-3 py-1",
         {},
-        b({
+        m({
           type: "email",
           label: "Email",
           name: "email",
           required: !0
         }),
-        b({
+        m({
           type: "password",
           name: "password",
           label: "Password",
@@ -90,33 +102,33 @@ else {
         disabled: !0
       });
       return t.$.effects.add(
-        ({ valid: n }, c) => {
-          a.disabled = !n;
+        ({ valid: r }, p) => {
+          a.disabled = !r;
         },
         ["valid"]
-      ), await v({ content: (n) => (a.on.click(async (c) => {
+      ), await y({ content: (r) => (a.on.click(async (p) => {
         if (t.clear(".alert"), t.valid) {
-          const { email: m, password: w } = t.data;
-          n.tree.content.update({ position: "relative" });
-          const e = S({
-            parent: n.tree.content,
+          const { email: f, password: g } = t.data;
+          r.tree.content.update({ position: "relative" });
+          const e = v({
+            parent: r.tree.content,
             position: "absolute",
             top: "40%",
             size: "6rem"
-          }), u = await l.login(m, w);
-          e.remove(), u.error ? t.append(r(u.error)) : n.close(u);
+          }), i = await u.login(f, g);
+          e.remove(), i.error ? t.append(l(i.error)) : r.close(i);
         }
       }), t), title: "Log in" }, a);
     },
     Logout: async () => {
-      if (await v(
-        { content: (o) => (o.tree.footer.on.click(async (i) => {
-          if (i.target?.tagName === "BUTTON")
-            if (i.target.attribute.logout) {
-              const n = await l.logout();
-              o.close(n);
+      if (await y(
+        { content: (n) => (n.tree.footer.on.click(async (o) => {
+          if (o.target?.tagName === "BUTTON")
+            if (o.target.attribute.logout) {
+              const r = await u.logout();
+              n.close(r);
             } else
-              o.close();
+              n.close();
         }), s.p({
           text: "Do you wish to log out?"
         })), title: "Log out" },
@@ -128,53 +140,110 @@ else {
           text: "No"
         })
       ))
-        return await l.logout();
+        return await u.logout();
+    },
+    Signup: async () => {
+      const t = b(
+        "flex flex-col gap-y-3 py-1",
+        {},
+        m({
+          type: "email",
+          label: "Email",
+          name: "email",
+          required: !0
+        }),
+        m({
+          type: "password",
+          name: "password",
+          label: "Password",
+          required: !0
+        })
+      ), a = s.button(".btn.btn-primary", {
+        type: "button",
+        text: "Submit",
+        disabled: !0
+      });
+      return t.$.effects.add(
+        ({ valid: r }, p) => {
+          a.disabled = !r;
+        },
+        ["valid"]
+      ), await y({ content: (r) => (a.on.click(async (p) => {
+        if (t.clear(".alert"), t.valid) {
+          const { email: f, password: g } = t.data;
+          r.tree.content.update({ position: "relative" });
+          const e = v({
+            parent: r.tree.content,
+            position: "absolute",
+            top: "40%",
+            size: "6rem"
+          }), i = await u.signup(f, g);
+          e.remove(), i.error ? t.append(l(i.error)) : r.close(i);
+        }
+      }), t), title: "Sign up" }, a);
     },
     get: () => Object.freeze(
       JSON.parse(localStorage.getItem("user") || null)
     ),
     login: async (t, a) => {
-      const { result: o } = await y.login(t, a);
-      if (o.ok) {
-        const i = { password: a, ...o.data };
-        return localStorage.setItem("user", JSON.stringify(i)), Object.freeze(i);
+      const { result: n } = await w.login(t, a);
+      if (n.ok) {
+        const o = { password: a, ...n.data };
+        return localStorage.setItem("user", JSON.stringify(o)), Object.freeze(o);
       } else
-        return localStorage.removeItem("user"), { error: o.message };
+        return localStorage.removeItem("user"), { error: n.message };
     },
     logout: async () => {
-      await y.logout(), localStorage.removeItem("user");
+      await w.logout(), localStorage.removeItem("user");
+    },
+    signup: async (t, a) => {
+      const { result: n } = await w.signup(t, a);
+      if (n.ok) {
+        const o = { password: a, ...n.data };
+        return localStorage.setItem("user", JSON.stringify(o)), Object.freeze(o);
+      } else
+        return localStorage.removeItem("user"), { error: n.message };
     }
   });
 }
-const f = s.a("nav-link cursor-pointer", {
-  text: "Log in",
-  $action: "login"
-}), p = s.a("nav-link cursor-pointer", {
-  text: "Log out",
-  $action: "logout"
-}), k = s.nav(
+const L = s.nav(
   "flex gap-3",
-  { parent: L, slot: "top" },
-  f,
-  p
+  { parent: x, slot: "top", "[user]": !0 },
+  s.a("nav-link cursor-pointer", {
+    text: "Log in",
+    "[action]": "login"
+  }),
+  s.a("nav-link cursor-pointer", {
+    text: "Sign up",
+    "[action]": "signup"
+  }),
+  s.a("nav-link cursor-pointer", {
+    text: "Log out",
+    "[action]": "logout",
+    "[user]": !0
+  })
 );
-k.on.click(async (r) => {
-  r.preventDefault();
-  const t = r.target?.getAttribute("state-action");
+L.on.click(async (l) => {
+  l.preventDefault();
+  const t = l.target.attribute.action;
   if (t) {
     if (t === "login") {
-      await l.Login();
+      await u.Login();
       return;
     }
     if (t === "logout") {
-      await l.Logout();
+      await u.Logout();
+      return;
+    }
+    if (t === "signup") {
+      await u.Signup();
       return;
     }
   }
 });
-l.effects.add((r) => {
-  r ? (f.classes.add("d-none"), p.classes.remove("d-none")) : (f.classes.remove("d-none"), p.classes.add("d-none"));
+u.effects.add((l) => {
+  S.$.user = l;
 });
 export {
-  l as user
+  u as user
 };

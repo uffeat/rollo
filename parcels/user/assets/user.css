@@ -1,2 +1,9 @@
 @import "tailwindcss";
 
+#app[state-user] frame-component nav[slot="top"] a:not([user]),
+#app:not([state-user]) frame-component nav[slot="top"] a[user]
+ {
+  display: none;
+}
+
+
