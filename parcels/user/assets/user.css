@@ -1,9 +1,27 @@
 @import "tailwindcss";
 
 #app[state-user] frame-component nav[slot="top"] a:not([user]),
-#app:not([state-user]) frame-component nav[slot="top"] a[user]
- {
+#app:not([state-user]) frame-component nav[slot="top"] a[user] {
   display: none;
 }
 
+.modal-body > form[login] a {
+  text-align: right;
+  text-decoration: none;
+}
 
+.modal-body > form[login] a:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.125rem;
+}
+
+.modal-content[user] {
+  position: relative !important;
+ 
+}
+
+.modal-content[user] [spinner] {
+  width: 100%;
+  position: absolute !important;
+  top: 30% !important;
+}

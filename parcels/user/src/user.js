@@ -1,12 +1,6 @@
 import "../use";
 
-const { Ref, app, component } = await use("@/rollo/");
-const { frame } = await use("@/frame/");
-const { server } = await use("@/server");
-const { Form, Input } = await use("@/form/");
-const { modal } = await use("@/modal/");
-
-const { Spinner } = await use("/tools/spinner");
+const { Ref } = await use("@/rollo/");
 
 export const user = new (class User {
   #_ = {
@@ -31,29 +25,38 @@ export const user = new (class User {
     return await this.#_.Logout();
   }
 
-  async login(email, password) {
-    return await this.#_.login(email, password);
+  async Reset() {
+    return await this.#_.Reset();
   }
 
   async Signup() {
     return await this.#_.Signup();
   }
 
-  async signup(email, password) {
-    return await this.#_.signup(email, password);
-  }
-
   async get() {
     return await this.#_.get();
+  }
+
+  async login(email, password) {
+    return await this.#_.login(email, password);
   }
 
   async logout() {
     return await this.#_.logout();
   }
 
+  async reset(email) {
+    return await this.#_.reset(email);
+  }
+
+  async signup(email, password) {
+    return await this.#_.signup(email, password);
+  }
+
   async setup({
     Login,
     Logout,
+    Reset,
     Signup,
     change,
     get,
@@ -80,6 +83,17 @@ export const user = new (class User {
           this.#_.state.update(null);
         }
         return result;
+      };
+    }
+
+    if (Reset) {
+      this.#_.Reset = async () => {
+        const confirmed = await Reset();
+        //console.log("data:", data); ////
+        if (confirmed) {
+          this.#_.state.update(null);
+        }
+        return confirmed;
       };
     }
 
@@ -123,6 +137,17 @@ export const user = new (class User {
       };
     }
 
+    if (reset) {
+      this.#_.reset = async (email) => {
+        const result = await reset(email);
+
+        
+        console.log("result from reset:", result); ////
+        this.#_.state.update(null);
+        return result;
+      };
+    }
+
     if (signup) {
       this.#_.signup = async (email, password) => {
         const data = await signup(email, password);
@@ -136,253 +161,3 @@ export const user = new (class User {
     }
   }
 })();
-
-if (use.meta.ANVIL) {
-  localStorage.removeItem("user");
-} else {
-  // Helpers
-  const Message = (text) => {
-    return component.div(
-      ".alert.alert-danger.alert-dismissible",
-      { role: "alert" },
-      component.div({ text }),
-      component.button(".btn-close", {
-        type: "button",
-        "data.bsDismiss": "alert",
-        ariaLabel: "Close",
-      }),
-    );
-  };
-
-  await user.setup({
-    Login: async () => {
-      const form = Form(
-        `flex flex-col gap-y-3 py-1`,
-        {},
-        Input({
-          type: "email",
-          label: "Email",
-          name: "email",
-          required: true,
-        }),
-        Input({
-          type: "password",
-          name: "password",
-          label: "Password",
-          required: true,
-        }),
-      );
-
-      const submit = component.button(".btn.btn-primary", {
-        type: "button",
-        text: "Submit",
-        disabled: true,
-      });
-
-      form.$.effects.add(
-        ({ valid }, message) => {
-          submit.disabled = !valid;
-        },
-        ["valid"],
-      );
-
-      const content = (host) => {
-        //console.log("host.tree:", host.tree); ////
-        submit.on.click(async (event) => {
-          form.clear(".alert");
-          const valid = form.valid;
-          if (valid) {
-            const { email, password } = form.data;
-            host.tree.content.update({ position: "relative" });
-            const spinner = Spinner({
-              parent: host.tree.content,
-              position: "absolute",
-              top: "40%",
-              size: "6rem",
-            });
-            const data = await user.login(email, password);
-            spinner.remove();
-            //console.log("data:", data); ////
-            if (data.error) {
-              //console.log("error:", data.error); ////
-              form.append(Message(data.error));
-            } else {
-              host.close(data);
-            }
-          }
-        });
-        return form;
-      };
-      const result = await modal({ content, title: "Log in" }, submit);
-      return result;
-    },
-    Logout: async () => {
-      const content = (host) => {
-        host.tree.footer.on.click(async (event) => {
-          if (event.target?.tagName !== "BUTTON") {
-            return;
-          }
-          if (event.target.attribute.logout) {
-            const result = await user.logout();
-            host.close(result);
-          } else {
-            host.close();
-          }
-        });
-        return component.p({
-          text: "Do you wish to log out?",
-        });
-      };
-
-      const confirmed = await modal(
-        { content, title: "Log out" },
-        component.button(".btn.btn-primary", {
-          text: "Yes",
-          "[logout]": true,
-        }),
-        component.button(".btn.btn-secondary", {
-          text: "No",
-        }),
-      );
-      //console.log("confirmed:", confirmed);////
-      if (confirmed) {
-        return await user.logout();
-      }
-    },
-
-    Signup: async () => {
-      const form = Form(
-        `flex flex-col gap-y-3 py-1`,
-        {},
-        Input({
-          type: "email",
-          label: "Email",
-          name: "email",
-          required: true,
-        }),
-        Input({
-          type: "password",
-          name: "password",
-          label: "Password",
-          required: true,
-        }),
-      );
-
-      const submit = component.button(".btn.btn-primary", {
-        type: "button",
-        text: "Submit",
-        disabled: true,
-      });
-
-      form.$.effects.add(
-        ({ valid }, message) => {
-          submit.disabled = !valid;
-        },
-        ["valid"],
-      );
-
-      const content = (host) => {
-        submit.on.click(async (event) => {
-          form.clear(".alert");
-          const valid = form.valid;
-          if (valid) {
-            const { email, password } = form.data;
-            host.tree.content.update({ position: "relative" });
-            const spinner = Spinner({
-              parent: host.tree.content,
-              position: "absolute",
-              top: "40%",
-              size: "6rem",
-            });
-            const data = await user.signup(email, password);
-            spinner.remove();
-            if (data.error) {
-              form.append(Message(data.error));
-            } else {
-              host.close(data);
-            }
-          }
-        });
-        return form;
-      };
-      const result = await modal({ content, title: "Sign up" }, submit);
-      return result;
-    },
-
-    get: () => {
-      // Get stored user
-      const data = Object.freeze(
-        JSON.parse(localStorage.getItem("user") || null),
-      );
-      return data;
-    },
-    login: async (email, password) => {
-      const { result } = await server.login(email, password);
-      if (result.ok) {
-        const data = { password, ...result.data };
-        localStorage.setItem("user", JSON.stringify(data));
-        return Object.freeze(data);
-      } else {
-        localStorage.removeItem("user");
-        return { error: result.message };
-      }
-    },
-    logout: async () => {
-      await server.logout();
-      localStorage.removeItem("user");
-    },
-    signup: async (email, password) => {
-      const { result } = await server.signup(email, password);
-      if (result.ok) {
-        const data = { password, ...result.data };
-        localStorage.setItem("user", JSON.stringify(data));
-        return Object.freeze(data);
-      } else {
-        localStorage.removeItem("user");
-        return { error: result.message };
-      }
-    },
-  });
-}
-
-// Setup nav
-const nav = component.nav(
-  "flex gap-3",
-  { parent: frame, slot: "top", "[user]": true },
-  component.a("nav-link cursor-pointer", {
-    text: "Log in",
-    "[action]": "login",
-  }),
-  component.a("nav-link cursor-pointer", {
-    text: "Sign up",
-    "[action]": "signup",
-  }),
-  component.a("nav-link cursor-pointer", {
-    text: "Log out",
-    "[action]": "logout",
-    "[user]": true,
-  }),
-);
-nav.on.click(async (event) => {
-  event.preventDefault();
-  const action = event.target.attribute.action;
-  if (!action) {
-    return;
-  }
-  if (action === "login") {
-    await user.Login();
-    return;
-  }
-  if (action === "logout") {
-    await user.Logout();
-    return;
-  }
-  if (action === "signup") {
-    await user.Signup();
-    return;
-  }
-});
-
-user.effects.add((current) => {
-  app.$.user = current;
-});
