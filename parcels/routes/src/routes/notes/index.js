@@ -17,7 +17,7 @@ const route = new (class extends Route {
     super({ page: component.main("container my-3") });
     
     this.#_.cards = component.div(
-      "grid md:grid-cols-2 xl:grid-cols-3 gap-y-3 md:gap-4 xl:gap-5"
+      "grid md:grid-cols-2 xl:grid-cols-3 gap-y-3 md:gap-4 xl:gap-5", {'[cards]': true}
     );
     this.#_.post = component.div();
     this.page.append(this.#_.cards, this.#_.post);
@@ -63,7 +63,12 @@ const route = new (class extends Route {
         const current = change.view;
         if (current) {
           /* Post view -> undisplay cards */
-          this.#_.cards.classes.add("hidden");
+
+           this.#_.cards.classes.remove("grid");////
+          this.#_.cards.classes.add("hidden");////
+
+
+
           const path = `/${current}`;
           /* Render (non-blocking) and display post.
           NOTE Posts render fast and are typically image-light, so render for 
@@ -78,7 +83,10 @@ const route = new (class extends Route {
           });
         } else {
           /* Cards view -> display cards */
-          this.#_.cards.classes.remove("hidden");
+
+
+          this.#_.cards.classes.remove("hidden");////
+          this.#_.cards.classes.add("grid");////
         }
       },
       { run: false },

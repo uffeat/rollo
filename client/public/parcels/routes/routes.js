@@ -92,7 +92,8 @@ const { component: i } = await use("@/rollo/"), _ = ({ path: t, abstract: o, ima
   #t = {};
   constructor() {
     super({ page: u.main("container my-3") }), this.#t.cards = u.div(
-      "grid md:grid-cols-2 xl:grid-cols-3 gap-y-3 md:gap-4 xl:gap-5"
+      "grid md:grid-cols-2 xl:grid-cols-3 gap-y-3 md:gap-4 xl:gap-5",
+      { "[cards]": !0 }
     ), this.#t.post = u.div(), this.page.append(this.#t.cards, this.#t.post);
     const t = [...k], o = () => {
       if (!t.length) return;
@@ -119,14 +120,14 @@ const { component: i } = await use("@/rollo/"), _ = ({ path: t, abstract: o, ima
         s.owner.previous.view && this.#t.post.detail.root.clear();
         const r = e.view;
         if (r) {
-          this.#t.cards.classes.add("hidden");
+          this.#t.cards.classes.remove("grid"), this.#t.cards.classes.add("hidden");
           const n = `/${r}`;
           h.use(n).then((c) => {
             const { html: p } = c, l = H({ html: p, path: n });
             this.#t.post.detail.root.append(l), F(this.#t.post);
           });
         } else
-          this.#t.cards.classes.remove("hidden");
+          this.#t.cards.classes.remove("hidden"), this.#t.cards.classes.add("grid");
       },
       { run: !1 },
       ["view"]

@@ -1,2 +1,9 @@
 @import "tailwindcss";
 
+[page="/notes"] [cards] {
+ /*display: grid;*/
+}
+
+[page="/notes"][state-view] [cards] {
+ /*display: none;*/
+}
