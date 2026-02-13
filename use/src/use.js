@@ -35,6 +35,7 @@ const assets = new (class Assets {
     this.#_.types = new Registry(this);
   }
 
+  /* . */
   get anvil() {
     return this.#_.anvil;
   }

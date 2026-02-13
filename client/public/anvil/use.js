@@ -2,32 +2,39 @@ class p extends Error {
   static raise = (e, t) => {
     throw t?.(), new p(e);
   };
-  static if = (e, t, i) => {
-    typeof e == "function" && (e = e()), e && p.raise(t, i);
+  static if = (e, t, o) => {
+    typeof e == "function" && (e = e()), e && p.raise(t, o);
   };
   constructor(e) {
     super(e), this.name = "UseError";
   }
 }
-const M = {}, L = location.hostname === "localhost", S = typeof import.meta < "u" && typeof M < "u" && "production", y = new class {
+const M = {}, L = location.hostname === "localhost", g = new class {
   #e = {};
   get origin() {
     return this.#e.origin;
   }
-  set origin(e) {
-    this.#e.origin = e;
+  set origin(r) {
+    this.#e.origin = r;
   }
-}(), R = new class {
+  get targets() {
+    return this.#e.targets;
+  }
+  set targets(r) {
+    if (this.#e.targets)
+      throw new Error("Cannot change targets.");
+    this.#e.targets = r;
+  }
+}(), S = new class {
   #e = {};
   constructor() {
     if (L) {
-      const e = "3869";
-      location.port === e ? this.#e.base = "" : this.#e.base = `http://localhost:${e}`, y.origin = "https://rollohdev.anvil.app";
+      const r = "3869";
+      location.port === r ? this.#e.base = "" : this.#e.base = `http://localhost:${r}`, g.origin = "https://rollohdev.anvil.app";
     } else {
-      const e = "https://rolloh.vercel.app";
-      location.origin === e ? (this.#e.base = "", y.origin = "https://rolloh.anvil.app") : (this.#e.base = e, y.origin = location.origin, this.#e.ANVIL = !0);
+      const r = "https://rolloh.vercel.app";
+      location.origin === r ? (this.#e.base = "", g.origin = "https://rolloh.anvil.app") : (this.#e.base = r, g.origin = location.origin, this.#e.ANVIL = !0);
     }
-    this.#e.session = crypto.randomUUID();
   }
   get ANVIL() {
     return this.#e.ANVIL || !1;
@@ -37,49 +44,54 @@ const M = {}, L = location.hostname === "localhost", S = typeof import.meta < "u
   }
   /* Returns flag that indicates if running in Vite env. */
   get VITE() {
-    return S;
+    return this.#e.VITE || (this.#e.VITE = typeof import.meta < "u" && typeof M < "u" && "production"), this.#e.VITE;
   }
   get base() {
     return this.#e.base;
   }
-  set base(e) {
-    this.#e.base = e;
+  set base(r) {
+    this.#e.base = r;
   }
   get server() {
-    return y;
+    return g;
   }
   get session() {
-    return this.#e.session;
+    return this.#e.session || (this.#e.session = crypto.randomUUID()), this.#e.session;
+  }
+  set session(r) {
+    if (this.#e.session)
+      throw new Error("Cannot change session.");
+    this.#e.session = r;
   }
 }();
-class g {
-  static create = (e) => e instanceof g ? e : new g(e);
+class y {
+  static create = (e) => e instanceof y ? e : new y(e);
   #e = {
     detail: {}
   };
   constructor(e) {
     this.#e.specifier = e;
-    const [t, i] = e.split("?");
-    i ? this.#e.query = Object.freeze(
+    const [t, o] = e.split("?");
+    o ? this.#e.query = Object.freeze(
       Object.fromEntries(
-        Array.from(new URLSearchParams(i), ([n, o]) => {
-          if (o = o.trim(), o === "") return [n, !0];
-          if (o === "true") return [n, !0];
-          const l = Number(o);
-          return [n, Number.isNaN(l) ? o : l];
-        }).filter(([n, o]) => !["false", "null", "undefined"].includes(o))
+        Array.from(new URLSearchParams(o), ([i, a]) => {
+          if (a = a.trim(), a === "") return [i, !0];
+          if (a === "true") return [i, !0];
+          const l = Number(a);
+          return [i, Number.isNaN(l) ? a : l];
+        }).filter(([i, a]) => !["false", "null", "undefined"].includes(a))
       )
     ) : this.#e.query = null;
     let s = t.split("/");
     if (this.#e.source = s.shift(), s.at(-1) === "" && (s[s.length - 1] = `${s[s.length - 2]}.js`), s.includes("")) {
-      const n = s.findIndex((l) => l === ""), o = s[n + 1];
-      s[n] = o.split(".")[0];
+      const i = s.findIndex((l) => l === ""), a = s[i + 1];
+      s[i] = a.split(".")[0];
     }
-    const r = s.at(-1);
-    if (r && !r.includes(".") && (s[s.length - 1] = `${r}.js`), this.#e.parts = Object.freeze(s), this.#e.path = `/${s.join("/")}`, this.#e.full = `${this.#e.source}${this.#e.path}`, this.#e.file = s.at(-1), this.#e.file) {
+    const n = s.at(-1);
+    if (n && !n.includes(".") && (s[s.length - 1] = `${n}.js`), this.#e.parts = Object.freeze(s), this.#e.path = `/${s.join("/")}`, this.#e.full = `${this.#e.source}${this.#e.path}`, this.#e.file = s.at(-1), this.#e.file) {
       this.#e.stem = this.#e.file.split(".").at(0), this.#e.type = this.#e.file.split(".").at(-1);
-      const [n, ...o] = this.#e.file.split(".");
-      this.#e.types = o.join(".");
+      const [i, ...a] = this.#e.file.split(".");
+      this.#e.types = a.join(".");
     }
   }
   /* Returns detail for ad-hoc data.
@@ -167,7 +179,7 @@ class b {
     return this.#e.registry.keys();
   }
 }
-const w = (a) => Object.prototype.toString.call(a).slice(8, -1), d = new class {
+const w = (r) => Object.prototype.toString.call(r).slice(8, -1), d = new class {
   #e = {
     added: /* @__PURE__ */ new Map(),
     detail: {},
@@ -175,20 +187,21 @@ const w = (a) => Object.prototype.toString.call(a).slice(8, -1), d = new class {
     import: Function("u", "return import(u)")
   };
   constructor() {
-    this.#e.meta = R, this.#e.sources = new b(this), this.#e.processors = new class extends b {
+    this.#e.meta = S, this.#e.sources = new b(this), this.#e.processors = new class extends b {
       #t = {};
       constructor(t) {
-        const i = /* @__PURE__ */ new Map();
-        super(t, i), this.#t.registry = i;
+        const o = /* @__PURE__ */ new Map();
+        super(t, o), this.#t.registry = o;
       }
       add(...t) {
-        const i = t.pop();
+        const o = t.pop();
         for (const s of t)
-          this.#t.registry.set(s, i);
+          this.#t.registry.set(s, o);
         return this.owner;
       }
     }(this), this.#e.types = new b(this);
   }
+  /* . */
   get anvil() {
     return this.#e.anvil;
   }
@@ -233,38 +246,38 @@ const w = (a) => Object.prototype.toString.call(a).slice(8, -1), d = new class {
   }
   /* Returns and processes asset. */
   async get(e, ...t) {
-    const i = { ...t.find((n) => w(n) === "Object") || {} };
-    t = t.filter((n) => w(n) !== "Object");
-    const s = g.create(e);
-    let r;
-    if (this.#e.added.has(s.full) ? (r = this.#e.added.get(s.full), typeof r == "function" && (r = await r({ path: s }))) : (this.sources.has(s.source) || p.raise(`Invalid source: ${s.source}`), r = await this.sources.get(s.source)(
-      { options: { ...i }, owner: this, path: s },
+    const o = { ...t.find((i) => w(i) === "Object") || {} };
+    t = t.filter((i) => w(i) !== "Object");
+    const s = y.create(e);
+    let n;
+    if (this.#e.added.has(s.full) ? (n = this.#e.added.get(s.full), typeof n == "function" && (n = await n({ path: s }))) : (this.sources.has(s.source) || p.raise(`Invalid source: ${s.source}`), n = await this.sources.get(s.source)(
+      { options: { ...o }, owner: this, path: s },
       ...t
-    )), s.detail.escape || r instanceof Error) return r;
-    if (i.raw)
-      return i.spec ? Object.freeze({
+    )), s.detail.escape || n instanceof Error) return n;
+    if (o.raw)
+      return o.spec ? Object.freeze({
         path: s.full,
         source: s.source,
-        text: r,
+        text: n,
         type: s.type
-      }) : r;
+      }) : n;
     if (s.detail.transform !== !1 && this.types.has(s.type)) {
-      const o = await this.types.get(s.type)(
-        r,
-        { options: { ...i }, owner: this, path: s },
+      const a = await this.types.get(s.type)(
+        n,
+        { options: { ...o }, owner: this, path: s },
         ...t
       );
-      o !== void 0 && (r = o);
+      a !== void 0 && (n = a);
     }
     if (s.detail.process !== !1 && this.processors.has(s.types)) {
-      const o = await this.processors.get(s.types)(
-        r,
-        { options: { ...i }, owner: this, path: s },
+      const a = await this.processors.get(s.types)(
+        n,
+        { options: { ...o }, owner: this, path: s },
         ...t
       );
-      o !== void 0 && (r = o);
+      a !== void 0 && (n = a);
     }
-    return r;
+    return n;
   }
   /* Returns module (native 'import' frunction) */
   async import(e) {
@@ -275,23 +288,23 @@ const w = (a) => Object.prototype.toString.call(a).slice(8, -1), d = new class {
   async module(e, t) {
     t && (e = `${e}
 //# sourceURL=${t}`);
-    const i = URL.createObjectURL(
+    const o = URL.createObjectURL(
       new Blob([e], { type: "text/javascript" })
-    ), s = await this.import(i);
-    return URL.revokeObjectURL(i), s;
+    ), s = await this.import(o);
+    return URL.revokeObjectURL(o), s;
   }
 }(), u = new Proxy(async () => {
 }, {
-  get(a, e) {
+  get(r, e) {
     if (e === "assets")
       return d;
     const t = d[e];
     return typeof t == "function" ? t.bind(d) : t;
   },
-  set(a, e, t) {
+  set(r, e, t) {
     return d[e] = t, !0;
   },
-  apply(a, e, t) {
+  apply(r, e, t) {
     return d.get(...t);
   }
 });
@@ -302,198 +315,198 @@ Object.defineProperty(globalThis, "use", {
   value: u
 });
 window.dispatchEvent(new CustomEvent("_use"));
-const v = /* @__PURE__ */ new Map(), h = /* @__PURE__ */ new Map();
-u.sources.add("/", async ({ options: a, owner: e, path: t }) => {
-  const { as: i, raw: s } = a;
-  if (t.type === "css" && i === void 0 && s !== !0) {
+const _ = /* @__PURE__ */ new Map(), h = /* @__PURE__ */ new Map();
+u.sources.add("/", async ({ options: r, owner: e, path: t }) => {
+  const { as: o, raw: s } = r;
+  if (t.type === "css" && o === void 0 && s !== !0) {
     u.meta.DEV && await u(t.path, { raw: !0 });
-    const r = `${e.meta.base}${t.path}`;
-    let n = document.head.querySelector(
-      `link[rel="stylesheet"][href="${r}"]`
+    const n = `${e.meta.base}${t.path}`;
+    let i = document.head.querySelector(
+      `link[rel="stylesheet"][href="${n}"]`
     );
-    if (n)
-      return h.has(r) ? h.get(r) : n;
-    n = document.createElement("link"), n.rel = "stylesheet", n.href = r;
-    const { promise: o, resolve: l, reject: c } = Promise.withResolvers();
-    return h.set(r, o), n.addEventListener(
+    if (i)
+      return h.has(n) ? h.get(n) : i;
+    i = document.createElement("link"), i.rel = "stylesheet", i.href = n;
+    const { promise: a, resolve: l, reject: c } = Promise.withResolvers();
+    return h.set(n, a), i.addEventListener(
       "load",
       (f) => {
-        l(n), h.delete(r);
+        l(i), h.delete(n);
       },
       { once: !0 }
-    ), n.addEventListener(
+    ), i.addEventListener(
       "error",
       (f) => {
-        h.delete(r), c(new p(`Failed to load sheet: ${r}`));
+        h.delete(n), c(new p(`Failed to load sheet: ${n}`));
       },
       { once: !0 }
-    ), document.head.append(n), await o;
+    ), document.head.append(i), await a;
   }
   if (t.type === "js" && s !== !0) {
-    if (i === "script") {
-      const r = `${e.meta.base}${t.path}`;
-      let n = document.head.querySelector(`script[src="${r}"]`);
-      if (n)
-        return h.has(r) ? h.get(r) : !0;
-      n = document.createElement("script"), n.src = r;
-      const { promise: o, resolve: l, reject: c } = Promise.withResolvers();
-      return h.set(r, o), n.addEventListener(
+    if (o === "script") {
+      const n = `${e.meta.base}${t.path}`;
+      let i = document.head.querySelector(`script[src="${n}"]`);
+      if (i)
+        return h.has(n) ? h.get(n) : !0;
+      i = document.createElement("script"), i.src = n;
+      const { promise: a, resolve: l, reject: c } = Promise.withResolvers();
+      return h.set(n, a), i.addEventListener(
         "load",
         (f) => {
-          h.delete(r), l(!0);
+          h.delete(n), l(!0);
         },
         { once: !0 }
-      ), n.addEventListener(
+      ), i.addEventListener(
         "error",
         (f) => {
-          h.delete(r), c(new p(`Failed to load script: ${r}`));
+          h.delete(n), c(new p(`Failed to load script: ${n}`));
         },
         { once: !0 }
-      ), document.head.append(n), await o;
+      ), document.head.append(i), await a;
     }
-    if (i === void 0)
+    if (o === void 0)
       return await e.import(`${e.meta.base}${t.path}`);
   }
-  if (v.has(t.full))
-    return v.get(t.full);
+  if (_.has(t.full))
+    return _.get(t.full);
   if (h.has(t.full)) {
-    const n = await h.get(t.full);
-    return h.delete(t.full), n;
+    const i = await h.get(t.full);
+    return h.delete(t.full), i;
   } else {
-    const { promise: r, resolve: n, reject: o } = Promise.withResolvers();
-    h.set(t.full, r);
+    const { promise: n, resolve: i, reject: a } = Promise.withResolvers();
+    h.set(t.full, n);
     try {
       const l = (await (await fetch(`${e.meta.base}${t.path}`, {
         cache: "no-store"
       })).text()).trim(), c = document.createElement("div");
-      return c.innerHTML = l, c.querySelector("meta[index]") && p.raise(`Invalid path: ${t.full}`), v.set(t.full, l), n(l), l;
+      return c.innerHTML = l, c.querySelector("meta[index]") && p.raise(`Invalid path: ${t.full}`), _.set(t.full, l), i(l), l;
     } catch (l) {
-      throw o(l), l;
+      throw a(l), l;
     } finally {
       h.delete(t.full);
     }
   }
 });
-const _ = /* @__PURE__ */ new Map();
-u.sources.add("@", ({ path: a }) => {
-  if (_.has(a.full))
-    return _.get(a.full);
+const v = /* @__PURE__ */ new Map();
+u.sources.add("@", ({ path: r }) => {
+  if (v.has(r.full))
+    return v.get(r.full);
   const e = document.createElement("meta");
-  document.head.append(e), e.setAttribute("__path__", a.path);
+  document.head.append(e), e.setAttribute("__path__", r.path);
   const t = getComputedStyle(e).getPropertyValue("--__asset__").trim();
-  e.remove(), t || p.raise(`Invalid path: ${a.full}`);
-  const i = atob(t.slice(1, -1));
-  return _.set(a.full, i), i;
+  e.remove(), t || p.raise(`Invalid path: ${r.full}`);
+  const o = atob(t.slice(1, -1));
+  return v.set(r.full, o), o;
 });
 const $ = /* @__PURE__ */ new Map();
-u.types.add("css", async (a, { path: e }) => {
-  if (typeof a != "string") return;
-  const { Sheet: t } = await u("@/rollo/"), i = e.full;
-  if ($.has(i)) return $.get(i);
-  const s = t.create(a, i);
-  return $.set(i, s), s;
+u.types.add("css", async (r, { path: e }) => {
+  if (typeof r != "string") return;
+  const { Sheet: t } = await u("@/rollo/"), o = e.full;
+  if ($.has(o)) return $.get(o);
+  const s = t.create(r, o);
+  return $.set(o, s), s;
 });
 const j = /* @__PURE__ */ new Map(), m = /* @__PURE__ */ new Map();
-u.types.add("js", async (a, { options: e, owner: t, path: i }) => {
-  if (typeof a != "string") return;
+u.types.add("js", async (r, { options: e, owner: t, path: o }) => {
+  if (typeof r != "string") return;
   let s;
-  const { as: r } = e, n = r === "function" ? `${i.full}?${r}` : i.full;
-  if (j.has(n))
-    return j.get(n);
-  if (m.has(n)) {
-    const l = await m.get(n);
-    return m.delete(n), l;
+  const { as: n } = e, i = n === "function" ? `${o.full}?${n}` : o.full;
+  if (j.has(i))
+    return j.get(i);
+  if (m.has(i)) {
+    const l = await m.get(i);
+    return m.delete(i), l;
   } else {
-    const { promise: o, resolve: l, reject: c } = Promise.withResolvers();
-    m.set(n, o);
+    const { promise: a, resolve: l, reject: c } = Promise.withResolvers();
+    m.set(i, a);
     try {
-      return r === "function" ? (s = Function(`return ${a}`)(), s === void 0 && (s = null)) : s = await t.module(
-        `export const __path__ = "${i.path}";${a}`,
-        i.path
-      ), l(s), j.set(n, s), s;
+      return n === "function" ? (s = Function(`return ${r}`)(), s === void 0 && (s = null)) : s = await t.module(
+        `export const __path__ = "${o.path}";${r}`,
+        o.path
+      ), l(s), j.set(i, s), s;
     } catch (f) {
       throw c(f), f;
     } finally {
-      m.delete(n);
+      m.delete(i);
     }
   }
 });
-u.types.add("json", (a) => {
-  if (typeof a == "string")
-    return JSON.parse(a);
+u.types.add("json", (r) => {
+  if (typeof r == "string")
+    return JSON.parse(r);
 });
-const A = /* @__PURE__ */ new Map();
-u.types.add("md", async (a, { options: e, path: t }) => {
+const E = /* @__PURE__ */ new Map();
+u.types.add("md", async (r, { options: e, path: t }) => {
   if (e.raw) return;
-  if (e.cache !== !1 && A.has(t.full))
-    return A.get(t.full);
-  if (typeof a != "string") return;
-  const { marked: i } = await u("@/marked");
+  if (e.cache !== !1 && E.has(t.full))
+    return E.get(t.full);
+  if (typeof r != "string") return;
+  const { marked: o } = await u("@/marked");
   let s;
-  if (a.startsWith("---")) {
-    const { YAML: r } = await u("@/yaml"), [n, o] = a.split("---").slice(1), l = Object.freeze(r.parse(n)), c = i.parse(o);
+  if (r.startsWith("---")) {
+    const { YAML: n } = await u("@/yaml"), [i, a] = r.split("---").slice(1), l = Object.freeze(n.parse(i)), c = o.parse(a);
     s = Object.freeze({ meta: l, html: c });
   } else
-    s = i.parse(a);
-  return e.cache !== !1 && A.set(t.full, s), s;
+    s = o.parse(r);
+  return e.cache !== !1 && E.set(t.full, s), s;
 });
 u.processors.add(
   "html",
   "template",
-  async (a, { options: e, owner: t, path: i }) => {
-    if (!e.convert || typeof a != "string") return;
+  async (r, { options: e, owner: t, path: o }) => {
+    if (!e.convert || typeof r != "string") return;
     const { component: s } = await u("@/rollo/");
-    return s.from(a);
+    return s.from(r);
   }
 );
-u.processors.add("css", async (a, e, ...t) => {
-  if (w(a) !== "CSSStyleSheet") return;
-  const i = t.filter(
+u.processors.add("css", async (r, e, ...t) => {
+  if (w(r) !== "CSSStyleSheet") return;
+  const o = t.filter(
     (s) => w(s) === "HTMLDocument" || s instanceof ShadowRoot || s.shadowRoot
   );
-  i.length && a.use(...i);
+  o.length && r.use(...o);
 });
-const E = /* @__PURE__ */ new Map();
-u.processors.add("x.html", "x.template", async (a, { path: e }) => {
-  if (typeof a != "string") return;
-  const { component: t, Sheet: i } = await u("@/rollo/");
-  if (E.has(e.full)) return E.get(e.full);
-  const s = t.div({ innerHTML: a }), r = await u.module(
+const A = /* @__PURE__ */ new Map();
+u.processors.add("x.html", "x.template", async (r, { path: e }) => {
+  if (typeof r != "string") return;
+  const { component: t, Sheet: o } = await u("@/rollo/");
+  if (A.has(e.full)) return A.get(e.full);
+  const s = t.div({ innerHTML: r }), n = await u.module(
     `export const __path__ = "${e.path}";${s.querySelector("script").textContent.trim()}`,
     e.path
-  ), n = Object.fromEntries(
-    Object.entries(r).filter(([c, f]) => f instanceof HTMLElement)
-  ), o = {};
+  ), i = Object.fromEntries(
+    Object.entries(n).filter(([c, f]) => f instanceof HTMLElement)
+  ), a = {};
   for (const c of s.querySelectorAll("style")) {
     if (c.hasAttribute("for")) {
-      const f = c.getAttribute("for"), O = i.create(
-        `[uid="${n[f].uid}"] { ${c.textContent.trim()} }`
+      const f = c.getAttribute("for"), O = o.create(
+        `[uid="${i[f].uid}"] { ${c.textContent.trim()} }`
       );
-      c.hasAttribute("global") && O.use(), c.hasAttribute("name") && (o[c.getAttribute("name")] = O);
+      c.hasAttribute("global") && O.use(), c.hasAttribute("name") && (a[c.getAttribute("name")] = O);
       continue;
     }
     if (c.hasAttribute("global")) {
-      const f = i.create(c.textContent.trim()).use();
-      c.hasAttribute("name") && (o[c.getAttribute("name")] = f);
+      const f = o.create(c.textContent.trim()).use();
+      c.hasAttribute("name") && (a[c.getAttribute("name")] = f);
     } else
-      o[c.hasAttribute("name") ? c.getAttribute("name") : "__sheet__"] = i.create(c.textContent.trim());
+      a[c.hasAttribute("name") ? c.getAttribute("name") : "__sheet__"] = o.create(c.textContent.trim());
   }
   for (const c of s.querySelectorAll("template"))
-    o[c.hasAttribute("name") ? c.getAttribute("name") : "__template__"] = c.innerHTML.trim();
-  Object.freeze(o);
-  const l = { __type__: "Module", assets: o };
-  for (const [c, f] of Object.entries(r)) {
+    a[c.hasAttribute("name") ? c.getAttribute("name") : "__template__"] = c.innerHTML.trim();
+  Object.freeze(a);
+  const l = { __type__: "Module", assets: a };
+  for (const [c, f] of Object.entries(n)) {
     if (typeof f == "function") {
       if (c === "setup") {
-        await f.call(o, o);
+        await f.call(a, a);
         continue;
       }
-      l[c] = f.bind(o);
+      l[c] = f.bind(a);
       continue;
     }
     l[c] = f;
   }
-  return E.set(e.full, Object.freeze(l)), l;
+  return A.set(e.full, Object.freeze(l)), l;
 });
 export {
   p as UseError,

@@ -5,7 +5,8 @@ echo/echo.py
 
 def main(use):
 
-    
+    print('tools:', use.tools)
+    print('Future:', use.tools.Future)
 
     echo = use("@@/echo/")
     result = echo(42)

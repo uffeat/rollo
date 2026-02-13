@@ -1,13 +1,8 @@
 // Create DEV flag that also works in a non-Vite context and across parcels.
 const DEV = location.hostname === "localhost";
 
-/* Determine if running in Vite context */
-const VITE =
-  typeof import.meta !== "undefined" &&
-  typeof import.meta.env !== "undefined" &&
-  import.meta.env.MODE;
 
-const server = new (class Server {
+const server = new (class {
   #_ = {};
 
   get origin() {
@@ -17,9 +12,20 @@ const server = new (class Server {
   set origin(origin) {
     this.#_.origin = origin;
   }
+
+  get targets() {
+    return this.#_.targets;
+  }
+
+  set targets(targets) {
+    if (this.#_.targets) {
+      throw new Error("Cannot change targets.");
+    }
+    this.#_.targets = targets;
+  }
 })();
 
-export const meta = new (class Meta {
+export const meta = new (class {
   #_ = {};
 
   constructor() {
@@ -41,11 +47,9 @@ export const meta = new (class Meta {
       } else {
         this.#_.base = BASE;
         server.origin = location.origin;
-        this.#_.ANVIL = true
+        this.#_.ANVIL = true;
       }
     }
-
-    this.#_.session = crypto.randomUUID()
   }
 
   get ANVIL() {
@@ -58,7 +62,13 @@ export const meta = new (class Meta {
 
   /* Returns flag that indicates if running in Vite env. */
   get VITE() {
-    return VITE;
+    if (!this.#_.VITE) {
+      this.#_.VITE =
+        typeof import.meta !== "undefined" &&
+        typeof import.meta.env !== "undefined" &&
+        import.meta.env.MODE;
+    }
+    return this.#_.VITE;
   }
 
   get base() {
@@ -74,6 +84,16 @@ export const meta = new (class Meta {
   }
 
   get session() {
+    if (!this.#_.session) {
+      this.#_.session = crypto.randomUUID();
+    }
     return this.#_.session;
+  }
+
+  set session(session) {
+    if (this.#_.session) {
+      throw new Error("Cannot change session.");
+    }
+    this.#_.session = session;
   }
 })();

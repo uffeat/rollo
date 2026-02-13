@@ -9,22 +9,22 @@ const { router } = await use("@/router/");
 const { Route } = await use("@/router/");
 const { frame } = await use("@/frame/");
 
-
 const route = new (class extends Route {
   #_ = {};
 
   constructor() {
     super({ page: component.main("container my-3") });
-    
+
     this.#_.cards = component.div(
-      "grid md:grid-cols-2 xl:grid-cols-3 gap-y-3 md:gap-4 xl:gap-5", {'[cards]': true}
+      "grid md:grid-cols-2 xl:grid-cols-3 gap-y-3 md:gap-4 xl:gap-5",
+      { "[cards]": true },
     );
     this.#_.post = component.div();
     this.page.append(this.#_.cards, this.#_.post);
 
-    /* Render cards (non-blocking).
-    NOTE Since 'cards' is image-rich, the component is rendered once and 
-    related data removed from 'items'. */
+    // Render cards (non-blocking).
+    // NOTE Since 'cards' is image-rich, the component is rendered once and 
+    // related data removed from 'items'.
     const stack = [...paths];
     const next = () => {
       if (!stack.length) return;
@@ -36,7 +36,7 @@ const route = new (class extends Route {
             data,
             "abstract",
             "image",
-            "title"
+            "title",
           );
           /* No more changes to data -> freeze */
           Object.freeze(data);
@@ -46,7 +46,7 @@ const route = new (class extends Route {
         })
         .catch((error) => {
           Exception.raise(`Could not load card: ${path}`, () =>
-            console.error(error)
+            console.error(error),
           );
         });
     };
@@ -64,9 +64,9 @@ const route = new (class extends Route {
         if (current) {
           /* Post view -> undisplay cards */
 
-           this.#_.cards.classes.remove("grid");////
-          this.#_.cards.classes.add("hidden");////
-
+          //this.#_.cards.classes.remove("grid"); ////
+          //this.#_.cards.classes.add("hidden"); ////
+          this.#_.cards.classes.replace("grid", "hidden")
 
 
           const path = `/${current}`;
@@ -84,13 +84,13 @@ const route = new (class extends Route {
         } else {
           /* Cards view -> display cards */
 
-
-          this.#_.cards.classes.remove("hidden");////
-          this.#_.cards.classes.add("grid");////
+          //this.#_.cards.classes.remove("hidden"); ////
+          //this.#_.cards.classes.add("grid"); ////
+          this.#_.cards.classes.replace("hidden", "grid")
         }
       },
       { run: false },
-      ["view"]
+      ["view"],
     );
   }
 
@@ -170,6 +170,5 @@ const route = new (class extends Route {
     this.page.$.view = paths.at(0) || null;
   }
 })();
-
 
 export { route as default };
