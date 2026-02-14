@@ -25,7 +25,9 @@ const server = new (class {
 })();
 
 export const meta = new (class {
-  #_ = {};
+  #_ = {
+    detail: {}
+  };
 
   constructor() {
     // Set ANVIL, base and server origin
@@ -78,20 +80,17 @@ export const meta = new (class {
     this.#_.base = base;
   }
 
+  get detail() {
+    return this.#_.detail;
+  }
+
   get server() {
     return server;
   }
 
   get session() {
     if (!this.#_.session) {
-      const SESSION = "__session__";
-      const stored = localStorage.getItem(SESSION);
-      if (stored) {
-        this.#_.session = stored;
-      } else {
-        this.#_.session = crypto.randomUUID();
-        localStorage.setItem(SESSION, this.#_.session);
-      }
+       this.#_.session = crypto.randomUUID();
     }
     return this.#_.session;
   }
@@ -101,5 +100,19 @@ export const meta = new (class {
       throw new Error("Cannot change session.");
     }
     this.#_.session = session;
+  }
+
+  get token() {
+    if (!this.#_.token) {
+      const KEY = "__token__";
+      const token = localStorage.getItem(KEY);
+      if (token) {
+        this.#_.token = token;
+      } else {
+        this.#_.token = crypto.randomUUID();
+        localStorage.setItem(KEY, this.#_.token);
+      }
+    }
+    return this.#_.token;
   }
 })();

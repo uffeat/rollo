@@ -9,7 +9,7 @@ class p extends Error {
     super(e), this.name = "UseError";
   }
 }
-const L = {}, O = location.hostname === "localhost", g = new class {
+const k = {}, S = location.hostname === "localhost", g = new class {
   #e = {};
   get origin() {
     return this.#e.origin;
@@ -25,10 +25,12 @@ const L = {}, O = location.hostname === "localhost", g = new class {
       throw new Error("Cannot change targets.");
     this.#e.targets = r;
   }
-}(), M = new class {
-  #e = {};
+}(), L = new class {
+  #e = {
+    detail: {}
+  };
   constructor() {
-    if (O) {
+    if (S) {
       const r = "3869";
       location.port === r ? this.#e.base = "" : this.#e.base = `http://localhost:${r}`, g.origin = "https://rollohdev.anvil.app";
     } else {
@@ -40,11 +42,11 @@ const L = {}, O = location.hostname === "localhost", g = new class {
     return this.#e.ANVIL || !1;
   }
   get DEV() {
-    return O;
+    return S;
   }
   /* Returns flag that indicates if running in Vite env. */
   get VITE() {
-    return this.#e.VITE || (this.#e.VITE = typeof import.meta < "u" && typeof L < "u" && "production"), this.#e.VITE;
+    return this.#e.VITE || (this.#e.VITE = typeof import.meta < "u" && typeof k < "u" && "production"), this.#e.VITE;
   }
   get base() {
     return this.#e.base;
@@ -52,20 +54,26 @@ const L = {}, O = location.hostname === "localhost", g = new class {
   set base(r) {
     this.#e.base = r;
   }
+  get detail() {
+    return this.#e.detail;
+  }
   get server() {
     return g;
   }
   get session() {
-    if (!this.#e.session) {
-      const r = "__session__", e = localStorage.getItem(r);
-      e ? this.#e.session = e : (this.#e.session = crypto.randomUUID(), localStorage.setItem(r, this.#e.session));
-    }
-    return this.#e.session;
+    return this.#e.session || (this.#e.session = crypto.randomUUID()), this.#e.session;
   }
   set session(r) {
     if (this.#e.session)
       throw new Error("Cannot change session.");
     this.#e.session = r;
+  }
+  get token() {
+    if (!this.#e.token) {
+      const r = "__token__", e = localStorage.getItem(r);
+      e ? this.#e.token = e : (this.#e.token = crypto.randomUUID(), localStorage.setItem(r, this.#e.token));
+    }
+    return this.#e.token;
   }
 }();
 class y {
@@ -191,7 +199,7 @@ const w = (r) => Object.prototype.toString.call(r).slice(8, -1), d = new class {
     import: Function("u", "return import(u)")
   };
   constructor() {
-    this.#e.meta = M, this.#e.sources = new b(this), this.#e.processors = new class extends b {
+    this.#e.meta = L, this.#e.sources = new b(this), this.#e.processors = new class extends b {
       #t = {};
       constructor(t) {
         const o = /* @__PURE__ */ new Map();
@@ -483,10 +491,10 @@ u.processors.add("x.html", "x.template", async (r, { path: e }) => {
   ), a = {};
   for (const c of s.querySelectorAll("style")) {
     if (c.hasAttribute("for")) {
-      const f = c.getAttribute("for"), S = o.create(
+      const f = c.getAttribute("for"), O = o.create(
         `[uid="${i[f].uid}"] { ${c.textContent.trim()} }`
       );
-      c.hasAttribute("global") && S.use(), c.hasAttribute("name") && (a[c.getAttribute("name")] = S);
+      c.hasAttribute("global") && O.use(), c.hasAttribute("name") && (a[c.getAttribute("name")] = O);
       continue;
     }
     if (c.hasAttribute("global")) {
