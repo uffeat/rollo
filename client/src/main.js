@@ -12,16 +12,17 @@ const { server } = await use("@/server");
 
 await (async () => {
   const { server } = await use("@/server");
-  const response = await server.cookie();
-  const result = response.result;
-  console.log("result:", result);
+  const {response, result, meta} = await server.echo(42);
+  //console.log("result:", result);
+  console.log("meta:", meta);
 })();
 
 await (async () => {
   const { server } = await use("@/server");
-  const response = await server.cookie();
-  const result = response.result;
-  console.log("result:", result);
+  const {response, result, meta} = await server.echo(42);
+  //console.log("result:", result);
+  console.log("meta:", meta);
+  
 })();
 
 if (import.meta.env.DEV) {

@@ -8,9 +8,11 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "vite": "^6.3.1"
+    "vite": "^6.3.1",
+    "@rollup/plugin-inject": "^5.0.5"
   },
   "dependencies": {
+    "@js-temporal/polyfill": "^0.5.1",
     "@tailwindcss/vite": "^4.1.17",
     "tailwindcss": "^4.1.17"
   }
