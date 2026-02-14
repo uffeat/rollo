@@ -1,7 +1,6 @@
 // Create DEV flag that also works in a non-Vite context and across parcels.
 const DEV = location.hostname === "localhost";
 
-
 const server = new (class {
   #_ = {};
 
@@ -85,7 +84,14 @@ export const meta = new (class {
 
   get session() {
     if (!this.#_.session) {
-      this.#_.session = crypto.randomUUID();
+      const SESSION = "__session__";
+      const stored = localStorage.getItem(SESSION);
+      if (stored) {
+        this.#_.session = stored;
+      } else {
+        this.#_.session = crypto.randomUUID();
+        localStorage.setItem(SESSION, this.#_.session);
+      }
     }
     return this.#_.session;
   }

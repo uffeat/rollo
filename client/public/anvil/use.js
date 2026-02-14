@@ -9,7 +9,7 @@ class p extends Error {
     super(e), this.name = "UseError";
   }
 }
-const M = {}, L = location.hostname === "localhost", g = new class {
+const L = {}, O = location.hostname === "localhost", g = new class {
   #e = {};
   get origin() {
     return this.#e.origin;
@@ -25,10 +25,10 @@ const M = {}, L = location.hostname === "localhost", g = new class {
       throw new Error("Cannot change targets.");
     this.#e.targets = r;
   }
-}(), S = new class {
+}(), M = new class {
   #e = {};
   constructor() {
-    if (L) {
+    if (O) {
       const r = "3869";
       location.port === r ? this.#e.base = "" : this.#e.base = `http://localhost:${r}`, g.origin = "https://rollohdev.anvil.app";
     } else {
@@ -40,11 +40,11 @@ const M = {}, L = location.hostname === "localhost", g = new class {
     return this.#e.ANVIL || !1;
   }
   get DEV() {
-    return L;
+    return O;
   }
   /* Returns flag that indicates if running in Vite env. */
   get VITE() {
-    return this.#e.VITE || (this.#e.VITE = typeof import.meta < "u" && typeof M < "u" && "production"), this.#e.VITE;
+    return this.#e.VITE || (this.#e.VITE = typeof import.meta < "u" && typeof L < "u" && "production"), this.#e.VITE;
   }
   get base() {
     return this.#e.base;
@@ -56,7 +56,11 @@ const M = {}, L = location.hostname === "localhost", g = new class {
     return g;
   }
   get session() {
-    return this.#e.session || (this.#e.session = crypto.randomUUID()), this.#e.session;
+    if (!this.#e.session) {
+      const r = "__session__", e = localStorage.getItem(r);
+      e ? this.#e.session = e : (this.#e.session = crypto.randomUUID(), localStorage.setItem(r, this.#e.session));
+    }
+    return this.#e.session;
   }
   set session(r) {
     if (this.#e.session)
@@ -187,7 +191,7 @@ const w = (r) => Object.prototype.toString.call(r).slice(8, -1), d = new class {
     import: Function("u", "return import(u)")
   };
   constructor() {
-    this.#e.meta = S, this.#e.sources = new b(this), this.#e.processors = new class extends b {
+    this.#e.meta = M, this.#e.sources = new b(this), this.#e.processors = new class extends b {
       #t = {};
       constructor(t) {
         const o = /* @__PURE__ */ new Map();
@@ -479,10 +483,10 @@ u.processors.add("x.html", "x.template", async (r, { path: e }) => {
   ), a = {};
   for (const c of s.querySelectorAll("style")) {
     if (c.hasAttribute("for")) {
-      const f = c.getAttribute("for"), O = o.create(
+      const f = c.getAttribute("for"), S = o.create(
         `[uid="${i[f].uid}"] { ${c.textContent.trim()} }`
       );
-      c.hasAttribute("global") && O.use(), c.hasAttribute("name") && (a[c.getAttribute("name")] = O);
+      c.hasAttribute("global") && S.use(), c.hasAttribute("name") && (a[c.getAttribute("name")] = S);
       continue;
     }
     if (c.hasAttribute("global")) {
