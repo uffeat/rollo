@@ -1542,14 +1542,14 @@ function Ht(r) {
   const t = document.createElement("div");
   return t.innerHTML = r, Array.from(t.children, (s) => Zt(s));
 }
-function K(r) {
+function B(r) {
   const t = $[r.tagName.toLowerCase()]();
   for (const { name: e, value: s } of Array.from(r.attributes))
     t.setAttribute(e, s);
   return t;
 }
 function Zt(r) {
-  const t = K(r), e = Array.from(r.childNodes, (s) => [t, s]).reverse();
+  const t = B(r), e = Array.from(r.childNodes, (s) => [t, s]).reverse();
   for (; e.length; ) {
     const [s, n] = e.pop();
     if (n.nodeType === Node.TEXT_NODE) {
@@ -1558,14 +1558,14 @@ function Zt(r) {
     }
     if (n.nodeType !== Node.ELEMENT_NODE)
       continue;
-    const i = K(n);
+    const i = B(n);
     s.append(i), e.push(...Array.from(n.childNodes, (o) => [i, o]).reverse());
   }
   return t;
 }
-const It = (r, t, e) => (W.add(r, t, e), M(r, "create", Z(r)), r.create), Y = "div", Dt = It(
+const It = (r, t, e) => (W.add(r, t, e), M(r, "create", Z(r)), r.create), K = "div", Dt = It(
   class extends Q(
-    document.createElement(Y).constructor,
+    document.createElement(K).constructor,
     {},
     ...tt(J)
   ) {
@@ -1579,8 +1579,11 @@ const It = (r, t, e) => (W.add(r, t, e), M(r, "create", Z(r)), r.create), Y = "d
     }
   },
   "app-component",
-  Y
-), w = Dt({ id: "app", parent: document.body }), qt = Object.freeze({
+  K
+), w = Dt({
+  id: "app",
+  parent: document.getElementById("root") || document.body
+}), qt = Object.freeze({
   sm: 640,
   md: 768,
   lg: 1024,
@@ -1594,7 +1597,7 @@ for (const [r, t] of Object.entries(qt)) {
     w.$[r] = i, w.send(`_break_${r}`, { detail: i });
   });
 }
-const Kt = new ResizeObserver((r) => {
+const Bt = new ResizeObserver((r) => {
   setTimeout(() => {
     for (const t of r) {
       const e = t.contentRect.width, s = t.contentRect.height;
@@ -1602,7 +1605,7 @@ const Kt = new ResizeObserver((r) => {
     }
   }, 0);
 });
-Kt.observe(w);
+Bt.observe(w);
 w.$.effects.add(
   (r) => {
     const { X: t, Y: e } = r;
@@ -1610,7 +1613,7 @@ w.$.effects.add(
   },
   ["X", "Y"]
 );
-const Yt = (r, t = !0) => t ? r.replace(/[^\S ]/g, "").replace(/ {2,}/g, " ").trim() : r.replace(/\s/g, ""), rt = class extends HTMLElement {
+const Kt = (r, t = !0) => t ? r.replace(/[^\S ]/g, "").replace(/ {2,}/g, " ").trim() : r.replace(/\s/g, ""), rt = class extends HTMLElement {
   constructor() {
     super();
   }
@@ -1635,7 +1638,7 @@ class D {
   get text() {
     return Array.from(
       this.owner.cssRules,
-      (t) => Yt(t.cssText)
+      (t) => Kt(t.cssText)
     ).join(" ");
   }
   /* Adds rules. */
@@ -1839,7 +1842,7 @@ class N extends CSSStyleSheet {
     return this;
   }
 }
-const Bt = document.documentElement, B = new class {
+const Yt = document.documentElement, Y = new class {
   #t = {};
   constructor() {
     this.#t.color = new class {
@@ -1870,7 +1873,7 @@ const Bt = document.documentElement, B = new class {
       {},
       {
         get(r, t) {
-          return getComputedStyle(Bt).getPropertyValue(`--${O(t, { numbers: !0 })}`).trim();
+          return getComputedStyle(Yt).getPropertyValue(`--${O(t, { numbers: !0 })}`).trim();
         }
       }
     );
@@ -1903,7 +1906,7 @@ const Bt = document.documentElement, B = new class {
 }, be = new Proxy(() => {
 }, {
   get(r, t) {
-    return t in B ? B[t] : t in st.style ? new Proxy(
+    return t in Y ? Y[t] : t in st.style ? new Proxy(
       {},
       {
         get(e, s) {

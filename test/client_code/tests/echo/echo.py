@@ -5,8 +5,6 @@ echo/echo.py
 
 def main(use):
 
-    
-
     echo = use("@@/echo/")
     result = echo(42)
     print("result:", result)

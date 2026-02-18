@@ -28,7 +28,10 @@ const App = author(
   TAG,
 );
 
-export const app = App({ id: "app", parent: document.body });
+export const app = App({
+  id: "app",
+  parent: document.getElementById("root") || document.body,
+});
 
 /* Breakpoints.
 Not used by 'app' itself, but provided as a service to enable:

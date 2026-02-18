@@ -5,7 +5,7 @@ from anvil.server import (
     callable as callable_,
     connect,
     http_endpoint,
-    wait_forever as keep_connection,
+    wait_forever,
 )
 
 UTF_8 = "utf-8"
@@ -45,10 +45,17 @@ def main():
         return True
 
     @callable_
-    def access():
+    def _access():
         return True
+    
+    @callable_
+    def _log(*args):
+        print(*args)
+    
+    
+    print("Running local server for client-code test injection.")
 
-    keep_connection()
+    wait_forever()
 
 
 if __name__ == "__main__":

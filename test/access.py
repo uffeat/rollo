@@ -4,7 +4,7 @@ from pathlib import Path
 from anvil.server import (
     callable as callable_,
     connect,
-    wait_forever as keep_connection,
+    wait_forever,
 )
 
 
@@ -17,10 +17,16 @@ def main():
     connect(key)
 
     @callable_
-    def access():
+    def _access():
         return True
+    
+    @callable_
+    def _log(*args):
+        print(*args)
 
-    keep_connection()
+    print("Running local server for access and logging.")
+
+    wait_forever()
 
 
 if __name__ == "__main__":

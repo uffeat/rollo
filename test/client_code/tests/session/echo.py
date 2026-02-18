@@ -5,9 +5,6 @@ session/echo.py
 
 def main(use):
 
-    
-
-
     echo = use("rpc/echo", dict(spinner=True))
     response = echo(42)
     ##result = response.get("result")
