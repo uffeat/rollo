@@ -538,7 +538,7 @@ const ie = (...r) => A.create(...r).$, oe = (...r) => {
       (t, e) => {
         this.update(t);
         const s = Object.fromEntries(
-          Object.entries(t).filter(([n, i]) => !(n in this && !n.startsWith("_")) && !(n in this.style) && !n.startsWith("[") && !n.startsWith("data.") && !n.startsWith(".") && !n.startsWith("__") && !n.startsWith("on.")).map(([n, i]) => [`state-${n}`, i])
+          Object.entries(t).filter(([n, i]) => !(n in this && !n.startsWith("_")) && !(n in this.style) && !n.startsWith("[") && !n.startsWith("data.") && !n.startsWith(".") && !n.startsWith("__") && !n.startsWith("on.")).map(([n, i]) => n.startsWith("state") ? [`${n}`, i] : [`state-${n}`, i])
         );
         this.attributes.update(s);
       },

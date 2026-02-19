@@ -12,10 +12,11 @@ if (import.meta.env.DEV) {
 }
 
 const { app, component } = await use("@/rollo/");
+const { frame } = await use("@/frame/");
 
 const iframe = component.iframe( {
   name: 'iworker',
-  src: `https://rollohdev.anvil.app?origin=${origin}`,
+  src: `${use.meta.server.origin}?origin=${origin}`,
   $undisplay: true
   
 });
@@ -30,8 +31,11 @@ await new Promise((resolve, reject) => {
 
 console.log("contentWindow:", iframe.contentWindow);
 
-if (import.meta.env.DEV) {
+const show = component.button('btn.btn-primary.m-3', {parent: frame, 'on.click': (event) => {
+  iframe.$.undisplay = false
+}}, 'Show iworker')
 
+if (import.meta.env.DEV) {
   /* Initialize DEV testbench */
   await import("../test");
 }

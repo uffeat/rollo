@@ -30,12 +30,7 @@ export default (parent) => {
                 !k.startsWith("__") &&
                 !k.startsWith("on.")
               );
-            }).map(([k, v]) => {
-              if (k.startsWith('state')) {
-                return [`${k}`, v]
-              }
-              return [`state-${k}`, v]
-            })
+            }).map(([k, v]) => [`state-${k}`, v])
           );
           this.attributes.update(updates)
         },
