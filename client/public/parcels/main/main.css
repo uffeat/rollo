@@ -1,7 +1,5 @@
 @import "tailwindcss";
 
-
-
 /* Make images responsive */
 img {
   max-width: 100%;
@@ -26,11 +24,13 @@ input[type="number"]::-webkit-inner-spin-button {
   margin: 0; /* avoids old layout quirks */
 }
 
-iframe {
+iframe[name="iworker"] {
   width: 100%;
   height: 100vh;
   border: none;
 }
 
-
-
+iframe[name="iworker"][state-undisplay] {
+  /*display: none;*/
+  height: 0;
+}

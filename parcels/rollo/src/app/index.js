@@ -23,6 +23,10 @@ const App = author(
       this.attribute.app = true;
       this.attribute.webComponent = true;
     }
+
+    get shadow() {
+      return this.#_.shadow
+    }
   },
   "app-component",
   TAG,

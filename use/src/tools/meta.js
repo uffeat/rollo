@@ -84,6 +84,10 @@ export const meta = new (class {
     return this.#_.detail;
   }
 
+  get env() {
+    return this.DEV ? 'development' : 'production';
+  }
+
   get server() {
     return server;
   }

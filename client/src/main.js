@@ -6,13 +6,19 @@ import "@/use";
 /* Set up routes */
 import "@/routes";
 
+if (import.meta.env.DEV) {
+  await use("/parcels/main/main.css");
+ 
+}
+
 const { app, component } = await use("@/rollo/");
 
-const iframe = component.iframe({ 
-  src: "https://rollohdev.anvil.app?foo=42", 
-  //slot: 'data', 
-},
-);
+const iframe = component.iframe( {
+  name: 'iworker',
+  src: `https://rollohdev.anvil.app?origin=${origin}`,
+  $undisplay: true
+  
+});
 
 await new Promise((resolve, reject) => {
   iframe.on.load({ once: true }, (event) => {
@@ -25,7 +31,7 @@ await new Promise((resolve, reject) => {
 console.log("contentWindow:", iframe.contentWindow);
 
 if (import.meta.env.DEV) {
-  await use("/parcels/main/main.css");
+
   /* Initialize DEV testbench */
   await import("../test");
 }

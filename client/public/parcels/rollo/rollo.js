@@ -1577,6 +1577,9 @@ const It = (r, t, e) => (W.add(r, t, e), M(r, "create", Z(r)), r.create), K = "d
         this.#t.dataSlot
       ), this.attachShadow({ mode: "open" }).append(this.#t.shadow), this.attribute.app = !0, this.attribute.webComponent = !0;
     }
+    get shadow() {
+      return this.#t.shadow;
+    }
   },
   "app-component",
   K

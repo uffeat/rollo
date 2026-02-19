@@ -57,6 +57,9 @@ const k = {}, S = location.hostname === "localhost", g = new class {
   get detail() {
     return this.#e.detail;
   }
+  get env() {
+    return this.DEV ? "development" : "production";
+  }
   get server() {
     return g;
   }
