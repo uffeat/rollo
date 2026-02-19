@@ -28,9 +28,11 @@ const App = author(
   TAG,
 );
 
+const root = document.getElementById("root") || document.body
+
 export const app = App({
   id: "app",
-  parent: document.getElementById("root") || document.body,
+  parent: root,
 });
 
 /* Breakpoints.

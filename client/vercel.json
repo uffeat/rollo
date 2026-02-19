@@ -6,6 +6,11 @@
     },
 
     {
+      "source": "/anvil/:match*",
+      "destination": "/anvil/:match*"
+    },
+
+    {
       "source": "/content/:match*",
       "destination": "/content/:match*"
     },
