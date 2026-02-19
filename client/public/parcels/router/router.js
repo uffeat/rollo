@@ -106,7 +106,7 @@ const { Exception: p, ref: $ } = await use("@/rollo/"), a = new class {
   /* Invokes route from initial location. 
   NOTE Should be called once router has been set up. */
   async setup({ error: t, redirect: s, routes: e, strict: r = !0 } = {}) {
-    return this.#t.config.error = t, this.#t.config.strict = r, Object.assign(this.#t.config.redirect, s), e && this.routes.add({ ...e }), this.#t.initialized || (window.parent.addEventListener("popstate", async (n) => {
+    return this.#t.config.error = t, this.#t.config.strict = r, Object.assign(this.#t.config.redirect, s), e && this.routes.add({ ...e }), this.#t.initialized || (window.addEventListener("popstate", async (n) => {
       await this.use(this.#s(), {
         context: "pop"
       });
@@ -118,7 +118,7 @@ const { Exception: p, ref: $ } = await use("@/rollo/"), a = new class {
   async use(t, { context: s, strict: e } = {}) {
     t in this.#t.config.redirect && (t = this.#t.config.redirect[t]), e = e === void 0 ? this.#t.config.strict : e;
     const r = f.create(t), n = (() => {
-      const h = window.parent.history;
+      const h = window.history;
       return this.#t.url ? r.match(this.#t.url) ? void 0 : (this.#t.url = r, () => {
         s || h.pushState({}, "", r.full);
       }) : (this.#t.url = r, () => {
@@ -173,7 +173,7 @@ const { Exception: p, ref: $ } = await use("@/rollo/"), a = new class {
     e.length && (t = `${t}/${e.join("/")}`), app.$({ path: t }), this.#t.states.path(t, {}, s, ...e);
   }
   #s() {
-    const t = window.parent.location;
+    const t = window.location;
     return t.search ? `${t.pathname}${t.search}${t.hash}` : `${t.pathname}${t.hash}`;
   }
 }(), y = new Proxy(async () => {

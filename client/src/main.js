@@ -4,28 +4,17 @@ import "@/use";
 /* Initialize iworker */
 //import { iworker } from "@/iworker";
 /* Set up routes */
-import "@/routes";
+//import "@/routes";
 
-const { InputFile, app, component, is, css, ref } = await use("@/rollo/");
-const { frame } = await use("@/frame/");
-const { server } = await use("@/server");
+const { app, component } = await use("@/rollo/");
 
-await (async () => {
-  const { server } = await use("@/server");
-  const {response, result, meta} = await server.echo(42);
-  //console.log("result:", result);
-  console.log("meta:", meta);
-})();
+const iframe = component.iframe({src: 'https://rollohdev.anvil.app'})
 
-await (async () => {
-  const { server } = await use("@/server");
-  const {response, result, meta} = await server.echo(42);
-  //console.log("result:", result);
-  console.log("meta:", meta);
-  
-})();
+
+app.append(iframe)
 
 if (import.meta.env.DEV) {
+  await use('/parcels/main/main.css')
   /* Initialize DEV testbench */
   await import("../test");
 }
