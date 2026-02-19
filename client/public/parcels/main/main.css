@@ -30,7 +30,10 @@ iframe[name="iworker"] {
   border: none;
 }
 
-iframe[name="iworker"][state-undisplay] {
-  /*display: none;*/
+iframe[name="iworker"][state-hidden] {
   height: 0;
+}
+
+#app:has(iframe[name="iworker"]:not([state-hidden])) > :not([name="iworker"]) {
+  display: none;
 }
