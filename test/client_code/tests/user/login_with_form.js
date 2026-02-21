@@ -192,13 +192,13 @@ export default async () => {
     for (const record of records) {
       // Check for additions
       for (const node of record.addedNodes) {
-        if (node.matches?.(".anvil-modal")) {
+        if (node.matches?.(".anvil-modal-backdrop")) {
           debounce(node);
         }
       }
       // Check for removals
       for (const node of record.removedNodes) {
-        if (node.matches?.(".anvil-modal")) {
+        if (node.matches?.(".anvil-modal-backdrop")) {
           debounce(node);
         }
       }
