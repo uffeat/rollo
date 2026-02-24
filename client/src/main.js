@@ -7,12 +7,13 @@ import "@/use";
 import "@/routes";
 
 if (import.meta.env.DEV) {
-  await use("/parcels/main/main.css");
+  //await use("/parcels/main/main.css");
+  await import('@/dev.css')
 }
 
 //const { user } = await use("@/user/");
 
-const { Ref, app, component } = await use("@/rollo/");
+const { Ref, app, component, css } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
 
 const { Form, Input } = await use("@/form/");
@@ -223,6 +224,40 @@ nav.on.click(async (event) => {
 user.effects.add((current) => {
   app.$.user = current;
 });
+
+css`
+  iframe[name="iworker"] {
+    width: 100%;
+    /*height: 100vh;*/
+    border: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  iframe[name="iworker"] {
+    /*
+  position: absolute;
+  top: 0;
+  */
+
+    /**/
+    height: 100vh;
+  }
+
+  iframe[name="iworker"][state-hidden] {
+    height: 0;
+  }
+
+  #app:has(iframe[name="iworker"]:not([state-hidden]))
+    > :not([name="iworker"]) {
+    /*display: none;*/
+  }
+
+  /* TODO Transfer to frame parcel*/
+  frame-component {
+    height: unset;
+  }
+`.use();
 
 const iframe = component.iframe({
   name: "iworker",
