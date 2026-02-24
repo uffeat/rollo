@@ -227,7 +227,7 @@ user.effects.add((current) => {
 const iframe = component.iframe({
   name: "iworker",
   src: `${use.meta.server.origin}/iworker?iworker=`,
-  $stateHidden: true,
+  //$stateHidden: true,
 });
 
 app.append(iframe);
@@ -242,10 +242,8 @@ await new Promise((resolve, reject) => {
       resolve(true);
     }
   };
-
   window.addEventListener("message", onmessage);
 });
-
 
 const show = component.button(
   "btn.btn-primary.m-3",
@@ -259,51 +257,58 @@ const show = component.button(
 );
 
 const iworker = new (class {
-  #_ = {
-    config: {
-      //timeout: 400,
-    },
-  };
+  #_ = {};
 
-  get config() {
-    return this.#_.config;
+  constructor() {
+    app.$.effects.add(
+      ({ Y }) => {
+        console.log("Y:", Y); ////
+        iframe.contentWindow.postMessage(
+          { type: "Y", Y },
+          use.meta.server.origin,
+        );
+      },
+      ["Y"],
+    );
   }
 
-  async request(specifier, ...args) {
-    return new Promise((resolve, reject) => {
-      const channel = new MessageChannel();
+  request({ timeout, visible } = {}) {
+    return (specifier, ...args) => {
+      return new Promise((resolve, reject) => {
+        const channel = new MessageChannel();
 
-      const timer = (() => {
-        if (this.config.timeout) {
-          return setTimeout(() => {
-            channel.port1.close();
-            reject(
-              new Error(
-                `Response from '${specifier}' took longer than ${this.config.timeout}ms`,
-              ),
-            );
-          }, this.config.timeout);
-        }
-      })();
+        const timer = (() => {
+          if (timeout) {
+            return setTimeout(() => {
+              channel.port1.close();
+              reject(
+                new Error(
+                  `Response from '${specifier}' took longer than ${timeout}ms`,
+                ),
+              );
+            }, timeout);
+          }
+        })();
 
-      channel.port1.onmessage = (event) => {
-        if (timer) {
-          clearTimeout(timer);
-        }
+        channel.port1.onmessage = (event) => {
+          if (timer) {
+            clearTimeout(timer);
+          }
 
-        if (event.data.error) {
-          reject(event.data.error);
-        } else {
-          resolve(event.data.result);
-        }
-        channel.port1.close();
-      };
-      iframe.contentWindow.postMessage(
-        { type: "request", specifier, args },
-        use.meta.server.origin,
-        [channel.port2],
-      );
-    });
+          if (event.data.error) {
+            reject(event.data.error);
+          } else {
+            resolve(event.data.result);
+          }
+          channel.port1.close();
+        };
+        iframe.contentWindow.postMessage(
+          { type: "request", specifier, args, visible },
+          use.meta.server.origin,
+          [channel.port2],
+        );
+      });
+    };
   }
 })();
 
@@ -462,9 +467,11 @@ await user.setup({
   },
 });
 
-iworker.request("@@/echo/", 42).then((result) => {
-  console.log("result:", result);
-});
+iworker
+  .request()("@@/echo/", 42)
+  .then((result) => {
+    console.log("echo result:", result);
+  });
 
 /*
 iworker.request("@@/login/").then((result) => {

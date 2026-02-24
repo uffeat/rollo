@@ -11756,28 +11756,6 @@ input[type="number"]::-webkit-inner-spin-button {
   margin: 0; /* avoids old layout quirks */
 }
 
-iframe[name="iworker"] {
-  width: 100%;
-  height: 100vh;
-  border: none;
-  padding: 0;
-  margin: 0;
-
-  
-}
-
-iframe[name="iworker"] {
-  position: absolute;
-  top: 0;
-
-  /**/
- 
-  
-}
-
-iframe[name="iworker"][state-hidden] {
-  height: 0;
-}
 
 
 

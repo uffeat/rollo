@@ -26,7 +26,7 @@ input[type="number"]::-webkit-inner-spin-button {
 
 iframe[name="iworker"] {
   width: 100%;
-  height: 100vh;
+  /*height: 100vh;*/
   border: none;
   padding: 0;
   margin: 0;
@@ -35,10 +35,13 @@ iframe[name="iworker"] {
 }
 
 iframe[name="iworker"] {
+  /*
   position: absolute;
   top: 0;
+  */
 
   /**/
+  height: 100vh;
  
   
 }
@@ -51,4 +54,9 @@ iframe[name="iworker"][state-hidden] {
 
 #app:has(iframe[name="iworker"]:not([state-hidden])) > :not([name="iworker"]) {
   /*display: none;*/
+}
+
+/* TODO Transfer to frame parcel*/
+frame-component {
+  height: unset;
 }

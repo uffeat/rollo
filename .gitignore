@@ -32,3 +32,5 @@ secrets.py
 .vercel/
 
 .claude/ 
+
+_scratch/pyany.py
