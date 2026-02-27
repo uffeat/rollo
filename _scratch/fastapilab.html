@@ -19,7 +19,7 @@
 
       await (async () => {
         const response = await fetch(
-          `http://127.0.0.1:8000/main/_/api?name=foo&submission=0`,
+          `http://127.0.0.1:8000/_/api/main?name=foo&submission=0`,
           {
             //mode: "cors",
             method: "POST",
@@ -34,7 +34,7 @@
 
       await (async () => {
         const response = await fetch(
-          `http://127.0.0.1:8000/main/_/api?name=echo&submission=0`,
+          `http://127.0.0.1:8000/_/api/main?name=echo&submission=0`,
           {
             //mode: "cors",
             method: "POST",
@@ -47,16 +47,7 @@
         console.log("result:", result); ////
       })();
 
-      await (async () => {
-        const response = await fetch(`http://127.0.0.1:8000/ping`, {
-          //mode: "cors",
-          //method: "GET",
-          //headers: { "Content-Type": "text/plain" },
-        });
-        console.log("response:", response); ////
-        const result = await response.json();
-        console.log("result:", result); ////
-      })();
+      
     </script>
   </head>
   <body></body>
