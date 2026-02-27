@@ -9,6 +9,8 @@
     <script type="module">
       import "../client/src/use.js";
 
+      //console.dir(location); ////
+
       await (async () => {
         //use.meta.server.origin = 'http://127.0.0.1:8000'
         //const { server } = await use("@/server");
@@ -46,8 +48,6 @@
         const result = await response.json();
         console.log("result:", result); ////
       })();
-
-      
     </script>
   </head>
   <body></body>
