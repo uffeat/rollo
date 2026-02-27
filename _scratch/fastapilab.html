@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://rolloh.vercel.app/anvil/main.css" />
+    <link rel="shortcut icon" href="#" type="image/x-icon" />
+    <title>FastAPI</title>
+    <script type="module">
+      import "../client/src/use.js";
+
+      await (async () => {
+        //use.meta.server.origin = 'http://127.0.0.1:8000'
+        //const { server } = await use("@/server");
+        //const response = await server.echo(42);
+        //const result = response.result;
+        //console.log("result:", result);
+      })();
+
+      await (async () => {
+        const response = await fetch(
+          `http://127.0.0.1:8000/main/_/api?name=foo&submission=0`,
+          {
+            //mode: "cors",
+            method: "POST",
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify({ args: [1, 2, 3], kwargs: { stuff: 42 } }),
+          },
+        );
+        console.log("response:", response); ////
+        const result = await response.json();
+        console.log("result:", result); ////
+      })();
+
+      await (async () => {
+        const response = await fetch(
+          `http://127.0.0.1:8000/main/_/api?name=echo&submission=0`,
+          {
+            //mode: "cors",
+            method: "POST",
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify({ args: [1, 2, 3], kwargs: { stuff: 42 } }),
+          },
+        );
+        console.log("response:", response); ////
+        const result = await response.json();
+        console.log("result:", result); ////
+      })();
+
+      await (async () => {
+        const response = await fetch(`http://127.0.0.1:8000/ping`, {
+          //mode: "cors",
+          //method: "GET",
+          //headers: { "Content-Type": "text/plain" },
+        });
+        console.log("response:", response); ////
+        const result = await response.json();
+        console.log("result:", result); ////
+      })();
+    </script>
+  </head>
+  <body></body>
+</html>
