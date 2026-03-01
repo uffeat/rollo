@@ -2,8 +2,14 @@ import "../../use";
 import { Mixins, author, component, mix } from "../component/index";
 import { stateMixin } from "../state/index";
 
+const TAG = "div";
+
 const App = author(
-  class extends mix(HTMLElement, {}, ...Mixins(stateMixin)) {
+  class extends mix(
+    document.createElement(TAG).constructor,
+    {},
+    ...Mixins(stateMixin),
+  ) {
     #_ = {};
     constructor() {
       super();
@@ -24,6 +30,7 @@ const App = author(
     }
   },
   "app-component",
+  TAG,
 );
 
 export const app = App({

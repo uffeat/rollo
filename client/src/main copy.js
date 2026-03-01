@@ -30,9 +30,27 @@ css`
   }
 
   iframe[name="iworker"] {
+    
     position: absolute;
     top: 0;
-    height: var(--height, 0);
+
+    
+
+    
+    height: var(--height);
+  }
+
+  iframe[name="iworker"][state-hidden] {
+    height: 0;
+  }
+
+  #app:has(iframe[name="iworker"]:not([state-hidden]))
+    > :not([name="iworker"]) {
+    /*display: none;*/
+  }
+
+  frame-component {
+    //height: unset;
   }
 `.use();
 
@@ -44,7 +62,13 @@ const iframe = component.iframe({
 
 app.append(iframe);
 
-
+//
+//
+//iframe.__.height = '500px'
+iframe.$.update({ __height: "200px" });
+iframe.update({ width: "100px", border: "1px solid green" });
+//
+//
 
 await new Promise((resolve, reject) => {
   const onmessage = (event) => {
@@ -77,10 +101,6 @@ const iworker = new (class {
   }
 
   request({ timeout, visible } = {}) {
-    if (visible) {
-      iframe.$.update({ __height: "100vh" });
-    }
-
     return (specifier, ...args) => {
       return new Promise((resolve, reject) => {
         const channel = new MessageChannel();
@@ -107,10 +127,6 @@ const iworker = new (class {
             reject(event.data.error);
           } else {
             resolve(event.data.result);
-
-            if (visible) {
-              iframe.$.update({ __height: 0 });
-            }
           }
           channel.port1.close();
         };
@@ -125,13 +141,13 @@ const iworker = new (class {
 })();
 
 iworker
-  .request()("@@/echo/", 42)
+  .request({ visible: true })("@@/echo/", 42)
   .then((result) => {
     console.log("echo result:", result); ////
   });
 
 iworker
-  .request({ visible: true })("@@/flash/", 42)
+  .request({ visible: true })("@@/echo/", 42)
   .then((result) => {
-    console.log("flash result:", result); ////
+    console.log("echo result:", result); ////
   });
