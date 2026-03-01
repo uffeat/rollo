@@ -13,7 +13,7 @@ if (import.meta.env.DEV) {
 
 //const { user } = await use("@/user/");
 
-const { Ref, app, component, css, is } = await use("@/rollo/");
+const { Ref, app, component, css } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
 
 const { Form, Input } = await use("@/form/");
@@ -27,16 +27,24 @@ css`
     border: none;
     padding: 0;
     margin: 0;
-    height: 0;
+  }
+
+  iframe[name="iworker"] {
+    position: absolute;
+    top: 0;
+    height: var(--height, 0);
   }
 `.use();
 
 const iframe = component.iframe({
   name: "iworker",
   src: `${use.meta.server.origin}/iworker?iworker=`,
+  //$stateHidden: true,
 });
 
 app.append(iframe);
+
+
 
 await new Promise((resolve, reject) => {
   const onmessage = (event) => {
@@ -54,12 +62,29 @@ await new Promise((resolve, reject) => {
 const iworker = new (class {
   #_ = {};
 
-  constructor() {}
+  constructor() {
+    // Transmit view height to iframe
+    app.$.effects.add(
+      ({ Y }) => {
+        //console.log("Y:", Y); ////
+        iframe.contentWindow.postMessage(
+          { type: "Y", Y },
+          use.meta.server.origin,
+        );
+      },
+      ["Y"],
+    );
+  }
 
-  request({ timeout } = {}) {
+  request({ timeout, visible } = {}) {
+    if (visible) {
+      iframe.$.update({ __height: "100vh" });
+    }
+
     return (specifier, ...args) => {
       return new Promise((resolve, reject) => {
         const channel = new MessageChannel();
+
         const timer = (() => {
           if (timeout) {
             return setTimeout(() => {
@@ -72,43 +97,25 @@ const iworker = new (class {
             }, timeout);
           }
         })();
+
         channel.port1.onmessage = (event) => {
           if (timer) {
             clearTimeout(timer);
           }
+
           if (event.data.error) {
             reject(event.data.error);
           } else {
             resolve(event.data.result);
+
+            if (visible) {
+              iframe.$.update({ __height: 0 });
+            }
           }
           channel.port1.close();
         };
         iframe.contentWindow.postMessage(
-          { type: "request", specifier, args },
-          use.meta.server.origin,
-          [channel.port2],
-        );
-      });
-    };
-  }
-
-  rpc(name, { spinner = true } = {}) {
-    return (...args) => {
-      const kwargs = args.find((a, i) => !i && is.object(a)) || {};
-      args = args.filter((a, i) => i || !is.object(a));
-
-      return new Promise((resolve, reject) => {
-        const channel = new MessageChannel();
-        channel.port1.onmessage = (event) => {
-          if (event.data.error) {
-            reject(event.data.error);
-          } else {
-            resolve(event.data.response);
-          }
-          channel.port1.close();
-        };
-        iframe.contentWindow.postMessage(
-          { type: "rpc", name, args, kwargs },
+          { type: "request", specifier, args, visible },
           use.meta.server.origin,
           [channel.port2],
         );
@@ -124,7 +131,7 @@ iworker
   });
 
 iworker
-  .rpc("echo")(42)
-  .then((response) => {
-    console.log("response:", response); ////
+  .request({ visible: true })("@@/flash/", 42)
+  .then((result) => {
+    console.log("result:", result); ////
   });

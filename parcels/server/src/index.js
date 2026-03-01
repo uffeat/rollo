@@ -4,7 +4,7 @@ import { Submission } from "./tools/submission";
 import _fetch from "./tools/fetch";
 
 /* Utility for calling HTTP-endpoints  */
-export const server = new Proxy(
+const server = new Proxy(
   {},
   {
     get(_, name) {
@@ -13,11 +13,13 @@ export const server = new Proxy(
           `${
             use.meta.server.origin
           }/_/api/main?name=${name}&token=${use.meta.token}&session=${use.meta.session}&submission=${Submission()}`,
-          ...args
+          ...args,
         );
       };
     },
-  }
+  },
 );
 
 use.compose("server", server);
+
+export { Submission, server };
