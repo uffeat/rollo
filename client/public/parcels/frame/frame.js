@@ -6,7 +6,7 @@ const { app: l, breakpoints: c, css: d, Mixins: m, author: g, component: e, mix:
     #t = {};
     constructor() {
       super();
-      const t = this, s = e.section(
+      const t = this, n = e.section(
         "side",
         e.button("toggle", {
           ariaLabel: "Close",
@@ -23,7 +23,7 @@ const { app: l, breakpoints: c, css: d, Mixins: m, author: g, component: e, mix:
           }),
           e.section(e.slot({ name: "top" }))
         ),
-        e.section("main", s, e.main(e.slot())),
+        e.section("main", n, e.main(e.slot())),
         e.footer()
       );
       this.attachShadow({ mode: "open" }).append(o), p.use(this), d`
@@ -35,7 +35,7 @@ const { app: l, breakpoints: c, css: d, Mixins: m, author: g, component: e, mix:
           flex-direction: column;
           background-color: var(--bs-body-bg);
         }
-
+        
         header {
           --gap: 0.375rem;
           display: flex;
@@ -126,6 +126,8 @@ const { app: l, breakpoints: c, css: d, Mixins: m, author: g, component: e, mix:
           margin-top: auto !important;
         }
 
+        /* Interpolate query to use 'breakpoints' and to prevent the linter 
+        from (harmless) barking (does not like ' >='). */
         @media (${"width >= "}${c.md}px) {
           /* Shift-style side action. */
 
@@ -159,14 +161,14 @@ const { app: l, breakpoints: c, css: d, Mixins: m, author: g, component: e, mix:
         update({
           /* Defaults */
           easing: i = "ease-in-out",
-          time: n = "200ms",
+          time: s = "200ms",
           width: a = "300px"
         } = {}) {
-          t.__.easing = i, t.__.width = a, t.attribute.time = n, t.send("_config", { detail: { easing: i, time: n, width: a } });
+          t.__.easing = i, t.__.width = a, t.attribute.time = s, t.send("_config", { detail: { easing: i, time: s, width: a } });
         }
-      }(), this.config.update(), s.on.transitionstart((i) => {
+      }(), this.config.update(), n.on.transitionstart((i) => {
         this.attribute.open ? this.send("_open_start") : this.send("_close_start");
-      }), s.on.transitionend((i) => {
+      }), n.on.transitionend((i) => {
         this.attribute.open ? this.send("_close_end") : this.send("_open_end"), this.__.time = 0;
       }), o.on.click((i) => {
         if (o.contains(i.target) && i.target.closest(".toggle")) {

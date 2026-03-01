@@ -1,4 +1,3 @@
-import "../../use";
 import { Mixins, author, component, mix } from "../component/index";
 import { stateMixin } from "../state/index";
 
@@ -26,20 +25,19 @@ const App = author(
     }
 
     get shadow() {
-      return this.#_.shadow;
+      return this.#_.shadow
     }
   },
   "app-component",
   TAG,
 );
 
+const root = document.getElementById("root") || document.body
+
 export const app = App({
   id: "app",
+  parent: root,
 });
-
-if (!use.meta.ANVIL) {
-  document.body.append(app);
-}
 
 /* Breakpoints.
 Not used by 'app' itself, but provided as a service to enable:

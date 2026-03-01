@@ -514,7 +514,7 @@ class A {
     return this;
   }
 }
-const ie = (...r) => A.create(...r).$, oe = (...r) => {
+const ne = (...r) => A.create(...r).$, ie = (...r) => {
   const t = z.create(...r);
   return new Proxy(() => {
   }, {
@@ -573,7 +573,7 @@ const ie = (...r) => A.create(...r).$, oe = (...r) => {
       )
     ), this;
   }
-}, ce = (r) => class extends r {
+}, oe = (r) => class extends r {
   static __name__ = "ref";
   #t = {};
   constructor() {
@@ -675,25 +675,25 @@ const Z = (r) => (...t) => {
 function O(r, { numbers: t = !1 } = {}) {
   return t ? String(r).replace(/([A-Z]+)([A-Z][a-z])/g, "$1-$2").replace(/([a-z0-9])([A-Z])/g, "$1-$2").replace(/([A-Za-z])([0-9])/g, "$1-$2").replace(/([0-9])([A-Za-z])/g, "$1-$2").toLowerCase() : String(r).replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
 }
-function ue(r) {
+function ce(r) {
   return r.length ? r[0].toUpperCase() + r.slice(1) : r;
 }
-function ae(r) {
+function ue(r) {
   return String(r).toLowerCase().replace(/[-_\s]+([a-z0-9])/g, (t, e) => e.toUpperCase());
 }
-function fe(r) {
+function ae(r) {
   return String(r).toLowerCase().replace(/[-_\s]+([a-z0-9])/g, (t, e) => e.toUpperCase()).replace(/^([a-z])/, (t, e) => e.toUpperCase());
 }
-function le(r) {
+function fe(r) {
   return r.replaceAll("-", "_");
 }
-function he(r) {
+function le(r) {
   return r.length ? r[0].toLowerCase() + r.slice(1) : r;
 }
-function de(r, { numbers: t = !1 } = {}) {
+function he(r, { numbers: t = !1 } = {}) {
   return t ? String(r).replace(/([A-Z]+)([A-Z][a-z])/g, "$1-$2").replace(/([a-z0-9])([A-Z])/g, "$1-$2").replace(/([A-Za-z])([0-9])/g, "$1-$2").replace(/([0-9])([A-Za-z])/g, "$1-$2").replace(/^([A-Z])/, (e) => e.toLowerCase()).toLowerCase() : String(r).replace(/([a-z0-9])([A-Z])/g, "$1-$2").replace(/^([A-Z])/, (e) => e.toLowerCase()).toLowerCase();
 }
-const pe = (r) => /^[A-Z]/.test(r), _e = (r) => (r.length > 0 && (r = r[0].toUpperCase() + r.slice(1)), r), at = (r, t) => class extends r {
+const de = (r) => /^[A-Z]/.test(r), pe = (r) => (r.length > 0 && (r = r[0].toUpperCase() + r.slice(1)), r), at = (r, t) => class extends r {
   static __name__ = "attrs";
   #t = {};
   constructor() {
@@ -1080,7 +1080,7 @@ class I {
     }
   }
 }
-const ge = (r, t, e, {
+const me = (r, t, e, {
   bind: s = !0,
   configurable: n = !0,
   enumerable: i = !0,
@@ -1090,7 +1090,7 @@ const ge = (r, t, e, {
   enumerable: i,
   writable: o,
   value: e
-}), r), ye = (r, t, { bind: e = !0, configurable: s = !0, enumerable: n = !1, get: i, set: o } = {}) => {
+}), r), ge = (r, t, { bind: e = !0, configurable: s = !0, enumerable: n = !1, get: i, set: o } = {}) => {
   e && (i = i.bind(r));
   const c = {
     configurable: s,
@@ -1542,14 +1542,14 @@ function Ht(r) {
   const t = document.createElement("div");
   return t.innerHTML = r, Array.from(t.children, (s) => Zt(s));
 }
-function B(r) {
+function K(r) {
   const t = $[r.tagName.toLowerCase()]();
   for (const { name: e, value: s } of Array.from(r.attributes))
     t.setAttribute(e, s);
   return t;
 }
 function Zt(r) {
-  const t = B(r), e = Array.from(r.childNodes, (s) => [t, s]).reverse();
+  const t = K(r), e = Array.from(r.childNodes, (s) => [t, s]).reverse();
   for (; e.length; ) {
     const [s, n] = e.pop();
     if (n.nodeType === Node.TEXT_NODE) {
@@ -1558,14 +1558,14 @@ function Zt(r) {
     }
     if (n.nodeType !== Node.ELEMENT_NODE)
       continue;
-    const i = B(n);
+    const i = K(n);
     s.append(i), e.push(...Array.from(n.childNodes, (o) => [i, o]).reverse());
   }
   return t;
 }
-const It = (r, t, e) => (W.add(r, t, e), M(r, "create", Z(r)), r.create), K = "div", Dt = It(
+const It = (r, t, e) => (W.add(r, t, e), M(r, "create", Z(r)), r.create), V = "div", Dt = It(
   class extends Q(
-    document.createElement(K).constructor,
+    document.createElement(V).constructor,
     {},
     ...tt(J)
   ) {
@@ -1582,18 +1582,19 @@ const It = (r, t, e) => (W.add(r, t, e), M(r, "create", Z(r)), r.create), K = "d
     }
   },
   "app-component",
-  K
-), qt = document.getElementById("root") || document.body, w = Dt({
-  id: "app",
-  parent: qt
-}), Bt = Object.freeze({
+  V
+), w = Dt({
+  id: "app"
+});
+use.meta.ANVIL || document.body.append(w);
+const qt = Object.freeze({
   sm: 640,
   md: 768,
   lg: 1024,
   xl: 1280,
   "2xl": 1536
 });
-for (const [r, t] of Object.entries(Bt)) {
+for (const [r, t] of Object.entries(qt)) {
   const e = window.matchMedia(`(width >= ${t}px)`), s = e.matches;
   w.$[r] = s, w.send(`_break_${r}`, { detail: s }), e.addEventListener("change", (n) => {
     const i = e.matches;
@@ -1616,7 +1617,7 @@ w.$.effects.add(
   },
   ["X", "Y"]
 );
-const Yt = (r, t = !0) => t ? r.replace(/[^\S ]/g, "").replace(/ {2,}/g, " ").trim() : r.replace(/\s/g, ""), rt = class extends HTMLElement {
+const Vt = (r, t = !0) => t ? r.replace(/[^\S ]/g, "").replace(/ {2,}/g, " ").trim() : r.replace(/\s/g, ""), rt = class extends HTMLElement {
   constructor() {
     super();
   }
@@ -1641,7 +1642,7 @@ class D {
   get text() {
     return Array.from(
       this.owner.cssRules,
-      (t) => Yt(t.cssText)
+      (t) => Vt(t.cssText)
     ).join(" ");
   }
   /* Adds rules. */
@@ -1845,7 +1846,7 @@ class N extends CSSStyleSheet {
     return this;
   }
 }
-const Vt = document.documentElement, Y = new class {
+const Yt = document.documentElement, Y = new class {
   #t = {};
   constructor() {
     this.#t.color = new class {
@@ -1876,7 +1877,7 @@ const Vt = document.documentElement, Y = new class {
       {},
       {
         get(r, t) {
-          return getComputedStyle(Vt).getPropertyValue(`--${O(t, { numbers: !0 })}`).trim();
+          return getComputedStyle(Yt).getPropertyValue(`--${O(t, { numbers: !0 })}`).trim();
         }
       }
     );
@@ -1893,20 +1894,20 @@ const Vt = document.documentElement, Y = new class {
   rotate(r) {
     return `rotate(${r})`;
   }
-}(), Xt = new class {
+}(), Bt = new class {
   max(r) {
     return `@media (width <= ${r})`;
   }
   min(r) {
     return `@media (width >= ${r})`;
   }
-}(), Ft = (r, t) => {
+}(), Xt = (r, t) => {
   if (!t.length) return N.create(r[0]);
   let e = r[0];
   for (let s = 0; s < t.length; s++)
     e += String(t[s]) + r[s + 1];
   return N.create(e);
-}, we = new Proxy(() => {
+}, be = new Proxy(() => {
 }, {
   get(r, t) {
     return t in Y ? Y[t] : t in st.style ? new Proxy(
@@ -1916,13 +1917,13 @@ const Vt = document.documentElement, Y = new class {
           return { [t]: O(s, { numbers: !0 }) };
         }
       }
-    ) : t === "media" ? Xt : (e) => `${e}${t === "pct" ? "%" : t}`;
+    ) : t === "media" ? Bt : (e) => `${e}${t === "pct" ? "%" : t}`;
   },
   apply(r, t, e) {
     const s = e.at(0);
     if (Array.isArray(s)) {
       const [n, ...i] = e;
-      return Ft(n, i);
+      return Xt(n, i);
     }
     return s instanceof HTMLElement && "uid" in s ? `[uid="${s.uid}"]` : (e = e.map((n) => n === "!" ? "!important" : n), e.join(" "));
   }
@@ -2027,7 +2028,7 @@ class H {
     }
   }
 }
-const je = (r) => {
+const we = (r) => {
   if (p.object(r))
     return Object.keys(r).forEach((t) => delete r[t]), r;
   if (p.map(r) || p.set(r))
@@ -2035,7 +2036,7 @@ const je = (r) => {
   if (p.array(r))
     return r.length = 0, r;
 };
-function xe(r) {
+function je(r) {
   return new Promise((t) => setTimeout(t, r));
 }
 function it(...r) {
@@ -2068,12 +2069,12 @@ function it(...r) {
     }
     if (c.startsWith("[")) {
       const a = c.slice(1, -1);
-      V.call(this, a, u);
+      B.call(this, a, u);
       continue;
     }
     if (c.startsWith("data.")) {
       const a = `data-${c.slice(5)}`;
-      V.call(this, a, u);
+      B.call(this, a, u);
       continue;
     }
     if (c.startsWith("on.")) {
@@ -2093,7 +2094,7 @@ function it(...r) {
   }
   return this;
 }
-const ve = new Proxy(
+const xe = new Proxy(
   {},
   {
     get(r, t) {
@@ -2104,12 +2105,12 @@ const ve = new Proxy(
     }
   }
 );
-function V(r, t) {
+function B(r, t) {
   t === !1 || t === null ? this.removeAttribute(r) : t === !0 ? this.setAttribute(r, "") : this.setAttribute(r, t);
 }
 const X = (r, t) => {
   t && typeof t == "object" && r.push(t);
-}, Ee = (r) => {
+}, ve = (r) => {
   const t = [r];
   for (; t.length; ) {
     const e = t.pop();
@@ -2122,15 +2123,15 @@ const X = (r, t) => {
       X(t, s);
   }
   return r;
-}, Gt = (r, t) => {
+}, Ft = (r, t) => {
   if (!t.length) return r[0];
   let e = r[0];
   for (let s = 0; s < t.length; s++)
     e += String(t[s]) + r[s + 1];
   return e;
-}, Ae = (r, ...t) => Gt(r, t), F = (r) => Object.fromEntries(
+}, Ee = (r, ...t) => Ft(r, t), F = (r) => Object.fromEntries(
   Object.entries(r).filter(([t, e]) => e !== void 0)
-), Oe = (r, t, e = (s, n) => s === n) => {
+), Ae = (r, t, e = (s, n) => s === n) => {
   const s = [[r, t]];
   for (; s.length > 0; ) {
     const [n, i] = s.pop(), [o, c] = [m(n), m(i)];
@@ -2155,7 +2156,7 @@ const X = (r, t) => {
     }
   }
   return !0;
-}, $e = (r, t, e) => {
+}, Oe = (r, t, e) => {
   const s = [[r, t]];
   for (; s.length; ) {
     const [n, i] = s.pop();
@@ -2173,13 +2174,13 @@ const X = (r, t) => {
     }
   }
   return r;
-}, Se = (r, ...t) => (t.forEach(
+}, $e = (r, ...t) => (t.forEach(
   (e) => Object.defineProperties(
     r,
     Object.getOwnPropertyDescriptors(e.prototype)
   )
 ), r);
-function Ce(r, ...t) {
+function Se(r, ...t) {
   const e = this === globalThis ? null : this, s = {
     context: e,
     data: {},
@@ -2190,7 +2191,7 @@ function Ce(r, ...t) {
     s.index = n, s.self = i, r = i.call(e, r, s);
   return r;
 }
-const Jt = (r, ...t) => {
+const Gt = (r, ...t) => {
   if (p.object(r)) {
     for (const e of t)
       delete r[e];
@@ -2212,7 +2213,7 @@ const Jt = (r, ...t) => {
       t.includes(r[e]) && r.splice(e, 1);
     return r;
   }
-}, k = (r) => r.length === 1 ? r[0] : r, Te = (r, ...t) => {
+}, k = (r) => r.length === 1 ? r[0] : r, Ce = (r, ...t) => {
   if (p.object(r)) {
     const e = t.map((s) => {
       const n = r[s];
@@ -2233,9 +2234,9 @@ const Jt = (r, ...t) => {
     return k(t);
   }
   if (p.array(r))
-    return Jt(r, ...t), k(t);
+    return Gt(r, ...t), k(t);
 };
-function Qt(r) {
+function Jt(r) {
   let t = r.parentElement;
   for (; t && t !== document.body; ) {
     const e = getComputedStyle(t), s = /(auto|scroll)/.test(e.overflowY), n = t.scrollHeight > t.clientHeight;
@@ -2245,27 +2246,27 @@ function Qt(r) {
   }
   return window;
 }
-function ze(r) {
-  Qt(r).scrollTo({ top: 0, behavior: "smooth" });
+function Te(r) {
+  Jt(r).scrollTo({ top: 0, behavior: "smooth" });
 }
-const Le = (r) => Array.from(new Set(r)), Re = (r, t = (e) => e) => {
+const ze = (r) => Array.from(new Set(r)), Le = (r, t = (e) => e) => {
   const e = [];
   for (let s = 0; s < r; s++)
     e.push(t(s, e));
   return e;
-}, Pe = (r, t, { abs: e = 1e-4, rel: s = 1e-6 } = {}) => {
+}, Re = (r, t, { abs: e = 1e-4, rel: s = 1e-6 } = {}) => {
   if (r === t) return !0;
   const n = Math.abs(r - t);
   return n <= e || n <= Math.max(Math.abs(r), Math.abs(t)) * s;
-}, ke = (r, { decimals: t = 2, banker: e = !1 } = {}) => {
+}, Pe = (r, { decimals: t = 2, banker: e = !1 } = {}) => {
   const s = 10 ** t, n = r * s, i = Math.round(n);
   return e && Math.abs(n % 1) === 0.5 ? Math.floor(n / 2) * 2 / s : i / s;
-}, Me = (r, t) => ((() => {
+}, ke = (r, t) => ((() => {
   const e = ([s, n]) => n !== void 0;
   r = Object.fromEntries(Object.entries(r).filter(e)), t = Object.fromEntries(Object.entries(t).filter(e));
 })(), Object.fromEntries(
   Object.entries(r).filter(([e, s]) => t[e] !== s)
-)), We = (r, t) => ((() => {
+)), Me = (r, t) => ((() => {
   const e = ([s, n]) => n !== void 0;
   r = Object.fromEntries(Object.entries(r).filter(e)), t = Object.fromEntries(Object.entries(t).filter(e));
 })(), Object.fromEntries(
@@ -2285,48 +2286,48 @@ export {
   I as TaggedSets,
   w as app,
   It as author,
-  Bt as breakpoints,
+  qt as breakpoints,
   O as camelToKebab,
-  ue as camelToPascal,
-  _e as capitalize,
-  je as clear,
+  ce as camelToPascal,
+  pe as capitalize,
+  we as clear,
   $ as component,
-  we as css,
-  Le as deduplicate,
-  ge as defineMethod,
-  ye as defineProperty,
+  be as css,
+  ze as deduplicate,
+  me as defineMethod,
+  ge as defineProperty,
   M as defineValue,
-  xe as delay,
-  ve as element,
-  Pe as equal,
+  je as delay,
+  xe as element,
+  Re as equal,
   Z as factory,
-  Ee as freeze,
-  Ae as html,
+  ve as freeze,
+  Ee as html,
   p as is,
-  pe as isUpper,
-  ae as kebabToCamel,
-  fe as kebabToPascal,
-  le as kebabToSnake,
-  Oe as match,
-  $e as merge,
+  de as isUpper,
+  ue as kebabToCamel,
+  ae as kebabToPascal,
+  fe as kebabToSnake,
+  Ae as match,
+  Oe as merge,
   Q as mix,
   U as mixins,
-  Se as mixup,
-  Me as objectDifference,
-  We as objectIntersection,
-  he as pascalToCamel,
-  de as pascalToKebab,
-  Ce as pipe,
-  Te as pop,
-  Re as range,
-  ie as reactive,
-  oe as ref,
-  ce as refMixin,
+  $e as mixup,
+  ke as objectDifference,
+  Me as objectIntersection,
+  le as pascalToCamel,
+  he as pascalToKebab,
+  Se as pipe,
+  Ce as pop,
+  Le as range,
+  ne as reactive,
+  ie as ref,
+  oe as refMixin,
   W as registry,
-  Jt as remove,
-  ke as round,
+  Gt as remove,
+  Pe as round,
   J as stateMixin,
-  ze as toTop,
+  Te as toTop,
   m as type,
   R as typeName,
   it as updateElement
