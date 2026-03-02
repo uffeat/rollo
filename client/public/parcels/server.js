@@ -15,7 +15,7 @@ const u = () => c++, { Exception: _, is: i } = await use("@/rollo/"), p = {
   {
     get(t, e) {
       return async (...n) => d(
-        `${use.meta.server.origin}/_/api/main?name=${e}&token=${use.meta.token}&session=${use.meta.session}&submission=${u()}`,
+        `${use.meta.server.origin}/_/api/main?name=${e}&session=${use.meta.session}&submission=${u()}&token=${use.meta.token}`,
         ...n
       );
     }
@@ -23,5 +23,6 @@ const u = () => c++, { Exception: _, is: i } = await use("@/rollo/"), p = {
 );
 use.compose("server", f);
 export {
+  u as Submission,
   f as server
 };
