@@ -56,8 +56,10 @@ const iworker = new (class {
 
   constructor() {}
 
-  request({ timeout } = {}) {
-    return (specifier, ...args) => {
+  request(specifier, { test, timeout } = {}) {
+    return (...args) => {
+      const kwargs = args.find((a, i) => !i && is.object(a)) || {};
+      args = args.filter((a, i) => i || !is.object(a));
       return new Promise((resolve, reject) => {
         const channel = new MessageChannel();
         const timer = (() => {
@@ -84,7 +86,7 @@ const iworker = new (class {
           channel.port1.close();
         };
         iframe.contentWindow.postMessage(
-          { type: "request", specifier, args },
+          { type: "request", specifier, args, kwargs, test },
           use.meta.server.origin,
           [channel.port2],
         );
@@ -92,39 +94,26 @@ const iworker = new (class {
     };
   }
 
-  rpc(name, { spinner = true } = {}) {
-    return (...args) => {
-      const kwargs = args.find((a, i) => !i && is.object(a)) || {};
-      args = args.filter((a, i) => i || !is.object(a));
 
-      return new Promise((resolve, reject) => {
-        const channel = new MessageChannel();
-        channel.port1.onmessage = (event) => {
-          if (event.data.error) {
-            reject(event.data.error);
-          } else {
-            resolve(event.data.response);
-          }
-          channel.port1.close();
-        };
-        iframe.contentWindow.postMessage(
-          { type: "rpc", name, args, kwargs },
-          use.meta.server.origin,
-          [channel.port2],
-        );
-      });
-    };
-  }
+
+
 })();
 
 iworker
-  .request()("@@/echo/", 42)
+  .request("@@/echo/", {test: true})(42)
   .then((result) => {
-    console.log("echo result:", result); ////
+    console.log("result:", result); ////
   });
 
 iworker
-  .rpc("echo")(42)
-  .then((response) => {
-    console.log("response:", response); ////
+  .request("rpc/echo")(42)
+  .then((result) => {
+    console.log("result:", result); ////
+  });
+
+
+iworker
+  .request("api/echo")(42)
+  .then((result) => {
+    console.log("result:", result); ////
   });

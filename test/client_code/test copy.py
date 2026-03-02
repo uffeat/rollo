@@ -23,9 +23,12 @@ def main():
     contain a single 'main' function member that accepts a 'use' arg."""
     
 
-    @http_endpoint("/_test")
+    @http_endpoint("/test")
     def test(path: str = None):
-        body = (Path.cwd() / f"{TESTS}/{path}").read_text(encoding=UTF_8)
+        if path:
+            body = (Path.cwd() / f"{TESTS}/{path}").read_text(encoding=UTF_8)
+        else:
+            body = ""
         return HttpResponse(
             body=body,
             headers={
@@ -34,8 +37,10 @@ def main():
         )
 
     @callable_
-    def _test(path: str):
-        return (Path.cwd() / f"{TESTS}/{path}").read_text(encoding=UTF_8)
+    def test(path: str = None):
+        if path:
+            return (Path.cwd() / f"{TESTS}/{path}").read_text(encoding=UTF_8)
+        return True
     
     @callable_
     def _package(specifier: str):

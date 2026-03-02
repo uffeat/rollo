@@ -17,9 +17,6 @@ const server = new (class {
   }
 
   set targets(targets) {
-    if (this.#_.targets) {
-      throw new Error("Cannot change targets.");
-    }
     this.#_.targets = targets;
   }
 })();
@@ -100,9 +97,6 @@ export const meta = new (class {
   }
 
   set session(session) {
-    if (this.#_.session) {
-      throw new Error("Cannot change session.");
-    }
     this.#_.session = session;
   }
 

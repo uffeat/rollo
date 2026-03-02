@@ -21,8 +21,6 @@ const k = {}, S = location.hostname === "localhost", g = new class {
     return this.#e.targets;
   }
   set targets(r) {
-    if (this.#e.targets)
-      throw new Error("Cannot change targets.");
     this.#e.targets = r;
   }
 }(), L = new class {
@@ -67,8 +65,6 @@ const k = {}, S = location.hostname === "localhost", g = new class {
     return this.#e.session || (this.#e.session = crypto.randomUUID()), this.#e.session;
   }
   set session(r) {
-    if (this.#e.session)
-      throw new Error("Cannot change session.");
     this.#e.session = r;
   }
   get token() {
