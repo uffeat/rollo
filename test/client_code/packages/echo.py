@@ -1,22 +1,25 @@
 def main(use):
     """."""
-    print('Using injected package')
+    print('Using injected echo package')
     
 
 
     class echo:
-        def __call__(self, *args):
-            if args:
-                if len(args) == 1:
-                    return args[0]
-                return args
+        def __call__(self, *args, **kwargs):
+            return args, kwargs
+            
 
 
     echo = echo()
 
-    print('Using injected package:', echo.__class__.__name__)
+    def ping(*args, **kwargs):
+        return "ECHO PING"
 
-    return echo
+
+
+   
+
+    return dict(echo=echo, ping=ping)
 
 
     

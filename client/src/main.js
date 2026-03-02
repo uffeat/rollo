@@ -106,6 +106,12 @@ iworker
   });
 
 iworker
+  .request("@@/echo:ping", {test: true})()
+  .then((result) => {
+    console.log("result:", result); ////
+  });
+
+iworker
   .request("rpc/echo")(42)
   .then((result) => {
     console.log("result:", result); ////

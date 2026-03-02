@@ -21,7 +21,6 @@ def main():
     client code runtime - without tests polluting the served bundle.
     This is enabled by the 'use' import engine. Accordingly, test scripts should
     contain a single 'main' function member that accepts a 'use' arg."""
-    
 
     @http_endpoint("/_test")
     def test(path: str = None):
@@ -36,35 +35,25 @@ def main():
     @callable_
     def _test(path: str):
         return (Path.cwd() / f"{TESTS}/{path}").read_text(encoding=UTF_8)
-    
+
     @callable_
-    def _package(specifier: str):
-        path = specifier[3:-1]
+    def _package(name: str):
 
-        print('path:', path)
-
-
-        return (Path.cwd() / f"{PACKAGES}/{path}.py").read_text(encoding=UTF_8)
-    
-    
+        return (Path.cwd() / f"{PACKAGES}/{name}.py").read_text(encoding=UTF_8)
 
     @callable_
     def _access():
         return True
-    
+
     @callable_
     def _log(*args):
         print(*args)
-    
-    
-    
 
 
 if __name__ == "__main__":
     key = (json.loads((Path.cwd() / "secrets.json").read_text(encoding=UTF_8)))[
         "development"
     ]["server"]
-
 
     connect(key)
     main()
