@@ -13,6 +13,8 @@ if (import.meta.env.DEV) {
 
 //const { user } = await use("@/user/");
 
+const { server } = await use("@/server");
+
 const { Ref, app, component, css, is } = await use("@/rollo/");
 const { frame } = await use("@/frame/");
 
@@ -38,15 +40,18 @@ const iframe = component.iframe({
 
 app.append(iframe);
 
-await new Promise((resolve, reject) => {
+const data = await new Promise((resolve, reject) => {
   const onmessage = (event) => {
     if (event.origin !== use.meta.server.origin) {
       return;
     }
-    if (event.data === "ready") {
-      window.removeEventListener("message", onmessage);
-      resolve(true);
+    if (event.data.type !== "ready") {
+      return;
     }
+    window.removeEventListener("message", onmessage);
+    const data = event.data.data;
+    console.log("data:", data);
+    resolve(data);
   };
   window.addEventListener("message", onmessage);
 });
@@ -93,20 +98,24 @@ const iworker = new (class {
       });
     };
   }
-
-
-
-
 })();
 
+iframe.contentWindow.postMessage(
+  {
+    type: "ready",
+    data: { browser: { session: use.meta.session, token: use.meta.token } },
+  },
+  use.meta.server.origin,
+);
+
 iworker
-  .request("@@/echo/", {test: true})(42)
+  .request("@@/echo/", { test: true })(42)
   .then((result) => {
     console.log("result:", result); ////
   });
 
 iworker
-  .request("@@/echo:ping", {test: true})()
+  .request("@@/echo:ping", { test: true })()
   .then((result) => {
     console.log("result:", result); ////
   });
@@ -117,9 +126,15 @@ iworker
     console.log("result:", result); ////
   });
 
-
 iworker
   .request("api/echo")(42)
   .then((result) => {
     console.log("result:", result); ////
   });
+
+await (async () => {
+  const { server } = await use("@/server");
+  const { response, result, meta } = await server.echo(42);
+  //console.log("result:", result);
+  console.log("meta:", meta);
+})();

@@ -22,7 +22,6 @@ await (async () => {
   const {response, result, meta} = await server.echo(42);
   //console.log("result:", result);
   console.log("meta:", meta);
-  
 })();
 
 if (import.meta.env.DEV) {
