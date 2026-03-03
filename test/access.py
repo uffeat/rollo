@@ -2,33 +2,34 @@ import json
 from pathlib import Path
 
 from anvil.server import (
-    callable as callable_,
+    callable as rpc,
     connect,
+    disconnect,
     wait_forever,
 )
+
+key = (json.loads((Path.cwd() / "secrets.json").read_text(encoding="utf-8")))[
+    "development"
+]["server"]
 
 
 def main():
     """Provides DEV client access to server api's and iworker."""
-    key = (json.loads((Path.cwd() / "secrets.json").read_text(encoding="utf-8")))[
-        "development"
-    ]["server"]
 
-    connect(key)
-
-    @callable_
+    @rpc
     def _access():
-        #print('Granting access')##
+        # print('Granting access')##
         return True
-    
-    @callable_
+
+    @rpc
     def _log(*args):
         print(*args)
 
-    print("Running local server for access and logging.")
-
-    wait_forever()
-
 
 if __name__ == "__main__":
+    ##disconnect()
+
+    connect(key)
     main()
+    print("Running local server for access and logging.")
+    wait_forever()

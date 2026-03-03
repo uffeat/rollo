@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from anvil.server import (
     HttpResponse,
-    callable as callable_,
+    callable as rpc,
     connect,
     http_endpoint,
     wait_forever,
@@ -32,20 +32,19 @@ def main():
             },
         )
 
-    @callable_
+    @rpc
     def _test(path: str):
         return (Path.cwd() / f"{TESTS}/{path}").read_text(encoding=UTF_8)
 
-    @callable_
+    @rpc
     def _package(name: str):
-
         return (Path.cwd() / f"{PACKAGES}/{name}.py").read_text(encoding=UTF_8)
 
-    @callable_
+    @rpc
     def _access():
         return True
 
-    @callable_
+    @rpc
     def _log(*args):
         print(*args)
 
@@ -54,9 +53,7 @@ if __name__ == "__main__":
     key = (json.loads((Path.cwd() / "secrets.json").read_text(encoding=UTF_8)))[
         "development"
     ]["server"]
-
     connect(key)
     main()
     print("Running local server for client-code test injection.")
-
     wait_forever()
