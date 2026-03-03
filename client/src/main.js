@@ -36,6 +36,7 @@ css`
 const iframe = component.iframe({
   name: "iworker",
   src: `${use.meta.server.origin}/iworker?iworker=`,
+  slot: "iworker",
 });
 
 app.append(iframe);
