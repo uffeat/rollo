@@ -25,11 +25,13 @@ const { Alert } = await use("/tools/alert");
 
 css`
   iframe[name="iworker"] {
+    position: var(--position, absolute);
+    top: var(--top, 0);
+    height: var(--height, 0);
     width: 100%;
     border: none;
     padding: 0;
     margin: 0;
-    height: 0;
   }
 `.use();
 
@@ -40,6 +42,8 @@ const iframe = component.iframe({
 });
 
 app.append(iframe);
+
+iframe.update({ __height: "100vh" });
 
 // Init handshake
 const data = await new Promise((resolve, reject) => {
@@ -110,11 +114,12 @@ window.addEventListener("message", (event) => {
   if (event.data.type !== "display") {
     return;
   }
-  const data = event.data.data;
-  console.log("Display data:", data);
+  const data = event.data.data || {};
+  //console.log("Display data:", data); ////
+  iframe.update(data);
 
-  const port = event.ports[0]
-  port.postMessage(true)
+  const port = event.ports[0];
+  port.postMessage(true);
 });
 
 // Conclude handshake
@@ -125,6 +130,10 @@ iframe.contentWindow.postMessage(
   },
   use.meta.server.origin,
 );
+
+iframe.update({ __height: 0 });
+
+// Test
 
 iworker
   .request("@@/echo/", { test: true })(42)
@@ -144,10 +153,27 @@ iworker
     console.log("result:", result); ////
   });
 
+
+// TODO spinner option
+
 iworker
   .request("api/echo")(42)
   .then((result) => {
     console.log("result:", result); ////
+  });
+
+/*
+iworker
+  .request("@@/foo/")()
+  .then((result) => {
+    console.log("result:", result);
+  });
+  */
+
+iworker
+  .request("@@/stuff/")()
+  .then((result) => {
+    console.log("stuff result:", result); ////
   });
 
 await (async () => {
