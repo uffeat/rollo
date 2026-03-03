@@ -1,9 +1,9 @@
 import "../use";
 
-const { app, breakpoints, css, Mixins, author, component, mix } =
+const { Mixins, app, author, breakpoints, component, css, mix, stateMixin } =
   await use("@/rollo/");
 
-/* Get shadow sheets */
+// Get shadow sheets
 const reboot = await use("@/bootstrap/reboot.css");
 
 const icons = {
@@ -12,13 +12,13 @@ const icons = {
 };
 
 const Frame = author(
-  class extends mix(HTMLElement, {}, ...Mixins()) {
+  class extends mix(HTMLElement, {}, ...Mixins(stateMixin)) {
     #_ = {};
     constructor() {
       super();
       const owner = this;
 
-      /* Build shadow */
+      // Build shadow
       const side = component.section(
         "side",
         component.button("toggle", {
@@ -51,7 +51,7 @@ const Frame = author(
           flex-direction: column;
           background-color: var(--bs-body-bg);
         }
-        
+
         header {
           --gap: 0.375rem;
           display: flex;
@@ -166,7 +166,7 @@ const Frame = author(
         }
       `.use(this);
 
-      /* Config */
+      // Config
       this.#_.config = new (class {
         get easing() {
           return owner.__.easing;
@@ -181,24 +181,24 @@ const Frame = author(
         }
 
         update({
-          /* Defaults */
+          // Defaults
           easing = "ease-in-out",
           time = "200ms",
           width = "300px",
         } = {}) {
-          /* NOTE Store config items on components to avoid holding private 
-          values and to provide an alternative way to config, i.e., directly 
-          on component. */
+          // Store config items on components to avoid holding private 
+          // values and to provide an alternative way to config, i.e., directly 
+          // on component.
           owner.__.easing = easing;
           owner.__.width = width;
           owner.attribute.time = time;
-          /* Notify re config change */
+          // Notify re config change
           owner.send("_config", { detail: { easing, time, width } });
         }
       })();
       this.config.update();
 
-      /* Transition events */
+      // Transition events
       side.on.transitionstart((event) => {
         if (!this.attribute.open) {
           this.send("_close_start");
@@ -212,19 +212,19 @@ const Frame = author(
         } else {
           this.send("_open_end");
         }
-        /* Reset 'time' CSS var to side action during resize */
+        // Reset 'time' CSS var to side action during resize
         this.__.time = 0;
       });
 
-      /* Open/close click control */
+      // Open/close click control
       shadow.on.click((event) => {
         /* Click close control in shadow -> toggle */
         if (shadow.contains(event.target) && event.target.closest(".toggle")) {
           this.toggle();
           return;
         }
-        /* Click main area in shadow -> close
-        Click external component not in side slot -> close */
+        // Click main area in shadow -> close
+        // Click external component not in side slot -> close
         if (
           event.target.closest("main") ||
           (!shadow.contains(event.target) &&
@@ -241,7 +241,7 @@ const Frame = author(
 
     close(smooth = true) {
       if (smooth) {
-        /* Restore config time */
+        // Restore config time
         this.__.time = this.config.time;
       }
       this.attribute.open = false;
@@ -249,7 +249,7 @@ const Frame = author(
 
     open(smooth = true) {
       if (smooth) {
-        /* Restore config time */
+        // Restore config time
         this.__.time = this.config.time;
       }
       this.attribute.open = true;
@@ -257,7 +257,7 @@ const Frame = author(
 
     toggle(smooth = true) {
       if (smooth) {
-        /* Restore config time */
+        // Restore config time
         this.__.time = this.config.time;
       }
       this.attribute.open = !this.attribute.open;

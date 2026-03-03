@@ -40,6 +40,7 @@ const iframe = component.iframe({
 
 app.append(iframe);
 
+// Init handshake
 const data = await new Promise((resolve, reject) => {
   const onmessage = (event) => {
     if (event.origin !== use.meta.server.origin) {
@@ -100,6 +101,22 @@ const iworker = new (class {
   }
 })();
 
+// Set up display receiver
+window.addEventListener("message", (event) => {
+  if (event.origin !== use.meta.server.origin) {
+    return;
+  }
+  if (event.data.type !== "display") {
+    return;
+  }
+  const data = event.data.data;
+  console.log("Display data:", data);
+
+  const port = event.ports[0]
+  port.postMessage(true)
+});
+
+// Conclude handshake
 iframe.contentWindow.postMessage(
   {
     type: "ready",

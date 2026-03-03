@@ -1,8 +1,8 @@
-const { app: l, breakpoints: c, css: d, Mixins: m, author: g, component: e, mix: h } = await use("@/rollo/"), p = await use("@/bootstrap/reboot.css"), r = {
+const { Mixins: l, app: c, author: d, breakpoints: m, component: e, css: g, mix: h, stateMixin: p } = await use("@/rollo/"), u = await use("@/bootstrap/reboot.css"), r = {
   close: await use("@/icons/close.svg"),
   menu: await use("@/icons/menu.svg")
-}, u = g(
-  class extends h(HTMLElement, {}, ...m()) {
+}, b = d(
+  class extends h(HTMLElement, {}, ...l(p)) {
     #t = {};
     constructor() {
       super();
@@ -26,7 +26,7 @@ const { app: l, breakpoints: c, css: d, Mixins: m, author: g, component: e, mix:
         e.section("main", n, e.main(e.slot())),
         e.footer()
       );
-      this.attachShadow({ mode: "open" }).append(o), p.use(this), d`
+      this.attachShadow({ mode: "open" }).append(o), u.use(this), g`
         #root {
           position: relative;
           width: 100%;
@@ -35,7 +35,7 @@ const { app: l, breakpoints: c, css: d, Mixins: m, author: g, component: e, mix:
           flex-direction: column;
           background-color: var(--bs-body-bg);
         }
-        
+
         header {
           --gap: 0.375rem;
           display: flex;
@@ -128,7 +128,7 @@ const { app: l, breakpoints: c, css: d, Mixins: m, author: g, component: e, mix:
 
         /* Interpolate query to use 'breakpoints' and to prevent the linter 
         from (harmless) barking (does not like ' >='). */
-        @media (${"width >= "}${c.md}px) {
+        @media (${"width >= "}${m.md}px) {
           /* Shift-style side action. */
 
           section.main {
@@ -159,7 +159,7 @@ const { app: l, breakpoints: c, css: d, Mixins: m, author: g, component: e, mix:
           return t.__.width;
         }
         update({
-          /* Defaults */
+          // Defaults
           easing: i = "ease-in-out",
           time: s = "200ms",
           width: a = "300px"
@@ -192,7 +192,7 @@ const { app: l, breakpoints: c, css: d, Mixins: m, author: g, component: e, mix:
     }
   },
   "frame-component"
-), b = u({ id: "frame", parent: l });
+), f = b({ id: "frame", parent: c });
 export {
-  b as frame
+  f as frame
 };

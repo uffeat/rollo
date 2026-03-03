@@ -1,1 +1,1 @@
-#app{position:relative;overflow-x:hidden;display:flex;flex-direction:column}
+app-component{position:relative;overflow-x:hidden;display:flex;flex-direction:column}app-component>[slot=data]{display:none}
