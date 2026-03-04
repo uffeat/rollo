@@ -45,6 +45,7 @@ app.append(iframe);
 
 iframe.update({ __height: "100vh" });
 
+
 // Init handshake
 const data = await new Promise((resolve, reject) => {
   const onmessage = (event) => {
@@ -133,48 +134,56 @@ iframe.contentWindow.postMessage(
 
 iframe.update({ __height: 0 });
 
+
 // Test
 
 iworker
   .request("@@/echo/", { test: true })(42)
   .then((result) => {
-    console.log("result:", result); ////
+    console.log("@@/echo/ result:", result); ////
   });
 
 iworker
   .request("@@/echo:ping", { test: true })()
   .then((result) => {
-    console.log("result:", result); ////
+    console.log("@@/echo:ping result:", result); ////
   });
 
 iworker
   .request("rpc/echo")(42)
   .then((result) => {
-    console.log("result:", result); ////
+    console.log("rpc/echo result:", result); ////
   });
-
-
-// TODO spinner option
 
 iworker
   .request("api/echo")(42)
   .then((result) => {
-    console.log("result:", result); ////
+    console.log("api/echo result:", result); ////
   });
 
 /*
 iworker
   .request("@@/foo/")()
   .then((result) => {
-    console.log("result:", result);
+    console.log("foo result:", result);
   });
-  */
+*/
+
 
 iworker
   .request("@@/stuff/")()
   .then((result) => {
-    console.log("stuff result:", result); ////
+    console.log("stuff result:", result);
   });
+
+
+/*
+iworker
+  .request("@@/login/")()
+  .then((result) => {
+    console.log("@@/login/ result:", result);
+  });
+*/
 
 await (async () => {
   const { server } = await use("@/server");
