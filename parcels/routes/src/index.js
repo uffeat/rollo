@@ -4,7 +4,7 @@ import error from "./error";
 import { nav } from "./tools/nav";
 
 const { capitalize } = await use("@/rollo/");
-const { NavLink, router, Route } = await use("@/router/");
+const { NavLink, router } = await use("@/router/");
 
 /* Define module-based routes and navs */
 for (let [path, route] of Object.entries(

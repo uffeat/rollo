@@ -1,6 +1,6 @@
 import "../use";
 
-const { Mixins, app, author, breakpoints, component, css, mix, stateMixin } =
+const { Mixins, author, breakpoints, component, css, mix, stateMixin } =
   await use("@/rollo/");
 
 // Get shadow sheets
@@ -16,6 +16,10 @@ export const Frame = author(
     #_ = {};
     constructor() {
       super();
+      const frame = document.getElementById('frame')
+      if (frame) {
+        return frame
+      }
       const owner = this;
       this.id = "frame";
       // Build shadow
@@ -266,8 +270,4 @@ export const Frame = author(
   "frame-component",
 );
 
-export const frame = Frame();
 
-if (!use.meta.ANVIL) {
-  app.append(frame);
-}

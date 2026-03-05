@@ -1,6 +1,4 @@
 import "../../../use";
-import { frame } from "../../frame";
-
 import { items, paths } from "./items";
 import { Card } from "./card";
 import { Post } from "./post";
@@ -8,7 +6,7 @@ import { Post } from "./post";
 const { Exception, component, pop, toTop } = await use("@/rollo/");
 const { router } = await use("@/router/");
 const { Route } = await use("@/router/");
-//const { frame } = await use("@/frame/");
+const { frame } = await use("@/frame/");
 
 const route = new (class extends Route {
   #_ = {};
