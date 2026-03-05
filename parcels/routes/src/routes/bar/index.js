@@ -1,9 +1,10 @@
 import "../../../use";
+import { frame } from "../../frame";
 
 const { Route } = await use("@/router/");
 const { Bar } = await use("@/plotly/");
 const { component } = await use("@/rollo/");
-const { frame } = await use("@/frame/");
+//const { frame } = await use("@/frame/");
 const { Spinner } = await use("/tools/spinner");
 
 const route = new (class extends Route {

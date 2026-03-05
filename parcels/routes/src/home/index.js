@@ -1,9 +1,10 @@
 import "../../use";
 import { nav } from "../tools/nav";
+import { frame } from "../frame";
 
 const { component } = await use("@/rollo/");
 const { router, Route, NavLink } = await use("@/router/");
-const { frame } = await use("@/frame/");
+//const { frame } = await use("@/frame/");
 
 const path = "/";
 const page = component.main("container pt-3", component.h1({ text: "Home" }));
