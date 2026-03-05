@@ -1,12 +1,13 @@
 import "../use";
+import { frame } from "./frame";
 
 const { component } = await use("@/rollo/");
-const { frame } = await use("@/frame/");
+//const { frame } = await use("@/frame/");
 
 export default (message) => {
   const page = component.main(
     "container",
-    component.h1({ text: "Page not found" })
+    component.h1({ text: "Page not found" }),
   );
   const details = component.p({ parent: page });
 
