@@ -11,13 +11,13 @@ const icons = {
   menu: await use("@/icons/menu.svg"),
 };
 
-const Frame = author(
+export const Frame = author(
   class extends mix(HTMLElement, {}, ...Mixins(stateMixin)) {
     #_ = {};
     constructor() {
       super();
       const owner = this;
-
+      this.id = "frame";
       // Build shadow
       const side = component.section(
         "side",
@@ -186,8 +186,8 @@ const Frame = author(
           time = "200ms",
           width = "300px",
         } = {}) {
-          // Store config items on components to avoid holding private 
-          // values and to provide an alternative way to config, i.e., directly 
+          // Store config items on components to avoid holding private
+          // values and to provide an alternative way to config, i.e., directly
           // on component.
           owner.__.easing = easing;
           owner.__.width = width;
@@ -266,4 +266,8 @@ const Frame = author(
   "frame-component",
 );
 
-export const frame = Frame({ id: "frame", parent: app });
+export const frame = Frame();
+
+if (!use.meta.ANVIL) {
+  app.append(frame);
+}

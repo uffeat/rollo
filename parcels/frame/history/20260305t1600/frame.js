@@ -1,34 +1,48 @@
-const { Mixins: l, app: c, author: d, breakpoints: m, component: e, css: g, mix: h, stateMixin: p } = await use("@/rollo/"), u = await use("@/bootstrap/reboot.css"), r = {
+import "../use";
+
+const { Mixins, app, author, breakpoints, component, css, mix, stateMixin } =
+  await use("@/rollo/");
+
+// Get shadow sheets
+const reboot = await use("@/bootstrap/reboot.css");
+
+const icons = {
   close: await use("@/icons/close.svg"),
-  menu: await use("@/icons/menu.svg")
-}, b = d(
-  class extends h(HTMLElement, {}, ...l(p)) {
-    #t = {};
+  menu: await use("@/icons/menu.svg"),
+};
+
+export const Frame = author(
+  class extends mix(HTMLElement, {}, ...Mixins(stateMixin)) {
+    #_ = {};
     constructor() {
       super();
-      const t = this;
-      this.id = "frame";
-      const s = e.section(
+      const owner = this;
+
+      // Build shadow
+      const side = component.section(
         "side",
-        e.button("toggle", {
+        component.button("toggle", {
           ariaLabel: "Close",
-          innerHTML: r.close
+          innerHTML: icons.close,
         }),
-        e.slot({ name: "side" })
-      ), o = e.div(
-        { id: "root" },
-        e.header(
-          e.slot({ name: "home" }),
-          e.button("toggle", {
-            ariaLabel: "Toggle",
-            innerHTML: r.menu
-          }),
-          e.section(e.slot({ name: "top" }))
-        ),
-        e.section("main", s, e.main(e.slot())),
-        e.footer()
+        component.slot({ name: "side" }),
       );
-      this.attachShadow({ mode: "open" }).append(o), u.use(this), g`
+      const shadow = component.div(
+        { id: "root" },
+        component.header(
+          component.slot({ name: "home" }),
+          component.button("toggle", {
+            ariaLabel: "Toggle",
+            innerHTML: icons.menu,
+          }),
+          component.section(component.slot({ name: "top" })),
+        ),
+        component.section("main", side, component.main(component.slot())),
+        component.footer(),
+      );
+      this.attachShadow({ mode: "open" }).append(shadow);
+      reboot.use(this);
+      css`
         #root {
           position: relative;
           width: 100%;
@@ -130,7 +144,7 @@ const { Mixins: l, app: c, author: d, breakpoints: m, component: e, css: g, mix:
 
         /* Interpolate query to use 'breakpoints' and to prevent the linter 
         from (harmless) barking (does not like ' >='). */
-        @media (${"width >= "}${m.md}px) {
+        @media (${"width >= "}${breakpoints.md}px) {
           /* Shift-style side action. */
 
           section.main {
@@ -150,53 +164,108 @@ const { Mixins: l, app: c, author: d, breakpoints: m, component: e, css: g, mix:
             transform: translateX(0);
           }
         }
-      `.use(this), this.#t.config = new class {
+      `.use(this);
+
+      // Config
+      this.#_.config = new (class {
         get easing() {
-          return t.__.easing;
+          return owner.__.easing;
         }
+
         get time() {
-          return t.attribute.time;
+          return owner.attribute.time;
         }
+
         get width() {
-          return t.__.width;
+          return owner.__.width;
         }
+
         update({
           // Defaults
-          easing: i = "ease-in-out",
-          time: n = "200ms",
-          width: a = "300px"
+          easing = "ease-in-out",
+          time = "200ms",
+          width = "300px",
         } = {}) {
-          t.__.easing = i, t.__.width = a, t.attribute.time = n, t.send("_config", { detail: { easing: i, time: n, width: a } });
+          // Store config items on components to avoid holding private 
+          // values and to provide an alternative way to config, i.e., directly 
+          // on component.
+          owner.__.easing = easing;
+          owner.__.width = width;
+          owner.attribute.time = time;
+          // Notify re config change
+          owner.send("_config", { detail: { easing, time, width } });
         }
-      }(), this.config.update(), s.on.transitionstart((i) => {
-        this.attribute.open ? this.send("_open_start") : this.send("_close_start");
-      }), s.on.transitionend((i) => {
-        this.attribute.open ? this.send("_close_end") : this.send("_open_end"), this.__.time = 0;
-      }), o.on.click((i) => {
-        if (o.contains(i.target) && i.target.closest(".toggle")) {
+      })();
+      this.config.update();
+
+      // Transition events
+      side.on.transitionstart((event) => {
+        if (!this.attribute.open) {
+          this.send("_close_start");
+        } else {
+          this.send("_open_start");
+        }
+      });
+      side.on.transitionend((event) => {
+        if (this.attribute.open) {
+          this.send("_close_end");
+        } else {
+          this.send("_open_end");
+        }
+        // Reset 'time' CSS var to side action during resize
+        this.__.time = 0;
+      });
+
+      // Open/close click control
+      shadow.on.click((event) => {
+        /* Click close control in shadow -> toggle */
+        if (shadow.contains(event.target) && event.target.closest(".toggle")) {
           this.toggle();
           return;
         }
-        (i.target.closest("main") || !o.contains(i.target) && !i.target.closest('[slot="side"]')) && this.close();
+        // Click main area in shadow -> close
+        // Click external component not in side slot -> close
+        if (
+          event.target.closest("main") ||
+          (!shadow.contains(event.target) &&
+            !event.target.closest('[slot="side"]'))
+        ) {
+          this.close();
+        }
       });
     }
+
     get config() {
-      return this.#t.config;
+      return this.#_.config;
     }
-    close(t = !0) {
-      t && (this.__.time = this.config.time), this.attribute.open = !1;
+
+    close(smooth = true) {
+      if (smooth) {
+        // Restore config time
+        this.__.time = this.config.time;
+      }
+      this.attribute.open = false;
     }
-    open(t = !0) {
-      t && (this.__.time = this.config.time), this.attribute.open = !0;
+
+    open(smooth = true) {
+      if (smooth) {
+        // Restore config time
+        this.__.time = this.config.time;
+      }
+      this.attribute.open = true;
     }
-    toggle(t = !0) {
-      t && (this.__.time = this.config.time), this.attribute.open = !this.attribute.open;
+
+    toggle(smooth = true) {
+      if (smooth) {
+        // Restore config time
+        this.__.time = this.config.time;
+      }
+      this.attribute.open = !this.attribute.open;
     }
   },
-  "frame-component"
-), f = b();
-use.meta.ANVIL || c.append(f);
-export {
-  b as Frame,
-  f as frame
-};
+  "frame-component",
+);
+
+export const frame = Frame({ id: "frame", parent: app });
+
+

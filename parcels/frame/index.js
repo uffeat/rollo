@@ -1,2 +1,2 @@
 import "./assets/frame.css";
-export { frame } from "./src/frame";
+export { Frame, frame } from "./src/frame";

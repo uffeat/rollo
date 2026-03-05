@@ -15,6 +15,7 @@ export const App = author(
     #_ = {};
     constructor() {
       super();
+      this.id = "app";
       this.#_.slots = Object.freeze({
         default: component.slot(),
         data: component.slot({ name: "data" }),
@@ -89,6 +90,5 @@ export const App = author(
 export const app = App();
 
 if (!use.meta.ANVIL) {
-  app.id = "app";
   document.body.append(app);
 }
