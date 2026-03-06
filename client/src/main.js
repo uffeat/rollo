@@ -170,21 +170,22 @@ iworker
   });
 */
 
-
+/*
 iworker
   .request("@@/stuff/")()
   .then((result) => {
     console.log("stuff result:", result);
   });
+*/
 
 
-/*
+
 iworker
   .request("@@/login/")()
   .then((result) => {
     console.log("@@/login/ result:", result);
   });
-*/
+
 
 await (async () => {
   const { server } = await use("@/server");

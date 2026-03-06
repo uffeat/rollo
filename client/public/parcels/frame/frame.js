@@ -1,8 +1,8 @@
-const { app: r, Mixins: l, author: d, breakpoints: h, component: e, css: c, mix: m, stateMixin: g } = await use("@/rollo/"), u = await use("@/bootstrap/reboot.css"), a = {
+const { app: d, Mixins: h, author: c, breakpoints: m, component: e, css: g, mix: u, stateMixin: p } = await use("@/rollo/"), b = await use("@/bootstrap/reboot.css"), a = {
   close: await use("@/icons/close.svg"),
   menu: await use("@/icons/menu.svg")
-}, p = d(
-  class extends m(HTMLElement, {}, ...l(g)) {
+}, r = c(
+  class extends u(HTMLElement, {}, ...h(p)) {
     #t = {};
     constructor() {
       super();
@@ -34,7 +34,7 @@ const { app: r, Mixins: l, author: d, breakpoints: h, component: e, css: c, mix:
         ),
         e.section("main", s, e.main(this.#t.slots.default)),
         e.footer()
-      ), this.attachShadow({ mode: "open" }).append(this.#t.shadow), u.use(this), c`
+      ), this.attachShadow({ mode: "open" }).append(this.#t.shadow), b.use(this), g`
         #root {
           position: relative;
           width: 100%;
@@ -136,7 +136,7 @@ const { app: r, Mixins: l, author: d, breakpoints: h, component: e, css: c, mix:
 
         /* Interpolate query to use 'breakpoints' and to prevent the linter 
         from (harmless) barking (does not like ' >='). */
-        @media (${"width >= "}${h.md}px) {
+        @media (${"width >= "}${m.md}px) {
           /* Shift-style side action. */
 
           section.main {
@@ -207,8 +207,8 @@ const { app: r, Mixins: l, author: d, breakpoints: h, component: e, css: c, mix:
   },
   "frame-component"
 );
-let b = null;
-use.meta.ANVIL || (b = p({ id: "frame", parent: r }));
+let l = null;
+use.meta.ANVIL ? l = r({ id: "frame" }) : l = r({ id: "frame", parent: d });
 export {
-  b as frame
+  l as frame
 };

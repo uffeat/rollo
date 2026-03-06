@@ -1,6 +1,8 @@
-import datetime
+##import datetime
+from datetime import datetime, timezone
 
 
 def get_timestamp() -> str:
-    return f"{datetime.datetime.now():%Y-%m-%d %H:%M:%S}"
+    return datetime.now(timezone.utc).isoformat()
+    ##return f"{datetime.datetime.now():%Y-%m-%d %H:%M:%S}"
   

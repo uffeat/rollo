@@ -288,7 +288,7 @@ const Frame = author(
 
 let frame = null;
 if (use.meta.ANVIL) {
-  //
+  frame = Frame({ id: "frame" });
 } else {
   frame = Frame({ id: "frame", parent: app });
 }
