@@ -15,7 +15,6 @@ const App = author(
     #_ = {};
     constructor() {
       super();
-      this.id = "app";
       this.#_.slots = Object.freeze({
         default: component.slot(),
         data: component.slot({ name: "data" }),
@@ -74,12 +73,6 @@ const App = author(
           this.send(`_break_${key}`, { detail: match });
         });
       }
-
-      if (use.meta.ANVIL) {
-        //
-      } else {
-        document.body.prepend(this);
-      }
     }
 
     get shadow() {
@@ -93,6 +86,16 @@ const App = author(
   "app-component",
 );
 
-export const app = App();
+export const app = App({ id: "appGoesHere" });
 
+if (use.meta.ANVIL) {
+  const appGoesHere = document.getElementById("appGoesHere");
+  if (appGoesHere) {
+    appGoesHere.replaceWith(app);
+  } else {
+    document.body.prepend(app);
+  }
+} else {
+  document.body.prepend(app);
+}
 

@@ -17,6 +17,7 @@ const Frame = author(
     constructor() {
       super();
       const owner = this;
+      this.id = "frame";
       // Build shadow
       this.#_.slots = Object.freeze({
         default: component.slot(),
@@ -245,6 +246,12 @@ const Frame = author(
           this.close();
         }
       });
+
+      if (use.meta.ANVIL) {
+        //
+      } else {
+        app.append(this);
+      }
     }
 
     get config() {
@@ -286,11 +293,5 @@ const Frame = author(
   "frame-component",
 );
 
-let frame = null;
-if (use.meta.ANVIL) {
-  frame = Frame({ id: "frame" });
-} else {
-  frame = Frame({ id: "frame", parent: app });
-}
+export const frame = Frame();
 
-export { frame };

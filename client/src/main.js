@@ -162,13 +162,13 @@ iworker
     console.log("api/echo result:", result); ////
   });
 
-/*
+
 iworker
   .request("@@/foo/")()
   .then((result) => {
     console.log("foo result:", result);
   });
-*/
+
 
 /*
 iworker
@@ -179,12 +179,13 @@ iworker
 */
 
 
-
+/*
 iworker
   .request("@@/login/")()
   .then((result) => {
     console.log("@@/login/ result:", result);
   });
+*/
 
 
 await (async () => {
