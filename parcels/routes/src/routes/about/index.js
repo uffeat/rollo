@@ -12,4 +12,4 @@ function enter() {
 }
 const route = Route.create({ enter, page, path });
 
-export {route as default}
+export { route as default };

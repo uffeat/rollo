@@ -10,11 +10,16 @@ export const breakpoints = Object.freeze({
   "2xl": 1536,
 });
 
-const App = author(
+export const App = author(
   class extends mix(HTMLElement, {}, ...Mixins(stateMixin)) {
     #_ = {};
     constructor() {
       super();
+      const app = document.getElementById("app");
+      if (app) {
+        return app;
+      }
+      this.id = "app";
       this.#_.slots = Object.freeze({
         default: component.slot(),
         data: component.slot({ name: "data" }),
@@ -85,17 +90,3 @@ const App = author(
   },
   "app-component",
 );
-
-export const app = App({ id: "appGoesHere" });
-
-if (use.meta.ANVIL) {
-  const appGoesHere = document.getElementById("appGoesHere");
-  if (appGoesHere) {
-    appGoesHere.replaceWith(app);
-  } else {
-    document.body.prepend(app);
-  }
-} else {
-  document.body.prepend(app);
-}
-

@@ -1,34 +1,40 @@
-const { Mixins: l, app: c, author: d, breakpoints: m, component: e, css: g, mix: h, stateMixin: p } = await use("@/rollo/"), u = await use("@/bootstrap/reboot.css"), r = {
+const { app: r, Mixins: l, author: d, breakpoints: h, component: e, css: c, mix: m, stateMixin: g } = await use("@/rollo/"), u = await use("@/bootstrap/reboot.css"), a = {
   close: await use("@/icons/close.svg"),
   menu: await use("@/icons/menu.svg")
-}, b = d(
-  class extends h(HTMLElement, {}, ...l(p)) {
+}, p = d(
+  class extends m(HTMLElement, {}, ...l(g)) {
     #t = {};
     constructor() {
       super();
       const t = this;
-      this.id = "frame";
+      this.#t.slots = Object.freeze({
+        default: e.slot(),
+        home: e.slot({ name: "home" }),
+        side: e.slot({ name: "side" }),
+        top: e.slot({ name: "top" })
+        //iworker: component.slot({ name: "iworker" }),
+      });
       const s = e.section(
         "side",
         e.button("toggle", {
           ariaLabel: "Close",
-          innerHTML: r.close
+          innerHTML: a.close
         }),
-        e.slot({ name: "side" })
-      ), o = e.div(
+        this.#t.slots.side
+      );
+      this.#t.shadow = e.div(
         { id: "root" },
         e.header(
-          e.slot({ name: "home" }),
+          this.#t.slots.home,
           e.button("toggle", {
             ariaLabel: "Toggle",
-            innerHTML: r.menu
+            innerHTML: a.menu
           }),
-          e.section(e.slot({ name: "top" }))
+          e.section(this.#t.slots.top)
         ),
-        e.section("main", s, e.main(e.slot())),
+        e.section("main", s, e.main(this.#t.slots.default)),
         e.footer()
-      );
-      this.attachShadow({ mode: "open" }).append(o), u.use(this), g`
+      ), this.attachShadow({ mode: "open" }).append(this.#t.shadow), u.use(this), c`
         #root {
           position: relative;
           width: 100%;
@@ -130,7 +136,7 @@ const { Mixins: l, app: c, author: d, breakpoints: m, component: e, css: g, mix:
 
         /* Interpolate query to use 'breakpoints' and to prevent the linter 
         from (harmless) barking (does not like ' >='). */
-        @media (${"width >= "}${m.md}px) {
+        @media (${"width >= "}${h.md}px) {
           /* Shift-style side action. */
 
           section.main {
@@ -163,25 +169,31 @@ const { Mixins: l, app: c, author: d, breakpoints: m, component: e, css: g, mix:
         update({
           // Defaults
           easing: i = "ease-in-out",
-          time: n = "200ms",
-          width: a = "300px"
+          time: o = "200ms",
+          width: n = "300px"
         } = {}) {
-          t.__.easing = i, t.__.width = a, t.attribute.time = n, t.send("_config", { detail: { easing: i, time: n, width: a } });
+          t.__.easing = i, t.__.width = n, t.attribute.time = o, t.send("_config", { detail: { easing: i, time: o, width: n } });
         }
       }(), this.config.update(), s.on.transitionstart((i) => {
         this.attribute.open ? this.send("_open_start") : this.send("_close_start");
       }), s.on.transitionend((i) => {
         this.attribute.open ? this.send("_close_end") : this.send("_open_end"), this.__.time = 0;
-      }), o.on.click((i) => {
-        if (o.contains(i.target) && i.target.closest(".toggle")) {
+      }), this.#t.shadow.on.click((i) => {
+        if (this.#t.shadow.contains(i.target) && i.target.closest(".toggle")) {
           this.toggle();
           return;
         }
-        (i.target.closest("main") || !o.contains(i.target) && !i.target.closest('[slot="side"]')) && this.close();
+        (i.target.closest("main") || !this.#t.shadow.contains(i.target) && !i.target.closest('[slot="side"]')) && this.close();
       });
     }
     get config() {
       return this.#t.config;
+    }
+    get shadow() {
+      return this.#t.shadow;
+    }
+    get slots() {
+      return this.#t.slots;
     }
     close(t = !0) {
       t && (this.__.time = this.config.time), this.attribute.open = !1;
@@ -194,9 +206,9 @@ const { Mixins: l, app: c, author: d, breakpoints: m, component: e, css: g, mix:
     }
   },
   "frame-component"
-), f = b();
-use.meta.ANVIL || c.append(f);
+);
+let b = null;
+use.meta.ANVIL || (b = p({ id: "frame", parent: r }));
 export {
-  b as Frame,
-  f as frame
+  b as frame
 };

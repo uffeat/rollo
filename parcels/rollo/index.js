@@ -1,6 +1,6 @@
 import "./assets/rollo.css";
 // app
-import { App, app, breakpoints } from "./src/app";
+import { app, breakpoints } from "./src/app";
 // component
 import {
   Component,
@@ -66,7 +66,6 @@ import { intersection as objectIntersection } from "./src/tools/object/intersect
 
 export {
   // app
-  App,
   app,
   breakpoints,
   // component

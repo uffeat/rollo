@@ -1,6 +1,6 @@
 import "../use";
 
-const { app, Mixins, author, breakpoints, component, css, mix, stateMixin } =
+const { App, Mixins, author, breakpoints, component, css, mix, stateMixin } =
   await use("@/rollo/");
 
 // Get shadow sheets
@@ -11,45 +11,45 @@ const icons = {
   menu: await use("@/icons/menu.svg"),
 };
 
-const Frame = author(
+let frame
+
+
+export const Frame = author(
   class extends mix(HTMLElement, {}, ...Mixins(stateMixin)) {
     #_ = {};
     constructor() {
       super();
-      const owner = this;
-      // Build shadow
-      this.#_.slots = Object.freeze({
-        default: component.slot(),
-        home: component.slot({ name: "home" }),
-        side: component.slot({ name: "side" }),
-        top: component.slot({ name: "top" }),
-        //iworker: component.slot({ name: "iworker" }),
-      });
+      
+      if (frame) {
+        return frame
+      }
+      frame = this
 
+      const owner = this;
+      this.id = "frame";
+      // Build shadow
       const side = component.section(
         "side",
         component.button("toggle", {
           ariaLabel: "Close",
           innerHTML: icons.close,
         }),
-        this.#_.slots.side,
+        component.slot({ name: "side" }),
       );
-
-      this.#_.shadow = component.div(
+      const shadow = component.div(
         { id: "root" },
         component.header(
-          this.#_.slots.home,
+          component.slot({ name: "home" }),
           component.button("toggle", {
             ariaLabel: "Toggle",
             innerHTML: icons.menu,
           }),
-          component.section(this.#_.slots.top),
+          component.section(component.slot({ name: "top" })),
         ),
-        component.section("main", side, component.main(this.#_.slots.default)),
+        component.section("main", side, component.main(component.slot())),
         component.footer(),
       );
-
-      this.attachShadow({ mode: "open" }).append(this.#_.shadow);
+      this.attachShadow({ mode: "open" }).append(shadow);
       reboot.use(this);
       css`
         #root {
@@ -226,12 +226,9 @@ const Frame = author(
       });
 
       // Open/close click control
-      this.#_.shadow.on.click((event) => {
+      shadow.on.click((event) => {
         /* Click close control in shadow -> toggle */
-        if (
-          this.#_.shadow.contains(event.target) &&
-          event.target.closest(".toggle")
-        ) {
+        if (shadow.contains(event.target) && event.target.closest(".toggle")) {
           this.toggle();
           return;
         }
@@ -239,7 +236,7 @@ const Frame = author(
         // Click external component not in side slot -> close
         if (
           event.target.closest("main") ||
-          (!this.#_.shadow.contains(event.target) &&
+          (!shadow.contains(event.target) &&
             !event.target.closest('[slot="side"]'))
         ) {
           this.close();
@@ -249,14 +246,6 @@ const Frame = author(
 
     get config() {
       return this.#_.config;
-    }
-
-    get shadow() {
-      return this.#_.shadow;
-    }
-
-    get slots() {
-      return this.#_.slots;
     }
 
     close(smooth = true) {
@@ -282,15 +271,12 @@ const Frame = author(
       }
       this.attribute.open = !this.attribute.open;
     }
+
+    use() {
+      this.parent =
+        document.getElementById("app") || App({ parent: document.body });
+      return this;
+    }
   },
   "frame-component",
 );
-
-let frame = null;
-if (use.meta.ANVIL) {
-  //
-} else {
-  frame = Frame({ id: "frame", parent: app });
-}
-
-export { frame };

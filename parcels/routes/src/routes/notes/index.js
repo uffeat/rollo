@@ -22,7 +22,7 @@ const route = new (class extends Route {
     this.page.append(this.#_.cards, this.#_.post);
 
     // Render cards (non-blocking).
-    // NOTE Since 'cards' is image-rich, the component is rendered once and 
+    // NOTE Since 'cards' is image-rich, the component is rendered once and
     // related data removed from 'items'.
     const stack = [...paths];
     const next = () => {
@@ -65,8 +65,7 @@ const route = new (class extends Route {
 
           //this.#_.cards.classes.remove("grid"); ////
           //this.#_.cards.classes.add("hidden"); ////
-          this.#_.cards.classes.replace("grid", "hidden")
-
+          this.#_.cards.classes.replace("grid", "hidden");
 
           const path = `/${current}`;
           /* Render (non-blocking) and display post.
@@ -85,7 +84,7 @@ const route = new (class extends Route {
 
           //this.#_.cards.classes.remove("hidden"); ////
           //this.#_.cards.classes.add("grid"); ////
-          this.#_.cards.classes.replace("hidden", "grid")
+          this.#_.cards.classes.replace("hidden", "grid");
         }
       },
       { run: false },

@@ -78,14 +78,14 @@ class f {
     return t.path === this.path && t.hash === this.hash && b(t.query, this.query);
   }
 }
-const { Exception: p, ref: $ } = await use("@/rollo/"), a = new class {
+const { Exception: p, app: $, ref: q } = await use("@/rollo/"), a = new class {
   #t = {
     config: { redirect: {} },
     session: 0
   };
   constructor() {
     this.#t.routes = new m(), this.#t.states = {
-      path: $({ owner: this, name: "path" })
+      path: q({ owner: this, name: "path" })
     };
   }
   /* Returns effects controller. */
@@ -170,7 +170,7 @@ const { Exception: p, ref: $ } = await use("@/rollo/"), a = new class {
   }
   /* Enables external hooks etc. */
   #e(t, s, ...e) {
-    e.length && (t = `${t}/${e.join("/")}`), app.$({ path: t }), this.#t.states.path(t, {}, s, ...e);
+    e.length && (t = `${t}/${e.join("/")}`), $.$({ path: t }), this.#t.states.path(t, {}, s, ...e);
   }
   #s() {
     const t = window.location;
@@ -226,11 +226,11 @@ class w {
     return await this.#t.exit(t);
   }
 }
-const { Mixins: q, author: x, mix: j, stateMixin: v } = await use("@/rollo/"), g = "a", E = x(
-  class extends j(
+const { Mixins: x, author: j, mix: v, stateMixin: O } = await use("@/rollo/"), g = "a", L = j(
+  class extends v(
     document.createElement(g).constructor,
     {},
-    ...q(v)
+    ...x(O)
   ) {
     #t = {};
     constructor() {
@@ -264,7 +264,7 @@ const { Mixins: q, author: x, mix: j, stateMixin: v } = await use("@/rollo/"), g
   },
   "nav-link",
   g
-), L = (i) => (y.effects.add(
+), R = (i) => (y.effects.add(
   (t) => {
     const s = i.find(".active");
     s && s.classes.remove("active");
@@ -274,8 +274,8 @@ const { Mixins: q, author: x, mix: j, stateMixin: v } = await use("@/rollo/"), g
   (t) => !!t
 ), i);
 export {
-  L as Nav,
-  E as NavLink,
+  R as Nav,
+  L as NavLink,
   w as Route,
   y as router
 };
