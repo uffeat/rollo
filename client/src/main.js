@@ -22,6 +22,21 @@ const { modal } = await use("@/modal/");
 const { Spinner } = await use("/tools/spinner");
 const { Alert } = await use("/tools/alert");
 
+function qualify(event, { type } = {}) {
+  if (event.origin !== use.meta.server.origin) {
+    return;
+  }
+  if (type && event.data.type !== type) {
+    return;
+  }
+  return true;
+}
+
+const Submission = (()=> {
+  let count = 0
+  return () => count++
+})();
+
 
 
 css`
@@ -46,23 +61,21 @@ app.append(iframe);
 
 iframe.update({ __height: "100vh" });
 
-
 // Init handshake
 const data = await new Promise((resolve, reject) => {
   const onmessage = (event) => {
-    if (event.origin !== use.meta.server.origin) {
-      return;
-    }
-    if (event.data.type !== "ready") {
+    if (!qualify(event, { type: "ready" })) {
       return;
     }
     window.removeEventListener("message", onmessage);
     const data = event.data.data;
-    console.log("data:", data);
     resolve(data);
   };
   window.addEventListener("message", onmessage);
 });
+console.log("data:", data); ////
+use.meta.session = data.server.session;
+use.meta.server.targets = data.server.targets;
 
 const iworker = new (class {
   #_ = {};
@@ -99,7 +112,7 @@ const iworker = new (class {
           channel.port1.close();
         };
         iframe.contentWindow.postMessage(
-          { type: "request", specifier, args, kwargs, test },
+          {meta: {submission: Submission()}, type: "request", specifier, args, kwargs, test },
           use.meta.server.origin,
           [channel.port2],
         );
@@ -110,12 +123,9 @@ const iworker = new (class {
 
 // Set up display receiver
 window.addEventListener("message", (event) => {
-  if (event.origin !== use.meta.server.origin) {
-    return;
-  }
-  if (event.data.type !== "display") {
-    return;
-  }
+  if (!qualify(event, { type: "display" })) {
+      return;
+    }
   const data = event.data.data || {};
   //console.log("Display data:", data); ////
   iframe.update(data);
@@ -126,7 +136,7 @@ window.addEventListener("message", (event) => {
 
 // Conclude handshake
 iframe.contentWindow.postMessage(
-  {
+  { meta: {submission: Submission()},
     type: "ready",
     data: { browser: { session: use.meta.session, token: use.meta.token } },
   },
@@ -134,7 +144,6 @@ iframe.contentWindow.postMessage(
 );
 
 iframe.update({ __height: 0 });
-
 
 // Test
 
@@ -162,13 +171,11 @@ iworker
     console.log("api/echo result:", result); ////
   });
 
-
 iworker
   .request("@@/foo/")()
   .then((result) => {
     console.log("foo result:", result);
   });
-
 
 /*
 iworker
@@ -178,7 +185,6 @@ iworker
   });
 */
 
-
 /*
 iworker
   .request("@@/login/")()
@@ -186,7 +192,6 @@ iworker
     console.log("@@/login/ result:", result);
   });
 */
-
 
 await (async () => {
   const { server } = await use("@/server");
