@@ -1,15 +1,11 @@
-/* Adds css support: Text -> Sheet instance. */
+// Adds css support: Text -> Sheet instance.
 import { use } from "../use";
 
 const cache = new Map();
 
 use.types.add("css", async (text, { path }) => {
-
-  console.log('text:', text)
-  console.log('path:', path)
-
-
-
+  //console.log("text:", text); ////
+  //console.log("path:", path); ////
 
   // Type guard
   if (!(typeof text === "string")) return;

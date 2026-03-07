@@ -411,7 +411,7 @@ u.sources.add("@", ({ path: r }) => {
 });
 const $ = /* @__PURE__ */ new Map();
 u.types.add("css", async (r, { path: e }) => {
-  if (console.log("text:", r), console.log("path:", e), typeof r != "string") return;
+  if (typeof r != "string") return;
   const { Sheet: t } = await u("@/rollo/"), o = e.full;
   if ($.has(o)) return $.get(o);
   const s = t.create(r, o);
