@@ -61,8 +61,8 @@ import { range } from "./src/tools/array/range";
 import { equal } from "./src/tools/number/equal";
 import { round } from "./src/tools/number/round";
 // tools/object
-import { difference as objectDifference } from "./src/tools/object/difference";
-import { intersection as objectIntersection } from "./src/tools/object/intersection";
+import { difference } from "./src/tools/object/difference";
+import { intersection } from "./src/tools/object/intersection";
 
 export {
   // app
@@ -127,6 +127,6 @@ export {
   equal,
   round,
   // tools/object
-  objectDifference,
-  objectIntersection,
+  difference,
+  intersection,
 };

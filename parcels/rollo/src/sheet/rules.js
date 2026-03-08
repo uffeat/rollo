@@ -1,4 +1,3 @@
-import { type } from "../tools/type";
 import { camelToKebab } from "../tools/case";
 import { Exception } from "../tools/exception";
 import { truncate } from "../tools/truncate";

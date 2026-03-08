@@ -763,3 +763,22 @@ code never enters the actual app.
    `E:/rollo/server/server_code/srv/`
 
 In both cases, you handle promotion to production manually.
+
+
+
+# Next draft of this document
+Should also cover:
+- No need to rush
+- Flirt with TS
+- iworker
+- Check README.md files
+- OK to correct spelling mistakes in comments
+- When making changes or creating new stuff provide elaborate explanatory comments
+- Only change/create:
+   - tests
+   - new parcels
+   - injected client_code
+   - new endpoints
+   - injected server_code
+
+

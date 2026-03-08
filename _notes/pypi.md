@@ -19,3 +19,9 @@ pip install pythonmonkey
 pip install requests
 
 pip install anvil-uplink beautifulsoup4 frontmatter Jinja2 markdown-it-py mdit-py-plugins mdit-py-emoji minify-html pandas pillow plotly PyYAML pythonmonkey requests stripe bcrypt
+
+
+
+`.venv/Scripts/pip show anvil-uplink`
+
+`pip show anvil-uplink`

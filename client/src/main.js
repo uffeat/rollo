@@ -199,3 +199,9 @@ await (async () => {
   //console.log("result:", result);
   console.log("meta:", meta);
 })();
+
+
+if (import.meta.env.DEV) {
+  /* Initialize DEV testbench */
+  await import("../test");
+}

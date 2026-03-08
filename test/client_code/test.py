@@ -50,10 +50,10 @@ def main():
 
 
 if __name__ == "__main__":
-    key = (json.loads((Path.cwd() / "secrets.json").read_text(encoding=UTF_8)))[
+    KEY = (json.loads((Path.cwd() / "secrets.json").read_text(encoding=UTF_8)))[
         "development"
     ]["server"]
-    connect(key)
+    connect(KEY)
     main()
     print("Running local server for client-code test injection.")
     wait_forever()

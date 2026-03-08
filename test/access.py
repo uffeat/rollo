@@ -18,6 +18,7 @@ def main():
 
     @rpc
     def _access():
+        """."""
         # print('Granting access')##
         return True
 
