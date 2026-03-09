@@ -59,20 +59,7 @@ app.append(iframe);
 
 iframe.update({ __height: "100vh" });
 
-// Init handshake
-const data = await new Promise((resolve, reject) => {
-  const onmessage = (event) => {
-    if (!qualify(event, { type: "ready" })) {
-      return;
-    }
-    window.removeEventListener("message", onmessage);
-    const data = event.data.data;
-    resolve(data);
-  };
-  window.addEventListener("message", onmessage);
-});
-console.log("data:", data); ////
-use.meta.server.targets = data.server.targets;
+
 
 const iworker = new (class {
   #_ = {};
@@ -110,7 +97,7 @@ const iworker = new (class {
         };
         iframe.contentWindow.postMessage(
           {
-            meta: { submission: Submission() },
+            submission: Submission(),
             type: "request",
             specifier,
             args,
@@ -138,15 +125,34 @@ window.addEventListener("message", (event) => {
   port.postMessage(true);
 });
 
-// Conclude handshake
-iframe.contentWindow.postMessage(
-  { meta: { submission: Submission() }, type: "ready", data: {} },
-  use.meta.server.origin,
-);
+// Handshake
+await new Promise((resolve, reject) => {
+  const onmessage = (event) => {
+    if (!qualify(event, { type: "ready" })) {
+      return;
+    }
+    window.removeEventListener("message", onmessage);
+    const port = event.ports[0];
+    // Send init data to iworker
+    port.postMessage({detail: {foo: 42}});
+    // Receive init data from iworker
+    const detail = event.data.detail
+    console.log("Init data from iworker:", detail); ////
+    use.meta.server.targets = detail.server.targets;
+    resolve(detail);
+  };
+  window.addEventListener("message", onmessage);
+});
+
+
+
+
+
 
 iframe.update({ __height: 0 });
 
 // Test
+// TODO Turn INTEGRATE INTO use
 
 iworker
   .request("@@/echo/", { test: true })(42)
@@ -160,17 +166,21 @@ iworker
     console.log("@@/echo:ping result:", result); ////
   });
 
+/*
 iworker
   .request("rpc/echo")(42)
   .then((result) => {
     console.log("rpc/echo result:", result); ////
   });
+*/
 
+/*
 iworker
   .request("api/echo")(42)
   .then((result) => {
     console.log("api/echo result:", result); ////
   });
+  */
 
 iworker
   .request("@@/foo/")()
@@ -194,12 +204,14 @@ iworker
   });
 */
 
+/*
 await (async () => {
   const { server } = await use("@/server");
   const { response, result, meta } = await server.echo(42);
   //console.log("result:", result);
   console.log("meta:", meta);
 })();
+*/
 
 if (import.meta.env.DEV) {
   /* Initialize DEV testbench */
