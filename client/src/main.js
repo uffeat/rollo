@@ -32,12 +32,10 @@ function qualify(event, { type } = {}) {
   return true;
 }
 
-const Submission = (()=> {
-  let count = 0
-  return () => count++
+const Submission = (() => {
+  let count = 0;
+  return () => count++;
 })();
-
-
 
 css`
   iframe[name="iworker"] {
@@ -74,7 +72,6 @@ const data = await new Promise((resolve, reject) => {
   window.addEventListener("message", onmessage);
 });
 console.log("data:", data); ////
-use.meta.session = data.server.session;
 use.meta.server.targets = data.server.targets;
 
 const iworker = new (class {
@@ -112,7 +109,14 @@ const iworker = new (class {
           channel.port1.close();
         };
         iframe.contentWindow.postMessage(
-          {meta: {submission: Submission()}, type: "request", specifier, args, kwargs, test },
+          {
+            meta: { submission: Submission() },
+            type: "request",
+            specifier,
+            args,
+            kwargs,
+            test,
+          },
           use.meta.server.origin,
           [channel.port2],
         );
@@ -124,8 +128,8 @@ const iworker = new (class {
 // Set up display receiver
 window.addEventListener("message", (event) => {
   if (!qualify(event, { type: "display" })) {
-      return;
-    }
+    return;
+  }
   const data = event.data.data || {};
   //console.log("Display data:", data); ////
   iframe.update(data);
@@ -136,10 +140,7 @@ window.addEventListener("message", (event) => {
 
 // Conclude handshake
 iframe.contentWindow.postMessage(
-  { meta: {submission: Submission()},
-    type: "ready",
-    data: { browser: { session: use.meta.session, token: use.meta.token } },
-  },
+  { meta: { submission: Submission() }, type: "ready", data: {} },
   use.meta.server.origin,
 );
 
@@ -199,7 +200,6 @@ await (async () => {
   //console.log("result:", result);
   console.log("meta:", meta);
 })();
-
 
 if (import.meta.env.DEV) {
   /* Initialize DEV testbench */

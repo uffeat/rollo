@@ -1,7 +1,7 @@
 import "../use";
 
 import { Submission } from "./tools/submission";
-import { call, state } from "./tools/call";
+import _fetch from "./tools/fetch";
 
 /* Utility for calling HTTP-endpoints  */
 const server = new Proxy(
@@ -9,7 +9,7 @@ const server = new Proxy(
   {
     get(_, name) {
       return async (...args) => {
-        return call(
+        return _fetch(
           `${
             use.meta.server.origin
           }/_/api/main?name=${name}&submission=${Submission()}`,
@@ -22,4 +22,4 @@ const server = new Proxy(
 
 use.compose("server", server);
 
-export { Submission, server, state };
+export { Submission, server };

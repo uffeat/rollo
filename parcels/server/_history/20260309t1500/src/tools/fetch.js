@@ -7,11 +7,13 @@ const options = {
   headers: { "content-type": "text/plain; charset=utf-8" },
 };
 
+export const state = {};
+
 const _fetch = async (url, ...args) => {
   const kwargs = args.find((a, i) => !i && is.object(a)) || {};
   args = args.filter((a, i) => i || !is.object(a));
 
-  const data = { data: { args, kwargs } };
+  const data = { data: { args, kwargs }, state };
 
   const response = await fetch(url, {
     body: JSON.stringify(data),
