@@ -13,7 +13,7 @@ export const call = async (url, ...args) => {
   const kwargs = args.find((a, i) => !i && is.object(a)) || {};
   args = args.filter((a, i) => i || !is.object(a));
 
-  const data = { data: { args, kwargs }, state };
+  const data = { data: { args, kwargs, state } };
 
   const response = await fetch(url, {
     body: JSON.stringify(data),
@@ -22,6 +22,7 @@ export const call = async (url, ...args) => {
   const parsed = await response.json();
   parsed.response = response
   Exception.if("__error__" in parsed, parsed.__error__);
+  
   return parsed;
 };
 

@@ -6,7 +6,7 @@ const p = () => c++, { Exception: u, is: i } = await use("@/rollo/"), _ = {
   const s = e.find((n, o) => !o && i.object(n)) || {};
   e = e.filter((n, o) => o || !i.object(n));
   const a = await fetch(r, {
-    body: JSON.stringify({ data: { args: e, kwargs: s }, state: d }),
+    body: JSON.stringify({ data: { args: e, kwargs: s, state: d } }),
     ..._
   }), t = await a.json();
   return t.response = a, u.if("__error__" in t, t.__error__), t;
