@@ -1,15 +1,36 @@
-// Create DEV flag that also works in a non-Vite context and across parcels.
-const DEV = location.hostname === "localhost";
+const BASE = "https://rolloh.vercel.app";
 
 const server = new (class {
   #_ = {};
 
-  get origin() {
-    return this.#_.origin;
+  constructor() {
+    const dev = "https://rollohdev.anvil.app";
+    const prod = "https://rolloh.anvil.app";
+    // Set origin
+    this.#_.origin =
+      location.origin === BASE || location.origin === prod ? prod : dev;
+    // Set PROD
+    this.#_.PROD = this.#_.origin === prod;
+    // Set DEV
+    this.#_.DEV = !this.#_.PROD;
+    // Set env
+    this.#_.env = this.#_.PROD ? "production" : "development";
   }
 
-  set origin(origin) {
-    this.#_.origin = origin;
+  get DEV() {
+    return this.#_.DEV;
+  }
+
+  get PROD() {
+    return this.#_.PROD;
+  }
+
+  get env() {
+    return this.#_.env;
+  }
+
+  get origin() {
+    return this.#_.origin;
   }
 
   get targets() {
@@ -23,49 +44,58 @@ const server = new (class {
 
 export const meta = new (class {
   #_ = {
-    detail: {}
+    detail: {},
   };
 
   constructor() {
-    // Set ANVIL, base and server origin
-    if (DEV) {
-      const PORT = "3869";
-      if (location.port === PORT) {
-        this.#_.base = "";
-      } else {
-        // Port-awareness allows access to dev public when testing parcels
-        this.#_.base = `http://localhost:${PORT}`;
+    const PORT = "3869";
+    // Set PROD
+    this.#_.PROD = location.origin === BASE;
+    // Set DEV
+    this.#_.DEV = !this.#_.PROD;
+    // Set ANVIL
+    this.#_.ANVIL = server.origin === location.origin;
+    // Set VITE
+    this.#_.VITE =
+      typeof import.meta !== "undefined" &&
+      typeof import.meta.env !== "undefined" &&
+      import.meta.env.MODE;
+    // Set base
+    this.#_.base = (() => {
+      // Port-awareness allows access to dev public when testing parcels
+      // (provided that dev sever runs)
+      if (this.#_.DEV && location.port !== PORT) {
+        return `http://localhost:${PORT}`;
       }
-      server.origin = "https://rollohdev.anvil.app";
-    } else {
-      const BASE = "https://rolloh.vercel.app";
-      if (location.origin === BASE) {
-        this.#_.base = "";
-        server.origin = "https://rolloh.anvil.app";
-      } else {
-        this.#_.base = BASE;
-        server.origin = location.origin;
-        this.#_.ANVIL = true;
+      // Not DEV
+      if (location.origin !== BASE) {
+        return BASE;
       }
-    }
+      return "";
+    })();
+    // Set env
+    this.#_.env = this.#_.PROD ? "production" : "development";
   }
 
   get ANVIL() {
-    return this.#_.ANVIL || false;
+    return this.#_.ANVIL;
+  }
+
+  /* Returns production origin */
+  get BASE() {
+    return BASE;
   }
 
   get DEV() {
-    return DEV;
+    return this.#_.DEV;
+  }
+
+  get PROD() {
+    return this.#_.PROD;
   }
 
   /* Returns flag that indicates if running in Vite env. */
   get VITE() {
-    if (!this.#_.VITE) {
-      this.#_.VITE =
-        typeof import.meta !== "undefined" &&
-        typeof import.meta.env !== "undefined" &&
-        import.meta.env.MODE;
-    }
     return this.#_.VITE;
   }
 
@@ -73,44 +103,17 @@ export const meta = new (class {
     return this.#_.base;
   }
 
-  set base(base) {
-    this.#_.base = base;
-  }
-
   get detail() {
     return this.#_.detail;
   }
 
   get env() {
-    return this.DEV ? 'development' : 'production';
+    return this.#_.env;
   }
 
   get server() {
     return server;
   }
 
-  get session() {
-    if (!this.#_.session) {
-       this.#_.session = crypto.randomUUID();
-    }
-    return this.#_.session;
-  }
-
-  set session(session) {
-    this.#_.session = session;
-  }
-
-  get token() {
-    if (!this.#_.token) {
-      const KEY = "__token__";
-      const token = localStorage.getItem(KEY);
-      if (token) {
-        this.#_.token = token;
-      } else {
-        this.#_.token = crypto.randomUUID();
-        localStorage.setItem(KEY, this.#_.token);
-      }
-    }
-    return this.#_.token;
-  }
+  
 })();

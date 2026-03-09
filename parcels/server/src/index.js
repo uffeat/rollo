@@ -12,7 +12,7 @@ const server = new Proxy(
         return _fetch(
           `${
             use.meta.server.origin
-          }/_/api/main?name=${name}&session=${use.meta.session}&submission=${Submission()}&token=${use.meta.token}`,
+          }/_/api/main?name=${name}&submission=${Submission()}`,
           ...args,
         );
       };

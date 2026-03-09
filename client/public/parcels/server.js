@@ -1,28 +1,28 @@
-let c = 0;
-const u = () => c++, { Exception: _, is: i } = await use("@/rollo/"), p = {
+let i = 0;
+const _ = () => i++, { Exception: u, is: c } = await use("@/rollo/"), p = {
   method: "POST",
   headers: { "content-type": "text/plain; charset=utf-8" }
-}, m = async (t, ...e) => {
-  const n = e.find((o, r) => !r && i.object(o)) || {};
-  e = e.filter((o, r) => r || !i.object(o));
+}, d = async (t, ...e) => {
+  const s = e.find((o, r) => !r && c.object(o)) || {};
+  e = e.filter((o, r) => r || !c.object(o));
   const a = await fetch(t, {
-    body: JSON.stringify({ data: { args: e, kwargs: n } }),
+    body: JSON.stringify({ data: { args: e, kwargs: s } }),
     ...p
-  }), s = await a.json();
-  return s.response = a, _.if("__error__" in s, s.__error__), s;
-}, d = (t, ...e) => m(t, ...e), f = new Proxy(
+  }), n = await a.json();
+  return n.response = a, u.if("__error__" in n, n.__error__), n;
+}, f = (t, ...e) => d(t, ...e), m = new Proxy(
   {},
   {
     get(t, e) {
-      return async (...n) => d(
-        `${use.meta.server.origin}/_/api/main?name=${e}&session=${use.meta.session}&submission=${u()}&token=${use.meta.token}`,
-        ...n
+      return async (...s) => f(
+        `${use.meta.server.origin}/_/api/main?name=${e}&submission=${_()}`,
+        ...s
       );
     }
   }
 );
-use.compose("server", f);
+use.compose("server", m);
 export {
-  u as Submission,
-  f as server
+  _ as Submission,
+  m as server
 };
