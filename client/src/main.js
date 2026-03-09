@@ -88,7 +88,12 @@ const iworker = new (class {
           if (timer) {
             clearTimeout(timer);
           }
+
+          // TODO Include returned submission in resolve (and warn before reject)
+
+
           if (event.data.error) {
+            // TODO Consider if should be error
             reject(event.data.error);
           } else {
             resolve(event.data.result);
