@@ -52,11 +52,10 @@ css`
 const iframe = component.iframe({
   name: "iworker",
   src: `${use.meta.server.origin}/iworker?iworker=`,
-  //slot: "iworker",
+  slot: "iworker",
 });
 
-//app.append(iframe);////
-frame.append(iframe);
+app.append(iframe);
 
 
 
@@ -84,7 +83,7 @@ const iworker = new (class {
           }
         })();
         if (visible) {
-          //iframe.update({ __height: "100%" });////
+          iframe.update({ __height: "100vh" });
         } else {
 
         }
@@ -94,7 +93,7 @@ const iworker = new (class {
           }
 
           if (visible) {
-            //iframe.update({ __height: 0 });////
+            iframe.update({ __height: 0 });
           }
 
           // TODO Include returned submission in resolve (and warn before reject)
@@ -117,7 +116,6 @@ const iworker = new (class {
             args,
             kwargs,
             test,
-            visible,
           },
           use.meta.server.origin,
           [channel.port2],
@@ -143,7 +141,7 @@ window.addEventListener("message", (event) => {
 // Handshake
 
 await new Promise((resolve, reject) => {
-  //iframe.update({ __height: "100vh" });////
+  iframe.update({ __height: "100vh" });
   const onmessage = (event) => {
     if (!qualify(event, { type: "ready" })) {
       return;
@@ -157,7 +155,7 @@ await new Promise((resolve, reject) => {
     console.log("Init data from iworker:", detail); ////
     use.meta.server.targets = detail.server.targets;
     resolve(detail);
-    //iframe.update({ __height: 0 });////
+    iframe.update({ __height: 0 });
   };
   window.addEventListener("message", onmessage);
 });

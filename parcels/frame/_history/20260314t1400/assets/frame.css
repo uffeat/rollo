@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+frame-component {
+  display: block;
+  height: 100vh;
+}

@@ -24,7 +24,7 @@ const Frame = author(
         home: component.slot({ name: "home" }),
         side: component.slot({ name: "side" }),
         top: component.slot({ name: "top" }),
-        //iworker: component.slot({ name: "iworker" }),
+        iworker: component.slot({ name: "iworker" }),
       });
 
       const side = component.section(
@@ -46,7 +46,7 @@ const Frame = author(
           }),
           component.section(this.#_.slots.top),
         ),
-        component.section("main", side, component.main(this.#_.slots.default)),
+        component.section("main", side, component.main(this.#_.slots.default, this.#_.slots.iworker)),
         component.footer(),
       );
 
