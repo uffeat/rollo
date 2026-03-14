@@ -38,8 +38,12 @@ const Submission = (() => {
 })();
 
 css`
-  iframe[name="iworker"] {
-    position: var(--position, absolute);
+  #frame[iworker] > :not([slot]) {
+    display: none;
+  }
+
+  #iworker {
+    position: var(--position, static);
     top: var(--top, 0);
     height: var(--height, 0);
     width: 100%;
@@ -50,15 +54,13 @@ css`
 `.use();
 
 const iframe = component.iframe({
+  id: "iworker",
   name: "iworker",
   src: `${use.meta.server.origin}/iworker?iworker=`,
-  //slot: "iworker",
+  slot: "iworker",
 });
 
-//app.append(iframe);////
 frame.append(iframe);
-
-
 
 const iworker = new (class {
   #_ = {};
@@ -84,9 +86,9 @@ const iworker = new (class {
           }
         })();
         if (visible) {
-          //iframe.update({ __height: "100%" });////
+          iframe.attribute.visible = true;
         } else {
-
+          iframe.attribute.visible = null;
         }
         channel.port1.onmessage = (event) => {
           if (timer) {
@@ -94,11 +96,8 @@ const iworker = new (class {
           }
 
           if (visible) {
-            //iframe.update({ __height: 0 });////
+            iframe.attribute.visible = null;
           }
-
-          // TODO Include returned submission in resolve (and warn before reject)
-          // Consider dropping use of server session and instead store in client_code
 
           if (event.data.error) {
             // TODO Consider if should be error
@@ -132,18 +131,15 @@ window.addEventListener("message", (event) => {
   if (!qualify(event, { type: "iframe" })) {
     return;
   }
-  const data = event.data.data || {};
-  //console.log("Display data:", data); ////
-  iframe.update(data);
-
+  const updates = event.data.detail || {};
+  iframe.update(updates);
   const port = event.ports[0];
   port.postMessage(true);
 });
 
 // Handshake
-
 await new Promise((resolve, reject) => {
-  //iframe.update({ __height: "100vh" });////
+  iframe.update({ __position: "absolute", __height: "100vh" }); ////
   const onmessage = (event) => {
     if (!qualify(event, { type: "ready" })) {
       return;
@@ -157,11 +153,11 @@ await new Promise((resolve, reject) => {
     console.log("Init data from iworker:", detail); ////
     use.meta.server.targets = detail.server.targets;
     resolve(detail);
-    //iframe.update({ __height: 0 });////
+
+    iframe.update({ __position: "static", __height: 0 }); ////
   };
   window.addEventListener("message", onmessage);
 });
-
 
 // Test
 // TODO Next up INTEGRATE INTO use
@@ -200,7 +196,7 @@ iworker
 
 
 iworker
-  .request("@@/foo/", {visible: true})()
+  .request("@@/foo/", { visible: true })()
   .then((result) => {
     console.log("foo result:", result);
   });
