@@ -21,6 +21,32 @@ const { modal } = await use("@/modal/");
 const { Spinner } = await use("/tools/spinner");
 const { Alert } = await use("/tools/alert");
 
+/* Tests if support for popover and anchoring (lazy). */
+const modern = (() => {
+  let result;
+  return () => {
+    if (result === undefined) {
+      result =
+        "showPopover" in HTMLElement.prototype &&
+        window.CSS &&
+        CSS.supports("anchor-name: --test");
+    }
+    return result;
+  };
+})();
+
+/* Returns height of header in frame (lazy). */
+const getHeaderHeight = (() => {
+  let result;
+  return () => {
+    if (result === undefined) {
+      const header = frame.shadow.querySelector("header");
+      result = header.getBoundingClientRect().height;
+    }
+    return result;
+  };
+})();
+
 css`
   /* NOTE Vars allow control from JS. */
 
@@ -42,30 +68,48 @@ css`
     margin: 0;
   }
 
-  /* Anchor frame (layout component) when iworker shown as overlay */
-  #frame:has(#iworker[popover]) {
-    anchor-name: --frame;
-  }
-  /* Iworker as overlay (popover) */
-  #iworker[popover] {
+  #iworker[over] {
     --position: fixed;
-    --height: anchor-size(height);
-    --top: anchor(top);
-    position-anchor: var(--anchor, --frame);
-    left: var(--left, anchor(left));
   }
-  #iworker[popover]:not([handshake]):popover-open {
-    opacity: 1;
-    @starting-style {
-      opacity: 0;
-      transform: scale(0.95);
+
+  @supports (anchor-name: --test) {
+    /* Anchor frame (layout component) when iworker shown as overlay */
+    #frame:has(#iworker[over]) {
+      ${'anchor-name'}: --frame;
+    }
+    /* Iworker as overlay (popover) */
+    #iworker[over] {
+      --height: anchor-size(height);
+      --top: anchor(top);
+      position-anchor: var(--anchor, --frame);
+      left: var(--left, anchor(left));
+    }
+    #iworker[over]:popover-open {
+      opacity: 1;
+      @starting-style {
+        opacity: 0;
+        transform: scale(0.95);
+      }
     }
   }
 
-  #iworker[popover][handshake]:popover-open {
-    opacity: 0.75;
+  @supports not (anchor-name: --test) {
+    /* Iworker as overlay */
+    #iworker[over] {
+      --height: 100vh;
+    }
   }
 `.use();
+
+function qualify(event, { type } = {}) {
+  if (event.origin !== use.meta.server.origin) {
+    return;
+  }
+  if (type && event.data.type !== type) {
+    return;
+  }
+  return true;
+}
 
 const Submission = (() => {
   let count = 0;
@@ -81,49 +125,21 @@ const iframe = component.iframe({
 
 frame.append(iframe);
 
-class Channel {
-  static create = (...args) => new Channel(...args);
-  #_ = {};
-
-  constructor() {
-    this.#_.channel = new MessageChannel();
-  }
-
-  close() {
-    this.#_.channel.port1.close();
-  }
-
-  receive(onmessage) {
-    this.#_.channel.port1.onmessage = onmessage;
-  }
-
-  send(detail = {}) {
-    iframe.contentWindow.postMessage(detail, use.meta.server.origin, [
-      this.#_.channel.port2,
-    ]);
-  }
-}
-
 const iworker = new (class {
   #_ = {};
 
   constructor() {}
 
-  request(specifier, { test, timeout, visible = false } = {}) {
-   
-
+  request(specifier, { test, timeout, visible } = {}) {
     return (...args) => {
       const kwargs = args.find((a, i) => !i && is.object(a)) || {};
       args = args.filter((a, i) => i || !is.object(a));
       return new Promise((resolve, reject) => {
-        const channel = Channel.create();
+        const channel = new MessageChannel();
         const timer = (() => {
           if (timeout) {
             return setTimeout(() => {
-              channel.close();
-              if (visible === "popover") {
-                iframe.update({ popover: null });
-              }
+              channel.port1.close();
               reject(
                 new Error(
                   `Response from '${specifier}' took longer than ${timeout}ms`,
@@ -132,111 +148,82 @@ const iworker = new (class {
             }, timeout);
           }
         })();
-
-        if (visible === "popover") {
-          iframe.update({ popover: "manual" }).showPopover();
+        if (visible) {
+          iframe.attribute.visible = true;
+        } else {
+          iframe.attribute.visible = null;
         }
-        
-        channel.receive((event) => {
+        channel.port1.onmessage = (event) => {
           if (timer) {
             clearTimeout(timer);
           }
+
+          if (visible) {
+            iframe.attribute.visible = null;
+          }
+
           if (event.data.error) {
             // TODO Consider if should be error
             reject(event.data.error);
           } else {
             resolve(event.data.result);
           }
-          channel.close();
+          channel.port1.close();
+        };
 
-          if (visible === "popover") {
-            iframe.update({ popover: null });
-          }
-          
-        });
-        channel.send({
-          submission: Submission(),
-          type: "request",
-          specifier,
-          args,
-          kwargs,
-          test,
-          visible,
-        });
+        iframe.contentWindow.postMessage(
+          {
+            submission: Submission(),
+            type: "request",
+            specifier,
+            args,
+            kwargs,
+            test,
+            visible,
+          },
+          use.meta.server.origin,
+          [channel.port2],
+        );
       });
     };
   }
 })();
 
-class Message {
-  static create = (...args) => new Message(...args);
-  #_ = {};
-
-  constructor(event, { type } = {}) {
-    this.#_ = {
-      event,
-      ok:
-        event.origin === use.meta.server.origin &&
-        is.object(event.data) &&
-        (!type || event.data.type === type),
-      type,
-    };
-  }
-
-  get detail() {
-    return this.#_.event.data.detail || null;
-  }
-
-  get event() {
-    return this.#_.event;
-  }
-
-  get ok() {
-    return this.#_.ok;
-  }
-
-  get submission() {
-    return this.#_.event.data.submission || null;
-  }
-
-  get type() {
-    return this.#_.type || null;
-  }
-
-  respond(detail = {}) {
-    const port = this.#_.event.ports[0];
-    port.postMessage({ detail, submission: this.submission, type: this.type }); ////
-  }
-}
-
-// Set up receiver for updating iframe
+// Set up iframe receiver
 window.addEventListener("message", (event) => {
-  const message = Message.create(event, { type: "iframe" });
-  if (!message.ok) {
+  if (!qualify(event, { type: "iframe" })) {
     return;
   }
-  const updates = message.detail || {};
+  const updates = event.data.detail || {};
   iframe.update(updates);
-  message.respond(updates);
+  const port = event.ports[0];
+  port.postMessage(updates); ////
 });
 
 // Handshake
 await new Promise((resolve, reject) => {
-  iframe.update({ popover: "manual", "[handshake]": true }).showPopover();
+  iframe.update({ popover: "manual", "[over]": true });
+  if (modern()) {
+    iframe.showPopover();
+  } else {
+    const top = `-${getHeaderHeight()}px`;
+    iframe.update({ __top: top });
+  }
   const onmessage = (event) => {
-    const message = Message.create(event, { type: "handshake" });
-    if (!message.ok) {
+    if (!qualify(event, { type: "ready" })) {
       return;
     }
     window.removeEventListener("message", onmessage);
+    const port = event.ports[0];
     // Send init data to iworker
-    message.respond({ foo: 42 });
+    port.postMessage({ detail: { foo: 42 } });
     // Receive init data from iworker
-    console.log("Init data from iworker:", message.detail); ////
-    use.meta.server.targets = message.detail.server.targets;
-    resolve(message.detail);
-    // iframe.hidePopover(); clean, but unnecessary!
-    iframe.update({ popover: null, "[handshake]": null });
+    const detail = event.data.detail;
+    console.log("Init data from iworker:", detail); ////
+    use.meta.server.targets = detail.server.targets;
+    resolve(detail);
+    //modern() && iframe.hidePopover(); clean, but unnecessary!
+    iframe.update({ popover: null, "[over]": null });
   };
   window.addEventListener("message", onmessage);
 });
@@ -250,7 +237,7 @@ iworker
   .then((result) => {
     console.log("@@/echo/ result:", result); ////
   });
-*/
+  */
 
 /*
 iworker
@@ -292,11 +279,13 @@ iworker
   });
 */
 
+/*
 iworker
-  .request("@@/stuff/", { visible: "popover" })()
+  .request("@@/stuff/", {visible: true})()
   .then((result) => {
     console.log("stuff result:", result);
   });
+*/
 
 /*
 iworker

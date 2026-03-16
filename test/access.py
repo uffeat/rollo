@@ -19,7 +19,6 @@ def main():
     @rpc
     def _access():
         """."""
-        print('Granting access')##
         return True
 
     @rpc
@@ -29,7 +28,6 @@ def main():
 
 if __name__ == "__main__":
     ##disconnect()
-
     connect(key)
     main()
     print("Running local server for access and logging.")

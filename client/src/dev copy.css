@@ -1,25 +1,14 @@
-/* NOTE Vars allow control from JS. */
-
-/* Base for iworker (iframe). */
+/* Base for iworker (iframe) */
 #iworker {
-  /* Declare vars; explicitly to avoid unintended var use from higher-ups. */
-  --height: 0;
-  --position: static;
-  --top: 0;
-  --width: 100%;
-  /* Use vars */
-  height: var(--height);
-  position: var(--position);
-  top: var(--top);
-  width: var(--width);
+  /* Enable control from JS via vars */
+  height: var(--height, 0);
+  position: var(--position, static);
+  top: var(--top, 0);
+  width: var(--width, 100%);
   /* Vanilla items */
   border: none;
   padding: 0;
   margin: 0;
-}
-
-#iworker[over] {
-  --position: fixed;
 }
 
 @supports (anchor-name: --test) {
@@ -27,25 +16,22 @@
   #frame:has(#iworker[over]) {
     anchor-name: --frame;
   }
+
   /* Iworker as overlay (popover) */
   #iworker[over] {
     --height: anchor-size(height);
+    --position: fixed;
     --top: anchor(top);
-    position-anchor: var(--anchor, --frame);
+    position-anchor: var(--ancor, --frame);
     left: var(--left, anchor(left));
   }
+
+  /* Mode transition*/
   #iworker[over]:popover-open {
     opacity: 1;
     @starting-style {
       opacity: 0;
       transform: scale(0.95);
     }
-  }
-}
-
-@supports not (anchor-name: --test) {
-  /* Iworker as overlay */
-  #iworker[over] {
-    --height: 100vh;
   }
 }

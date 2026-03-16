@@ -42,30 +42,39 @@ css`
     margin: 0;
   }
 
+  #iworker[over] {
+    --position: fixed;
+  }
+
   /* Anchor frame (layout component) when iworker shown as overlay */
-  #frame:has(#iworker[popover]) {
+  #frame:has(#iworker[over]) {
     anchor-name: --frame;
   }
   /* Iworker as overlay (popover) */
-  #iworker[popover] {
-    --position: fixed;
+  #iworker[over] {
     --height: anchor-size(height);
     --top: anchor(top);
     position-anchor: var(--anchor, --frame);
     left: var(--left, anchor(left));
   }
-  #iworker[popover]:not([handshake]):popover-open {
+  #iworker[over]:popover-open {
     opacity: 1;
     @starting-style {
       opacity: 0;
       transform: scale(0.95);
     }
   }
-
-  #iworker[popover][handshake]:popover-open {
-    opacity: 0.75;
-  }
 `.use();
+
+function qualify(event, { type } = {}) {
+  if (event.origin !== use.meta.server.origin) {
+    return;
+  }
+  if (type && event.data.type !== type) {
+    return;
+  }
+  return true;
+}
 
 const Submission = (() => {
   let count = 0;
@@ -109,21 +118,16 @@ const iworker = new (class {
 
   constructor() {}
 
-  request(specifier, { test, timeout, visible = false } = {}) {
-   
-
+  async request(specifier, { test, timeout, visible } = {}) {
     return (...args) => {
       const kwargs = args.find((a, i) => !i && is.object(a)) || {};
       args = args.filter((a, i) => i || !is.object(a));
       return new Promise((resolve, reject) => {
-        const channel = Channel.create();
+        const channel = new MessageChannel();
         const timer = (() => {
           if (timeout) {
             return setTimeout(() => {
-              channel.close();
-              if (visible === "popover") {
-                iframe.update({ popover: null });
-              }
+              channel.port1.close();
               reject(
                 new Error(
                   `Response from '${specifier}' took longer than ${timeout}ms`,
@@ -132,44 +136,49 @@ const iworker = new (class {
             }, timeout);
           }
         })();
-
-        if (visible === "popover") {
-          iframe.update({ popover: "manual" }).showPopover();
+        if (visible) {
+          iframe.attribute.visible = true;
+        } else {
+          iframe.attribute.visible = null;
         }
-        
-        channel.receive((event) => {
+        channel.port1.onmessage = (event) => {
           if (timer) {
             clearTimeout(timer);
           }
+
+          if (visible) {
+            iframe.attribute.visible = null;
+          }
+
           if (event.data.error) {
             // TODO Consider if should be error
             reject(event.data.error);
           } else {
             resolve(event.data.result);
           }
-          channel.close();
+          channel.port1.close();
+        };
 
-          if (visible === "popover") {
-            iframe.update({ popover: null });
-          }
-          
-        });
-        channel.send({
-          submission: Submission(),
-          type: "request",
-          specifier,
-          args,
-          kwargs,
-          test,
-          visible,
-        });
+        iframe.contentWindow.postMessage(
+          {
+            submission: Submission(),
+            type: "request",
+            specifier,
+            args,
+            kwargs,
+            test,
+            visible,
+          },
+          use.meta.server.origin,
+          [channel.port2],
+        );
       });
     };
   }
 })();
 
-class Message {
-  static create = (...args) => new Message(...args);
+class MessageType {
+  static create = (...args) => new MessageType(...args);
   #_ = {};
 
   constructor(event, { type } = {}) {
@@ -209,9 +218,13 @@ class Message {
   }
 }
 
+function Message(...args) {
+  return new MessageType(...args);
+}
+
 // Set up receiver for updating iframe
 window.addEventListener("message", (event) => {
-  const message = Message.create(event, { type: "iframe" });
+  const message = Message(event, { type: "iframe" });
   if (!message.ok) {
     return;
   }
@@ -222,9 +235,9 @@ window.addEventListener("message", (event) => {
 
 // Handshake
 await new Promise((resolve, reject) => {
-  iframe.update({ popover: "manual", "[handshake]": true }).showPopover();
+  iframe.update({ popover: "manual", "[over]": true }).showPopover();
   const onmessage = (event) => {
-    const message = Message.create(event, { type: "handshake" });
+    const message = Message(event, { type: "ready" });
     if (!message.ok) {
       return;
     }
@@ -236,7 +249,7 @@ await new Promise((resolve, reject) => {
     use.meta.server.targets = message.detail.server.targets;
     resolve(message.detail);
     // iframe.hidePopover(); clean, but unnecessary!
-    iframe.update({ popover: null, "[handshake]": null });
+    iframe.update({ popover: null, "[over]": null });
   };
   window.addEventListener("message", onmessage);
 });
@@ -250,7 +263,7 @@ iworker
   .then((result) => {
     console.log("@@/echo/ result:", result); ////
   });
-*/
+  */
 
 /*
 iworker
@@ -292,11 +305,13 @@ iworker
   });
 */
 
+/*
 iworker
-  .request("@@/stuff/", { visible: "popover" })()
+  .request("@@/stuff/", {visible: true})()
   .then((result) => {
     console.log("stuff result:", result);
   });
+*/
 
 /*
 iworker
