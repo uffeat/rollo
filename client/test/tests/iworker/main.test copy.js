@@ -2,7 +2,7 @@
 /iworker/main.test.js
 */
 
-/** NOTE
+/* NOTE
 Do update iframe inside requestAnimationFrame -> messes up detection of prop change
 */
 
@@ -16,13 +16,12 @@ const { Spinner } = await use("/tools/spinner");
 const { Alert } = await use("/tools/alert");
 
 export default async () => {
-  
   css`
-    /*** NOTE Vars allow dynamic control from JS. */
+    /** NOTE Vars allow control from JS. */
 
     /** Base for iworker (iframe). */
     #iworker {
-      /* Declare vars; explicitly to avoid unintended var use from higher-ups */
+      /* Declare vars; explicitly to avoid unintended var use from higher-ups. */
       --height: 0;
       --position: static;
       --top: 0;
@@ -32,16 +31,17 @@ export default async () => {
       position: var(--position);
       top: var(--top);
       width: var(--width);
-      /* Non-dynamic items */
+      /* Vanilla items */
       border: none;
       padding: 0;
       margin: 0;
     }
-    /** Declare frame as anchor when iworker shown as popover. */
+
+    /** Anchor frame (layout component) when iworker shown as popover */
     #frame:has(#iworker[popover]) {
       anchor-name: --frame;
     }
-    /** Iworker as popover. */
+    /** Iworker as overlay (popover) */
     #iworker[popover] {
       --position: fixed;
       /*--height: anchor-size(height);*/
@@ -59,32 +59,20 @@ export default async () => {
     }
   `.use();
 
-  /* Returns unique submission id.
-  NOTE
-  Since iworker coms are channel-based (beyond handshake),
-  there's no need for a submission id to match request-response.
-  However, an int-based submission id can still be handy for, e.g.,
-  - managing state iworker-side (general or in targets)
-  - orchestration of request-response pipes
-  - error handling and debugging. */
   const Submission = (() => {
     let count = 0;
     return () => count++;
   })();
 
-  /* Create and add iworker iframe.
-  NOTE
-  The request is channeled through the iworker server.
-  The src query part therefore hits the iworker both
-  server and client side. Can be used to send pre-handshake init data
-  (interpreted as per conventions). Could be send as b64; even with Python 
-  code to be executed iworker-side. */
   const iframe = component.iframe({
     id: "iworker",
     name: "iworker",
-    src: `${use.meta.server.origin}/iworker?stuff=`,
+    src: `${use.meta.server.origin}/iworker?iworker=`,
     slot: "iworker",
+
+    //__height: 0,
   });
+
   frame.append(iframe);
 
   /* MessageChannel controller (DX). */
@@ -100,12 +88,10 @@ export default async () => {
       this.#_.channel.port1.close();
     }
 
-    /* Sets up function to receive response. */
     receive(onmessage) {
       this.#_.channel.port1.onmessage = onmessage;
     }
 
-    /* Sends request. */
     send(detail = {}) {
       iframe.contentWindow.postMessage(detail, use.meta.server.origin, [
         this.#_.channel.port2,
@@ -113,7 +99,7 @@ export default async () => {
     }
   }
 
-  /* Wrapper for message events for validation, data extration and responding. */
+  /* Wrapper for message events */
   class Message {
     static create = (...args) => new Message(...args);
     #_ = {};
@@ -159,7 +145,6 @@ export default async () => {
     }
   }
 
-  /* Controller for iworker coms. */
   const iworker = new (class {
     #_ = {
       /* Tail of the show() serialization chain. Initialized as an
@@ -170,7 +155,6 @@ export default async () => {
     };
 
     constructor() {
-
       this.#_.sync = new (class {
         #_ = {};
 
@@ -184,9 +168,9 @@ export default async () => {
             }
             const updates = message.detail || {};
             use.meta.DEV &&
-              //use.meta.DEV && console.log("Client received updates for iframe:", updates); ////
+              //console.log("Client received updates for iframe:", updates); ////
               iframe.update(updates);
-            //iframe.$(updates);  // Do this for reactive updates
+            //iframe.$(updates);
             message.respond(updates);
           };
         }
@@ -195,8 +179,6 @@ export default async () => {
           return this.#_.active;
         }
 
-        /* Makes it possible for iworker to control iframe attrs, classes, 
-        CSS vars and props. */
         start() {
           if (!this.active) {
             this.#_.active = true;
@@ -204,7 +186,6 @@ export default async () => {
           }
         }
 
-        /* Ignores iworker attempts to control iframe. */
         stop() {
           if (this.active) {
             delete this.#_.active;
@@ -214,20 +195,10 @@ export default async () => {
       })(this);
     }
 
-    /* Controller for managing iworkers ability to update iframe props etc. */
     get sync() {
       return this.#_.sync;
     }
 
-    /* Sends request to iworker and returns reponse.
-    NOTE
-    - Central workhorse.
-    - Allows concurrent calls.
-    - Does not interfere with iworker display.
-    - 'test' option causes (DEV) iworker to respond by attempting
-      to use a target served by a local server (typically served from this repo).
-      This allows use of uncommitted iworker targets. 
-    */
     async request(specifier, ..._args) {
       const [options, kwargs, args] = this.#parseArgs(_args);
       const { test } = options;
@@ -255,7 +226,7 @@ export default async () => {
 
     async show(specifier, ..._args) {
       /* Wrap the actual work so it can be handed to .then() as a callback.
-      Defers execution until the previous queued show has settled,
+      This defers execution until the previous queued show has settled,
       regardless of whether it resolved or rejected. */
       const run = async () => {
         const [options, kwargs, args] = this.#parseArgs(_args);
