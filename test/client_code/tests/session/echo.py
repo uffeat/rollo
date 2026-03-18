@@ -3,7 +3,7 @@ session/echo.py
 """
 
 
-def main(use):
+def main(use, *args, **kwargs):
 
     echo = use("rpc/echo", dict(spinner=True))
     response = echo(42)

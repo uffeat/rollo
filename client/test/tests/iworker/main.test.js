@@ -3,7 +3,8 @@
 */
 
 /** NOTE
-Do update iframe inside requestAnimationFrame -> messes up detection of prop change
+ Origin data must be hard-coded into meta (client- and iworker-side).
+Do update iframe inside requestAnimationFrame -> messes up detection of prop change.
 */
 
 const { server } = await use("@/server");
@@ -16,7 +17,6 @@ const { Spinner } = await use("/tools/spinner");
 const { Alert } = await use("/tools/alert");
 
 export default async () => {
-  
   css`
     /*** NOTE Vars allow dynamic control from JS. */
 
@@ -170,7 +170,6 @@ export default async () => {
     };
 
     constructor() {
-
       this.#_.sync = new (class {
         #_ = {};
 
@@ -226,8 +225,14 @@ export default async () => {
     - Does not interfere with iworker display.
     - 'test' option causes (DEV) iworker to respond by attempting
       to use a target served by a local server (typically served from this repo).
-      This allows use of uncommitted iworker targets. 
-    */
+      This allows use of uncommitted iworker targets.
+    - Primary use cases:
+      - Indirect call of Anvil server functions and HTTP endpoints without cors 
+        restrictions - possibly stateful (client or server-side in iworker).
+      - Use of Anvil's non-visual user features.
+      - Use of client-side-exposed db tables/views.
+      - As a DOM-aware and Python-enabled classic iframe, e.g., for data operations
+        best suited for Python. */
     async request(specifier, ..._args) {
       const [options, kwargs, args] = this.#parseArgs(_args);
       const { test } = options;
@@ -253,6 +258,15 @@ export default async () => {
       return result;
     }
 
+    /* Special version of the 'request' method. Displays the iworker during
+    request-response. Ensures non-concurrency. Setting the 'visible' option 
+    to 'popover' shows the iworker as a full-screen overlay; otherwise, the
+    iworker is displayed as-is with height sync (from iworker) enabled.
+    NOTE
+    - Reserved for rare cases, where Anvil offers frontend features not 
+      supported by the client app, e.g., built-in modals.
+    - Could in principle be integrated into the client router allowing
+      authoring of routes as Anvil components; probably not worthwhile. */
     async show(specifier, ..._args) {
       /* Wrap the actual work so it can be handed to .then() as a callback.
       Defers execution until the previous queued show has settled,
@@ -341,27 +355,21 @@ export default async () => {
   });
 
   // Test
-  // TODO Next up INTEGRATE INTO use
+  // TO:DO Next up INTEGRATE INTO use
 
-  /*
-  iworker.request("@@/echo/", 42).then((result) => {
+  
+  iworker.request("@@/echo/", { test: true }, 42).then((result) => {
     console.log("@@/echo/ result:", result); ////
   });
-  */
+  
+
+
 
   /*
 iworker
   .request("@@/echo:ping", { test: true })
   .then((result) => {
     console.log("@@/echo:ping result:", result); ////
-  });
-*/
-
-  /*
-iworker
-  .request("rpc/echo", 42)
-  .then((result) => {
-    console.log("rpc/echo result:", result); ////
   });
 */
 
@@ -379,17 +387,29 @@ iworker
   });
   */
 
+  
   iworker.show("@@/foo/").then((result) => {
     console.log("@@/foo/ result:", result);
   });
+  
 
+  
   iworker.show("@@/stuff/", { visible: "popover" }).then((result) => {
     console.log("@@/stuff/ result:", result);
   });
+  
 
+  /*
   iworker.show("@@/stuff/", { visible: "popover" }).then((result) => {
     console.log("@@/stuff/ result:", result);
   });
+  */
+
+  /*
+  iworker.request("rpc/echo", { test: true }, 42).then((result) => {
+    console.log("rpc/echo result:", result); ////
+  });
+  */
 
   /*
   iworker.request("@@/echo/", 8).then((result) => {

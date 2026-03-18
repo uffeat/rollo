@@ -3,11 +3,10 @@ server/echo.py
 """
 
 
-def main(use):
+def main(use, *args, **kwargs):
 
-  document = use("@@/document/")
-  element = use("@@/element/")
-  rpc = use("@@/tools:rpc")
+  
+  rpc = use("@@/server:rpc")
 
   result = rpc.echo(1, 2, 3)
   print('result:', result)

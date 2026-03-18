@@ -1,42 +1,35 @@
 import json
 from pathlib import Path
 from anvil.server import (
-    HttpResponse,
-    callable as callable_,
+    callable as rpc,
     connect,
-    http_endpoint,
+    disconnect,
     wait_forever,
 )
 
 UTF_8 = "utf-8"
 TESTS = "test/server_code/tests"
+KEY = (json.loads((Path.cwd() / "secrets.json").read_text(encoding="utf-8")))[
+    "development"
+]["server"]
 
 
 def main():
-    """."""
-    connect(
-        (json.loads((Path.cwd() / "secrets.json").read_text(encoding=UTF_8)))[
-            "development"
-        ]["server"]
-    )
 
-    @callable_
-    def _access():
-        return True
-
-    @callable_
+    @rpc
     def _get_api_text(name: str):
         text = (Path.cwd() / f"{TESTS}/{name}.py").read_text(encoding=UTF_8)
-        return [p for p in reversed(text.partition('"""XXX"""')) if p][0]
-
-    @callable_
-    def _log(*args):
-        print(*args)
-
-    print("Running local server for server endpoint injection.")
-
-    wait_forever()
+        return text
 
 
 if __name__ == "__main__":
+    ##disconnect()
+    connect(KEY)
     main()
+    print("Running local server for server endpoint injection.")
+    # HACK For some reason, this script fails at first run (probably an Anvil bug)
+    try:
+        wait_forever()
+    except:
+        wait_forever()
+   

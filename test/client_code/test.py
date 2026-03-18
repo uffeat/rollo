@@ -9,18 +9,13 @@ from anvil.server import (
 )
 
 UTF_8 = "utf-8"
-
-PACKAGES = "test/client_code/packages"
+KEY = (json.loads((Path.cwd() / "secrets.json").read_text(encoding=UTF_8)))[
+    "development"
+]["server"]
 TESTS = "test/client_code/tests"
 
 
 def main():
-    """Spins up local server that serves local Python test scripts as text.
-    NOTE In combination with, e.g., a 'test' Form served live from a '/test' route,
-    this allows running uncommitted tests with full access to the Anvil
-    client code runtime - without tests polluting the served bundle.
-    This is enabled by the 'use' import engine. Accordingly, test scripts should
-    contain a single 'main' function member that accepts a 'use' arg."""
 
     @http_endpoint("/_test")
     def test(path: str = None):
@@ -36,24 +31,13 @@ def main():
     def _test(path: str):
         return (Path.cwd() / f"{TESTS}/{path}").read_text(encoding=UTF_8)
 
-    @rpc
-    def _package(name: str):
-        return (Path.cwd() / f"{PACKAGES}/{name}.py").read_text(encoding=UTF_8)
-
-    @rpc
-    def _access():
-        return True
-
-    @rpc
-    def _log(*args):
-        print(*args)
-
 
 if __name__ == "__main__":
-    KEY = (json.loads((Path.cwd() / "secrets.json").read_text(encoding=UTF_8)))[
-        "development"
-    ]["server"]
     connect(KEY)
     main()
-    print("Running local server for client-code test injection.")
-    wait_forever()
+    print("Running local server for client-code tests.")
+    # HACK For some reason, this script fails at first run (probably an Anvil bug)
+    try:
+        wait_forever()
+    except:
+        wait_forever()

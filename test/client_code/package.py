@@ -3,7 +3,6 @@ from pathlib import Path
 from anvil.server import (
     callable as rpc,
     connect,
-    disconnect,
     wait_forever,
 )
 
@@ -12,24 +11,18 @@ KEY = (json.loads((Path.cwd() / "secrets.json").read_text(encoding=UTF_8)))[
     "development"
 ]["server"]
 
+PACKAGES = "test/client_code/packages"
+
 
 def main():
 
     @rpc
-    def _access():
-        return True
+    def _package(name: str):
+        return (Path.cwd() / f"{PACKAGES}/{name}.py").read_text(encoding=UTF_8)
 
 
 if __name__ == "__main__":
-    ##disconnect()
     connect(KEY)
     main()
-    print("Running local server for granting access.")
-    # HACK For some reason, this script fails at first run (probably an Anvil bug)
-    try:
-        wait_forever()
-    except:
-        wait_forever()
-
-    
-    
+    print("Running local server for client-code package injection.")
+    wait_forever()

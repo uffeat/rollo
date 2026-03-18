@@ -16,20 +16,17 @@ KEY = (json.loads((Path.cwd() / "secrets.json").read_text(encoding=UTF_8)))[
 def main():
 
     @rpc
-    def _access():
-        return True
+    def _log(*args):
+        print(*args)
 
 
 if __name__ == "__main__":
     ##disconnect()
     connect(KEY)
     main()
-    print("Running local server for granting access.")
+    print("Running local server for logging.")
     # HACK For some reason, this script fails at first run (probably an Anvil bug)
     try:
         wait_forever()
     except:
         wait_forever()
-
-    
-    

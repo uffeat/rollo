@@ -3,7 +3,7 @@ type/types.py
 """
 
 
-def main(use):
+def main(use, *args, **kwargs):
 
    
     instanceOf = use("@@/tools").instanceOf

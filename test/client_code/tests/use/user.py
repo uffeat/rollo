@@ -3,7 +3,7 @@ use/user.py
 """
 
 
-def main(use):
+def main(use, *args, **kwargs):
 
     def get_target(name: str):
         """Simulates handling of requests."""

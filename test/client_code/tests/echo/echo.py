@@ -3,7 +3,7 @@ echo/echo.py
 """
 
 
-def main(use):
+def main(use, *args, **kwargs):
 
     echo = use("@@/echo/")
     result = echo(42)

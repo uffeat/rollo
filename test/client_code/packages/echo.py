@@ -1,4 +1,4 @@
-def main(use):
+def main(use, *args, **kwargs):
     """."""
     print("Using injected echo package")
 

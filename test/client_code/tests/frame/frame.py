@@ -3,7 +3,7 @@ frame/frame.py
 """
 
 
-def main(use):
+def main(use, *args, **kwargs):
     """."""
 
     

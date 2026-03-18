@@ -1,4 +1,4 @@
-def main(use, **_):
+def main(use, *args, **kwargs):
 
     Timer = use("@@/tools:Timer")
     timer = use("@@/tools:timer")
