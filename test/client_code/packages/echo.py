@@ -4,11 +4,11 @@ def main(use, *args, **kwargs):
 
     class echo:
         def __call__(self, *args, **kwargs):
-            return args, kwargs
+            return "BOOM!"
 
     echo = echo()
 
     def ping(*args, **kwargs):
-        return "ECHO PING"
+        return "INJECTED PING"
 
     return dict(echo=echo, ping=ping)

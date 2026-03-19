@@ -7,26 +7,30 @@ from anvil.server import (
 )
 
 UTF_8 = "utf-8"
-KEY = (json.loads((Path.cwd() / "secrets.json").read_text(encoding=UTF_8)))[
+TESTS = "test/server_code/tests"
+KEY = (json.loads((Path.cwd() / "secrets.json").read_text(encoding="utf-8")))[
     "development"
 ]["server"]
-
-PACKAGES = "test/client_code/packages"
 
 
 def main():
 
     @rpc
-    def _package(name: str):
-        return (Path.cwd() / f"{PACKAGES}/{name}.py").read_text(encoding=UTF_8)
+    def echo(*args, _meta: dict=None, **kwargs):
+        print("args:", args)
+        print("_meta:", _meta)
+        print("kwargs:", kwargs)
+        return 'POW!'
 
 
 if __name__ == "__main__":
+    
     connect(KEY)
     main()
-    print("Running local server for client-code package injection.")
+    print("Running local server that serves test rpc.")
     # HACK For some reason, this script fails at first run (probably an Anvil bug)
     try:
         wait_forever()
     except:
         wait_forever()
+   

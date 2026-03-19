@@ -247,13 +247,12 @@ export default async () => {
           channel.close();
         });
         channel.send({
+          submission: Submission(),
+          type: "request",
+          specifier,
           args,
           kwargs,
-          options,
-          specifier,
-          submission: Submission(),
           test,
-          type: "request",
         });
       });
       return result;
@@ -301,13 +300,12 @@ export default async () => {
             }
           });
           channel.send({
+            submission,
+            type: "show",
+            specifier,
             args,
             kwargs,
-            options,
-            specifier,
-            submission,
             test,
-            type: "show",
             visible,
           });
         });
@@ -359,11 +357,15 @@ export default async () => {
   // Test
   // TO:DO Next up INTEGRATE INTO use
 
+
   /*
   iworker.request("@@/echo/", { test: true }, 42).then((result) => {
     console.log("@@/echo/ result:", result); ////
   });
   */
+  
+
+
 
   /*
 iworker
@@ -387,13 +389,17 @@ iworker
   });
   */
 
+  
   iworker.show("@@/foo/").then((result) => {
     console.log("@@/foo/ result:", result);
   });
+  
 
+  
   iworker.show("@@/stuff/", { visible: "popover" }).then((result) => {
     console.log("@@/stuff/ result:", result);
   });
+  
 
   /*
   iworker.show("@@/stuff/", { visible: "popover" }).then((result) => {
@@ -401,21 +407,19 @@ iworker
   });
   */
 
-  await (async () => {
-    const response = await iworker.request(
-      "rpc/echo",
-      { test: true },
-      { foo: "FOO" },
-      42,
-    );
-    console.log("rpc/echo response:", response); ////
-  })();
 
-  /*
+await (async ()=> {
+  const response = await iworker.request("rpc/echo", { test: true }, {foo: 'FOO'}, 42);
+  console.log("rpc/echo response:", response); ////
+})();
+
+  
+/*
   iworker.request("rpc/echo", { test: true }, {foo: 'FOO'}, 42).then((response) => {
     console.log("rpc/echo response:", response); ////
   });
   */
+  
 
   /*
   iworker.request("@@/echo/", 8).then((result) => {
