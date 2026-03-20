@@ -91,8 +91,8 @@ const assets = new (class Assets {
 
   /* Returns and processes asset. */
   async get(specifier, ...args) {
-    const options = { ...(args.find((a, i) => !i && typeName(a) === "Object") || {}) };
-    args = args.filter((a) => a !== options);
+    const options = { ...(args.find((a) => typeName(a) === "Object") || {}) };
+    args = args.filter((a) => typeName(a) !== "Object");
 
     const path = Path.create(specifier);
     let result;

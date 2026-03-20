@@ -157,7 +157,7 @@ class y {
     this.#e.types = e;
   }
 }
-class b {
+class w {
   #e = {
     detail: {}
   };
@@ -186,7 +186,7 @@ class b {
     return this.#e.registry.keys();
   }
 }
-const w = (o) => Object.prototype.toString.call(o).slice(8, -1), d = new class {
+const O = (o) => Object.prototype.toString.call(o).slice(8, -1), d = new class {
   #e = {
     added: /* @__PURE__ */ new Map(),
     detail: {},
@@ -194,7 +194,7 @@ const w = (o) => Object.prototype.toString.call(o).slice(8, -1), d = new class {
     import: Function("u", "return import(u)")
   };
   constructor() {
-    this.#e.meta = P, this.#e.sources = new b(this), this.#e.processors = new class extends b {
+    this.#e.meta = P, this.#e.sources = new w(this), this.#e.processors = new class extends w {
       #t = {};
       constructor(t) {
         const i = /* @__PURE__ */ new Map();
@@ -206,7 +206,7 @@ const w = (o) => Object.prototype.toString.call(o).slice(8, -1), d = new class {
           this.#t.registry.set(r, i);
         return this.owner;
       }
-    }(this), this.#e.types = new b(this);
+    }(this), this.#e.types = new w(this);
   }
   /* . */
   get anvil() {
@@ -253,8 +253,8 @@ const w = (o) => Object.prototype.toString.call(o).slice(8, -1), d = new class {
   }
   /* Returns and processes asset. */
   async get(e, ...t) {
-    const i = { ...t.find((n) => w(n) === "Object") || {} };
-    t = t.filter((n) => w(n) !== "Object");
+    const i = { ...t.find((n, a) => !a && O(n) === "Object") || {} };
+    t = t.filter((n) => n !== i);
     const r = y.create(e);
     let s;
     if (this.#e.added.has(r.full) ? (s = this.#e.added.get(r.full), typeof s == "function" && (s = await s({ path: r }))) : (this.sources.has(r.source) || p.raise(`Invalid source: ${r.source}`), s = await this.sources.get(r.source)(
@@ -322,7 +322,7 @@ Object.defineProperty(globalThis, "use", {
   value: l
 });
 window.dispatchEvent(new CustomEvent("_use"));
-const v = /* @__PURE__ */ new Map(), h = /* @__PURE__ */ new Map();
+const b = /* @__PURE__ */ new Map(), h = /* @__PURE__ */ new Map();
 l.sources.add("/", async ({ options: o, owner: e, path: t }) => {
   const { as: i, raw: r } = o;
   if (t.type === "css" && i === void 0 && r !== !0) {
@@ -374,8 +374,8 @@ l.sources.add("/", async ({ options: o, owner: e, path: t }) => {
     if (i === void 0)
       return await e.import(`${e.meta.base}${t.path}`);
   }
-  if (v.has(t.full))
-    return v.get(t.full);
+  if (b.has(t.full))
+    return b.get(t.full);
   if (h.has(t.full)) {
     const n = await h.get(t.full);
     return h.delete(t.full), n;
@@ -386,7 +386,7 @@ l.sources.add("/", async ({ options: o, owner: e, path: t }) => {
       const u = (await (await fetch(`${e.meta.base}${t.path}`, {
         cache: "no-store"
       })).text()).trim(), c = document.createElement("div");
-      return c.innerHTML = u, c.querySelector("meta[index]") && p.raise(`Invalid path: ${t.full}`), v.set(t.full, u), n(u), u;
+      return c.innerHTML = u, c.querySelector("meta[index]") && p.raise(`Invalid path: ${t.full}`), b.set(t.full, u), n(u), u;
     } catch (u) {
       throw a(u), u;
     } finally {
@@ -394,32 +394,32 @@ l.sources.add("/", async ({ options: o, owner: e, path: t }) => {
     }
   }
 });
-const _ = /* @__PURE__ */ new Map();
+const v = /* @__PURE__ */ new Map();
 l.sources.add("@", ({ path: o }) => {
-  if (_.has(o.full))
-    return _.get(o.full);
+  if (v.has(o.full))
+    return v.get(o.full);
   const e = document.createElement("meta");
   document.head.append(e), e.setAttribute("__path__", o.path);
   const t = getComputedStyle(e).getPropertyValue("--__asset__").trim();
   e.remove(), t || p.raise(`Invalid path: ${o.full}`);
   const i = atob(t.slice(1, -1));
-  return _.set(o.full, i), i;
+  return v.set(o.full, i), i;
 });
-const $ = /* @__PURE__ */ new Map();
+const _ = /* @__PURE__ */ new Map();
 l.types.add("css", async (o, { path: e }) => {
   if (typeof o != "string") return;
   const { Sheet: t } = await l("@/rollo/"), i = e.full;
-  if ($.has(i)) return $.get(i);
+  if (_.has(i)) return _.get(i);
   const r = t.create(o, i);
-  return $.set(i, r), r;
+  return _.set(i, r), r;
 });
-const j = /* @__PURE__ */ new Map(), m = /* @__PURE__ */ new Map();
+const $ = /* @__PURE__ */ new Map(), m = /* @__PURE__ */ new Map();
 l.types.add("js", async (o, { options: e, owner: t, path: i }) => {
   if (typeof o != "string") return;
   let r;
   const { as: s } = e, n = s === "function" ? `${i.full}?${s}` : i.full;
-  if (j.has(n))
-    return j.get(n);
+  if ($.has(n))
+    return $.get(n);
   if (m.has(n)) {
     const u = await m.get(n);
     return m.delete(n), u;
@@ -430,7 +430,7 @@ l.types.add("js", async (o, { options: e, owner: t, path: i }) => {
       return s === "function" ? (r = Function(`return ${o}`)(), r === void 0 && (r = null)) : r = await t.module(
         `export const __path__ = "${i.path}";${o}`,
         i.path
-      ), u(r), j.set(n, r), r;
+      ), u(r), $.set(n, r), r;
     } catch (f) {
       throw c(f), f;
     } finally {
@@ -467,17 +467,17 @@ l.processors.add(
   }
 );
 l.processors.add("css", async (o, e, ...t) => {
-  if (w(o) !== "CSSStyleSheet") return;
+  if (O(o) !== "CSSStyleSheet") return;
   const i = t.filter(
-    (r) => w(r) === "HTMLDocument" || r instanceof ShadowRoot || r.shadowRoot
+    (r) => O(r) === "HTMLDocument" || r instanceof ShadowRoot || r.shadowRoot
   );
   i.length && o.use(...i);
 });
-const O = /* @__PURE__ */ new Map();
+const j = /* @__PURE__ */ new Map();
 l.processors.add("x.html", "x.template", async (o, { path: e }) => {
   if (typeof o != "string") return;
   const { component: t, Sheet: i } = await l("@/rollo/");
-  if (O.has(e.full)) return O.get(e.full);
+  if (j.has(e.full)) return j.get(e.full);
   const r = t.div({ innerHTML: o }), s = await l.module(
     `export const __path__ = "${e.path}";${r.querySelector("script").textContent.trim()}`,
     e.path
@@ -513,9 +513,11 @@ l.processors.add("x.html", "x.template", async (o, { path: e }) => {
     }
     u[c] = f;
   }
-  return O.set(e.full, Object.freeze(u)), u;
+  return j.set(e.full, Object.freeze(u)), u;
 });
 export {
+  y as Path,
+  w as Registry,
   p as UseError,
   d as assets,
   l as default
