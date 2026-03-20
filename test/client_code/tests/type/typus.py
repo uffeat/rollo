@@ -16,27 +16,34 @@ def main(use, *args, **kwargs):
     Function = window.Function
     HTMLElement = window.HTMLElement
 
+    js_eval = window.eval
+
     class typus:
         """Utility for cross-Python-JS type-checking in Anvil client code."""
 
         def __init__(self):
 
             def py_type_name(value):
-                """."""
-                return str(type(value))[8:-2]
+                """Returns type name as Python sees it."""
+                return type(value).__name__
 
             def js_type_name(value):
-                """."""
+                """Returns type name as JS sees it."""
                 return Object.prototype.toString.call(value)[8:-1]
 
             def is_js(value):
-                """Tests is JS."""
-                return py_type_name(value) == "Proxy"
+                """Tests if JS.
+                XXX Feels brittle, since depends of Anvil conventions, 
+                which may change... works."""
+                return py_type_name(value).startswith("Proxy")
+                # Alt:
+                return hasattr(value, 'toString')
+                
 
             _instanceof = Function("value, ref", "return value instanceof ref")
 
             def instanceof(value, ref):
-                """."""
+                """Wrapper for the JS instanceof operator."""
                 if not is_js(value) or not is_js(ref):
                     return False
                 return _instanceof(value, ref)
@@ -50,6 +57,7 @@ def main(use, *args, **kwargs):
                     return False
                 return isinstance(value, ref)
 
+            # Bundle privates (psudo private, since intentionally exposed via __getitem__)
             self.__ = dict(
                 instanceof=instanceof,
                 isinstance=_isinstance,
@@ -78,19 +86,29 @@ def main(use, *args, **kwargs):
 
         def __getattr__(self, key: str):
             return self[key]
+        
+        def js(self, value) -> bool:
+            """Tests if JS."""
+            return self.is_js(value)
 
-        def name(self, value) -> str:
+        def name(self, value, mode='auto') -> str:
             """Returns type name."""
             if value == "..." or value is ...:
                 """XXX Python does not have the concept of undefined and JS does
                 not have the concept of ellipsis -> use '...' as a pseudo undefined.
                 Beware, that '...' is truthy (as is ...)."""
                 return "..."
-            # Get py type name
-            if self.is_js(value):
-                # Get js type name
+            if mode == 'auto':
+                # Get py type name
+                if self.is_js(value):
+                    # Get js type name
+                    return self.js_type_name(value)
+                return self.py_type_name(value)
+            if mode == 'js':
                 return self.js_type_name(value)
-            return self.py_type_name(value)
+            if mode == 'py':
+                return self.py_type_name(value)
+            
 
         def object(self, key: str):
             """Returns JS object by name.
@@ -104,7 +122,7 @@ def main(use, *args, **kwargs):
             for ref in refs:
                 if ref[0] == "!":
                     if name == ref[1:]:
-                        return
+                        return False
                     continue
                 else:
                     if name != ref:
@@ -116,9 +134,28 @@ def main(use, *args, **kwargs):
     # Test objects and values
     _dict = {"foo": 42}
     _object = js.object(foo=42)
-    _array = window.Array(1, 2, 3)
+
     _list = [1, 2, 3]
+    _array = window.Array(1, 2, 3)
+    
+    
     _component = component.div()
+
+    
+
+    ##console.dir(_dict)
+    ##console.dir(_object)
+    ##print(dir(_dict))
+    ##print(dir(_object))
+    ##print(_dict.__class__)
+    ##print(_object.__class__)
+    ##print(_dict.__class__.__name__)
+    ##print(_object.__class__.__name__)
+    ##print(_list.__class__.__name__)
+    ##print(_array.__class__.__name__)
+    
+    
+    
 
     """Type name"""
     # Pseudo undefined
@@ -146,8 +183,13 @@ def main(use, *args, **kwargs):
     print("_object is instance of dict", typus(_object, dict))
     print("_dict is instance of Object", typus(_dict, typus.object("Object")))
     print("_dict is instance of dict", typus(_dict, dict))
+    # Array and list
+    print("_array is instance of Array", typus(_array, typus.object("Array")))
+    print("_array is instance of list", typus(_array, list))
+    print("_list is instance of Array", typus(_list, typus.object("Array")))
+    print("_list is instance of list", typus(_list, list))
 
     """Type name-based test"""
     # JS object and dict
-    print("_dict is Object:", typus.test(_dict, "Object", "!dict"))
-    print("_object is Object:", typus.test(_object, "Object", "!dict"))
+    print("_dict is Object and not dict:", typus.test(_dict, "Object", "!dict"))
+    print("_object is Object and not dict:", typus.test(_object, "Object", "!dict"))

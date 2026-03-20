@@ -1,4 +1,4 @@
-import { type } from "./type";
+import { typeName } from "./type";
 
 /* Returns interpretation of target where top-level entries with undefined 
 values have been removed. */
@@ -9,7 +9,7 @@ const normalize = (target) => {
 };
 
 /* Deep equality comparison for nested objects and arrays. Ignores properties 
-with undefined values (treats them as non-existent). Uses iterative approach 
+with undefined values (treats them as non-existent). Uses an iterative approach 
 for robustness with deep nesting. */
 export const match = (a, b, _match = (a, b) => a === b) => {
   /* Stack holds pairs to compare */
@@ -17,7 +17,7 @@ export const match = (a, b, _match = (a, b) => a === b) => {
 
   while (stack.length > 0) {
     const [a, b] = stack.pop();
-    const [typeA, typeB] = [type(a), type(b)];
+    const [typeA, typeB] = [typeName(a), typeName(b)];
     /* Different types -> not equal */
     if (typeA !== typeB) return false;
     /* Primitives and null -> direct comparison */
