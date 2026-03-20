@@ -1,5 +1,6 @@
 def main(use, *args, **kwargs):
-    """."""
+    """Replaces echo package."""
+    
     print("Using injected echo package")
 
     class echo:

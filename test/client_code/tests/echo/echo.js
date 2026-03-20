@@ -3,6 +3,8 @@ echo/echo.js
 */
 
 export default async () => {
+
+  console.log("Tests different echos.");
   
 
   await (async () => {
@@ -13,7 +15,7 @@ export default async () => {
 
   // Alt
   await (async () => {
-    const echo = use.packages("@@/echo/");
+    const echo = await use.packages("@@/echo/");
     const result = echo(42);
     console.log("result:", result);
   })();
