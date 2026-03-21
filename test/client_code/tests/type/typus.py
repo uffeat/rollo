@@ -8,13 +8,17 @@ def main(use, *args, **kwargs):
     component = use("@@/component/")
     console = use("@@/console/")
     js = use("@@/tools").js
+    works = use("@@/works/")
     window = use("@@/window/")
 
     console.clear()
 
+    Array = window.Array
     Object = window.Object
     Function = window.Function
     HTMLElement = window.HTMLElement
+
+    ProxyType = works.js.ProxyType
 
     js_eval = window.eval
 
@@ -33,12 +37,11 @@ def main(use, *args, **kwargs):
 
             def is_js(value):
                 """Tests if JS.
-                XXX Feels brittle, since depends of Anvil conventions, 
-                which may change... works."""
+                XXX Feels brittle, since depends on Anvil conventions,
+                which may change... but works."""
                 return py_type_name(value).startswith("Proxy")
                 # Alt:
-                return hasattr(value, 'toString')
-                
+                return hasattr(value, "toString")
 
             _instanceof = Function("value, ref", "return value instanceof ref")
 
@@ -86,29 +89,28 @@ def main(use, *args, **kwargs):
 
         def __getattr__(self, key: str):
             return self[key]
-        
+
         def js(self, value) -> bool:
             """Tests if JS."""
             return self.is_js(value)
 
-        def name(self, value, mode='auto') -> str:
+        def name(self, value, mode:str="auto") -> str:
             """Returns type name."""
             if value == "..." or value is ...:
                 """XXX Python does not have the concept of undefined and JS does
                 not have the concept of ellipsis -> use '...' as a pseudo undefined.
                 Beware, that '...' is truthy (as is ...)."""
                 return "..."
-            if mode == 'auto':
+            if mode == "auto":
                 # Get py type name
                 if self.is_js(value):
                     # Get js type name
                     return self.js_type_name(value)
                 return self.py_type_name(value)
-            if mode == 'js':
+            if mode == "js":
                 return self.js_type_name(value)
-            if mode == 'py':
+            if mode == "py":
                 return self.py_type_name(value)
-            
 
         def object(self, key: str):
             """Returns JS object by name.
@@ -137,11 +139,8 @@ def main(use, *args, **kwargs):
 
     _list = [1, 2, 3]
     _array = window.Array(1, 2, 3)
-    
-    
-    _component = component.div()
 
-    
+    _component = component.div()
 
     ##console.dir(_dict)
     ##console.dir(_object)
@@ -153,9 +152,11 @@ def main(use, *args, **kwargs):
     ##print(_object.__class__.__name__)
     ##print(_list.__class__.__name__)
     ##print(_array.__class__.__name__)
-    
-    
-    
+
+    print('ProxyType', ProxyType)
+    print('_object is JS', isinstance(_object, ProxyType))
+    print('_component is JS', isinstance(_component, ProxyType))
+    print('_array is JS', isinstance(_array, ProxyType))
 
     """Type name"""
     # Pseudo undefined
