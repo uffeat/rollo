@@ -3,7 +3,6 @@ from pathlib import Path
 from anvil.server import (
     callable as rpc,
     connect,
-    disconnect,
     wait_forever,
 )
 
@@ -14,19 +13,35 @@ KEY = (json.loads((Path.cwd() / "secrets.json").read_text(encoding="utf-8")))[
 ]["server"]
 
 
+
+class target:
+    def __init__(self, *args, **kwargs):
+        """."""
+
+
+    def __call__(self, *args, **kwargs):
+        """."""
+        
+
+
+
+
 def main():
 
+    # XXX TODO Refactor to args=aargs etc.
+
     @rpc
-    def _get_api_text(name: str):
-        text = (Path.cwd() / f"{TESTS}/{name}.py").read_text(encoding=UTF_8)
-        return text
+    def echo(*args, _meta: dict=None, **kwargs):
+        print("args:", args)
+        print("_meta:", _meta)
+        print("kwargs:", kwargs)
+        return 'POW!'
 
 
 if __name__ == "__main__":
-    ##disconnect()
     connect(KEY)
     main()
-    print("Running local server for server endpoint injection.")
+    print("Running local server to serve test target.")
     # HACK For some reason, this script fails at first run (probably an Anvil bug)
     try:
         wait_forever()

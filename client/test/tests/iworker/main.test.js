@@ -359,11 +359,11 @@ export default async () => {
   // Test
   // TO:DO Next up INTEGRATE INTO use
 
-  /*
+  
   iworker.request("@@/echo/", { test: true }, 42).then((result) => {
     console.log("@@/echo/ result:", result); ////
   });
-  */
+  
 
   /*
 iworker
@@ -387,13 +387,17 @@ iworker
   });
   */
 
+  /*
   iworker.show("@@/foo/").then((result) => {
     console.log("@@/foo/ result:", result);
   });
+  */
 
+  /*
   iworker.show("@@/stuff/", { visible: "popover" }).then((result) => {
     console.log("@@/stuff/ result:", result);
   });
+  */
 
   /*
   iworker.show("@@/stuff/", { visible: "popover" }).then((result) => {
