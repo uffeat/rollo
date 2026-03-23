@@ -310,7 +310,7 @@ Directories prefixed with `_` are non-active or auxiliary:
 
 Found both at the top level (`_history/`) and inside individual parcels. These contain timestamped snapshots of previous code versions — a lightweight way to keep important prior versions within reach without relying solely on git history. Do not modify or delete history folders. The top-level `_history/` dir also contains a `server` subdir, which in turn contains a `client_code` and a `server_code` dirs. These dirs contains stuff related to the server app, placed there to take the pressure of the Anvil repo (which has a size limit). The server-app may also have a top-level `_history/` dir, but that is gitignored and - if present - just there for legacy reasons.
 
-Typically, stuff inside `_history/` should be ignored. BUT it can be instructive (e.g., for debugging or for inspiration) to peek inside. However, be a aware that stuff inside may not work or may be obsolete!
+Typically, stuff inside `_history/` dirs (top-level and parcels) should be ignored. BUT it can be instructive (e.g., for debugging or for inspiration) to peek inside. However, be a aware that stuff inside may not work or may be obsolete!
 
 
 ### The `client/` directory
@@ -322,14 +322,17 @@ The actual Vite app deployed to Vercel:
   ├── public/           # Static assets (built parcels, tools)
   ├── api/              # Vercel serverless functions (if any)
   ├── templates/        # HTML templates
-  ├── test/             # Client-level tests
+  ├── test/             # Tests, primarily re the server app
+  ├── use/              # Import engine
   ├── index.html        # App entry point
   ├── vite.config.js
   └── vercel.json       # Vercel deployment config
 
+  There also a `server` dir. It's currently empty, but it's there in prep for a potential future use a of a FastAPI server.
+
 ## 7. Testing approach
 
-### Parcel-level testing (primary)
+### Parcel-level testing
 
 Each active parcel has its own test harness. During development:
 
@@ -340,19 +343,16 @@ Each active parcel has its own test harness. During development:
    (e.g., `/basics.test.js`)
 5. The last test path is cached in localStorage for quick re-runs
 
-Test files live in `test/tests/` with the `.test.js` extension. Each
-test exports a default async function that renders into the DOM:
+Test files live in `test/tests/` with the `.test.js` extension. Each test exports a default async function that renders into the DOM:
 
   export default async () => {
     frame.clear(":not([slot])");
     // build and test components here
   };
 
-Tests are visual and interactive — they render real components in the
-browser, not headless assertions. Verification is done by looking at
-the result.
+Tests are visual and interactive — they render real components in the browser, not headless assertions. Verification is done by looking at the result.
 
-### Test harness conventions
+### Test harness conventions for parcels
 
 - Test harnesses use `use.add()` to overload the parcel's asset path
   with the live (non-built) parcel code, enabling hot-reload during
