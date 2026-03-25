@@ -407,11 +407,12 @@ iworker
   });
   */
 
-
+/*
 await (async ()=> {
   const response = await iworker.request("rpc/echo", { test: true }, {foo: 'FOO'}, 42);
   console.log("rpc/echo response:", response); ////
 })();
+*/
 
   
 /*

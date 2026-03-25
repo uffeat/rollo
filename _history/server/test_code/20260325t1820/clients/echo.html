@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://rolloh.vercel.app/anvil/main.css" />
+    <link rel="shortcut icon" href="#" type="image/x-icon" />
+    <title>echo</title>
+    <script type="module">
+      import "https://rolloh.vercel.app/anvil/use.js";
+
+      use.meta.server.origin = "https://rollohdev.anvil.app";
+
+      await (async () => {
+        const { server } = await use("@/server");
+        const { meta, response, result } = await server.echo(42);
+        console.log("meta:", meta);
+        //console.log("response:", response);
+        console.log("result:", result);
+      })();
+
+      await (async () => {
+        const { server } = await use("@/server");
+        const { meta, response, result } = await server.echo(42);
+        console.log("meta:", meta);
+        //console.log("response:", response);
+        //console.log("result:", result);
+      })();
+    </script>
+  </head>
+  <body></body>
+</html>

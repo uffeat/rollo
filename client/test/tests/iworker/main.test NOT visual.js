@@ -2,8 +2,9 @@
 /iworker/main.test.js
 */
 
-/* NOTE
-Do update iframe inside requestAnimationFrame -> messes up detection of prop change
+/** NOTE
+ Origin data must be hard-coded into meta (client- and iworker-side).
+Do update iframe inside requestAnimationFrame -> messes up detection of prop change.
 */
 
 const { server } = await use("@/server");
@@ -17,11 +18,11 @@ const { Alert } = await use("/tools/alert");
 
 export default async () => {
   css`
-    /** NOTE Vars allow control from JS. */
+    /*** NOTE Vars allow dynamic control from JS. */
 
     /** Base for iworker (iframe). */
     #iworker {
-      /* Declare vars; explicitly to avoid unintended var use from higher-ups. */
+      /* Declare vars; explicitly to avoid unintended var use from higher-ups */
       --height: 0;
       --position: static;
       --top: 0;
@@ -31,17 +32,16 @@ export default async () => {
       position: var(--position);
       top: var(--top);
       width: var(--width);
-      /* Vanilla items */
+      /* Non-dynamic items */
       border: none;
       padding: 0;
       margin: 0;
     }
-
-    /** Anchor frame (layout component) when iworker shown as popover */
+    /** Declare frame as anchor when iworker shown as popover. */
     #frame:has(#iworker[popover]) {
       anchor-name: --frame;
     }
-    /** Iworker as overlay (popover) */
+    /** Iworker as popover. */
     #iworker[popover] {
       --position: fixed;
       /*--height: anchor-size(height);*/
@@ -59,20 +59,32 @@ export default async () => {
     }
   `.use();
 
+  /* Returns unique submission id.
+  NOTE
+  Since iworker coms are channel-based (beyond handshake),
+  there's no need for a submission id to match request-response.
+  However, an int-based submission id can still be handy for, e.g.,
+  - managing state iworker-side (general or in targets)
+  - orchestration of request-response pipes
+  - error handling and debugging. */
   const Submission = (() => {
     let count = 0;
     return () => count++;
   })();
 
+  /* Create and add iworker iframe.
+  NOTE
+  The request is channeled through the iworker server.
+  The src query part therefore hits the iworker both
+  server and client side. Can be used to send pre-handshake init data
+  (interpreted as per conventions). Could be send as b64; even with Python 
+  code to be executed iworker-side. */
   const iframe = component.iframe({
     id: "iworker",
     name: "iworker",
-    src: `${use.meta.server.origin}/iworker?iworker=`,
+    src: `${use.meta.server.origin}/iworker?stuff=`,
     slot: "iworker",
-
-    //__height: 0,
   });
-
   frame.append(iframe);
 
   /* MessageChannel controller (DX). */
@@ -88,10 +100,12 @@ export default async () => {
       this.#_.channel.port1.close();
     }
 
+    /* Sets up function to receive response. */
     receive(onmessage) {
       this.#_.channel.port1.onmessage = onmessage;
     }
 
+    /* Sends request. */
     send(detail = {}) {
       iframe.contentWindow.postMessage(detail, use.meta.server.origin, [
         this.#_.channel.port2,
@@ -99,7 +113,7 @@ export default async () => {
     }
   }
 
-  /* Wrapper for message events */
+  /* Wrapper for message events for validation, data extration and responding. */
   class Message {
     static create = (...args) => new Message(...args);
     #_ = {};
@@ -145,6 +159,7 @@ export default async () => {
     }
   }
 
+  /* Controller for iworker coms. */
   const iworker = new (class {
     #_ = {
       /* Tail of the show() serialization chain. Initialized as an
@@ -168,9 +183,9 @@ export default async () => {
             }
             const updates = message.detail || {};
             use.meta.DEV &&
-              //console.log("Client received updates for iframe:", updates); ////
+              //use.meta.DEV && console.log("Client received updates for iframe:", updates); ////
               iframe.update(updates);
-            //iframe.$(updates);
+            //iframe.$(updates);  // Do this for reactive updates
             message.respond(updates);
           };
         }
@@ -179,6 +194,8 @@ export default async () => {
           return this.#_.active;
         }
 
+        /* Makes it possible for iworker to control iframe attrs, classes, 
+        CSS vars and props. */
         start() {
           if (!this.active) {
             this.#_.active = true;
@@ -186,6 +203,7 @@ export default async () => {
           }
         }
 
+        /* Ignores iworker attempts to control iframe. */
         stop() {
           if (this.active) {
             delete this.#_.active;
@@ -195,12 +213,32 @@ export default async () => {
       })(this);
     }
 
+    /* Controller for managing iworkers ability to update iframe props etc. */
     get sync() {
       return this.#_.sync;
     }
 
+    /* Sends request to iworker and returns reponse.
+    NOTE
+    - Central workhorse.
+    - Allows concurrent calls.
+    - Does not interfere with iworker display.
+    - 'test' option causes (DEV) iworker to respond by attempting
+      to use a target served by a local server (typically served from this repo).
+      This allows use of uncommitted iworker targets.
+    - Primary use cases:
+      - Indirect call of Anvil server functions and HTTP endpoints without cors 
+        restrictions - possibly stateful (client or server-side in iworker).
+      - Use of Anvil's non-visual user features.
+      - Use of client-side-exposed db tables/views.
+      - As a DOM-aware and Python-enabled classic iframe, e.g., for data operations
+        best suited for Python. */
     async request(specifier, ..._args) {
       const [options, kwargs, args] = this.#parseArgs(_args);
+
+      //console.log('options:', options);////
+      //console.log('kwargs:', kwargs);////
+
       const { test } = options;
       const result = await new Promise((resolve, reject) => {
         const channel = Channel.create();
@@ -213,20 +251,60 @@ export default async () => {
           channel.close();
         });
         channel.send({
-          submission: Submission(),
-          type: "request",
-          specifier,
           args,
           kwargs,
+          options,
+          specifier,
+          submission: Submission(),
           test,
+          type: "request",
         });
       });
       return result;
     }
 
+    async rpc(specifier, ..._args) {
+      const [options, kwargs, args] = this.#parseArgs(_args);
+
+      //console.log('options:', options);////
+      //console.log('kwargs:', kwargs);////
+
+      const { test } = options;
+      const result = await new Promise((resolve, reject) => {
+        const channel = Channel.create();
+        channel.receive((event) => {
+          if (event.data.error) {
+            reject(event.data.error);
+          } else {
+            resolve(event.data.result);
+          }
+          channel.close();
+        });
+        channel.send({
+          args,
+          kwargs,
+          options,
+          specifier,
+          submission: Submission(),
+          test,
+          type: "rpc",
+        });
+      });
+      return result;
+    }
+
+    /* Special version of the 'request' method. Displays the iworker during
+    request-response. Ensures non-concurrency. Setting the 'visible' option 
+    to 'popover' shows the iworker as a full-screen overlay; otherwise, the
+    iworker is displayed as-is with height sync (from iworker) enabled.
+    NOTE
+    - Reserved for rare cases, where Anvil offers frontend features not 
+      supported by the client app, e.g., built-in modals.
+    - Could in principle be integrated into the client router allowing
+      authoring of routes as Anvil components; probably not worthwhile. */
     async show(specifier, ..._args) {
       /* Wrap the actual work so it can be handed to .then() as a callback.
-      This defers execution until the previous queued show has settled,
+      Defers execution until the previous queued show has settled,
       regardless of whether it resolved or rejected. */
       const run = async () => {
         const [options, kwargs, args] = this.#parseArgs(_args);
@@ -257,12 +335,13 @@ export default async () => {
             }
           });
           channel.send({
-            submission,
-            type: "show",
-            specifier,
             args,
             kwargs,
+            options,
+            specifier,
+            submission,
             test,
+            type: "show",
             visible,
           });
         });
@@ -312,13 +391,17 @@ export default async () => {
   });
 
   // Test
-  // TODO Next up INTEGRATE INTO use
+  // TO:DO Next up INTEGRATE INTO use
 
   /*
-  iworker.request("@@/echo/", 42).then((result) => {
-    console.log("@@/echo/ result:", result); ////
-  });
-  */
+  iworker
+    .request("@@/echo/", { test: true }, { foo: "FOO" }, 10, 20, 30)
+    .then((result) => {
+      console.log("@@/echo/ result:", result); ////
+    });
+    */
+
+  
 
   /*
 iworker
@@ -326,47 +409,39 @@ iworker
   .then((result) => {
     console.log("@@/echo:ping result:", result); ////
   });
-*/
+  */
+
 
   /*
-iworker
-  .request("rpc/echo", 42)
-  .then((result) => {
-    console.log("rpc/echo result:", result); ////
-  });
-*/
-
-  /*
-  iworker.request("rpc/echo", 43).then((result) => {
+  iworker.request("rpc/echo", { test: true }, { foo: "FOO" }, 1, 2, 3).then((result) => {
     console.log("rpc/echo result:", result); ////
   });
   */
 
-  /*
-iworker
-  .request("api/echo", 42)
-  .then((result) => {
-    console.log("api/echo result:", result); ////
-  });
-  */
-
-  iworker.show("@@/foo/").then((result) => {
+  iworker.show("@@/foo/", { test: true }, { visible: true }).then((result) => {
     console.log("@@/foo/ result:", result);
   });
 
-  iworker.show("@@/stuff/", { visible: "popover" }).then((result) => {
-    console.log("@@/stuff/ result:", result);
-  });
-
-  iworker.show("@@/stuff/", { visible: "popover" }).then((result) => {
+  iworker.show("@@/stuff/", { test: true }, { visible: "popover" }).then((result) => {
     console.log("@@/stuff/ result:", result);
   });
 
   /*
-  iworker.request("@@/echo/", 8).then((result) => {
-    console.log("@@/echo/ result:", result); ////
+  iworker.rpc("echo", { test: true }, { foo: "FOO" }, 1, 2, 3).then((response) => {
+    console.log("Response from echo rpc:", response); ////
   });
   */
+
+
+
+
+  /*
+  iworker.request("rpc/echo", { test: true }, {foo: 'FOO'}, 42).then((response) => {
+    console.log("rpc/echo response:", response); ////
+  });
+  */
+
+ 
 
   /*
 iworker
@@ -376,12 +451,5 @@ iworker
   });
 */
 
-  /*
-await (async () => {
-  const { server } = await use("@/server");
-  const { response, result, meta } = await server.echo(42);
-  //console.log("result:", result);
-  console.log("meta:", meta);
-})();
-*/
+
 };

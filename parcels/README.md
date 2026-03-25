@@ -23,7 +23,7 @@ Non-parcel assets (authored directly in `assets`) can be tested locally with liv
 
 # Caveats and limitations
 
-- Parcels should not be used for stuff that require "build-time awareness", such as React and Tailwind (could be done, but cleaner to place such code in the client app and accept the hit on bundle size).
+- Parcels should not be used for stuff that require "build-time awareness", such as React (could be done, but cleaner to place such code in the client app and accept the hit on bundle size).
 - Parcels can (and should when needed) consume npm packages. However, parcels should be carefully structured to avoid redundant inclusion of such packages in the asset-carrier sheet. It's good practice to create dedicated parcels for specific npm packages. This not only ports the npm package to the carrier sheet, but also mitigates the said redundancy.
 - `build/build.config.json` provides and option to specify global sheets (`globals`), i.e., sheets that should be includes in the main sheet. This option is intended for sheets authored directly in `assets` and should NOT be used for parcel-built sheets, which are automatically included in the main sheet.
 
