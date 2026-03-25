@@ -1,13 +1,11 @@
 import json
 from pathlib import Path
 from anvil.server import (
-    call,
     callable as rpc,
     connect,
-    disconnect,
     wait_forever,
 )
-from tools import Date
+
 
 UTF_8 = "utf-8"
 KEY = (json.loads((Path.cwd() / "secrets.json").read_text(encoding=UTF_8)))[
@@ -20,58 +18,37 @@ def main():
     @rpc
     def _main(
         name: str,
-        data: dict = None,
-        origin: str=None,
-        session_id: str=None,
-        state: dict=None,
-        submission: int = None,
-        _type: str = None,
+        args: list = None,
+        kwargs: dict = None,
+        meta: dict = None,
         **rest,
     ):
         """."""
-        # Parse data
-        if data is None:
-            data = {}
-        args, kwargs, state = (
-            data.pop("args", []),
-            data.pop("kwargs", {}),
-            data.pop("state", {}),
-        )
+        # Import target module
+        module = __import__(name)
 
-        # Prepare meta
-        meta = dict(
-            entry=Date.now()(),
-            env='development',
-            name=name,
-            origin=origin,
-            same_origin=True,
-            session_id=session_id,
-            state=state,
-            submission=submission,
-            type=_type,
-        )
+        # Get target
+        target = module.__dict__.get(name)
 
-        
+        # Get instance
+        if isinstance(target, type):
+            if "__init__" in target.__dict__:
+                instance = target(meta=meta)
+            else:
+                instance = target()
+                setattr(instance, "meta", meta)
+        else:
+            instance = target
 
-        target = __import__(name).__dict__.get(name)
-        instance = target(meta=meta)
+        # Get result
         result = instance(*args, **kwargs)
-
-        meta.update(dict(exit=Date.now()(), test=True))
-
-
-
-        response = dict(result=result, meta=meta)
-
-        return response
-       
+        return result, meta
 
 
 if __name__ == "__main__":
-    ##disconnect()
     connect(KEY)
     main()
-    print("Running local server to serve test targets.")
+    print("Running local server to serve targets.")
     # HACK For some reason, this script fails at first run (probably an Anvil bug)
     try:
         wait_forever()

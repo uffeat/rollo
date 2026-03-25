@@ -1,0 +1,30 @@
+headers_browser_development = {
+    "origin": "http://localhost:5173",
+    "sec-fetch-site": "cross-site",
+    "sec-ch-ua-mobile": "?0",
+    "host": "snackwave-dev.anvil.app",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36 Edg/129.0.0.0",
+    "content-type": "text/plain",
+    "cookie": None,
+    "content-length": "82",
+    "sec-ch-ua": '"Microsoft Edge";v="129", "Not=A?Brand";v="8", "Chromium";v="129"',
+    "sec-ch-ua-platform": '"Windows"',
+    "referer": "http://localhost:5173/",
+    "accept": "*/*",
+    "accept-language": "en-US,en;q=0.9,da;q=0.8,de;q=0.7,fr;q=0.6,sv;q=0.5,no;q=0.4,en-GB;q=0.3,de-DE;q=0.2",
+    "sec-fetch-dest": "empty",
+    "x-forwarded-for": "109.58.109.132",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "sec-fetch-mode": "cors",
+}
+
+headers_requests_development = {
+    "accept": "*/*",
+    "accept-encoding": "gzip, deflate",
+    "content-length": "59",
+    "content-type": "text/plain",
+    "host": "snackwave-dev.anvil.app",
+    "user-agent": "python-requests/2.31.0",
+    "x-forwarded-for": "109.58.109.132",
+    "cookie": None,
+}

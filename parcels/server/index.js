@@ -1,1 +1,1 @@
-export { Submission, server, state } from "./src";
+export { Submission, server } from "./src";

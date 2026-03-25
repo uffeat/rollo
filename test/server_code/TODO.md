@@ -1,0 +1,1 @@
+Currently, local targets can mutate `meta`, which spills over to the actual server. Consider, if implementing features that specifically mutates server and client state.

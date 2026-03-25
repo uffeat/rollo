@@ -9,19 +9,20 @@ use.add("@/server.js", parcel);
 
 document.documentElement.dataset.bsTheme = "dark";
 
-/* Returns function that runs test from path */
+//* Returns function that runs test from path */
 const run = (() => {
   const START = "./tests".length;
   const loaders = Object.fromEntries(
     Object.entries({
       ...import.meta.glob("./tests/**/*.test.js"),
+      ...import.meta.glob("./tests/**/*.test.ts"),
       ...import.meta.glob("./tests/**/*.x.html", {
         import: "default",
         query: "?raw",
       }),
     }).map(([k, v]) => {
       return [k.slice(START), v];
-    })
+    }),
   );
 
   use.sources.add("tests", async ({ path }) => {
@@ -30,7 +31,7 @@ const run = (() => {
     }
     return await loaders[path.path]();
   });
-  
+
   return async (path) => {
     const asset = await use(`tests${path}`);
     await asset.default();
@@ -51,10 +52,11 @@ const run = (() => {
           await run(path);
         }
       };
-    })()
+    })(),
   );
 })();
 
-//
-//await run('/echo.test.js')
 
+
+//
+await run('/echo.test.js')
