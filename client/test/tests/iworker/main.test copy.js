@@ -201,6 +201,7 @@ export default async () => {
 
     async request(specifier, ..._args) {
       const [options, kwargs, args] = this.#parseArgs(_args);
+      const { test } = options;
       const result = await new Promise((resolve, reject) => {
         const channel = Channel.create();
         channel.receive((event) => {
@@ -217,7 +218,7 @@ export default async () => {
           specifier,
           args,
           kwargs,
-          options,
+          test,
         });
       });
       return result;
@@ -229,7 +230,7 @@ export default async () => {
       regardless of whether it resolved or rejected. */
       const run = async () => {
         const [options, kwargs, args] = this.#parseArgs(_args);
-        const { visible=true } = options;
+        const { test, visible = true } = options;
         const submission = Submission();
         return new Promise((resolve, reject) => {
           const channel = Channel.create();
@@ -261,7 +262,7 @@ export default async () => {
             specifier,
             args,
             kwargs,
-            options,
+            test,
             visible,
           });
         });
@@ -321,15 +322,6 @@ export default async () => {
       10,
       20,
       30,
-      {last: 'LAST'}
-    )
-    .then((result) => {
-      console.log("rpc/echo result:", result); ////
-    });
-
-  iworker
-    .request(
-      "rpc/echo"
     )
     .then((result) => {
       console.log("rpc/echo result:", result); ////
