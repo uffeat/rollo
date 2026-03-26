@@ -253,8 +253,8 @@ const O = (o) => Object.prototype.toString.call(o).slice(8, -1), d = new class {
   }
   /* Returns and processes asset. */
   async get(e, ...t) {
-    const i = { ...t.find((n, a) => !a && O(n) === "Object") || {} };
-    t = t.filter((n) => n !== i);
+    const i = t.find((n, a) => !a && O(n) === "Object") || {};
+    t = t.filter((n, a) => a && n !== i);
     const r = y.create(e);
     let s;
     if (this.#e.added.has(r.full) ? (s = this.#e.added.get(r.full), typeof s == "function" && (s = await s({ path: r }))) : (this.sources.has(r.source) || p.raise(`Invalid source: ${r.source}`), s = await this.sources.get(r.source)(

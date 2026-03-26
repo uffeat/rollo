@@ -13,7 +13,7 @@ const assets = new (class Assets {
     this.#_.meta = meta;
     // Compose sources
     this.#_.sources = new Registry(this);
-    // Compose processors 
+    // Compose processors
     // NOTE Extends Registry to allow registering multiple types in one go.
     this.#_.processors = new (class Processors extends Registry {
       #_ = {};
@@ -31,7 +31,7 @@ const assets = new (class Assets {
         return this.owner;
       }
     })(this);
-    // Compose types 
+    // Compose types
     this.#_.types = new Registry(this);
   }
 
@@ -91,8 +91,8 @@ const assets = new (class Assets {
 
   /* Returns and processes asset. */
   async get(specifier, ...args) {
-    const options = { ...(args.find((a, i) => !i && typeName(a) === "Object") || {}) };
-    args = args.filter((a) => a !== options);
+    const options = args.find((a, i) => !i && typeName(a) === "Object") || {};
+    args = args.filter((a, i) => i && a !== options);
 
     const path = Path.create(specifier);
     let result;
@@ -199,7 +199,7 @@ const use = new Proxy(async () => {}, {
   },
 });
 
-// Make 'use' global 
+// Make 'use' global
 // NOTE In DEV (only), global 'use' can be changed.
 Object.defineProperty(globalThis, "use", {
   configurable: assets.meta.DEV,
