@@ -350,6 +350,12 @@ iworker
   });
   */
 
+    iworker
+    .request("@@/echo/", { test: true }, { foo: "FOO" }, 10, 20, 30)
+    .then((result) => {
+      console.log("@@/echo/ result:", result); ////
+    });
+
   iworker.show("@@/foo/").then((result) => {
     console.log("@@/foo/ result:", result);
   });
@@ -358,7 +364,27 @@ iworker
     console.log("@@/stuff/ result:", result);
   });
 
+   iworker.show("@@/foo/").then((result) => {
+    console.log("@@/foo/ result:", result);
+  });
+
+    iworker
+    .request("@@/echo/", { test: true }, { foo: "FOO" }, 10, 20, 30)
+    .then((result) => {
+      console.log("@@/echo/ result:", result); ////
+    });
+
+  
+
   iworker.show("@@/stuff/", { visible: "popover" }).then((result) => {
+    console.log("@@/stuff/ result:", result);
+  });
+
+   iworker.show("@@/foo/").then((result) => {
+    console.log("@@/foo/ result:", result);
+  });
+
+   iworker.show("@@/stuff/", { visible: "popover" }).then((result) => {
     console.log("@@/stuff/ result:", result);
   });
 
