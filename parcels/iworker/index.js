@@ -1,3 +1,3 @@
 import "./assets/iworker.css";
 
-export { iworker } from "./src";
+export { iworker } from "./src/iworker";

@@ -1,4 +1,10 @@
-import "../use";
+/*
+/iworker/main.test.js
+*/
+
+/* NOTE
+Do update iframe inside requestAnimationFrame -> messes up detection of prop change
+*/
 
 const { server } = await use("@/server");
 
@@ -9,14 +15,56 @@ const { modal } = await use("@/modal/");
 const { Spinner } = await use("/tools/spinner");
 const { Alert } = await use("/tools/alert");
 
+export default async () => {
+  css`
+    /** NOTE Vars allow control from JS. */
 
+    /** Base for iworker (iframe). */
+    #iworker {
+      /* Declare vars; explicitly to avoid unintended var use from higher-ups. */
+      --height: 0;
+      --position: static;
+      --top: 0;
+      --width: 100%;
+      /* Use vars */
+      height: var(--height);
+      position: var(--position);
+      top: var(--top);
+      width: var(--width);
+      /* Vanilla items */
+      border: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    /** Anchor frame (layout component) when iworker shown as popover */
+    #frame:has(#iworker[popover]) {
+      anchor-name: --frame;
+    }
+    /** Iworker as overlay (popover) */
+    #iworker[popover] {
+      --position: fixed;
+      /*--height: anchor-size(height);*/
+      --top: anchor(top);
+      position-anchor: var(--anchor, --frame);
+      left: var(--left, anchor(left));
+    }
+    /** Iworker transition when shown as popover. */
+    #iworker[popover]:popover-open {
+      opacity: 1;
+      @starting-style {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+    }
+  `.use();
 
   const Submission = (() => {
     let count = 0;
     return () => count++;
   })();
 
-  export const iframe = component.iframe({
+  const iframe = component.iframe({
     id: "iworker",
     name: "iworker",
     src: `${use.meta.server.origin}/iworker?iworker=`,
@@ -261,3 +309,126 @@ const { Alert } = await use("/tools/alert");
     };
     window.addEventListener("message", onmessage);
   });
+
+  // Test
+  // TODO Next up INTEGRATE INTO use
+
+
+  
+  iworker
+    .request(
+      "rpc/echo",
+      { test: true },
+      { foo: "FOO", things: [{ first: 1 }, { second: 2 }] },
+      10,
+      20,
+      30,
+      {last: 'LAST'}
+    )
+    .then((result) => {
+      console.log("rpc/echo result:", result); ////
+    });
+
+   iworker
+    .request(
+      "api/echo",
+      { test: true },
+      { foo: "FOO", things: [{ first: 1 }, { second: 2 }] },
+      10,
+      20,
+      30,
+      {last: 'LAST'}
+    )
+    .then((result) => {
+      console.log("api/echo result:", result); ////
+    });
+
+  iworker
+    .request(
+      "rpc/echo"
+    )
+    .then((result) => {
+      console.log("rpc/echo result:", result); ////
+    });
+
+  iworker
+    .request(
+      "api/echo"
+    )
+    .then((result) => {
+      console.log("api/echo result:", result); ////
+    });
+    
+
+
+
+  iworker
+    .request(
+      "@@/echo/",
+      { test: true },
+      { foo: "FOO", things: [{ first: 1 }, { second: 2 }] },
+      10,
+      20,
+      30,
+    )
+    .then((result) => {
+      console.log("@@/echo/ result:", result); ////
+    });
+
+  iworker.show("@@/login/", { visible: "popover" }).then((result) => {
+    console.log("@@/login/ result:", result);
+  });
+
+  iworker.show("@@/foo/").then((result) => {
+    console.log("@@/foo/ result:", result);
+  });
+
+  iworker.show("@@/stuff/", { visible: "popover" }).then((result) => {
+    console.log("@@/stuff/ result:", result);
+  });
+
+  iworker.show("@@/foo/").then((result) => {
+    console.log("@@/foo/ result:", result);
+  });
+
+  iworker
+    .request("@@/echo/", { test: true }, { foo: "FOO" }, 10, 20, 30)
+    .then((result) => {
+      console.log("@@/echo/ result:", result); ////
+    });
+
+  iworker.show("@@/stuff/", { visible: "popover" }).then((result) => {
+    console.log("@@/stuff/ result:", result);
+  });
+
+  iworker.show("@@/foo/").then((result) => {
+    console.log("@@/foo/ result:", result);
+  });
+
+  iworker.show("@@/stuff/", { visible: "popover" }).then((result) => {
+    console.log("@@/stuff/ result:", result);
+  });
+
+  /*
+  iworker.request("@@/echo/", 8).then((result) => {
+    console.log("@@/echo/ result:", result); ////
+  });
+  */
+
+  /*
+iworker
+  .show("@@/login/")
+  .then((result) => {
+    console.log("@@/login/ result:", result);
+  });
+*/
+
+  /*
+await (async () => {
+  const { server } = await use("@/server");
+  const { response, result, meta } = await server.echo(42);
+  //console.log("result:", result);
+  console.log("meta:", meta);
+})();
+*/
+};

@@ -35,7 +35,6 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
-
     server: {
       //cors: true,
       port: 3869,
@@ -46,7 +45,6 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
-
     plugins: [
       /* Enable Temporal without the need to go: 
         import { Temporal } from '@js-temporal/polyfill';
@@ -57,12 +55,12 @@ export default defineConfig(({ mode }) => {
       tailwindcss(),
       react(),
     ],
-
     resolve: {
       alias: {
         "@": resolve(__dirname, "src"),
         // Alt: "@": path.resolve(__dirname, "src"),
       },
     },
+    
   };
 });

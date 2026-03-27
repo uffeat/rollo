@@ -67,7 +67,7 @@ export default async () => {
   const iframe = component.iframe({
     id: "iworker",
     name: "iworker",
-    src: `${use.meta.server.origin}/iworker?iworker=`,
+    src: `${use.meta.server.origin}/iworker?origin=${location.origin}`,
     slot: "iworker",
 
     //__height: 0,

@@ -7,7 +7,7 @@ import "./test.css";
 import * as parcel from "../index";
 use.add("@/iworker/iworker.js", parcel);
 
-document.documentElement.dataset.bsTheme = "dark";
+// NOTE Dark mode set in parcel to avoid flickering during test
 
 /* Returns function that runs test from path */
 const run = (() => {
