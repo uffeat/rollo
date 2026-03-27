@@ -38,17 +38,3 @@ def main(use, *args, **kwargs):
     def callback(response):
         print("IIFE async response:", response)
 
-    # Import engine
-    response = use(
-        "rpc/echo",
-        1,
-        2,
-        3,
-        kwargs=dict(foo="FOO"),
-        spinner=True,
-        test=True,
-        #options=dict(spinner=True, test=True),
-       
-    )
-    print("Import engine response:", response)
-

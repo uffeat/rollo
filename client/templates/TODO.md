@@ -1,0 +1,1 @@
+Decide if purge or revitalize.

@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+
+
+/** NOTE Vars allow control from JS. */
+
+    /** Base for iworker (iframe). */
+    #iworker {
+      /* Declare vars; explicitly to avoid unintended var use from higher-ups. */
+      --height: 0;
+      --position: static;
+      --top: 0;
+      --width: 100%;
+      /* Use vars */
+      height: var(--height);
+      position: var(--position);
+      top: var(--top);
+      width: var(--width);
+      /* Vanilla items */
+      border: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    /** Anchor frame (layout component) when iworker shown as popover */
+    #frame:has(#iworker[popover]) {
+      anchor-name: --frame;
+    }
+    /** Iworker as overlay (popover) */
+    #iworker[popover] {
+      --position: fixed;
+      /*--height: anchor-size(height);*/
+      --top: anchor(top);
+      position-anchor: var(--anchor, --frame);
+      left: var(--left, anchor(left));
+    }
+    /** Iworker transition when shown as popover. */
+    #iworker[popover]:popover-open {
+      opacity: 1;
+      @starting-style {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+    }
