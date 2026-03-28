@@ -12,7 +12,7 @@ UTF_8 = "utf-8"
 KEY = (json.loads((Path.cwd() / "secrets.json").read_text(encoding=UTF_8)))[
     "development"
 ]["server"]
-ASSETS = "test/client_code/assets"
+ASSETS = "test/assets"
 
 
 def main():
