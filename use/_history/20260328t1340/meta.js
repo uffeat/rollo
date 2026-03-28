@@ -62,9 +62,6 @@ export const meta = new (class {
       import.meta.env.MODE;
     // Set base
     this.#_.base = (() => {
-      if (this.#_.ANVIL) {
-        return BASE;
-      }
       // Port-awareness allows access to dev public when testing parcels
       // (provided that dev sever runs)
       if (this.#_.DEV && location.port !== PORT) {

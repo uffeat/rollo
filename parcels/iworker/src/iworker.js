@@ -13,10 +13,10 @@ if (import.meta.env.DEV) {
 
 export const iworker = new (class {
   #_ = {
-    /* Tail of the show() serialization chain. Initialized as an
-      already-resolved promise so the very first caller starts immediately
-      without waiting. Each call advances this pointer to its own promise,
-      forming a linked chain that enforces one-at-a-time execution. */
+    /* Tail of the show() chain. Initialized as an
+    already-resolved promise so the very first caller starts immediately
+    without waiting. Each call advances this pointer to its own promise,
+    forming a linked chain that enforces one-at-a-time execution. */
     queue: Promise.resolve(),
     sync: Sync.create(),
   };
@@ -53,8 +53,8 @@ export const iworker = new (class {
 
   async show(specifier, ..._args) {
     /* Wrap the actual work so it can be handed to .then() as a callback.
-      This defers execution until the previous queued show has settled,
-      regardless of whether it resolved or rejected. */
+    This defers execution until the previous queued show has settled,
+    regardless of whether it resolved or rejected. */
     const run = async () => {
       const [options, kwargs, args] = parse(_args);
       const { visible = true } = options;
@@ -93,14 +93,14 @@ export const iworker = new (class {
       });
     };
     /* Chain this call onto the current tail. .then(run) means `run` will not
-      be called until the previous show has fully settled (resolved or
-      rejected), guaranteeing strict one-at-a-time execution for any number
-      of concurrent callers. */
+    be called until the previous show has fully settled (resolved or
+    rejected), guaranteeing strict one-at-a-time execution for any number
+    of concurrent callers. */
     const tail = this.#_.queue.then(run);
     /* Advance the queue pointer to the new tail. We swallow any rejection
-      here so that a failed show does not stall the callers behind it — they
-      will proceed normally. The original `tail` below still rejects for the
-      caller who owns this particular show. */
+    here so that a failed show does not stall the callers behind it — they
+    will proceed normally. The original `tail` below still rejects for the
+    caller who owns this particular show. */
     this.#_.queue = tail.catch(() => {});
     return tail;
   }

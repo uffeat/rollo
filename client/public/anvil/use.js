@@ -9,11 +9,11 @@ class p extends Error {
     super(e), this.name = "UseError";
   }
 }
-const D = {}, g = "https://rolloh.vercel.app", R = new class {
+const D = {}, m = "https://rolloh.vercel.app", R = new class {
   #e = {};
   constructor() {
     const o = "https://rollohdev.anvil.app", e = "https://rolloh.anvil.app";
-    this.#e.origin = location.origin === g || location.origin === e ? e : o, this.#e.PROD = this.#e.origin === e, this.#e.DEV = !this.#e.PROD, this.#e.env = this.#e.PROD ? "production" : "development";
+    this.#e.origin = location.origin === m || location.origin === e ? e : o, this.#e.PROD = this.#e.origin === e, this.#e.DEV = !this.#e.PROD, this.#e.env = this.#e.PROD ? "production" : "development";
   }
   get DEV() {
     return this.#e.DEV;
@@ -33,20 +33,20 @@ const D = {}, g = "https://rolloh.vercel.app", R = new class {
   set targets(o) {
     this.#e.targets = o;
   }
-}(), P = new class {
+}(), L = new class {
   #e = {
     detail: {}
   };
   constructor() {
     const o = "3869";
-    this.#e.PROD = location.origin === g, this.#e.DEV = !this.#e.PROD, this.#e.ANVIL = R.origin === location.origin, this.#e.VITE = typeof import.meta < "u" && typeof D < "u" && "production", this.#e.base = this.#e.DEV && location.port !== o ? `http://localhost:${o}` : location.origin !== g ? g : "", this.#e.env = this.#e.PROD ? "production" : "development";
+    this.#e.PROD = location.origin === m, this.#e.DEV = !this.#e.PROD, this.#e.ANVIL = R.origin === location.origin, this.#e.VITE = typeof import.meta < "u" && typeof D < "u" && "production", this.#e.base = this.#e.ANVIL ? m : this.#e.DEV && location.port !== o ? `http://localhost:${o}` : location.origin !== m ? m : "", this.#e.env = this.#e.PROD ? "production" : "development";
   }
   get ANVIL() {
     return this.#e.ANVIL;
   }
   /* Returns production origin */
   get BASE() {
-    return g;
+    return m;
   }
   get DEV() {
     return this.#e.DEV;
@@ -194,7 +194,7 @@ const O = (o) => Object.prototype.toString.call(o).slice(8, -1), d = new class {
     import: Function("u", "return import(u)")
   };
   constructor() {
-    this.#e.meta = P, this.#e.sources = new w(this), this.#e.processors = new class extends w {
+    this.#e.meta = L, this.#e.sources = new w(this), this.#e.processors = new class extends w {
       #t = {};
       constructor(t) {
         const i = /* @__PURE__ */ new Map();
@@ -413,19 +413,19 @@ l.types.add("css", async (o, { path: e }) => {
   const r = t.create(o, i);
   return _.set(i, r), r;
 });
-const $ = /* @__PURE__ */ new Map(), m = /* @__PURE__ */ new Map();
+const $ = /* @__PURE__ */ new Map(), g = /* @__PURE__ */ new Map();
 l.types.add("js", async (o, { options: e, owner: t, path: i }) => {
   if (typeof o != "string") return;
   let r;
   const { as: s } = e, n = s === "function" ? `${i.full}?${s}` : i.full;
   if ($.has(n))
     return $.get(n);
-  if (m.has(n)) {
-    const u = await m.get(n);
-    return m.delete(n), u;
+  if (g.has(n)) {
+    const u = await g.get(n);
+    return g.delete(n), u;
   } else {
     const { promise: a, resolve: u, reject: c } = Promise.withResolvers();
-    m.set(n, a);
+    g.set(n, a);
     try {
       return s === "function" ? (r = Function(`return ${o}`)(), r === void 0 && (r = null)) : r = await t.module(
         `export const __path__ = "${i.path}";${o}`,
@@ -434,7 +434,7 @@ l.types.add("js", async (o, { options: e, owner: t, path: i }) => {
     } catch (f) {
       throw c(f), f;
     } finally {
-      m.delete(n);
+      g.delete(n);
     }
   }
 });
