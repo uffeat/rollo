@@ -10,10 +10,12 @@ const options = {
 import { Submission } from "./tools/submission";
 
 const parse = (args) => {
+  
   const query = args.find((a, i) => !i && is.object(a)) || {};
   const kwargs =
     args.find((a, i) => (!i || i === 1) && is.object(a) && a !== options) || {};
-    args = args.filter((a, i) => a !== kwargs && a !== query);
+
+  args = args.filter((a, i) => a !== kwargs && a !== query);
   return { args, kwargs, query };
 };
 
