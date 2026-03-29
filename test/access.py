@@ -3,7 +3,6 @@ from pathlib import Path
 from anvil.server import (
     callable as rpc,
     connect,
-    disconnect,
     wait_forever,
 )
 
@@ -21,7 +20,6 @@ def main():
 
 
 if __name__ == "__main__":
-    ##disconnect()
     connect(KEY)
     main()
     print("Running local server for granting access.")

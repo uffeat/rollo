@@ -21,6 +21,7 @@ def main():
         args: list = None,
         kwargs: dict = None,
         meta: dict = None,
+        query: dict = None,
         **rest,
     ):
         """."""

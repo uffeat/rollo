@@ -5,14 +5,18 @@
 const { server } = await use("@/server");
 
 export default async () => {
-  const { response, result, meta } = await server.echo(
+  const { result, meta } = await server.echo(
+    // query:
     { test: true },
-    { random: crypto.randomUUID() },
-    1,
-    2,
-    3,
+    // kwargs:
+    { foo: "FOO", things: [{ a: 1 }, { b: 2 }], random: crypto.randomUUID() },
+    // args:
+    { first: "FIRST" },
+    10,
+    20,
+    30,
+    { last: "LAST" },
   );
-  console.log("response:", response);
   console.log("result:", result);
   console.log("meta:", meta);
 };
