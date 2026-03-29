@@ -24,9 +24,6 @@
     await use('@/frame/');
 
 
-
-
-
     use('/echo').then(({ echo }) => {
       console.log('Result from /echo:', echo('ECHO'));
     });
@@ -43,8 +40,21 @@
       console.log('Result from assets/echo:ping:', ping());
     });
 
-    const { response, result, meta } = await server.echo(1, 2, 3);
-    console.log('Result from server.echo:', result);
+    use('assets/echo').then(({ ping }) => {
+      console.log('Result from assets/echo:ping:', ping());
+    });
+
+    server.echo(
+      //{ test: true },
+      { foo: "FOO", things: [{ a: 1 }, { b: 2 }] },
+      { first: 'FIRST' }
+      10,
+      20,
+      30,
+      { last: 'LAST' }).then(({ response, result, meta }) => {
+        console.log('Result from server.echo:', result);
+      });
+
 
 
   </script>

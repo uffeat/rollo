@@ -6,8 +6,8 @@ const { server } = await use("@/server");
 
 export default async () => {
   const { response, result, meta } = await server.echo(
-    { random: crypto.randomUUID() },
     { test: true },
+    { random: crypto.randomUUID() },
     1,
     2,
     3,
