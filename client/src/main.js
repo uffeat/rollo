@@ -8,6 +8,8 @@ if (import.meta.env.DEV) {
   await import("@/dev.css");
 }
 
+await use('@/iworker/');
+
 
 
 if (import.meta.env.DEV) {
