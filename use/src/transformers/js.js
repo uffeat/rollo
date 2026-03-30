@@ -29,9 +29,9 @@ use.types.add("js", async (text, { options, owner, path }) => {
     try {
       if (as === "function") {
         result = Function(`return ${text}`)();
-        if (result === undefined) {
-          // Since undefined results are ignored, convert to null
-          result = null;
+        if (result === null || result === undefined) {
+          // Since null/undefined results are ignored, convert to true
+          result = true;
         }
       } else {
         result = await owner.module(

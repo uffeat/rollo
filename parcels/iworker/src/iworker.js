@@ -124,5 +124,18 @@ await new Promise((resolve, reject) => {
   window.addEventListener("message", onmessage);
 });
 
+// Integrate into import engine
+use.sources.add("@@", async ({ options, owner, path }, ...args) => {
+  if (options.visible) {
+    return await iworker.show(path.specifier, options, ...args);
+  }
+  return await iworker.request(path.specifier, options, ...args);
+});
 
+use.sources.add("rpc", async ({ options, owner, path }, ...args) => {
+  return await iworker.request(path.specifier, options, ...args);
+});
 
+use.sources.add("api", async ({ options, owner, path }, ...args) => {
+  return await iworker.request(path.specifier, options, ...args);
+});

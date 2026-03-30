@@ -138,7 +138,7 @@ const assets = new (class Assets {
         ...args,
       );
       // Ignore undefined
-      if (transformed !== undefined) {
+      if (transformed !== null && transformed !== undefined) {
         result = transformed;
       }
     }
@@ -151,14 +151,14 @@ const assets = new (class Assets {
         ...args,
       );
       // Ignore undefined
-      if (processed !== undefined) {
+      if (processed !== null && processed !== undefined) {
         result = processed;
       }
     }
     return result;
   }
 
-  /* Returns module (native 'import' frunction) */
+  /* Returns module (native 'import' function) */
   async import(u) {
     return this.#_.import(u);
   }
