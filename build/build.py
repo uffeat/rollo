@@ -13,4 +13,10 @@ main = main()
 
 
 if __name__ == "__main__":
-    main()
+    # HACK For some reason, this script fails at first run
+    try:
+        main()
+    except:
+        main()
+
+    
