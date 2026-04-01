@@ -2,8 +2,7 @@ import "../../use";
 
 const { component } = await use("@/rollo/");
 const { router, Route, NavLink } = await use("@/router/");
-
-const frame = document.getElementById("frame");
+const { frame } = await use("@/frame/");
 
 const path = "/";
 const page = component.main("container pt-3", component.h1({ text: "Home" }));

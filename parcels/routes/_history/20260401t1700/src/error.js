@@ -1,8 +1,7 @@
 import "../use";
 
 const { component } = await use("@/rollo/");
-
-const frame = document.getElementById("frame");
+const { frame } = await use("@/frame/");
 
 export default (message) => {
   const page = component.main(

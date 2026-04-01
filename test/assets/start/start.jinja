@@ -1,0 +1,32 @@
+<frame-component anvil-slot="default">
+  <a class="nav-link" slot="home">
+    <img src="/_/theme/favicon.svg" alt="Home" />
+  </a>
+</frame-component>
+
+<script type="module">
+  // Register frame component
+  await use('@/frame/');
+  console.log("Injected start.jinja...")
+
+  const query = {{ query }};
+  console.log('query:', query)
+
+  const { component } = await use('@/rollo/');
+  const { server } = await use("@/server");
+
+  const { Nav, NavLink, router, Route } = await use("@/router/");
+  const { nav, setup } = await use("@/routes/");
+  /* Complete router setup */
+  await setup();
+
+
+
+
+  const Login = await use('@@/login/');
+  Login()
+
+
+
+
+</script>

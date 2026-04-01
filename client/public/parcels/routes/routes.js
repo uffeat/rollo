@@ -1,8 +1,8 @@
-const { Route: L } = await use("@/router/"), { component: w } = await use("@/rollo/"), { frame: g } = await use("@/frame/"), A = "/about", N = w.main("container pt-3", w.h1({ text: "About" }));
-function z() {
-  g.clear(":not([slot])"), g.append(this.page);
+const { Route: R } = await use("@/router/"), { component: g } = await use("@/rollo/"), w = document.getElementById("frame"), I = "/about", L = g.main("container pt-3", g.h1({ text: "About" }));
+function A() {
+  w.clear(":not([slot])"), w.append(this.page);
 }
-const O = L.create({ enter: z, page: N, path: A }), { Route: S } = await use("@/router/"), { Bar: E } = await use("@/plotly/"), { component: v } = await use("@/rollo/"), { frame: $ } = await use("@/frame/"), { Spinner: P } = await use("/tools/spinner"), T = new class extends S {
+const B = R.create({ enter: A, page: L, path: I }), { Route: N } = await use("@/router/"), { Bar: z } = await use("@/plotly/"), { component: v } = await use("@/rollo/"), { Spinner: O } = await use("/tools/spinner"), $ = document.getElementById("frame"), S = new class extends N {
   #t = {};
   constructor() {
     super({
@@ -14,12 +14,12 @@ const O = L.create({ enter: z, page: N, path: A }), { Route: S } = await use("@/
   }
   async enter() {
     if ($.clear(":not([slot])"), $.append(this.page), !this.#t.plot) {
-      const t = P({
+      const t = O({
         parent: this.page,
         size: "8rem",
         marginTop: "3rem"
       });
-      this.#t.plot = await E(
+      this.#t.plot = await z(
         {
           xaxis: "Animal",
           yaxis: "Population",
@@ -33,62 +33,62 @@ const O = L.create({ enter: z, page: N, path: A }), { Route: S } = await use("@/
       ), t.remove(), this.page.append(this.#t.plot);
     }
   }
-}(), { Exception: W, pop: C } = await use("@/rollo/");
-class q extends Map {
+}(), { Exception: P, pop: T } = await use("@/rollo/");
+class W extends Map {
   constructor() {
     super();
   }
   async use(o) {
-    W.if(!this.has(o), `Invalid key: ${o}.`);
+    P.if(!this.has(o), `Invalid key: ${o}.`);
     const e = this.get(o);
     return await e?.promise, e.data;
   }
 }
-const I = 5, _ = await use("@/content/blog/_manifest.json"), j = Object.freeze(_.map(([t, o]) => t.slice(I))), h = new q();
+const C = 5, q = await use("@/content/blog/_manifest.json"), j = Object.freeze(q.map(([t, o]) => t.slice(C))), d = new W();
 for (const t of j) {
   const o = Promise.withResolvers();
-  h.set(t, o);
+  d.set(t, o);
 }
-for (const [t, o] of h.entries()) {
-  const [e, s] = C(o, "resolve", "reject");
-  use(`@/content/blog${t}.json`).then((a) => {
-    const { html: r, meta: n } = a, { abstract: c, image: p, title: l } = n;
-    o.data = { abstract: c, html: r, image: p, title: l }, e(o.data), delete o.promise, Object.freeze(o);
-  }).catch((a) => {
-    s(a);
+for (const [t, o] of d.entries()) {
+  const [e, s] = T(o, "resolve", "reject");
+  use(`@/content/blog${t}.json`).then((n) => {
+    const { html: r, meta: a } = n, { abstract: i, image: p, title: l } = a;
+    o.data = { abstract: i, html: r, image: p, title: l }, e(o.data), delete o.promise, Object.freeze(o);
+  }).catch((n) => {
+    s(n);
   });
 }
-const { component: i } = await use("@/rollo/"), B = ({ path: t, abstract: o, image: e, title: s }) => {
-  const a = i.div(
+const { component: c } = await use("@/rollo/"), _ = ({ path: t, abstract: o, image: e, title: s }) => {
+  const n = c.div(
     "card",
     {},
-    i.img("card-img-top", function() {
+    c.img("card-img-top", function() {
       this.src = e.startsWith("/") ? `${use.meta.base}${e}` : e, this.alt = `Illustration of ${s.toLowerCase()}`;
     }),
-    i.div(
+    c.div(
       "card-body.nav.d-flex.flex-column",
       {},
-      i.a(
+      c.a(
         "nav-link cursor-pointer hover:underline! hover:underline-offset-6! hover:decoration-2!",
-        i.h1("card-title", { text: s, title: s })
+        c.h1("card-title", { text: s, title: s })
       ),
-      i.p("card-text", { text: o })
+      c.p("card-text", { text: o })
     ),
-    i.div("card-footer min-h-8")
+    c.div("card-footer min-h-8")
   );
-  return a.attribute.path = t, a;
+  return n.attribute.path = t, n;
 }, { component: x } = await use("@/rollo/"), { NavLink: H } = await use("@/router/"), M = ({ html: t, path: o }) => {
   const e = x.from(t, { convert: !1 });
   for (const s of e.querySelectorAll("img")) {
-    const a = s.getAttribute("src");
-    a.startsWith("/") && s.replaceWith(x.img({ src: `${use.meta.base}${a}` }));
+    const n = s.getAttribute("src");
+    n.startsWith("/") && s.replaceWith(x.img({ src: `${use.meta.base}${n}` }));
   }
   for (const s of e.querySelectorAll("a[href]")) {
-    const a = s.getAttribute("href");
-    a.startsWith("/") && (s.parentElement.classList.add("nav"), s.replaceWith(H("nav-link", { path: a, text: s.textContent })));
+    const n = s.getAttribute("href");
+    n.startsWith("/") && (s.parentElement.classList.add("nav"), s.replaceWith(H("nav-link", { path: n, text: s.textContent })));
   }
   return e;
-}, { Exception: D, component: u, pop: F, toTop: Y } = await use("@/rollo/"), { router: Z } = await use("@/router/"), { Route: G } = await use("@/router/"), { frame: b } = await use("@/frame/"), J = new class extends G {
+}, { Exception: D, component: u, pop: F, toTop: Y } = await use("@/rollo/"), { router: Z } = await use("@/router/"), { Route: G } = await use("@/router/"), b = document.getElementById("frame"), J = new class extends G {
   #t = {};
   constructor() {
     super({ page: u.main("container my-3") }), this.#t.cards = u.div(
@@ -98,16 +98,16 @@ const { component: i } = await use("@/rollo/"), B = ({ path: t, abstract: o, ima
     const t = [...j], o = () => {
       if (!t.length) return;
       const e = t.shift();
-      h.use(e).then((s) => {
-        const [a, r, n] = F(
+      d.use(e).then((s) => {
+        const [n, r, a] = F(
           s,
           "abstract",
           "image",
           "title"
         );
         Object.freeze(s);
-        const c = B({ path: e, abstract: a, image: r, title: n });
-        this.#t.cards.append(c), o();
+        const i = _({ path: e, abstract: n, image: r, title: a });
+        this.#t.cards.append(i), o();
       }).catch((s) => {
         D.raise(
           `Could not load card: ${e}`,
@@ -121,9 +121,9 @@ const { component: i } = await use("@/rollo/"), B = ({ path: t, abstract: o, ima
         const r = e.view;
         if (r) {
           this.#t.cards.classes.replace("grid", "hidden");
-          const n = `/${r}`;
-          h.use(n).then((c) => {
-            const { html: p } = c, l = M({ html: p, path: n });
+          const a = `/${r}`;
+          d.use(a).then((i) => {
+            const { html: p } = i, l = M({ html: p, path: a });
             this.#t.post.detail.root.append(l), Y(this.#t.post);
           });
         } else
@@ -137,9 +137,9 @@ const { component: i } = await use("@/rollo/"), B = ({ path: t, abstract: o, ima
   async setup(t) {
     this.page.on.click(async (r) => {
       r.preventDefault();
-      const n = r.target;
-      if (n.tagName === "A" ? n : n.closest("a")) {
-        const p = n.closest(".card");
+      const a = r.target;
+      if (a.tagName === "A" ? a : a.closest("a")) {
+        const p = a.closest(".card");
         if (p) {
           const l = p.attribute.path;
           await Z(`${t}${l}`);
@@ -170,8 +170,8 @@ const { component: i } = await use("@/rollo/"), B = ({ path: t, abstract: o, ima
       a:hover {
         text-decoration: underline;
       }
-    `, a = u.div();
-    this.#t.post.attachShadow({ mode: "open" }), this.#t.post.shadowRoot.append(a), this.#t.post.detail.root = a, Object.freeze(this.#t.post.detail), e.use(this.#t.post), s.use(this.#t.post);
+    `, n = u.div();
+    this.#t.post.attachShadow({ mode: "open" }), this.#t.post.shadowRoot.append(n), this.#t.post.detail.root = n, Object.freeze(this.#t.post.detail), e.use(this.#t.post), s.use(this.#t.post);
   }
   /* Route LC. Runs every time route becomes active. */
   async enter(t, o, ...e) {
@@ -182,7 +182,7 @@ const { component: i } = await use("@/rollo/"), B = ({ path: t, abstract: o, ima
   update(t, o, ...e) {
     this.page.$.view = e.at(0) || null;
   }
-}(), { component: y } = await use("@/rollo/"), { router: K, Route: Q, NavLink: U } = await use("@/router/"), { frame: m } = await use("@/frame/"), f = "/", V = y.main("container pt-3", y.h1({ text: "Home" }));
+}(), { component: y } = await use("@/rollo/"), { router: K, Route: Q, NavLink: U } = await use("@/router/"), m = document.getElementById("frame"), f = "/", V = y.main("container pt-3", y.h1({ text: "Home" }));
 function X() {
   m.clear(":not([slot])"), m.append(this.page);
 }
@@ -194,36 +194,36 @@ U("nav-link", {
   slot: "home",
   parent: m
 });
-const { component: d } = await use("@/rollo/"), { frame: k } = await use("@/frame/"), et = (t) => {
-  const o = d.main(
+const { component: h } = await use("@/rollo/"), k = document.getElementById("frame"), et = (t) => {
+  const o = h.main(
     "container",
-    d.h1({ text: "Page not found" })
-  ), e = d.p({ parent: o });
+    h.h1({ text: "Page not found" })
+  ), e = h.p({ parent: o });
   t ? (t instanceof Error && (t = t.message), e.text = t) : e.clear(), k.clear(":not([slot])"), k.append(o);
-}, { component: ot } = await use("@/rollo/"), { Nav: st } = await use("@/router/"), { frame: at } = await use("@/frame/"), nt = st(
+}, { component: ot } = await use("@/rollo/"), { Nav: st } = await use("@/router/"), nt = document.getElementById("frame"), at = st(
   ot.nav("nav router flex flex-col gap-y-1 p-1", {
     slot: "side",
-    parent: at
+    parent: nt
   })
-), { capitalize: rt } = await use("@/rollo/"), { NavLink: it, router: R } = await use("@/router/");
+), { capitalize: rt } = await use("@/rollo/"), { NavLink: ct, router: E } = await use("@/router/");
 for (let [t, o] of Object.entries(
-  /* @__PURE__ */ Object.assign({ "./routes/about/index.js": O, "./routes/bar/index.js": T, "./routes/notes/index.js": J })
+  /* @__PURE__ */ Object.assign({ "./routes/about/index.js": B, "./routes/bar/index.js": S, "./routes/notes/index.js": J })
 )) {
   t = `/${t.split("/").at(-2)}`;
   const e = rt(t.slice(1));
-  it("nav-link", {
+  ct("nav-link", {
     text: e,
     path: t,
     title: e,
-    parent: nt
-  }), R.routes.add(t, o);
+    parent: at
+  }), E.routes.add(t, o);
 }
-const ct = async () => {
-  await R.setup({
+const it = async () => {
+  await E.setup({
     error: et
   });
 };
 export {
-  nt as nav,
-  ct as setup
+  at as nav,
+  it as setup
 };

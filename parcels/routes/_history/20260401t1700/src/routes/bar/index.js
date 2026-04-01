@@ -3,9 +3,8 @@ import "../../../use";
 const { Route } = await use("@/router/");
 const { Bar } = await use("@/plotly/");
 const { component } = await use("@/rollo/");
+const { frame } = await use("@/frame/");
 const { Spinner } = await use("/tools/spinner");
-
-const frame = document.getElementById("frame");
 
 const route = new (class extends Route {
   #_ = {};
