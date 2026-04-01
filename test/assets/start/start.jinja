@@ -1,31 +1,47 @@
-<frame-component anvil-slot="default">
-  <a class="nav-link" slot="home">
-    <img src="/_/theme/favicon.svg" alt="Home" />
-  </a>
-</frame-component>
+<frame-component anvil-slot="default"></frame-component>
 
 <script type="module">
   // Register frame component
   await use('@/frame/');
   console.log("Injected start.jinja...")
 
+  const app = document.getElementById('app');
+  const frame = document.getElementById('frame');
+
+
+
   const query = {{ query }};
-  console.log('query:', query)
+  console.log('query:', query);
 
   const { component } = await use('@/rollo/');
   const { server } = await use("@/server");
 
-  const { Nav, NavLink, router, Route } = await use("@/router/");
-  const { nav, setup } = await use("@/routes/");
-  /* Complete router setup */
-  await setup();
+  /* Setup routes */
+  await(async () => {
+    const { Nav, NavLink, router, Route } = await use("@/router/");
+    //const { nav, setup } = await use("@/routes/");
+    // /TODO Set up Anvil routes...
+    // setup();
+
+  })();
+
+  function setup() {
+
+  }
 
 
+  app.send('_handshake', {
+    detail: { frame, setup }
+  });
+
+  const foo = await use('@@/foo/');
+  const result = await foo();
+  console.log('result:', result);
 
 
   const Login = await use('@@/login/');
-  Login()
-
+  const user = await Login();
+  console.log('user:', user);
 
 
 
