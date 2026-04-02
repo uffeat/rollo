@@ -34,8 +34,10 @@
     detail: { frame, setup }
   });
 
-  const foo = await use('@@/foo/');
-  const result = await foo();
+ 
+
+  const foo = await use('@@/foo/', {stuff: 42}, 1, 2, 3);
+  const result = await foo({things: 'THINGS'}, 10, 20, 30);
   console.log('result:', result);
 
 
