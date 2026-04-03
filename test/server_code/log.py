@@ -23,7 +23,7 @@ if __name__ == "__main__":
     connect(KEY)
     main()
     print("Running local server for logging.")
-    # HACK For some reason, this script fails at first run (probably an Anvil bug)
+    # HACK Script sometimes fails at first run
     try:
         wait_forever()
     except:

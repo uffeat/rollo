@@ -18,14 +18,14 @@ def main():
 
     @rpc
     def _package(name: str):
-        return (Path.cwd() / f"{PACKAGES}/{name}.py").read_text(encoding=UTF_8)
+        return (Path.cwd() / f"{PACKAGES}/{name}/{name}.py").read_text(encoding=UTF_8)
 
 
 if __name__ == "__main__":
     connect(KEY)
     main()
     print("Running local server for client-code package injection.")
-    # HACK For some reason, this script fails at first run (probably an Anvil bug)
+    # HACK Script sometimes fails at first run
     try:
         wait_forever()
     except:

@@ -14,6 +14,9 @@
 
 
 
+  const query = {{ query }};
+  console.log('query:', query);
+
 
 
   /* Setup routes */
@@ -25,10 +28,14 @@
 
   })();
 
+  function setup() {
+
+  }
 
 
-
-
+  app.send('_handshake', {
+    detail: { frame, setup }
+  });
 
 
 
@@ -46,14 +53,16 @@
     async (module, { options, owner, path }) => {
       // Type guard
       if (!is.module(module) && !is.object(module)) return;
+      //console.log('module:', module);////
 
       frame.clear(":not([slot])");
 
       const page = await module.default({ options, path });
 
+      //console.log('page:', page);////
 
       frame.append(page)
-
+      
 
 
 
@@ -64,7 +73,8 @@
     },
   );
 
-  await use('assets/pages/thing.page.js', { test: true });
+  const page = await use('assets/pages/thing.page.js', { test: true });
+  console.log('page:', page);
 
 
 

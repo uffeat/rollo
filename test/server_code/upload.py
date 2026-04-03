@@ -1,24 +1,14 @@
 from tools import Api, db
 
 
-class echo(Api):
+class upload(Api):
+    """Test-only target."""
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def __call__(self, *args, **kwargs):
-        print("args:", args)
-        print("kwargs:", kwargs)
-        print("meta:", self.meta)
-        self.meta["detail"].update(dict(echo_detail=42))
-
-        row = db.media.get(name="handle")
-        result = row["media"]
-
-        ##print("result:", result)##
-
-        return result
-
-        return "POW!"
+        """."""
+        
 
 
 if __name__ == "__main__":
@@ -36,11 +26,11 @@ if __name__ == "__main__":
     ]["server"]
     connect(KEY)
 
-    Echo = echo
+    Upload = upload
 
     @rpc
     def echo(*args, _meta: dict = None, **kwargs):
-        instance = Echo(meta=_meta)
+        instance = Upload(meta=_meta)
         result = instance(*args, **kwargs)
         return result, _meta
 

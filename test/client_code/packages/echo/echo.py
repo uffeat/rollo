@@ -1,7 +1,10 @@
 def main(use, *args, **kwargs):
     """Replaces echo package."""
+
+    def bad(*args, **kwargs):
+        impossible = 5 / 0
     
-    print("Using injected echo package")
+    
 
     class echo:
         def __call__(self, *args, **kwargs):
@@ -11,5 +14,7 @@ def main(use, *args, **kwargs):
 
     def ping(*args, **kwargs):
         return "INJECTED PING"
+    
+    use.console.warn("Using injected echo package")
 
-    return dict(echo=echo, ping=ping)
+    return dict(bad=bad, echo=echo, ping=ping)
