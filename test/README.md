@@ -1,3 +1,3 @@
 # About
 
-Test scripts for testing server app.
+For testing server app.

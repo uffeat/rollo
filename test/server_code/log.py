@@ -15,8 +15,13 @@ KEY = (json.loads((Path.cwd() / "secrets.json").read_text(encoding=UTF_8)))[
 def main():
 
     @rpc
-    def _log(*args):
-        print(*args)
+    def _log(*args, **kwargs):
+        try:
+            args = [str(a) for a in args]
+            print(*args)
+        except Exception as error:
+            print(f"Error when trying to log: {str(error)}")
+
 
 
 if __name__ == "__main__":

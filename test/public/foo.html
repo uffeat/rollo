@@ -1,0 +1,39 @@
+<!--
+Tests access to server app's public assets.
+-->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <base href="https://rollohdev.anvil.app" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/_/theme/favicon.svg" />
+    <title>Foo</title>
+    <script type="module">
+      const { default: foo } = await import("/_/api/assets/test/foo.js");
+      console.log("Result:", foo());
+
+      await (async () => {
+        const response = await fetch("/_/api/assets/test/foo.md?stuff=42");
+        const text = await response.text();
+        console.log("text:", text);
+      })();
+
+      await (async () => {
+        const response = await fetch("/_/api/assets/foo.md?stuff=42");
+        const text = await response.text();
+        console.log("text:", text);
+      })();
+
+      await (async () => {
+        const response = await fetch("/_/api/assets/test/foo.html");
+        const text = await response.text();
+        console.log("text:", text);
+      })();
+    </script>
+  </head>
+  <body>
+    <img src="/_/theme/favicon.svg" alt="logo" />
+    
+  </body>
+</html>

@@ -11,8 +11,10 @@
   <script type="module">
     await import(`/anvil/use.js`);
 
-    const query = {{ query }};
-    console.log('query:', query)
+    const base = document.head.querySelector('base');
+
+
+    console.log('query:', {{ query }});
 
     use.sources.add('assets', async ({ options, owner, path }) => {
       return await import(`${origin}/_/theme${path.path}`);
