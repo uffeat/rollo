@@ -6,7 +6,7 @@ const m = (r) => {
       return r.constructor.__type__;
   }
   return Object.prototype.toString.call(r).slice(8, -1);
-}, L = m, p = new class {
+}, v = m, p = new class {
   array(r) {
     return m(r) === "Array";
   }
@@ -91,7 +91,7 @@ const m = (r) => {
   primitive(r) {
     return [null, void 0].includes(r) || ["bigint", "boolean", "number", "string", "symbol"].includes(typeof r);
   }
-}(), E = new class {
+}(), O = new class {
   if(t, e, s) {
     typeof t == "function" && (t = t()), t && this.raise(e, s);
   }
@@ -99,9 +99,9 @@ const m = (r) => {
     throw e?.(), new Error(t);
   }
 }();
-class S {
+class C {
   static __type__ = "Message";
-  static create = (...t) => new S(...t);
+  static create = (...t) => new C(...t);
   #t = {
     index: null
   };
@@ -136,9 +136,9 @@ class S {
     this.#t.stopped = !0;
   }
 }
-class T {
+class z {
   static __type__ = "Ref";
-  static create = (...t) => new T(...t);
+  static create = (...t) => new z(...t);
   #t = {
     detail: {},
     registry: /* @__PURE__ */ new Map(),
@@ -167,13 +167,13 @@ class T {
         })(), {
           data: y = {},
           once: w,
-          run: $ = !0
+          run: S = !0
         } = l.find((g, j) => !j && p.object(g)) || {}, x = (() => {
           const g = { data: { ...y } };
           return f && (g.condition = f), w && (g.once = w), g;
         })();
-        if (this.#e.registry.set(h, x), $) {
-          const g = S.create(this.#e.owner);
+        if (this.#e.registry.set(h, x), S) {
+          const g = C.create(this.#e.owner);
           g.detail = x, g.effect = h, (!f || f(this.#e.owner.current, g)) && h(this.#e.owner.current, g);
         }
         return h;
@@ -246,7 +246,7 @@ class T {
     if (this.match(t)) return this;
     if (this.#t.previous = this.#t.current, this.#t.current = t, this.#t.session++, s) return this;
     if (!this.effects.size) return this;
-    const i = S.create(this);
+    const i = C.create(this);
     let o = 0;
     for (const [c, u] of this.#t.registry.entries()) {
       i.detail = u, i.effect = c, i.index = o++;
@@ -257,9 +257,9 @@ class T {
     return this;
   }
 }
-class O {
+class A {
   static __type__ = "Reactive";
-  static create = (...t) => new O(...t);
+  static create = (...t) => new A(...t);
   #t = {
     change: Object.freeze({}),
     current: {},
@@ -276,7 +276,7 @@ class O {
         return f === "effects" ? e.effects : f in e && p.function(e[f]) ? e[f].bind(e) : e.#t.current[f];
       },
       set(l, f, y) {
-        return E.if(
+        return O.if(
           f === "effects" || f in e && p.function(e[f]),
           `Reserved key: ${f}.`
         ), e.update({ [f]: y }), !0;
@@ -297,20 +297,20 @@ class O {
       add(f, ...y) {
         const {
           data: w,
-          hooks: $,
+          hooks: S,
           once: x = !1,
           run: g = !0
-        } = y.find((b, C) => !C && p.object(b)) || {}, j = y.filter((b) => p.function(b)), _ = T.create({ owner: e }), z = e.effects.add(
-          (b, C) => {
-            _.update(f(b, C));
+        } = y.find((b, T) => !T && p.object(b)) || {}, j = y.filter((b) => p.function(b)), _ = z.create({ owner: e }), L = e.effects.add(
+          (b, T) => {
+            _.update(f(b, T));
           },
           { data: w, once: x, run: g }
         );
-        this.#e.registry.set(_, z);
+        this.#e.registry.set(_, L);
         for (const b of j)
           _.effects.add(b, { once: x, run: g });
-        if ($)
-          for (const b of $)
+        if (S)
+          for (const b of S)
             b.call(_);
         return _;
       }
@@ -343,24 +343,24 @@ class O {
           const _ = y.find((b) => p.function(b));
           if (_)
             return _;
-          const z = y.find((b) => Array.isArray(b));
-          if (z)
+          const L = y.find((b) => Array.isArray(b));
+          if (L)
             return (b) => {
-              for (const C of z)
-                if (C in b)
+              for (const T of L)
+                if (T in b)
                   return !0;
               return !1;
             };
         })(), {
-          data: $ = {},
+          data: S = {},
           once: x,
           run: g = !0
         } = y.find((_) => p.object(_)) || {}, j = (() => {
-          const _ = { data: { ...$ } };
+          const _ = { data: { ...S } };
           return w && (_.condition = w), x && (_.once = x), _;
         })();
         if (this.#e.registry.set(f, j), g) {
-          const _ = S.create(this.#e.owner);
+          const _ = C.create(this.#e.owner);
           _.detail = j, _.effect = f, (!w || w(this.#e.owner.current, _)) && f(this.#e.owner.current, _);
         }
         return f;
@@ -433,7 +433,7 @@ class O {
     return this.update(e, { silent: t });
   }
   copy() {
-    return O.create(
+    return A.create(
       { ...this.#t.current },
       {
         config: { match: this.config.match },
@@ -463,7 +463,7 @@ class O {
   /* Tests if other contains the same non-undefined items as current.
   NOTE Does not participate in reactivity, but useful extra, especially for testing. */
   match(t) {
-    if (t instanceof O)
+    if (t instanceof A)
       t = t.current;
     else if (p.object(t))
       t = Object.fromEntries(
@@ -490,7 +490,7 @@ class O {
     const { detail: s, silent: n = !1 } = t.find((u, a) => a && p.object(u)) || {};
     if (s && (this.#t.detail = s), !e)
       return this;
-    Array.isArray(e) ? e = Object.fromEntries(e) : e instanceof O ? e = e.current : e = { ...e };
+    Array.isArray(e) ? e = Object.fromEntries(e) : e instanceof A ? e = e.current : e = { ...e };
     const i = {};
     for (const [u, a] of Object.entries(e))
       if (!this.config.match(a, this.#t.current[u])) {
@@ -503,7 +503,7 @@ class O {
     if (!Object.keys(i).length) return this;
     if (this.#t.change = Object.freeze(i), this.#t.session++, n) return this;
     if (!this.effects.size) return this;
-    const o = S.create(this);
+    const o = C.create(this);
     let c = 0;
     for (const [u, a] of this.#t.registry.entries()) {
       o.detail = a, o.effect = u, o.index = c++;
@@ -514,17 +514,17 @@ class O {
     return this;
   }
 }
-const ee = (...r) => O.create(...r).$, re = (...r) => {
-  const t = T.create(...r);
+const ee = (...r) => A.create(...r).$, re = (...r) => {
+  const t = z.create(...r);
   return new Proxy(() => {
   }, {
     get(e, s) {
-      E.if(!(s in t), `Invalid key: ${s}`);
+      O.if(!(s in t), `Invalid key: ${s}`);
       const n = t[s];
       return p.function(n) ? n.bind(t) : n;
     },
     set(e, s, n) {
-      return E.if(!(s in t), `Invalid key: ${s}`), t[s] = n, !0;
+      return O.if(!(s in t), `Invalid key: ${s}`), t[s] = n, !0;
     },
     apply(e, s, n) {
       return t.update(...n), t.current;
@@ -534,7 +534,7 @@ const ee = (...r) => O.create(...r).$, re = (...r) => {
   static __name__ = "reactive";
   #t = {};
   constructor() {
-    super(), this.#t.state = O.create({ owner: this }), this.#t.state.effects.add(
+    super(), this.#t.state = A.create({ owner: this }), this.#t.state.effects.add(
       (t, e) => {
         this.update(t);
         const s = Object.fromEntries(
@@ -577,7 +577,7 @@ const ee = (...r) => O.create(...r).$, re = (...r) => {
   static __name__ = "ref";
   #t = {};
   constructor() {
-    super(), this.#t.ref = T.create({ owner: this }), this.#t.ref.effects.add(
+    super(), this.#t.ref = z.create({ owner: this }), this.#t.ref.effects.add(
       (t, e) => {
         this.attribute.current = t, this.attribute.previous = this.previous, this.attribute.session = this.session, this.send("_ref", { detail: Object.freeze({ current: t, message: e }) });
       },
@@ -672,7 +672,7 @@ const H = (r) => (...t) => {
     return super.prepend(...e), this;
   }
 };
-function A(r, { numbers: t = !1 } = {}) {
+function $(r, { numbers: t = !1 } = {}) {
   return t ? String(r).replace(/([A-Z]+)([A-Z][a-z])/g, "$1-$2").replace(/([a-z0-9])([A-Z])/g, "$1-$2").replace(/([A-Za-z])([0-9])/g, "$1-$2").replace(/([0-9])([A-Za-z])/g, "$1-$2").toLowerCase() : String(r).replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
 }
 function ne(r) {
@@ -720,14 +720,14 @@ const fe = (r) => /^[A-Z]/.test(r), le = (r) => (r.length > 0 && (r = r[0].toUpp
       }
       /* Returns attribute value. */
       get(i) {
-        if (i = A(i), !e.hasAttribute(i))
+        if (i = $(i), !e.hasAttribute(i))
           return null;
         const o = e.getAttribute(i);
         return this.#e(o);
       }
       /* Checks, if attribute set. */
       has(i) {
-        return i = A(i), e.hasAttribute(i);
+        return i = $(i), e.hasAttribute(i);
       }
       /* Returns attribute keys (names). */
       keys() {
@@ -735,7 +735,7 @@ const fe = (r) => /^[A-Z]/.test(r), le = (r) => (r.length > 0 && (r = r[0].toUpp
       }
       /* Sets one or more attribute values. Chainable with respect to component. */
       set(i, o) {
-        if (i = A(i), o === void 0)
+        if (i = $(i), o === void 0)
           return e;
         const c = this.#e(e.getAttribute(i));
         return o === c || ([!1, null].includes(o) ? e.removeAttribute(i) : o === !0 || !["number", "string"].includes(typeof o) ? e.setAttribute(i, "") : e.setAttribute(i, o), e.dispatchEvent(
@@ -1180,7 +1180,7 @@ const xt = (r, t) => class extends r {
           */
           get(u, a) {
             return (...d) => {
-              const h = d.find((f) => typeof f == "function"), l = d.find((f) => L(f) === "Object") || {};
+              const h = d.find((f) => typeof f == "function"), l = d.find((f) => v(f) === "Object") || {};
               if (a === "use")
                 return s.addEventListener(c, h, l);
               if (a === "unuse")
@@ -1189,7 +1189,7 @@ const xt = (r, t) => class extends r {
             };
           },
           apply(u, a, d) {
-            const h = d.find((f) => typeof f == "function"), l = d.find((f) => L(f) === "Object") || {};
+            const h = d.find((f) => typeof f == "function"), l = d.find((f) => v(f) === "Object") || {};
             return s.addEventListener(c, h, l);
           }
         });
@@ -1236,7 +1236,7 @@ const xt = (r, t) => class extends r {
       run: c = !1,
       track: u = !1,
       ...a
-    } = s.find((h, l) => l && L(h) === "Object") || {};
+    } = s.find((h, l) => l && v(h) === "Object") || {};
     u && !o && this.#t.registry.add(n, i), super.addEventListener(n, i, { once: o, ...a });
     const d = {
       handler: i,
@@ -1267,7 +1267,7 @@ const xt = (r, t) => class extends r {
   handles additional options makes chainable and enables object-based args.
   "Point-of-truth" event handler deregistration. */
   removeEventListener(...s) {
-    const [n, i] = typeof s[0] == "string" ? s : Object.entries(s[0])[0], { track: o = !1, ...c } = s.find((u, a) => a && L(u) === "Object") || {};
+    const [n, i] = typeof s[0] == "string" ? s : Object.entries(s[0])[0], { track: o = !1, ...c } = s.find((u, a) => a && v(u) === "Object") || {};
     return o && this.#t.registry.remove(n, i), super.removeEventListener(n, i, c), this;
   }
   /* Adds event handlers from the special on-syntax. */
@@ -1524,16 +1524,16 @@ const Lt = (r, t) => class extends r {
 }, Wt = (r) => {
   const t = Mt(r), e = new t();
   return H(e);
-}, v = new Proxy(
+}, E = new Proxy(
   {},
   {
     get(r, t, e) {
       return t === "from" ? (s, { as: n, convert: i = !0, ...o } = {}) => {
         if (i) {
           const c = Nt(s);
-          return c.length === 1 ? n ? v[n](o, c[0]) : c[0].update(o) : v[n || "div"](o, ...c);
+          return c.length === 1 ? n ? E[n](o, c[0]) : c[0].update(o) : E[n || "div"](o, ...c);
         }
-        return v[n || "div"]({ innerHTML: s, ...o });
+        return E[n || "div"]({ innerHTML: s, ...o });
       } : Wt(t);
     }
   }
@@ -1543,7 +1543,7 @@ function Nt(r) {
   return t.innerHTML = r, Array.from(t.children, (s) => Ut(s));
 }
 function q(r) {
-  const t = v[r.tagName.toLowerCase()]();
+  const t = E[r.tagName.toLowerCase()]();
   for (const { name: e, value: s } of Array.from(r.attributes))
     t.setAttribute(e, s);
   return t;
@@ -1574,10 +1574,10 @@ const Ht = (r, t, e) => (M.add(r, t, e), k(r, "create", H(r)), r.create), Zt = O
     #t = {};
     constructor() {
       super(), this.id = "app", this.#t.slots = Object.freeze({
-        default: v.slot(),
-        data: v.slot({ name: "data" }),
-        iworker: v.slot({ name: "iworker" })
-      }), this.#t.shadow = v.div(
+        default: E.slot(),
+        data: E.slot({ name: "data" }),
+        iworker: E.slot({ name: "iworker" })
+      }), this.#t.shadow = E.div(
         { id: "root" },
         this.slots.default,
         this.slots.data,
@@ -1685,7 +1685,7 @@ class I {
     return this;
   }
   #e(t, e, s) {
-    (!("cssRules" in t) || !("insertRule" in t)) && E.raise(
+    (!("cssRules" in t) || !("insertRule" in t)) && O.raise(
       "Invalid container.",
       () => console.error("container:", t)
     );
@@ -1704,7 +1704,7 @@ class I {
     }
   }
   #s(t, e) {
-    "cssRules" in t || E.raise(
+    "cssRules" in t || O.raise(
       "Invalid container.",
       () => console.error("container:", t)
     );
@@ -1719,7 +1719,7 @@ class I {
     return !t.startsWith("@keyframes") && e && this.#i(e) ? `@keyframes ${t}` : t;
   }
   #o(t, ...e) {
-    (!("cssRules" in t) || !("deleteRule" in t)) && E.raise(
+    (!("cssRules" in t) || !("deleteRule" in t)) && O.raise(
       "Invalid container.",
       () => console.error("container:", t)
     );
@@ -1731,10 +1731,10 @@ class I {
     return t;
   }
   #r(t, e = {}) {
-    t instanceof CSSRule || E.raise("Invalid rule.", () => console.error("rule:", t));
+    t instanceof CSSRule || O.raise("Invalid rule.", () => console.error("rule:", t));
     for (let [s, n] of Object.entries(e))
       if (n !== void 0) {
-        if (s.startsWith("__") ? s = `--${s.slice(2)}` : s.startsWith("--") || (s = A(s.trim())), n === !1) {
+        if (s.startsWith("__") ? s = `--${s.slice(2)}` : s.startsWith("--") || (s = $(s.trim())), n === !1) {
           t.style.removeProperty(s);
           continue;
         }
@@ -1863,7 +1863,7 @@ const qt = document.documentElement, K = new class {
       {},
       {
         get(r, t) {
-          return `var(--${A(t, { numbers: !0 })})`;
+          return `var(--${$(t, { numbers: !0 })})`;
         }
       }
     );
@@ -1873,7 +1873,7 @@ const qt = document.documentElement, K = new class {
       {},
       {
         get(r, t) {
-          return getComputedStyle(qt).getPropertyValue(`--${A(t, { numbers: !0 })}`).trim();
+          return getComputedStyle(qt).getPropertyValue(`--${$(t, { numbers: !0 })}`).trim();
         }
       }
     );
@@ -1910,7 +1910,7 @@ const qt = document.documentElement, K = new class {
       {},
       {
         get(e, s) {
-          return { [t]: A(s, { numbers: !0 }) };
+          return { [t]: $(s, { numbers: !0 }) };
         }
       }
     ) : t === "media" ? Kt : (e) => `${e}${t === "pct" ? "%" : t}`;
@@ -2130,7 +2130,7 @@ const Y = (r, t) => {
 ), ve = (r, t, e = (s, n) => s === n) => {
   const s = [[r, t]];
   for (; s.length > 0; ) {
-    const [n, i] = s.pop(), [o, c] = [m(n), m(i)];
+    const [n, i] = s.pop(), [o, c] = [v(n), v(i)];
     if (o !== c) return !1;
     if (!["Array", "Object"].includes(o)) {
       if (!e(n, i)) return !1;
@@ -2161,7 +2161,7 @@ const Y = (r, t) => {
         delete n[o];
         continue;
       }
-      const u = n[o], a = [m(u), m(c)];
+      const u = n[o], a = [v(u), v(c)];
       if (a.every(p.object)) {
         s.push([u, c]);
         continue;
@@ -2272,33 +2272,36 @@ const Ce = (r) => Array.from(new Set(r)), Te = (r, t = (e) => e) => {
 ));
 export {
   Wt as Component,
-  E as Exception,
+  O as Exception,
   rt as Future,
   U as InputFile,
   G as Mixins,
-  O as Reactive,
-  T as Ref,
+  A as Reactive,
+  z as Ref,
   W as Sheet,
   Z as TaggedSets,
   me as app,
   Ht as author,
   Zt as breakpoints,
-  A as camelToKebab,
+  $ as camelToKebab,
   ne as camelToPascal,
   le as capitalize,
   ye as clear,
-  v as component,
+  E as component,
   ge as css,
   Ce as deduplicate,
   de as defineMethod,
   pe as defineProperty,
   k as defineValue,
   be as delay,
+  Re as difference,
   we as element,
   ze as equal,
   H as factory,
   je as freeze,
   xe as html,
+  Nt as htmlToComponent,
+  Pe as intersection,
   p as is,
   fe as isUpper,
   ie as kebabToCamel,
@@ -2309,8 +2312,6 @@ export {
   J as mix,
   N as mixins,
   Oe as mixup,
-  Re as objectDifference,
-  Pe as objectIntersection,
   ue as pascalToCamel,
   ae as pascalToKebab,
   Ae as pipe,
@@ -2325,6 +2326,6 @@ export {
   F as stateMixin,
   Se as toTop,
   m as type,
-  L as typeName,
+  v as typeName,
   st as updateElement
 };

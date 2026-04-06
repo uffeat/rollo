@@ -82,7 +82,7 @@ export const component = new Proxy(
 );
 
 /* Returns component with tree from html. */
-function htmlToComponent(html) {
+export function htmlToComponent(html) {
   const wrapper = document.createElement("div");
   wrapper.innerHTML = html;
   const nodes = Array.from(wrapper.children, (c) => elementToComponent(c));
