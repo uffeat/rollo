@@ -1,0 +1,8 @@
+{
+  "TEST": true,
+  "foo": 42,
+  "yes": true,
+  "no": false,
+  "nothing": null,
+  "numbers": [1, 2, 3]
+}
