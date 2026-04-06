@@ -8,7 +8,7 @@ def main(use, *args, **kwargs):
     import json
 
     assets = use.assets
-    component = use("@/rollo/").component
+    component_from = use("@/rollo/").htmlToComponent
     document = use.document
     JSON = use("@@/js").JSON
     log = use.log
@@ -90,6 +90,17 @@ def main(use, *args, **kwargs):
                 # Default -> text
                 return self.get_text(path)
 
+            
+            if path.type == "jinja":
+                path.type = path.types = "html"
+                text = self.get_text(path)
+                content = text.replace('{{', '{').replace('}}', '}')
+                rich = works.RichText(enable_slots=True, format="plain_text", content=content)
+                rich.data = options.get('data', {})
+                result = works.get_dom_node(rich).textContent
+                return result
+            
+            
             if path.type == "js":
                 if options.get("raw"):
                     return self.get_text(path)
@@ -171,13 +182,13 @@ def main(use, *args, **kwargs):
 
     text = use("assets/tests/foo.jinja")
     text = text.replace('{{', '{').replace('}}', '}')
-    ##print("text:", text)
-
-    ##text = "<h1>The year: {{year}}</h1>".replace('{{', '{').replace('}}', '}')
-
     rich = works.RichText(enable_slots=True, format="plain_text", content=text)
     rich.data = dict(year=1969)
     result = works.get_dom_node(rich).textContent
     print("result:", result)
 
-    print("component:", component['from']('<h1>Hi</h1>'))
+    print("component:", component_from('<h1>Hi</h1>'))
+
+
+    log("foo.jinja:", use("assets/tests/foo.jinja", data=dict(year=1969)), native=True)  ##
+    log("foo.jinja converted:", use("assets/tests/foo.jinja", data=dict(year=1969), convert=True), native=True)  ##
