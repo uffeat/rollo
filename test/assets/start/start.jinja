@@ -1,9 +1,7 @@
 <frame-component anvil-slot="default"></frame-component>
 
 <script type="module">
-  // Register frame component
-  await use('@/frame/');
-
+  
   const { component, is } = await use('@/rollo/');
   const { server } = await use("@/server");
 
@@ -16,55 +14,8 @@
 
 
 
-  /* Setup routes */
-  await(async () => {
-    const { Nav, NavLink, router, Route } = await use("@/router/");
-    //const { nav, setup } = await use("@/routes/");
-    // :TODO Set up Anvil routes...
-    // setup();
-
-  })();
-
-
-
-
-
-
-
-
-  //const foo = await use('@@/foo/', { stuff: 42 }, 1, 2, 3);
-  //const result = await foo({ things: 'THINGS' }, 10, 20, 30);
-  //console.log('result:', result);
-
-
-  //const Login = await use('@@/login/');
-  //const user = await Login();
-  //console.log('user:', user);
-
-  use.processors.add(
-    "page.js",
-    async (module, { options, owner, path }) => {
-      // Type guard
-      if (!is.module(module) && !is.object(module)) return;
-
-      frame.clear(":not([slot])");
-
-      const page = await module.default({ options, path });
-
-
-      frame.append(page)
-
-
-
-
-
-      return page
-
-
-    },
-  );
-
-  await use('assets/pages/thing.page.js', { test: true });
+  const thing = await use('@@/thing/', { test: true });
+  thing()
 
 
 

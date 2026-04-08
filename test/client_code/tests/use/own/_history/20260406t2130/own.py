@@ -1,5 +1,5 @@
 """
-use/own/foo.py
+use/own/own.py
 """
 
 
@@ -32,7 +32,7 @@ def main(use, *args, **kwargs):
                 if options.get("raw"):
                     return self.get_text(path, test=test)
 
-                # HACK
+                # HACK Cannot easily inject link-based sheet -> use style tag
                 if meta.DEV and test:
                     try:
                         style = document.head.querySelector(

@@ -1,0 +1,39 @@
+<style>
+  main {}
+
+
+  div[anvil-slot="plot"] {
+    display: flex;
+    justify-content: center;
+    width: 100% !important;
+    max-width: 100% !important;
+
+    border: 1px solid hotpink;
+  }
+
+  div[anvil-slot="plot"] * {
+    max-width: 100% !important;
+  }
+</style>
+
+
+<main anvil-slot="default">
+  <h1>Thing</h1>
+  <p>{{ding}}</p>
+  <div anvil-slot="plot"></div>
+</main>
+
+<script type="module">
+  const { component } = await use('@/rollo/');
+
+  const stuff = {{ stuff }};
+  console.log('stuff:', stuff);
+  console.log('stuff.stuff:', stuff.stuff);
+
+  const app = document.getElementById('app');
+  const node = app.querySelector(`div[thing]`);
+  console.log('node.shadow:', node.shadow);
+
+  console.warn("Injected thing.jinja...")
+
+</script>

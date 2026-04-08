@@ -2,6 +2,7 @@ def main(use, *args, **kwargs):
     """Replaces login package."""
 
     Base = use("@@/mixins").Base
+    Html = use("@@/mixins").Html
     component = use("@@/component/")
     meta = use.meta
     log = use.log
@@ -20,7 +21,7 @@ def main(use, *args, **kwargs):
         if row:
             return row["email"]
 
-    class login(Base):
+    class login(Base, Html):
         def __init__(
             self,
             *args,
@@ -33,13 +34,17 @@ def main(use, *args, **kwargs):
             targets: list = None,
             **query,
         ):
-            Base.setup(self)
+            Base.__init__(self)
+            
             self.node.setAttribute(self.__class__.__name__, "")
 
+            self.node.append(component.h1(text='Hi'))
+
            
-            log('origin', origin)
+            ##log('origin', origin)
 
             if page or meta.IWORKER:
+                Html.__init__(self)
                 self.template("components/frame/frame")
 
                 if page:
