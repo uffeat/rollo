@@ -41,6 +41,7 @@ def main(use, *args, **kwargs):
 
             ##log("shadow:", self.shadow, native=True)  ##
 
+            # XXX TODO Refator source/transpiler/processor for explicit scrapt extraction
             self.template(
                 use(
                     "assets/thing/thing.jinja",
@@ -50,11 +51,8 @@ def main(use, *args, **kwargs):
             )
 
             plot = use.anvil.Plot()
-
             plot.config.update(displaylogo=False, responsive=False)
-
             plot.layout.update(colorway=colorway)
-
             data = [
                 {
                     "name": "Wonderland",
