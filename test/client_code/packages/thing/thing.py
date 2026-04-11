@@ -2,8 +2,8 @@ def main(use, *args, **kwargs):
 
     Base = use("@@/mixins").Base
     Html = use("@@/mixins").Html
+    Page = use("@@/mixins").Page
     Wrap = use("@@/mixins").Wrap
-    upgrade = use("@@/mixins").upgrade
     component = use("@@/component/")
     meta = use.meta
     log = use.log
@@ -27,7 +27,7 @@ def main(use, *args, **kwargs):
 
     import json
 
-    class thing(Base, Html):
+    class thing(Base, Html, Page):
 
         def __init__(
             self,
@@ -36,6 +36,7 @@ def main(use, *args, **kwargs):
         ):
             Base.__init__(self)
             Html.__init__(self)
+            Page.__init__(self)
 
             self.node.classList.add("container", "pt-3")
 

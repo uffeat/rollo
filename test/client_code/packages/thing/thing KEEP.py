@@ -3,7 +3,6 @@ def main(use, *args, **kwargs):
     Base = use("@@/mixins").Base
     Html = use("@@/mixins").Html
     Wrap = use("@@/mixins").Wrap
-    upgrade = use("@@/mixins").upgrade
     component = use("@@/component/")
     meta = use.meta
     log = use.log
@@ -70,7 +69,7 @@ def main(use, *args, **kwargs):
             
 
 
-            button = upgrade(use.anvil.Button(text="Anvil button"))
+            button = use.anvil.Button(text="Anvil button")
             node = use.anvil.get_dom_node(button)
             print('node:', getattr(button, 'node', None))
             print('node.detail:', node.detail)

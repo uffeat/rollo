@@ -58,7 +58,6 @@ export const user = new (class User {
     Logout,
     Reset,
     Signup,
-    change,
     get,
     login,
     logout,

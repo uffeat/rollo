@@ -1,22 +1,18 @@
-<frame-component anvil-slot="default"></frame-component>
+<frame-component>
+  <a class="nav-link" slot="home">
+    <img src="/_/theme/favicon.svg" alt="Home" />
+  </a>
+  <main anvil-slot="default" class="container mt-3"></main>
+</frame-component>
 
-<script type="module">
-  
-  const { component, is } = await use('@/rollo/');
-  const { server } = await use("@/server");
-
-  console.log("Injected start.jinja...")
-
-  const app = document.getElementById('app');
-  const frame = document.getElementById('frame');
-
-
-
-
-
-  const thing = await use('@@/thing/', { test: true });
-  thing()
-
-
-
-</script>
+<!--:TODO Move to theme.css or main.css once done testing. -->
+<style>
+  frame-component {
+    nav.nav[slot="side"] {
+      a.nav-link.disabled {
+        color: var(--bs-link-color);
+        font-weight: 600;
+      }
+    }
+  }
+</style>
