@@ -2,7 +2,7 @@ def main(use, *args, **kwargs):
 
     use("@@/assets/")  # For side effects
     mixins = use("@@/mixins")
-    Base, Html, On, Page = mixins.Base, mixins.Html, mixins.On, mixins.Page
+    Base, Html, On = mixins.Base, mixins.Html, mixins.On
     log, meta = use.log, use.meta
     component = use("@@/component/")
     js = use("@@/js/")
@@ -30,7 +30,7 @@ def main(use, *args, **kwargs):
             font=dict(color=css.root.bsLight),
         )
 
-    class Plot(Base, Page):
+    class Plot(Base):
 
         def __init__(self, *args, **kwargs):
             Base.__init__(self)
@@ -57,12 +57,14 @@ def main(use, *args, **kwargs):
             """Returns plot component."""
             return self._["plot"]
 
-    class plot(Plot, Page):
+    class plot(Plot):
         """Page version of Plot."""
+
+        page = True
 
         def __init__(self, *args, **kwargs):
             Plot.__init__(self, *args, **kwargs)
-            Page.__init__(self)
+           
 
     use.console.warn("Using injected plot package.")
     return dict(Plot=Plot, plot=plot)

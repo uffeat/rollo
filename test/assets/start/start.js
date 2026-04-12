@@ -1,4 +1,6 @@
-const { Sheet, component, css } = await use("@/rollo/");
+const use = globalThis.use;
+
+const { component, css } = await use("@/rollo/");
 
 const frame = document.getElementById("frame");
 
@@ -100,10 +102,8 @@ await (async () => {
   });
 })();
 
-export default async ({ node, ...data }, ...args) => {
+export default async (node) => {
   //console.log("node:", node); ////
-  //console.log("data:", data); ////
-  //console.log("args:", args); ////
 };
 
 //uffeat@gmail.com

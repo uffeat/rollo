@@ -22,6 +22,8 @@ def main(use, *args, **kwargs):
             return row["email"]
 
     class login(Base, Html):
+        page = True
+        
         def __init__(
             self,
             *args,

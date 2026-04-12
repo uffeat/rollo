@@ -1,3 +1,3 @@
 # This is the about page
 
-All about the app.. (injected)
+All about the app (injected)...

@@ -1,3 +1,5 @@
+const use = globalThis.use;
+
 const { Ref, component } = await use("@/rollo/");
 
 const getUser = await use("@@/user:get_user");
