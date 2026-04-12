@@ -7,10 +7,8 @@ def main(use, *args, **kwargs):
     component = use("@@/component/")
     js = use("@@/js/")
     Promise = use("@@/promise").Promise
-    
+
     use("assets/plot/plot.css")
-    
-    
 
     def Config() -> dict:
         # NOTE The plot is responsive (due to styling or some Anvil tricks), so turn
@@ -32,22 +30,19 @@ def main(use, *args, **kwargs):
             font=dict(color=css.root.bsLight),
         )
 
-    class Plot(Base, Html, Page):
+    class Plot(Base, Page):
 
         def __init__(self, *args, **kwargs):
             Base.__init__(self)
-            Page.__init__(self)
 
             args = js.signature(args, kwargs)
-            self.slot = kwargs.get('slot')
+            self.slot = kwargs.get("slot")
 
             plot = use.anvil.Plot()
             plot.config.update(Config())
             plot.layout.update(Layout())
             self.append(plot)
             self._.update(plot=plot)
-
-            
 
         def __call__(self, *traces, **kwargs):
             """Renders plot from traces that can consist of JS objects and/or Py dicts."""
@@ -56,12 +51,18 @@ def main(use, *args, **kwargs):
                 for t in traces
                 for k, v in [next(iter(dict(t).items()))]
             ]
-            
 
         @property
         def plot(self):
             """Returns plot component."""
             return self._["plot"]
-        
+
+    class plot(Plot, Page):
+        """Page version of Plot."""
+
+        def __init__(self, *args, **kwargs):
+            Plot.__init__(self, *args, **kwargs)
+            Page.__init__(self)
+
     use.console.warn("Using injected plot package.")
-    return dict(Plot=Plot, plot=Plot)
+    return dict(Plot=Plot, plot=plot)

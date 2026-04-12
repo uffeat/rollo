@@ -1,4 +1,7 @@
 def main(use, *args, **kwargs):
+
+    bootstrap = use("@/bootstrap/")
+
     rollo = use("@/rollo/")
     Sheet = rollo.Sheet
 
@@ -11,22 +14,23 @@ def main(use, *args, **kwargs):
     sheet = use("assets/about/about.css.html", test=True)
 
     class about(Base, On, Page, Html):
+
+        assets = dict(template=use("assets/about/about.md", test=True))
+
+
+
         def __init__(self, *args, **kwargs):
             Base.__init__(self)
             Html.__init__(self)
             On.__init__(self)
             Page.__init__(self)
 
-            @self.on(once=True)
-            def _connect(event):
-                ##log("Connected.", trace=__file__)  ##
-                sheet.use()
+            ##assets = getattr(self.__class__, 'assets', {})
+            ##self.template(assets.get('template'))
 
-            @self.on(once=True)
-            def _disconnect(event):
-                ##log("Disconnected.", trace=__file__)  ##
-                sheet.unuse()
+            
 
+            
             template = use("assets/about/about.md", test=True)
             self.template(template)
 
@@ -34,12 +38,21 @@ def main(use, *args, **kwargs):
                 component.div(
                     "alert alert-danger alert-dismissible",
                     component.div(text="Injected"),
-                    component.button('btn-close', type='button', ariaLabel="Close",  **{'[data-bs-dismiss]': "alert"}),
+                    component.button(
+                        "btn-close",
+                        type="button",
+                        ariaLabel="Close",
+                        **{"[data-bs-dismiss]": "alert"}
+                    ),
                     role="alert",
-                
-                   
                 ),
             )
+
+        def on_connect(self):
+            sheet.use()
+
+        def on_disconnect(self):
+            sheet.unuse()
 
     use.console.warn("Using injected about package")
 
