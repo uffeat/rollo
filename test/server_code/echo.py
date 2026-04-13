@@ -1,3 +1,5 @@
+import json
+from anvil import BlobMedia
 from tools import Api, db
 
 
@@ -9,15 +11,25 @@ class echo(Api):
         print("args:", args)
         print("kwargs:", kwargs)
         print("meta:", self.meta)
-        self.meta["detail"].update(dict(echo_detail=42))
 
+        ##self.meta["detail"].update(dict(url=True))
         row = db.media.get(name="handle")
         result = row["media"]
 
-        ##print("result:", result)##
+        result = BlobMedia('img/jpg', result.get_bytes())
+
+
 
         return result
 
+        text = result.get_bytes().decode('latin-1')
+        print("text", text)  ##
+        return text
+        ##result = result.url
+
+        print("result:", result)  ##
+
+        return result
         return "POW!"
 
 

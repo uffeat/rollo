@@ -66,5 +66,4 @@ def main(use, *args, **kwargs):
             Plot.__init__(self, *args, **kwargs)
            
 
-    use.console.warn("Using injected plot package.")
     return dict(Plot=Plot, plot=plot)

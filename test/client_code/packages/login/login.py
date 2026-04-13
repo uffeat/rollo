@@ -1,58 +1,36 @@
 def main(use, *args, **kwargs):
-    """Replaces login package."""
+    __file__ = "login"
+    console, document, log, meta = use.console, use.document, use.log, use.meta
 
-    Base = use("@@/mixins").Base
-    Html = use("@@/mixins").Html
-    component = use("@@/component/")
-    meta = use.meta
-    log = use.log
-    login_with_form = use.anvil.login_with_form
-    __file__ = 'login'
-
+    rollo = use("@/rollo/")
     use("@/frame/")
 
-    def Login():
-        row = login_with_form(
-            allow_cancel=True,
-            allow_remembered=False,
-            remember_by_default=False,
-            show_signup_option=True,
-        )
-        if row:
-            return row["email"]
+    use("@@/assets/")
+    mixins = use("@@/mixins")
+    Base, Html, On = mixins.Base, mixins.Html, mixins.On
+    component = use("@@/component/")
+    Login = use("@@/user:Login")
 
     class login(Base, Html):
         page = True
-        
+
         def __init__(
             self,
             *args,
-            caller: str=None,
-            options: dict = None,
-            origin: str = None,
             page: str = None,
-            path: str = None,
-            session_id: str = None,
-            targets: list = None,
-            **query,
+            **kwargs,
         ):
             Base.__init__(self)
-            
-            self.node.setAttribute(self.__class__.__name__, "")
-
-            self.node.append(component.h1(text='Hi'))
-
-           
-            ##log('origin', origin)
 
             if page or meta.IWORKER:
                 Html.__init__(self)
-                self.template("components/frame/frame")
+                self.template("assets/components/frame/frame.html")
 
                 if page:
-
                     frame = self.node.querySelector("frame-component")
-                    login = component.a("nav-link", text="Log in", slot="top", parent=frame)
+                    login = component.a(
+                        "nav-link", text="Log in", slot="top", parent=frame
+                    )
 
                     @login.on()
                     def click(event):
@@ -65,10 +43,9 @@ def main(use, *args, **kwargs):
                         Login()
 
         def __call__(self, *args, **kwargs):
-            log('args:', args)
-            log('kwargs:', kwargs)
+            log("args:", args)
+            log("kwargs:", kwargs)
             result = Login()
             return result
 
-    use.console.warn("Using injected login package.")
     return dict(login=login)

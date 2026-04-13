@@ -42,7 +42,10 @@ await (async () => {
     //console.log("path:", path); ////
     const args = event.target._args || [];
     //console.log("args:", args); ////
-    const target = await use(path, {test: true});
+    const target = await use(path, {
+      test: true,
+      //test: false,
+    });
     const result = target(...args);
   });
   // Home nav

@@ -22,17 +22,14 @@ def main(use, *args, **kwargs):
                 sheets=[
                     use("assets/about/about.css.html", test=True),
                 ],
-                template=use("assets/about/about.md", test=True),
+                template=use(f"assets/about/about.md?test"),
             )
 
         def __init__(self, *args, **kwargs):
             Base.__init__(self)
             Html.__init__(self)
             On.__init__(self)
-            
 
             setup(self.node)
-
-    console.warn("Using injected about package")
 
     return dict(about=about)

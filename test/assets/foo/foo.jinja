@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <base href="{{client}}" env="{{env}}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/anvil/main.css" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <title>Foo</title>
+  <script type="module">
+    await import(`/anvil/use.js`);
+
+    const base = document.head.querySelector('base');
+
+    console.log('query:', {{ query }});
+
+    
+
+    await(async () => {
+      const cache = {};  // For tests
+      use.sources.add('assets', async ({ options, owner, path }) => {
+        const { test } = options;
+        if (test) {
+          if (path.path in cache) {
+            return cache[path.path];
+          }
+          const response = await fetch(`${origin}/_/api/_assets?path=${path.path}`);
+          if (response.ok) {
+            const text = await response.text();
+            console.warn(`Using injected '${path.full}'.`);
+            cache[path.path] = text;
+            return text;
+          } else {
+            console.warn(`Not using injected '${path.full}'.`);
+            return await import(`${origin}/_/theme${path.path}`);
+          }
+        }
+        return await import(`${origin}/_/theme${path.path}`);
+      });
+    })();
+
+    const { foo } = await use('assets/foo/foo.js', { test: true });
+    console.log('foo:', foo);
+
+    const { component, is, typeName } = await use('@/rollo/');
+    const { server } = await use("@/server");
+    // Register frame component
+    await use('@/frame/');
+
+
+    use('/echo').then(({ echo }) => {
+      console.log('Result from /echo:', echo('ECHO'));
+    });
+
+    use('@/echo').then(({ echo }) => {
+      console.log('Result from @/echo:', echo('ECHO'));
+    });
+
+    use('assets/echo').then(({ echo }) => {
+      console.log('Result from assets/echo:echo:', echo('ECHO'));
+    });
+
+    use('assets/echo').then(({ ping }) => {
+      console.log('Result from assets/echo:ping:', ping());
+    });
+
+    use('assets/echo').then(({ ping }) => {
+      console.log('Result from assets/echo:ping:', ping());
+    });
+
+    server.echo(
+      { test: true },
+      {},
+      { foo: "FOO", things: [{ a: 1 }, { b: 2 }] },
+      { first: 'FIRST' },
+      10,
+      20,
+      30,
+      { last: 'LAST' }).then(async ({ response, result, meta }) => {
+
+        //console.log('Response from server.echo:', response);////
+        //console.log('Result from server.echo:', result);////
+        //console.log('Meta from server.echo:', meta);////
+
+        if (meta?.detail?.url) {
+          const image = component.img({ src: result, parent: frame });
+        }
+
+
+        if (typeName(result) === 'Blob') {
+          /*
+          const src = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.readAsDataURL(result);
+          });
+          */
+
+          const src = new (class {
+            #_ = { blob: result }
+
+            use() {
+              this.#_.src = URL.createObjectURL(this.#_.blob);
+              return this.#_.src
+            }
+
+            unuse() {
+              URL.revokeObjectURL(this.#_.src);
+              return this
+            }
+           })();
+
+          const image = component.img();
+
+          image.detail.src = src
+
+          image.src = image.detail.src.use()
+
+
+
+          const frame = document.getElementById('frame');
+          image.parent = frame
+          
+
+        }
+
+      });
+  </script>
+</head>
+
+<body>
+  <app-component>
+    <frame-component>
+      <img slot="home" src="favicon.svg" />
+      <main class="container mt-3">
+        <h1>Foo</h1>
+        <h2 class="fs-3 text-danger">Injected</h2>
+      </main>
+    </frame-component>
+  </app-component>
+</body>
+
+</html>
