@@ -4,6 +4,17 @@ const { component, css } = await use("@/rollo/");
 
 const frame = document.getElementById("frame");
 
+
+//
+//
+const { server } = await use("@/server");
+server.echo({}, {}, "ECHO").then(async ({ result, meta }) => {
+  console.log("Result:", result); ////
+  console.log("Meta:", meta); ////
+});
+//
+//
+
 // Set up page nav
 await (async () => {
   const nav = component.nav(

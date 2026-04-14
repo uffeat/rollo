@@ -3,7 +3,6 @@ import "../use";
 const { Exception } = await use("@/rollo/");
 
 const options = {
-  cache: "no-store",
   method: "POST",
   headers: { "content-type": "text/plain" },
 };
@@ -16,20 +15,17 @@ const server = new Proxy(
   {
     get(_, name) {
       return async (query = {}, kwargs = {}, ...args) => {
-        const submission = Submission();
-        query.submission = submission;
-       
-        use.meta.DEV && console.log("Server origin:", use.meta.server.origin); ////
-
+        query.submission = Submission();
+        query = JSON.stringify(query);
         const url = `${
           use.meta.server.origin
-        }/_/api/main/${name}?query=${JSON.stringify(query)}`;
+        }/_/api/main/${name}?query=${query}`;
         const response = await fetch(url, {
           body: JSON.stringify({ data: { args, kwargs } }),
           ...options,
         });
         const content_type = response.headers.get("content-type");
-        import.meta.env.DEV && console.log("content_type:", content_type); ////
+        import.meta.env.DEV && console.log("content_type:", content_type);
         // json (typical)
         if (content_type.startsWith("application/json")) {
           const parsed = await response.json();
@@ -38,18 +34,8 @@ const server = new Proxy(
         }
         // blob (default)
         const result = await response.blob();
-        const meta = {
-          env: use.meta.server.env,
-          detail: {},
-          name,
-          origin: use.meta.server.origin,
-          request_origin: location.origin,
-          request_type: "api",
-          same_origin: location.origin === use.meta.server.origin,
-          submission: submission,
-          test: query.test || false,
-        };
-        return { meta, result };
+        const meta = {}
+        return { result };
       };
     },
   },

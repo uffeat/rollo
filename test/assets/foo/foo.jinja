@@ -21,7 +21,7 @@
     // Register and get frame component
     await use('@/frame/');
     const frame = document.getElementById('frame');
-    //console.log('meta', use.meta); ////
+    console.log('use.meta', use.meta); ////
     // Get parcels
     const { component, is, mixup, typeName } = await use('@/rollo/');
     const { server } = await use("@/server");
@@ -62,19 +62,13 @@
 
 
     server.echo(
-      { 
-        //test: true,
-      },
-      {},
+      { },
+      { },
       "ECHO"
     )
       .then(async ({ result, meta }) => {
         console.log('Result:', result);////
         console.log('Meta:', meta);////
-
-
-
-
       });
 
 

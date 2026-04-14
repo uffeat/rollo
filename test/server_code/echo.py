@@ -11,6 +11,7 @@ class echo(Api):
         print("args:", args)
         print("kwargs:", kwargs)
         print("meta:", self.meta)
+        return 'POW!'
         if len(args) == 1 and not kwargs:
             return args[0]
         if args and not kwargs:
