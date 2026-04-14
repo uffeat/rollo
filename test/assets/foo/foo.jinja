@@ -80,8 +80,8 @@
       { last: 'LAST' }).then(async ({ response, result, meta }) => {
 
         //console.log('Response from server.echo:', response);////
-        //console.log('Result from server.echo:', result);////
-        //console.log('Meta from server.echo:', meta);////
+        console.log('Result from server.echo:', result);////
+        console.log('Meta from server.echo:', meta);////
 
         if (meta?.detail?.url) {
           const image = component.img({ src: result, parent: frame });

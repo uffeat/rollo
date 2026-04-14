@@ -18,6 +18,9 @@ export default (parent, config) => {
     onConnect(onConnect) {
       if (onConnect) {
         this.#_.onConnect = onConnect.bind(this);
+        if (this.isConnected) {
+          this.#_.onConnect()
+        }
       } else {
         delete this.#_.onConnect;
       }
