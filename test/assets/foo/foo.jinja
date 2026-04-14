@@ -43,7 +43,7 @@
     const { foo } = await use('assets/foo/foo.js', { test: true });
     console.log('foo:', foo);
 
-    const { component, is, typeName } = await use('@/rollo/');
+    const { component, is, mixup, typeName } = await use('@/rollo/');
     const { server } = await use("@/server");
     // Register frame component
     await use('@/frame/');
@@ -114,9 +114,7 @@
           const image = component.img();
 
           image.detail.src = src
-
           image.src = image.detail.src.use()
-
 
 
           const frame = document.getElementById('frame');

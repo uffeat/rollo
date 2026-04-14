@@ -1,4 +1,4 @@
-const m = (r) => {
+const g = (r) => {
   if (typeof r == "object") {
     if (r?.__type__)
       return r.__type__;
@@ -6,18 +6,18 @@ const m = (r) => {
       return r.constructor.__type__;
   }
   return Object.prototype.toString.call(r).slice(8, -1);
-}, v = m, p = new class {
+}, v = g, p = new class {
   array(r) {
-    return m(r) === "Array";
+    return g(r) === "Array";
   }
   arrow(r) {
     return typeof r == "function" && !r.hasOwnProperty("prototype") && r.toString().includes("=>");
   }
   async(r) {
-    return m(r) === "AsyncFunction";
+    return g(r) === "AsyncFunction";
   }
   boolean(r) {
-    return m(r) === "Boolean";
+    return g(r) === "Boolean";
   }
   /* Shorthand */
   bool(r) {
@@ -30,13 +30,13 @@ const m = (r) => {
     return typeof r == "function";
   }
   map(r) {
-    return m(r) === "Map";
+    return g(r) === "Map";
   }
   module(r) {
-    return m(r) === "Module";
+    return g(r) === "Module";
   }
   null(r) {
-    return m(r) === "Null";
+    return g(r) === "Null";
   }
   /* Checks if string value contains only digits - allowing for 
   - a single decimal mark ('.' or ',') and 
@@ -47,36 +47,36 @@ const m = (r) => {
     return typeof r != "string" ? !1 : r === null || r === "" ? !0 : /^-?\d*[.,]?\d*$/.test(r);
   }
   number(r) {
-    return m(r) === "Number" && !Number.isNaN(r);
+    return g(r) === "Number" && !Number.isNaN(r);
   }
   object(r) {
-    return m(r) === "Object";
+    return g(r) === "Object";
   }
   promise(r) {
-    return m(r) === "Promise";
+    return g(r) === "Promise";
   }
   set(r) {
-    return m(r) === "Set";
+    return g(r) === "Set";
   }
   string(r) {
-    return m(r) === "String";
+    return g(r) === "String";
   }
   /* Shorthand */
   str(r) {
     return this.string(r);
   }
   sync(r) {
-    return m(r) === "Function";
+    return g(r) === "Function";
   }
   undefined(r) {
-    return m(r) === "Undefined";
+    return g(r) === "Undefined";
   }
   /* Inspired by Python's `isinstance`, only with a slightly leaner syntax. */
   instance(r, ...t) {
     for (const e of t)
       if (e in this && this[e](r))
         return !0;
-    return t.includes(m(r));
+    return t.includes(g(r));
   }
   integer(r) {
     return this.number(r) && Number.isInteger(r);
@@ -158,9 +158,9 @@ class z {
       }
       add(h, ...l) {
         const f = (() => {
-          const g = l.find((_) => p.function(_));
-          if (g)
-            return g;
+          const m = l.find((_) => p.function(_));
+          if (m)
+            return m;
           const j = l.find((_) => Array.isArray(_));
           if (j)
             return (_) => j.includes(_);
@@ -168,13 +168,13 @@ class z {
           data: y = {},
           once: w,
           run: S = !0
-        } = l.find((g, j) => !j && p.object(g)) || {}, x = (() => {
-          const g = { data: { ...y } };
-          return f && (g.condition = f), w && (g.once = w), g;
+        } = l.find((m, j) => !j && p.object(m)) || {}, x = (() => {
+          const m = { data: { ...y } };
+          return f && (m.condition = f), w && (m.once = w), m;
         })();
         if (this.#e.registry.set(h, x), S) {
-          const g = C.create(this.#e.owner);
-          g.detail = x, g.effect = h, (!f || f(this.#e.owner.current, g)) && h(this.#e.owner.current, g);
+          const m = C.create(this.#e.owner);
+          m.detail = x, m.effect = h, (!f || f(this.#e.owner.current, m)) && h(this.#e.owner.current, m);
         }
         return h;
       }
@@ -299,16 +299,16 @@ class A {
           data: w,
           hooks: S,
           once: x = !1,
-          run: g = !0
+          run: m = !0
         } = y.find((b, T) => !T && p.object(b)) || {}, j = y.filter((b) => p.function(b)), _ = z.create({ owner: e }), L = e.effects.add(
           (b, T) => {
             _.update(f(b, T));
           },
-          { data: w, once: x, run: g }
+          { data: w, once: x, run: m }
         );
         this.#e.registry.set(_, L);
         for (const b of j)
-          _.effects.add(b, { once: x, run: g });
+          _.effects.add(b, { once: x, run: m });
         if (S)
           for (const b of S)
             b.call(_);
@@ -354,12 +354,12 @@ class A {
         })(), {
           data: S = {},
           once: x,
-          run: g = !0
+          run: m = !0
         } = y.find((_) => p.object(_)) || {}, j = (() => {
           const _ = { data: { ...S } };
           return w && (_.condition = w), x && (_.once = x), _;
         })();
-        if (this.#e.registry.set(f, j), g) {
+        if (this.#e.registry.set(f, j), m) {
           const _ = C.create(this.#e.owner);
           _.detail = j, _.effect = f, (!w || w(this.#e.owner.current, _)) && f(this.#e.owner.current, _);
         }
@@ -534,7 +534,7 @@ const ee = (...r) => A.create(...r).$, re = (...r) => {
   static __name__ = "reactive";
   #t = {};
   constructor() {
-    super(), this.#t.state = A.create({ owner: this }), this.#t.state.effects.add(
+    super(), this.#t.state = A.create({}, { owner: this }), this.#t.state.effects.add(
       (t, e) => {
         this.update(t);
         const s = Object.fromEntries(
@@ -550,18 +550,6 @@ const ee = (...r) => A.create(...r).$, re = (...r) => {
   }
   get effects() {
     return this.#t.state.effects;
-  }
-  get name() {
-    return this.attribute.name;
-  }
-  set name(t) {
-    this.attribute.name = t;
-  }
-  get owner() {
-    return this.#t.owner;
-  }
-  set owner(t) {
-    t && (this.attribute.owner = t.uid ? t.uid : !0), this.#t.owner = t;
   }
   get state() {
     return this.#t.state;
@@ -640,7 +628,7 @@ class it {
   }
   /* Returns updates. */
   get updates() {
-    return this.#t.updates === void 0 && (this.#t.updates = this.#t.args.find((t, e) => m(t) === "Object") || {}), this.#t.updates;
+    return this.#t.updates === void 0 && (this.#t.updates = this.#t.args.find((t, e) => g(t) === "Object") || {}), this.#t.updates;
   }
 }
 const H = (r) => (...t) => {
@@ -917,11 +905,18 @@ const at = (r, t) => class extends r {
   }
 }, lt = (r, t) => class extends r {
   static __name__ = "connect";
+  #t = {};
   connectedCallback() {
-    super.connectedCallback?.(), this.dispatchEvent(new CustomEvent("_connect"));
+    super.connectedCallback?.(), this.#t.onConnect?.(), this.dispatchEvent(new CustomEvent("_connect"));
   }
   disconnectedCallback() {
-    super.disconnectedCallback?.(), this.dispatchEvent(new CustomEvent("_disconnect"));
+    super.disconnectedCallback?.(), this.#t.onDisconnect?.(), this.dispatchEvent(new CustomEvent("_disconnect"));
+  }
+  onConnect(e) {
+    return e ? this.#t.onConnect = e.bind(this) : delete this.#t.onConnect, this;
+  }
+  onDisconnect(e) {
+    return e ? this.#t.onDisconnect = e.bind(this) : delete this.#t.onDisconnect, this;
   }
 }, ht = 5, dt = (r, t) => class extends r {
   static __name__ = "data";
@@ -970,7 +965,7 @@ const at = (r, t) => class extends r {
     if (s)
       return s.values();
   }
-}, mt = (r, t) => class extends r {
+}, gt = (r, t) => class extends r {
   static __name__ = "for_";
   /* Returns 'for' attribute. */
   get for_() {
@@ -983,7 +978,7 @@ const at = (r, t) => class extends r {
   bind(e) {
     return e.id = e.uid, this.setAttribute("for", e.id), this;
   }
-}, gt = (r, t) => class extends r {
+}, mt = (r, t) => class extends r {
   static __name__ = "hook";
   hook(e) {
     return e ? e.call(this) ?? this : this;
@@ -1448,8 +1443,8 @@ const Lt = (r, t) => class extends r {
         "./mixins/data.js": dt,
         "./mixins/detail.js": pt,
         "./mixins/find.js": _t,
-        "./mixins/for_.js": mt,
-        "./mixins/hook.js": gt,
+        "./mixins/for_.js": gt,
+        "./mixins/hook.js": mt,
         "./mixins/insert.js": bt,
         "./mixins/on.js": xt,
         "./mixins/owner.js": vt,
@@ -1613,7 +1608,7 @@ const Ht = (r, t, e) => (M.add(r, t, e), k(r, "create", H(r)), r.create), Zt = O
     }
   },
   "app-component"
-), me = It(), Dt = (r, t = !0) => t ? r.replace(/[^\S ]/g, "").replace(/ {2,}/g, " ").trim() : r.replace(/\s/g, ""), tt = class extends HTMLElement {
+), ge = It(), Dt = (r, t = !0) => t ? r.replace(/[^\S ]/g, "").replace(/ {2,}/g, " ").trim() : r.replace(/\s/g, ""), tt = class extends HTMLElement {
   constructor() {
     super();
   }
@@ -1795,7 +1790,7 @@ class W extends CSSStyleSheet {
   };
   constructor(...t) {
     super(), this.#t.rules = I.create(this), this.#t.targets = D.create(this), this.#t.text = t.find((n, i) => !i && typeof n == "string"), this.#t.path = t.find((n, i) => i && typeof n == "string");
-    const e = t.find((n) => m(n) === "Object"), s = t.find((n) => m(n) === "Object" && n !== e);
+    const e = t.find((n) => g(n) === "Object"), s = t.find((n) => g(n) === "Object" && n !== e);
     this.text && this.replaceSync(this.text), e && this.rules.add(e), Object.assign(this.detail, s);
   }
   /* Returns detail for ad-hoc data. */
@@ -1903,7 +1898,7 @@ const qt = document.documentElement, K = new class {
   for (let s = 0; s < t.length; s++)
     e += String(t[s]) + r[s + 1];
   return W.create(e);
-}, ge = new Proxy(() => {
+}, me = new Proxy(() => {
 }, {
   get(r, t) {
     return t in K ? K[t] : t in et.style ? new Proxy(
@@ -2039,7 +2034,7 @@ function st(...r) {
   if (this.update)
     return this.update(...r);
   this.update = st.bind(this), this.setAttribute("element", "");
-  const t = r.find((c, u) => !u && typeof c == "string"), e = r.find((c, u) => u && typeof c == "string"), s = r.find((c) => m(c) === "Object") || {}, n = (() => {
+  const t = r.find((c, u) => !u && typeof c == "string"), e = r.find((c, u) => u && typeof c == "string"), s = r.find((c) => g(c) === "Object") || {}, n = (() => {
     const { parent: c } = s;
     if (c)
       return delete s.parent, c;
@@ -2280,7 +2275,7 @@ export {
   z as Ref,
   W as Sheet,
   Z as TaggedSets,
-  me as app,
+  ge as app,
   Ht as author,
   Zt as breakpoints,
   $ as camelToKebab,
@@ -2288,7 +2283,7 @@ export {
   le as capitalize,
   ye as clear,
   E as component,
-  ge as css,
+  me as css,
   Ce as deduplicate,
   de as defineMethod,
   pe as defineProperty,
@@ -2325,7 +2320,7 @@ export {
   Le as round,
   F as stateMixin,
   Se as toTop,
-  m as type,
+  g as type,
   v as typeName,
   st as updateElement
 };

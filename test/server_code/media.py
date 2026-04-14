@@ -3,7 +3,7 @@ from anvil import BlobMedia
 from tools import Api, db
 
 
-class echo(Api):
+class media(Api):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -15,7 +15,6 @@ class echo(Api):
         ##self.meta["detail"].update(dict(url=True))
         row = db.media.get(name="handle")
         result = row["media"]
-        return result
 
         result = BlobMedia('img/jpg', result.get_bytes())
 
