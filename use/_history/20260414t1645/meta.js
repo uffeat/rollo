@@ -7,15 +7,8 @@ const server = new (class {
     const dev = "https://rollohdev.anvil.app";
     const prod = "https://rolloh.anvil.app";
     // Set origin
-    if (location.origin === BASE) {
-      this.#_.origin = prod;
-    } else if (location.origin === prod) {
-      this.#_.origin = prod;
-    } else if (location.origin === dev) {
-      this.#_.origin = dev;
-    } else {
-      this.#_.origin = dev;
-    }
+    this.#_.origin =
+      location.origin === BASE || location.origin === prod ? prod : dev;
     // Set PROD
     this.#_.PROD = this.#_.origin === prod;
     // Set DEV
@@ -66,7 +59,7 @@ export const meta = new (class {
     this.#_.VITE =
       typeof import.meta !== "undefined" &&
       typeof import.meta.env !== "undefined" &&
-      !!import.meta.env.MODE;
+      import.meta.env.MODE;
     // Set base
     this.#_.base = (() => {
       if (this.#_.ANVIL) {
@@ -124,4 +117,6 @@ export const meta = new (class {
   get server() {
     return server;
   }
+
+  
 })();

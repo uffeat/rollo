@@ -32,15 +32,9 @@ const server = new Proxy(
           Exception.if("__error__" in parsed, parsed.__error__);
           return parsed;
         }
-        // image
-        // XXX Not sure how to use this?
-        if (content_type.startsWith("image/")) {
-          const result = await response.blob();
-          return { result };
-        }
-        // Fallback: blob
-        // XXX Not sure how to use this?
+        // blob (default)
         const result = await response.blob();
+        const meta = {}
         return { result };
       };
     },

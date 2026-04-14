@@ -11,27 +11,14 @@ class echo(Api):
         print("args:", args)
         print("kwargs:", kwargs)
         print("meta:", self.meta)
-
-        ##self.meta["detail"].update(dict(url=True))
-        row = db.media.get(name="handle")
-        result = row["media"]
-        return result
-
-        result = BlobMedia('img/jpg', result.get_bytes())
-
-
-
-        return result
-
-        text = result.get_bytes().decode('latin-1')
-        print("text", text)  ##
-        return text
-        ##result = result.url
-
-        print("result:", result)  ##
-
-        return result
-        return "POW!"
+        if len(args) == 1 and not kwargs:
+            return args[0]
+        if args and not kwargs:
+            return args
+        if not args and kwargs:
+            return kwargs
+        if args and kwargs:
+            return args, kwargs
 
 
 if __name__ == "__main__":
@@ -49,11 +36,11 @@ if __name__ == "__main__":
     ]["server"]
     connect(KEY)
 
-    Echo = echo
+    cls = echo
 
     @rpc
     def echo(*args, _meta: dict = None, **kwargs):
-        instance = Echo(meta=_meta)
+        instance = cls(meta=_meta)
         result = instance(*args, **kwargs)
         return result, _meta
 

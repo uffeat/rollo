@@ -7,30 +7,12 @@ class media(Api):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def __call__(self, *args, **kwargs):
-        print("args:", args)
-        print("kwargs:", kwargs)
-        print("meta:", self.meta)
-
-        ##self.meta["detail"].update(dict(url=True))
-        row = db.media.get(name="handle")
+    def __call__(self, *args, name:str=None, **kwargs):
+        row = db.media.get(name=name)
         result = row["media"]
-
-        result = BlobMedia('img/jpg', result.get_bytes())
-
-
-
         return result
 
-        text = result.get_bytes().decode('latin-1')
-        print("text", text)  ##
-        return text
-        ##result = result.url
-
-        print("result:", result)  ##
-
-        return result
-        return "POW!"
+       
 
 
 if __name__ == "__main__":
@@ -48,11 +30,11 @@ if __name__ == "__main__":
     ]["server"]
     connect(KEY)
 
-    Echo = echo
+    cls = media
 
     @rpc
-    def echo(*args, _meta: dict = None, **kwargs):
-        instance = Echo(meta=_meta)
+    def media(*args, _meta: dict = None, **kwargs):
+        instance = cls(meta=_meta)
         result = instance(*args, **kwargs)
         return result, _meta
 
