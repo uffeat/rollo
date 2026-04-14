@@ -5,21 +5,21 @@ export default (parent, config) => {
 
     connectedCallback() {
       super.connectedCallback?.();
-      this.#_.onConnect?.();
+      this.#_.onConnect?.(this);
       this.dispatchEvent(new CustomEvent("_connect"));
     }
 
     disconnectedCallback() {
       super.disconnectedCallback?.();
-      this.#_.onDisconnect?.();
+      this.#_.onDisconnect?.(this);
       this.dispatchEvent(new CustomEvent("_disconnect"));
     }
 
     onConnect(onConnect) {
       if (onConnect) {
-        this.#_.onConnect = onConnect.bind(this);
+        this.#_.onConnect = onConnect.bind ? onConnect.bind(this) : onConnect
         if (this.isConnected) {
-          this.#_.onConnect()
+          this.#_.onConnect();
         }
       } else {
         delete this.#_.onConnect;
@@ -29,7 +29,7 @@ export default (parent, config) => {
 
     onDisconnect(onDisconnect) {
       if (onDisconnect) {
-        this.#_.onDisconnect = onDisconnect.bind(this);
+        this.#_.onDisconnect = onDisconnect.bind ? onDisconnect.bind(this) : onDisconnect
       } else {
         delete this.#_.onDisconnect;
       }

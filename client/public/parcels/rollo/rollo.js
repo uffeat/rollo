@@ -99,9 +99,9 @@ const g = (s) => {
     throw e?.(), new Error(t);
   }
 }();
-class S {
+class C {
   static __type__ = "Message";
-  static create = (...t) => new S(...t);
+  static create = (...t) => new C(...t);
   #t = {
     index: null
   };
@@ -167,13 +167,13 @@ class z {
         })(), {
           data: y = {},
           once: w,
-          run: C = !0
+          run: S = !0
         } = l.find((m, j) => !j && p.object(m)) || {}, x = (() => {
           const m = { data: { ...y } };
           return f && (m.condition = f), w && (m.once = w), m;
         })();
-        if (this.#e.registry.set(h, x), C) {
-          const m = S.create(this.#e.owner);
+        if (this.#e.registry.set(h, x), S) {
+          const m = C.create(this.#e.owner);
           m.detail = x, m.effect = h, (!f || f(this.#e.owner.current, m)) && h(this.#e.owner.current, m);
         }
         return h;
@@ -246,7 +246,7 @@ class z {
     if (this.match(t)) return this;
     if (this.#t.previous = this.#t.current, this.#t.current = t, this.#t.session++, r) return this;
     if (!this.effects.size) return this;
-    const i = S.create(this);
+    const i = C.create(this);
     let o = 0;
     for (const [c, u] of this.#t.registry.entries()) {
       i.detail = u, i.effect = c, i.index = o++;
@@ -297,7 +297,7 @@ class A {
       add(f, ...y) {
         const {
           data: w,
-          hooks: C,
+          hooks: S,
           once: x = !1,
           run: m = !0
         } = y.find((b, T) => !T && p.object(b)) || {}, j = y.filter((b) => p.function(b)), _ = z.create({ owner: e }), L = e.effects.add(
@@ -309,8 +309,8 @@ class A {
         this.#e.registry.set(_, L);
         for (const b of j)
           _.effects.add(b, { once: x, run: m });
-        if (C)
-          for (const b of C)
+        if (S)
+          for (const b of S)
             b.call(_);
         return _;
       }
@@ -352,15 +352,15 @@ class A {
               return !1;
             };
         })(), {
-          data: C = {},
+          data: S = {},
           once: x,
           run: m = !0
         } = y.find((_) => p.object(_)) || {}, j = (() => {
-          const _ = { data: { ...C } };
+          const _ = { data: { ...S } };
           return w && (_.condition = w), x && (_.once = x), _;
         })();
         if (this.#e.registry.set(f, j), m) {
-          const _ = S.create(this.#e.owner);
+          const _ = C.create(this.#e.owner);
           _.detail = j, _.effect = f, (!w || w(this.#e.owner.current, _)) && f(this.#e.owner.current, _);
         }
         return f;
@@ -503,7 +503,7 @@ class A {
     if (!Object.keys(i).length) return this;
     if (this.#t.change = Object.freeze(i), this.#t.session++, n) return this;
     if (!this.effects.size) return this;
-    const o = S.create(this);
+    const o = C.create(this);
     let c = 0;
     for (const [u, a] of this.#t.registry.entries()) {
       o.detail = a, o.effect = u, o.index = c++;
@@ -907,16 +907,16 @@ const at = (s, t) => class extends s {
   static __name__ = "connect";
   #t = {};
   connectedCallback() {
-    super.connectedCallback?.(), this.#t.onConnect?.(), this.dispatchEvent(new CustomEvent("_connect"));
+    super.connectedCallback?.(), this.#t.onConnect?.(this), this.dispatchEvent(new CustomEvent("_connect"));
   }
   disconnectedCallback() {
-    super.disconnectedCallback?.(), this.#t.onDisconnect?.(), this.dispatchEvent(new CustomEvent("_disconnect"));
+    super.disconnectedCallback?.(), this.#t.onDisconnect?.(this), this.dispatchEvent(new CustomEvent("_disconnect"));
   }
   onConnect(e) {
-    return e ? (this.#t.onConnect = e.bind(this), this.isConnected && this.#t.onConnect()) : delete this.#t.onConnect, this;
+    return e ? (this.#t.onConnect = e.bind ? e.bind(this) : e, this.isConnected && this.#t.onConnect()) : delete this.#t.onConnect, this;
   }
   onDisconnect(e) {
-    return e ? this.#t.onDisconnect = e.bind(this) : delete this.#t.onDisconnect, this;
+    return e ? this.#t.onDisconnect = e.bind ? e.bind(this) : e : delete this.#t.onDisconnect, this;
   }
 }, ht = 5, dt = (s, t) => class extends s {
   static __name__ = "data";
@@ -1337,7 +1337,7 @@ const xt = (s, t) => class extends s {
       r in this || r in this.style && n !== void 0 && (n === null ? n = "none" : n === 0 && (n = "0"), this.style[r] !== n && (this.style[r] = n));
     return this;
   }
-}, Ct = (s, t, ...e) => class extends s {
+}, St = (s, t, ...e) => class extends s {
   static __name__ = "super_";
   #t = {};
   __new__() {
@@ -1358,7 +1358,7 @@ const xt = (s, t) => class extends s {
   get super_() {
     return this.#t.super_;
   }
-}, St = (s, t) => class extends s {
+}, Ct = (s, t) => class extends s {
   static __name__ = "tab";
   /* Returns tabindex. */
   get tab() {
@@ -1452,8 +1452,8 @@ const Lt = (s, t) => class extends s {
         "./mixins/props.js": Ot,
         "./mixins/send.js": At,
         "./mixins/style.js": $t,
-        "./mixins/super_.js": Ct,
-        "./mixins/tab.js": St,
+        "./mixins/super_.js": St,
+        "./mixins/tab.js": Ct,
         "./mixins/text.js": Tt,
         "./mixins/uid.js": Lt,
         "./mixins/vars.js": Rt
@@ -2237,10 +2237,10 @@ function Xt(s) {
   }
   return window;
 }
-function Ce(s) {
+function Se(s) {
   Xt(s).scrollTo({ top: 0, behavior: "smooth" });
 }
-const Se = (s) => Array.from(new Set(s)), Te = (s, t = (e) => e) => {
+const Ce = (s) => Array.from(new Set(s)), Te = (s, t = (e) => e) => {
   const e = [];
   for (let r = 0; r < s; r++)
     e.push(t(r, e));
@@ -2284,7 +2284,7 @@ export {
   ye as clear,
   E as component,
   me as css,
-  Se as deduplicate,
+  Ce as deduplicate,
   de as defineMethod,
   pe as defineProperty,
   k as defineValue,
@@ -2319,7 +2319,7 @@ export {
   Bt as remove,
   Le as round,
   F as stateMixin,
-  Ce as toTop,
+  Se as toTop,
   g as type,
   v as typeName,
   rt as updateElement

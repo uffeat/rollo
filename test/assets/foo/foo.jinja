@@ -113,6 +113,17 @@
 
           const image = component.img();
 
+          image.onConnect(function() {
+            console.log('Connected')
+          });
+
+          image.onDisconnect(function() {
+            console.log('Connected')
+          });
+
+
+
+
           image.detail.src = src
           image.src = image.detail.src.use()
 
