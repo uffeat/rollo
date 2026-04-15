@@ -6,11 +6,12 @@ const { server } = await use("@/server");
 
 export default async () => {
   const { result, meta } = await server.echo(
-    // query:
+    // query
     { test: true },
-    // kwargs:
+  )(
+    // kwargs
     { foo: "FOO", things: [{ a: 1 }, { b: 2 }], random: crypto.randomUUID() },
-    // args:
+    // args
     { first: "FIRST" },
     10,
     20,

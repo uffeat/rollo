@@ -1,28 +1,41 @@
-let c = 0;
-const l = () => c++, { Exception: u } = await use("@/rollo/"), p = {
+let u = 0;
+const p = () => u++, { Exception: g } = await use("@/rollo/"), l = {
+  cache: "no-store",
   method: "POST",
   headers: { "content-type": "text/plain" }
 }, _ = new Proxy(
   {},
   {
-    get(b, r) {
-      return async (t = {}, o = {}, ...i) => {
-        t.submission = l(), t = JSON.stringify(t);
-        const a = `${use.meta.server.origin}/_/api/main/${r}?query=${t}`, e = await fetch(a, {
-          body: JSON.stringify({ data: { args: i, kwargs: o } }),
-          ...p
-        }), n = e.headers.get("content-type");
-        if (n.startsWith("application/json")) {
-          const s = await e.json();
-          return u.if("__error__" in s, s.__error__), s;
+    get(m, o) {
+      return async (e = {}, r = {}, ...i) => {
+        const n = p();
+        e.submission = n, use.meta.DEV && console.log("Server origin:", use.meta.server.origin);
+        const a = `${use.meta.server.origin}/_/api/main/${o}?query=${JSON.stringify(e)}`, t = await fetch(a, {
+          body: JSON.stringify({ data: { args: i, kwargs: r } }),
+          ...l
+        });
+        if (t.headers.get("content-type").startsWith("application/json")) {
+          const s = await t.json();
+          return g.if("__error__" in s, s.__error__), s;
         }
-        return n.startsWith("image/") ? { result: await e.blob() } : { result: await e.blob() };
+        const c = await t.blob();
+        return { meta: {
+          env: use.meta.server.env,
+          detail: {},
+          name: o,
+          origin: use.meta.server.origin,
+          request_origin: location.origin,
+          request_type: "api",
+          same_origin: location.origin === use.meta.server.origin,
+          submission: n,
+          test: e.test || !1
+        }, result: c };
       };
     }
   }
 );
 use.compose("server", _);
 export {
-  l as Submission,
+  p as Submission,
   _ as server
 };

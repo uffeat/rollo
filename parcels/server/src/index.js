@@ -1,6 +1,6 @@
 import "../use";
 
-const { Exception } = await use("@/rollo/");
+const { Exception, is } = await use("@/rollo/");
 
 const options = {
   cache: "no-store",
@@ -15,12 +15,11 @@ const server = new Proxy(
   {},
   {
     get(_, name) {
-      return async (query = {}, kwargs = {}, ...args) => {
+      return (query = {}) => {
+        return async (kwargs = {}, ...args) => {
         const submission = Submission();
         query.submission = submission;
-       
-        use.meta.DEV && console.log("Server origin:", use.meta.server.origin); ////
-
+        import.meta.env.DEV &&  console.log("Server origin:", use.meta.server.origin); ////
         const url = `${
           use.meta.server.origin
         }/_/api/main/${name}?query=${JSON.stringify(query)}`;
@@ -29,7 +28,7 @@ const server = new Proxy(
           ...options,
         });
         const content_type = response.headers.get("content-type");
-        import.meta.env.DEV && console.log("content_type:", content_type); ////
+        import.meta.env.DEV && console.log("content_type:", content_type);
         // json (typical)
         if (content_type.startsWith("application/json")) {
           const parsed = await response.json();
@@ -51,6 +50,15 @@ const server = new Proxy(
         };
         return { meta, result };
       };
+
+      }
+
+
+
+      
+
+
+
     },
   },
 );
@@ -58,3 +66,10 @@ const server = new Proxy(
 use.compose("server", server);
 
 export { Submission, server };
+
+// Add to import engine
+use.sources.add("server", async (...args) => {
+  return async (query = {}, kwargs = {}, ...args) => {
+    return await server[path.stem](...args);
+  };
+});

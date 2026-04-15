@@ -124,7 +124,7 @@ await new Promise((resolve, reject) => {
   window.addEventListener("message", onmessage);
 });
 
-// Integrate into import engine
+// Add to import engine
 use.sources.add("@@", async ({ options, owner, path }, ...args) => {
   if (options.visible) {
     return await iworker.show(path.specifier, options, ...args);
