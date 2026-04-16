@@ -20,27 +20,6 @@ export default async () => {
     console.log("result:", result);
     console.log("meta:", meta);
   })();
-  // Using 'server' with callback
-  await (async () => {
-    const echo = server.echo({
-      test: true,
-      foo: 42,
-      callback: ({ result, meta }) => {
-        console.log("result:", result);
-        console.log("meta:", meta);
-      },
-    });
-    echo(
-      { foo: "FOO", things: [{ a: 1 }, { b: 2 }], random: crypto.randomUUID() },
-      // args:
-      { first: "FIRST" },
-      10,
-      20,
-      30,
-      { last: "LAST" },
-    );
-  })();
-
   // Using 'use'
   await (async () => {
     const echo = await use("server/echo", { test: true, foo: 42 });

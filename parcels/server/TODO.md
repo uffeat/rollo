@@ -1,8 +1,6 @@
 # Consider
 
 - Place in worker (perhaps optional). Probably requires submission tracking.
-- Integrate into import engine as 'server' source.
-- Implement with `()()` syntax to accomodate additional options without gnarly args parsing.
 - Implement spinner (explicit option or some kind of auto-detection based on background vs. non-background).
 
 # Ideas
@@ -29,7 +27,7 @@
 
 Developing and debugging client-server integrations is notoriously gnarly, so be sure to set up local serves that enable testing without requirering commits for each iteration.
 
-The future direction of this parcel depends very much on the direction(s) I end up choosing with respect to the dual-app concept.
+The future direction of this parcel depends very much on the direction(s) the dual-app concept takes.
 
 ## Scenarios
 
@@ -51,5 +49,4 @@ While this parcel would indeed be the only client-server bridge, but it's use wo
 
 ### Likely direction (as things stand now)
 
-
-
+Option `3. Anvil app with active client code` with `4. Anvil app as Flask-like MPA` as a side-kick.

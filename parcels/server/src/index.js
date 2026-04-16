@@ -12,32 +12,33 @@ const OPTIONS = freeze({
 
 /* Tool for calling HTTP-endpoints, stateless and zero pre-flight. */
 const Server = new (class {
-  call(name) {
-    return ({ encode, test = false } = {}) => {
+  call(target) {
+    return ({ callback, encode, test = false, ...query } = {}) => {
       return async (kwargs = {}, ...args) => {
         const submission = Submission();
-        const query = { submission, test };
-        const url = `${
-          use.meta.server.origin
-        }/_/api/main/${name}?query=${JSON.stringify(query)}`;
+        const search = `query=${JSON.stringify({ submission, test, ...query })}`;
+        //import.meta.env.DEV && console.log("search:", search); ////
+        const url = `${use.meta.server.origin}/_/api/main/${target}?${search}`;
         const response = await fetch(url, {
           body: JSON.stringify({ data: { args, kwargs } }),
           ...OPTIONS,
         });
-
-        const meta = Meta(response);
-        //console.log("meta:", meta); ////
-
-        // json (typical)
-        if (meta.type.startsWith("application/json")) {
+        // Extract meta
+        const { name, type } = Meta(response);
+        //import.meta.env.DEV && console.log("name:", name); ////
+        //import.meta.env.DEV && console.log("type:", type); ////
+        // JSON (typical)
+        if (type.startsWith("application/json")) {
           const parsed = await response.json();
           Exception.if("__error__" in parsed, parsed.__error__);
-          return parsed;
+          const { result, meta } = parsed;
+          callback && callback({ result, meta });
+          return { result, meta };
         }
-
-        // binary (blob or bytes)
+        // Binary: blob (default) or bytes
         const content = await response[encode || "blob"](); ////
-        return { content, ...meta };
+        callback && callback({ content, name, type });
+        return { content, name, type };
       };
     };
   }
@@ -45,24 +46,23 @@ const Server = new (class {
 
 /* Proxy version of 'Server'. */
 const server = new Proxy(async () => {}, {
-  get(_, name) {
-    return Server.call(name);
+  get(_, target) {
+    return Server.call(target);
   },
 });
-
-use.compose("server", server);
-
-export { Server, Submission, server };
 
 // Add to import engine
 use.sources.add("server", ({ options, path }) => {
   return async (kwargs, ...args) => {
-    const {encode, test = false} = options;
-    console.log("encode:", encode); ////
-    console.log("test:", test); ////
-    return await Server.call(path.stem)({encode, test})(kwargs, ...args);
+    const { callback, encode, test = false, ...query } = options;
+    return await Server.call(path.stem)({ callback, encode, test, ...query })(
+      kwargs,
+      ...args,
+    );
   };
-  
-
-  
 });
+
+// Provide global access
+use.compose("server", server);
+
+export { Server, Submission, server };

@@ -10,41 +10,31 @@ const OPTIONS = freeze({
   headers: { "content-type": "text/plain" },
 });
 
-
-
-
-
 /* Tool for calling HTTP-endpoints, stateless and zero pre-flight. */
 const Server = new (class {
   call(name) {
-    return (query = {}, options = {}) => {
+    return ({ encode, test = false, ...query } = {}) => {
       return async (kwargs = {}, ...args) => {
         const submission = Submission();
-        query.submission = submission;
-        const url = `${
-          use.meta.server.origin
-        }/_/api/main/${name}?query=${JSON.stringify(query)}`;
+        const search = `query=${JSON.stringify({ submission, test, ...query })}`;
+        //import.meta.env.DEV && console.log("search:", search); ////
+        const url = `${use.meta.server.origin}/_/api/main/${name}?${search}`;
         const response = await fetch(url, {
           body: JSON.stringify({ data: { args, kwargs } }),
           ...OPTIONS,
         });
-
-        
+        // Extract meta
         const meta = Meta(response);
-        console.log("meta:", meta); ////
-
-        // json (typical)
+        //import.meta.env.DEV && console.log("meta:", meta); ////
+        // JSON (typical)
         if (meta.type.startsWith("application/json")) {
           const parsed = await response.json();
           Exception.if("__error__" in parsed, parsed.__error__);
           return parsed;
         }
-
-        // binary (blob or bytes)
-        const content = await response[options.encode || "blob"](); ////
+        // Binary: blob (default) or bytes
+        const content = await response[encode || "blob"](); ////
         return { content, ...meta };
-
-        
       };
     };
   }
@@ -57,19 +47,18 @@ const server = new Proxy(async () => {}, {
   },
 });
 
+// Add to import engine
+use.sources.add("server", ({ options, path }) => {
+  return async (kwargs, ...args) => {
+    const { encode, test = false, ...query } = options;
+    return await Server.call(path.stem)({ encode, test, ...query })(
+      kwargs,
+      ...args,
+    );
+  };
+});
+
+// Provide global access
 use.compose("server", server);
 
 export { Server, Submission, server };
-
-// Add to import engine
-use.sources.add("server", async (...args) => {
-  return ({options}) => {
-    return (query = {}) => {
-      return Server.call(path.stem)(query, options)
-    }
-
-
-    
-   
-  };
-});
