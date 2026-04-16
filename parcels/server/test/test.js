@@ -61,23 +61,4 @@ const run = (() => {
 //
 //await run('/echo.test.js')
 
-//
-//
-const { is } = await use("@/rollo/");
-const parse = (args) => {
-  /*
-  no query, but 'test flag
-  currry
-  query and kwargs as two item array
-  
-  args explicit 
-  
-  */
 
-
-  const query = args.find((a, i) => !i && is.object(a)) || {};
-  const kwargs =
-    args.find((a, i) => (!i || i === 1) && is.object(a) && a !== query) || {};
-  args = args.filter((a, i) => a !== query && a !== kwargs);
-  return [query, kwargs, args];
-};

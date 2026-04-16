@@ -10,13 +10,17 @@ const OPTIONS = freeze({
   headers: { "content-type": "text/plain" },
 });
 
+
+
+
+
 /* Tool for calling HTTP-endpoints, stateless and zero pre-flight. */
 const Server = new (class {
   call(name) {
-    return ({ encode, test = false } = {}) => {
+    return (query = {}, options = {}) => {
       return async (kwargs = {}, ...args) => {
         const submission = Submission();
-        const query = { submission, test };
+        query.submission = submission;
         const url = `${
           use.meta.server.origin
         }/_/api/main/${name}?query=${JSON.stringify(query)}`;
@@ -25,8 +29,9 @@ const Server = new (class {
           ...OPTIONS,
         });
 
+        
         const meta = Meta(response);
-        //console.log("meta:", meta); ////
+        console.log("meta:", meta); ////
 
         // json (typical)
         if (meta.type.startsWith("application/json")) {
@@ -36,8 +41,10 @@ const Server = new (class {
         }
 
         // binary (blob or bytes)
-        const content = await response[encode || "blob"](); ////
+        const content = await response[options.encode || "blob"](); ////
         return { content, ...meta };
+
+        
       };
     };
   }
@@ -55,14 +62,14 @@ use.compose("server", server);
 export { Server, Submission, server };
 
 // Add to import engine
-use.sources.add("server", ({ options, path }) => {
-  return async (kwargs, ...args) => {
-    const {encode, test = false} = options;
-    console.log("encode:", encode); ////
-    console.log("test:", test); ////
-    return await Server.call(path.stem)({encode, test})(kwargs, ...args);
-  };
-  
+use.sources.add("server", async ({options, path}) => {
+  return () => {
+    return (query = {}) => {
+      return Server.call(path.stem)(query, options)
+    }
 
-  
+
+    
+   
+  };
 });

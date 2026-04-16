@@ -1,35 +1,16 @@
-import json
-from pathlib import Path
-from anvil.server import (
-    callable as rpc,
-    connect,
-    wait_forever,
-)
-
-UTF_8 = "utf-8"
-KEY = (json.loads((Path.cwd() / "secrets.json").read_text(encoding=UTF_8)))[
-    "development"
-]["server"]
+from tools import connect, server_function
 
 
-def main():
-
-    @rpc
-    def _log(*args, **kwargs):
-        try:
-            args = [str(a) for a in args]
-            print(*args)
-        except Exception as error:
-            print(f"Error when trying to log: {str(error)}")
+keep = connect()
 
 
-
-if __name__ == "__main__":
-    connect(KEY)
-    main()
-    print("Running local server for logging.")
-    # HACK Script sometimes fails at first run
+@server_function
+def _log(*args, **kwargs):
     try:
-        wait_forever()
-    except:
-        wait_forever()
+        args = [str(a) for a in args]
+        print(*args)
+    except Exception as error:
+        print(f"Error when trying to log: {str(error)}")
+
+
+keep("Running local server for logging.")
