@@ -1,3 +1,4 @@
+from anvil import BlobMedia
 from tools import connect, db, server_function
 
 
@@ -12,11 +13,10 @@ def _access():
 
 @server_function
 def _media(args: list = None, kwargs: dict = None, meta: dict = None):
-    return "POW!"
     name = args[0]
     row = db.media.get(name=name)
-    result = row["media"]
-    return result
+    blob: BlobMedia = row["media"]
+    return blob
 
        
 keep("Running local server for serving 'media'.")

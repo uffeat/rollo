@@ -1,0 +1,50 @@
+<!--
+Tests echo endpoint.
+-->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <base href="https://rolloh.vercel.app" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <title>Echo</title>
+    <script type="module">
+      const {default: use} = await import(`/anvil/use.js`);
+      const { Server, server } = await use("@/server");
+      
+
+      await (async () => {
+        const echo = server.echo({ test: true, foo: 42 });
+        const { result, meta } = await echo(
+          {
+            foo: "FOO",
+            things: [{ a: 1 }, { b: 2 }],
+            random: crypto.randomUUID(),
+          },
+          // args:
+          { first: "FIRST" },
+          10,
+          20,
+          30,
+          { last: "LAST" },
+        );
+        console.log("result:", result);
+        console.log("meta:", meta);
+      })();
+
+      await (async () => {
+        const media = server.media({ encode: "bytes", test: true, foo: 42 });
+        const { content, name, type } = await media({}, "handle");
+        console.log("content:", content);
+        console.log("name", name);
+        console.log("type", type);
+      })();
+
+      await (async () => {})();
+    </script>
+  </head>
+  <body>
+    <img src="favicon.svg" alt="logo" />
+  </body>
+</html>
