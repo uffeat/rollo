@@ -4,19 +4,7 @@ const { component, css } = await use("@/rollo/");
 
 const frame = document.getElementById("frame");
 
-//
-//
-const { server } = await use("@/server");
-server.echo({}, {}, "ECHO").then(async ({ result, meta }) => {
-  console.log("Result:", result); ////
-  console.log("Meta:", meta); ////
-});
-server.ping().then(async ({ result, meta }) => {
-  console.log("Result:", result); ////
-  console.log("Meta:", meta); ////
-});
-//
-//
+
 
 // Set up page nav
 await (async () => {
@@ -39,6 +27,10 @@ await (async () => {
           },
         },
       ],
+    }),
+    component.a("nav-link", {
+      text: "Front",
+      "[path]": "@@/front/",
     }),
   );
 

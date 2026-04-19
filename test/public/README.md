@@ -1,3 +1,3 @@
 # About
 
-Mini apps (Liver Server runnable) for testing server app's public assets.
+Mini web apps for testing server app assets.

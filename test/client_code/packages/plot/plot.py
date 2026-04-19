@@ -64,6 +64,8 @@ def main(use, *args, **kwargs):
 
         def __init__(self, *args, **kwargs):
             Plot.__init__(self, *args, **kwargs)
+
+            self.node.classList.add('container', 'mt-3')
            
 
     return dict(Plot=Plot, plot=plot)

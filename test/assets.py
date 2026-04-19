@@ -1,3 +1,5 @@
+"""Serves server app injected assets."""
+
 from pathlib import Path
 from anvil.server import HttpResponse, http_endpoint
 from server_code.tools import connect, server_function

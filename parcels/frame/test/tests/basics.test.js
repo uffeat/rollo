@@ -11,7 +11,7 @@ export default async () => {
 
   const main = component.main("container", {
     parent: frame,
-    width: css.px(1000),
+    width: css.px(100),
     backgroundColor: "pink",
   });
 

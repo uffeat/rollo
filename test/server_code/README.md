@@ -1,6 +1,3 @@
 # About
 
-Run `main.py` to place all server targets with local versions.
-
-Run "target-named" scripts to replace individual server targets with local version.
-
+Scripts for injecting server targets and for controlling other test-related features server-side.

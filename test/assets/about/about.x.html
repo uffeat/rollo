@@ -1,0 +1,38 @@
+<style>
+  div.anvil-component[about] {
+    margin-top: 1rem;
+
+    h1 {
+      color: var(--bs-success);
+    }
+  }
+</style>
+
+<h1>This is the about page</h1>
+
+<template>
+
+  <script type="module">
+  await use("@/bootstrap/");
+  const { component } = await use("@/rollo/");
+
+  export default async (node) => {
+    node.append(
+      component.div(
+        "alert alert-success alert-dismissible",
+        { role: "alert" },
+        component.div({ text: "About" }),
+        component.button("btn-close", {
+          type: "button",
+          ariaLabel: "Close",
+          "data.bsDismiss": "alert",
+        }),
+      ),
+    );
+  };
+</script>
+
+
+</template>
+
+

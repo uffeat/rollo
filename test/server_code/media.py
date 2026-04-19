@@ -1,3 +1,5 @@
+"""Injects 'media' server target."""
+
 from anvil import BlobMedia
 from tools import connect, db, server_function
 
@@ -19,4 +21,4 @@ def _media(args: list = None, kwargs: dict = None, meta: dict = None):
     return blob
 
        
-keep("Running local server for serving 'media'.")
+keep("Running local server for serving 'media' server target.")

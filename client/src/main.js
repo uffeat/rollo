@@ -8,10 +8,41 @@ if (import.meta.env.DEV) {
   await import("@/dev.css");
 }
 
+//
+//
+
+const { server } = await use("@/server");
+
+await (async () => {
+  const echo = server.echo({ test: true, foo: 42 });
+  const { result, meta } = await echo(
+    {
+      foo: "FOO",
+      things: [{ a: 1 }, { b: 2 }],
+      random: crypto.randomUUID(),
+    },
+    // args:
+    { first: "FIRST" },
+    10,
+    20,
+    30,
+    { last: "LAST" },
+  );
+  console.log("result:", result);
+  console.log("meta:", meta);
+})();
+
+//
+//
+
 await use("@/iworker/");
 
 //
 //
+
+
+
+
 await (async () => {
   const result = await use(
     "@@/echo/",
@@ -72,6 +103,7 @@ await (async () => {
   });
   console.log("login result:", result);
 })();
+
 //
 //
 

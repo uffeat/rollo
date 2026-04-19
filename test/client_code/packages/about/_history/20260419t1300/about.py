@@ -1,4 +1,7 @@
 def main(use, *args, **kwargs):
+
+   
+
     Sheet = use("@/rollo/").Sheet
     use("@@/assets/")
     mixins = use("@@/mixins")
@@ -6,9 +9,10 @@ def main(use, *args, **kwargs):
     console, document, log, meta = use.console, use.document, use.log, use.meta
     component = use("@@/component/")
 
-    class About(Base, Html):
+    class about(Base, Html):
 
         page = True
+        
 
         def assets() -> dict:
             return dict(
@@ -21,13 +25,7 @@ def main(use, *args, **kwargs):
         def __init__(self, **options):
             Base.__init__(self)
             Html.__init__(self)
+
             self.node.classList.add('container', 'mt-3')
-            self.append(component.h3(text='Some sub-title...'))
-
-    instance = About()
-
-
-    def about(*args, **kwargs):
-        return instance
 
     return dict(about=about)
