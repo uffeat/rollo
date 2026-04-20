@@ -33,13 +33,12 @@ def main(use, *args, **kwargs):
             self.node.classList.add('container', 'mt-3')
             self.node.append(component.h3(text='Some sub-title...'))
 
-            log('mro:', self.meta.chain())
+            
 
             
-            mro = self.__class__.mro()
+            
            
-            if mro.index(Base) > mro.index(Html):
-                ValueError('Wrong mro')
+            
             
 
             

@@ -1,0 +1,5 @@
+iframe {
+    --height: 0;
+    height: var(--height);
+    width: 100%;
+  }

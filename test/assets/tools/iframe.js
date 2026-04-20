@@ -1,14 +1,6 @@
-const { app, component, css } = await use("@/rollo/");
+const { component } = await use("@/rollo/");
 
-css`
-  iframe {
-    --height: 0;
-    height: var(--height);
-    width: 100%;
-  }
-`.use();
-
-/* Returns iframe component that adopts dynamically adopts its height to that of 
+/* Returns iframe component that dynamically adopts its height to that of 
 contentDocument's body. */
 export const Iframe = (updates = {}) => {
   const iframe = component.iframe(updates);

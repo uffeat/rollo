@@ -15,10 +15,8 @@ def main(use, *args, **kwargs):
     )
     component = use("@@/component/")
 
-    
+    use("assets/tools/iframe.css", test=meta.test)
     Iframe = use("assets/tools/iframe", test=meta.test).Iframe
-
-
 
     class front(Base):
         page = True
@@ -26,14 +24,7 @@ def main(use, *args, **kwargs):
 
         def __init__(self, **options):
             Base.__init__(self)
-            
             iframe = Iframe(dict(name="front", src=f"{meta.origin}/front"))
             self.node.append(iframe)
-            # Hand over to JS
-            use("assets/front/", test=meta.test).default(self.node)
-            ##self.slot = 'persist'
-
-    
-
 
     return dict(front=front)
