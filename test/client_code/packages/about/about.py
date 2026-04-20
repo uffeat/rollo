@@ -3,10 +3,19 @@ def main(use, *args, **kwargs):
     use("@@/assets/")
     mixins = use("@@/mixins")
     Base, Html, On = mixins.Base, mixins.Html, mixins.On
-    console, document, log, meta = use.console, use.document, use.log, use.meta
+    anvil, console, document, js, log, meta, native, window = (
+        use.anvil,
+        use.console,
+        use.document,
+        use.js,
+        use.log,
+        use.meta,
+        use.native,
+        use.window,
+    )
     component = use("@@/component/")
 
-    class About(Base, Html):
+    class about(Html, Base):
 
         page = True
 
@@ -22,12 +31,29 @@ def main(use, *args, **kwargs):
             Base.__init__(self)
             Html.__init__(self)
             self.node.classList.add('container', 'mt-3')
-            self.append(component.h3(text='Some sub-title...'))
+            self.node.append(component.h3(text='Some sub-title...'))
 
-    instance = About()
+            log('mro:', self.meta.chain())
+
+            
+            mro = self.__class__.mro()
+           
+            if mro.index(Base) > mro.index(Html):
+                ValueError('Wrong mro')
+            
+
+            
+
+           
+
+            
 
 
-    def about(*args, **kwargs):
-        return instance
+
+
+
+            
+
+    
 
     return dict(about=about)

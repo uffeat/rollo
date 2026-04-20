@@ -31,7 +31,7 @@ def main(use, *args, **kwargs):
             self.node.append(iframe)
             # Hand over to JS
             use("assets/front/", test=meta.test).default(self.node)
-            self.slot = 'persist'
+            ##self.slot = 'persist'
 
     
 
