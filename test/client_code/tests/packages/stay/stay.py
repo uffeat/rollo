@@ -1,9 +1,10 @@
 """
-packages/front/front.py
+packages/stay/stay.py
 """
 
 
 def main(use, *args, **kwargs):
+    
 
     anvil, console, document, js, log, meta, native, window = (
         use.anvil,
@@ -17,4 +18,4 @@ def main(use, *args, **kwargs):
     )
     component = use("@@/component/")
 
-    use("@@/front/", test=True)()
+    use("@@/stay/", test=True)()

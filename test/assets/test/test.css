@@ -1,0 +1,7 @@
+#main:has(main[anvil-slot="default"]:not(:empty)) main[anvil-slot="persist"] {
+  display: none;
+}
+
+#main main[anvil-slot="persist"] > .anvil-component:not([active]) {
+  display: none;
+}

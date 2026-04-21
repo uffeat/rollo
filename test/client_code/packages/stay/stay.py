@@ -1,5 +1,5 @@
 def main(use, *args, **kwargs):
-
+    Sheet = use("@/rollo/").Sheet
     use("@@/assets/")
     mixins = use("@@/mixins")
     Base, Html, On = mixins.Base, mixins.Html, mixins.On
@@ -15,17 +15,17 @@ def main(use, *args, **kwargs):
     )
     component = use("@@/component/")
 
-    use("assets/tools/iframe.css", test=meta.test)
-    Iframe = use("assets/tools/iframe", test=meta.test).Iframe
+    class stay(Base):
 
-    class front(Base):
         page = True
         persist = True
 
         def __init__(self, **options):
             Base.__init__(self)
-            self.slot="persist"
-            iframe = Iframe(dict(name="front", src=f"{meta.origin}/front"))
-            self.node.append(iframe)
+            self.slot = "persist"
+            self.node.classList.add("container", "mt-3")
+            self.node.append(component.h1(text="Stayin'..."))
 
-    return dict(front=front)
+    return dict(stay=stay)
+
+    return dict(about=about)
