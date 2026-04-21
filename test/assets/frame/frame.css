@@ -1,0 +1,23 @@
+/* Side nav*/
+frame-component {
+  nav.nav[slot="side"] {
+    .nav-link {
+      font-size: 1.125rem;
+    }
+    .nav-link.disabled {
+      color: var(--bs-link-color);
+      font-weight: 600;
+    }
+  }
+}
+
+/* Hide component in persist slot, when components in default slot. */
+frame-component:has(main[anvil-slot="default"]:not(:empty))
+  main[anvil-slot="persist"] {
+  display: none;
+}
+
+/* Hide all, but active component in persist slot. */
+frame-component main[anvil-slot="persist"] > .anvil-component:not([active]) {
+  display: none;
+}
