@@ -2,8 +2,8 @@ def main(use, *args, **kwargs):
     Sheet = use("@/rollo/").Sheet
     use("@@/assets/")
     mixins = use("@@/mixins")
-    Base, Html, On = mixins.Base, mixins.Html, mixins.On
-    anvil, console, document, js, log, meta, native, window = (
+    Base, Html, On, Wrap = mixins.Base, mixins.Html, mixins.On, mixins.Wrap
+    anvil, console, document, js, log, meta, native, tools, window = (
         use.anvil,
         use.console,
         use.document,
@@ -11,12 +11,15 @@ def main(use, *args, **kwargs):
         use.log,
         use.meta,
         use.native,
+        use.tools,
         use.window,
     )
     component = use("@@/component/")
 
-    class about(Html, Base):
 
+    setup = use("assets/about/about.js.html", test=meta.test).default
+
+    class about(Html, Base):
         page = True
 
         def assets() -> dict:
@@ -24,35 +27,23 @@ def main(use, *args, **kwargs):
                 sheets=[
                     use("assets/about/about.css.html", test=meta.test),
                 ],
-                template=use(f"assets/about/about.md", test=meta.test),
+                template=use(f"assets/about/about.html", test=meta.test),
             )
 
         def __init__(self, **options):
             Base.__init__(self)
             Html.__init__(self)
-            self.node.classList.add('container', 'mt-3')
-            self.node.append(component.h3(text='Some sub-title...'))
+            self.node.classList.add("container", "mt-3")
 
             
 
-            
-            
-           
-            
-            
+            html = use("assets/about/about.md", test=meta.test, data=dict(foo="FOO", bar="BAR", color="bs-secondary"))
+            wrapped = Wrap(html, parent=self)
 
-            
+            @wrapped.on()
+            def click(event):
+                log("Clicked")
 
-           
-
-            
-
-
-
-
-
-            
-
-    
+            setup(self.node)
 
     return dict(about=about)

@@ -83,7 +83,7 @@ def main(use, *args, **kwargs):
                         )
                         return result
                     else:
-                        return child
+                        return cls
 
                 return process
 
