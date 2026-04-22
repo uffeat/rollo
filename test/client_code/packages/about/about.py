@@ -16,7 +16,6 @@ def main(use, *args, **kwargs):
     )
     component = use("@@/component/")
 
-
     setup = use("assets/about/about.js.html", test=meta.test).default
 
     class about(Html, Base):
@@ -35,9 +34,11 @@ def main(use, *args, **kwargs):
             Html.__init__(self)
             self.node.classList.add("container", "mt-3")
 
-            
-
-            html = use("assets/about/about.md", test=meta.test, data=dict(foo="FOO", bar="BAR", color="bs-secondary"))
+            html = use(
+                "assets/about/about.md",
+                test=meta.test,
+                data=dict(foo="FOO", bar="BAR", color="bs-secondary"),
+            )
             wrapped = Wrap(html, parent=self)
 
             @wrapped.on()

@@ -91,7 +91,7 @@ def main(use, *args, **kwargs):
 
     nav = component.nav(
         "nav.d-flex.flex-column",
-        component.a("nav-link", text="About", _path="/path"),
+        component.a("nav-link", text="About", _path="/about"),
         component.a("nav-link", text="Front", _path="/front"),
         component.a(
             "nav-link",
