@@ -3,7 +3,7 @@
 <div class="d-flex flex-column gap-3 p-3">
   <h2>{{bar}}</h2>
   <div class="d-flex gap-3">
-    <img src="/_/theme/favicon.svg"/>
+    <img src="/_/theme/favicon.svg" alt="Logo"/>
     <button class="btn btn-primary">Click me!</button>
   </div>
 </div>

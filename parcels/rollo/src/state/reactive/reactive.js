@@ -99,7 +99,7 @@ export class Reactive {
         return ref;
       }
 
-      /* TODO
+      /* :TODO
       - Implement: remove, size, etc. */
     })();
 

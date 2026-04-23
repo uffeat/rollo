@@ -1,8 +1,8 @@
 def main(use, *args, **kwargs):
-    Sheet = use("@/rollo/").Sheet
+
     use("@@/assets/")
     mixins = use("@@/mixins")
-    Base, Html, On = mixins.Base, mixins.Html, mixins.On
+    Base, Html, On, initialize = mixins.Base, mixins.Html, mixins.On, mixins.initialize
     anvil, app, console, document, js, log, meta, native, window = (
         use.anvil,
         use.app,
@@ -16,124 +16,159 @@ def main(use, *args, **kwargs):
     )
     component = use("@@/component/")
 
+    user = use("@@/user")
+
+    Login, Logout, Signup, get_user = user.Login, user.Logout, user.Signup, user.get_user
+
+
+
     # Register frame component
     use("@/frame/")
     use("assets/frame/frame.css", test=meta.test)
 
-    class frame(Html, Base):
+    class frame(Html, Base, On):
 
-        def __init__(self, **options):
-            Base.__init__(self)
-            Html.__init__(self)
+        def __init__(self, *args, **kwargs):
+            initialize(self, Base, Html, On)
             self.node.id = "main"
             # Set template
             self.template(use("assets/frame/frame.html", test=meta.test))
 
-            # Add import engine processor for component packages
-            @use.processor(f"component.py")
+            # Add import engine processor for page packages
+            @use.processor(f"page.py")
             def handler(
                 cls,
                 *args,
                 owner=None,
                 path=None,
-                **options,
+                **kwargs,
             ):
-                def process(*args, **kwargs):
-                    if path.detail.page:
-                        # NOTE CSS ensures that persist slot is hidden when default slot is not empty
-                        # Remove non-persisting children
-                        self.clear("default")
-                        # Check if persisting (on class to avoid redundant instantiation)
-                        if getattr(cls, "persist", False):
-                            # Hide any previous
-                            previous = self.template.nodes.persist.querySelector(
-                                ".anvil-component[active]"
-                            )
-                            if previous:
-                                previous.removeAttribute("active")
-                            # Check if child exists
-                            node = self.template.nodes.persist.querySelector(
-                                f".anvil-component[{path.stem}]"
-                            )
-                            if node:
-                                # Get component instance from node
-                                child = node.host
-                            else:
-                                # Create and add child
-                                child = (
-                                    cls(**options)
-                                    if "__init__" in cls.__dict__
-                                    else cls()
-                                )
-                                # Ensure correct slot (even if not declared in component)
-                                child.slot = "persist"
-                                self.append(child)
-                                node = child.node
-                            # Show
-                            node.setAttribute("active", "")
-                        else:
-                            # Create and add child
-                            child = (
-                                cls(**options) if "__init__" in cls.__dict__ else cls()
-                            )
-                            self.append(child)
-                        result = (
-                            child(*js.pythonize(args), **js.pythonize(kwargs))
-                            if callable(child)
-                            else None
-                        )
-                        return result
-                    else:
-                        return cls
+                """Instantiates and adds page component to frame on import."""
 
-                return process
+                # NOTE CSS ensures that 'persist' slot is hidden when 'default' slot is not empty
+                # Remove non-persisting children
+                self.clear("default")
+                # Check if persisting (on class to avoid redundant instantiation)
+                if getattr(cls, "persist", False):
+                    # Hide any previous
+                    previous = self.template.nodes.persist.querySelector(
+                        ".anvil-component[active]"
+                    )
+                    if previous:
+                        previous.removeAttribute("active")
+                    # Check if child exists
+                    node = self.template.nodes.persist.querySelector(
+                        f".anvil-component[{path.stem}]"
+                    )
+                    if node:
+                        # Get component instance from node
+                        child = node.host
+                    else:
+                        # Create and add child
+                        child = (
+                            cls(*args, **kwargs)
+                            if "__init__" in cls.__dict__
+                            else cls()
+                        )
+                        # Ensure correct slot (even if not declared in component)
+                        child.slot = "persist"
+                        self.append(child)
+                        node = child.node
+                    # Show
+                    node.setAttribute("active", "")
+                else:
+                    # Create and add child
+                    child = (
+                        cls(*args, **kwargs) if "__init__" in cls.__dict__ else cls()
+                    )
+                    self.append(child)
+                result = child(*args, **kwargs) if callable(child) else None
+                return result
+
+            """Set up router.
+            NOTE Using app state for routing enables:
+            - Attribute-based page-specific styling; e.g., page="about" -> state-current-page="about" 
+            attr on app.
+            - Accessible from JS (without module import).
+            XXX Use 'currentPage' key (rather than 'page') to avoid collision with CSS prop.
+            """
+
+            effect = use("@@/state").effect
+
+            @effect(app.state, "currentPage")
+            def route(change, message):
+                """Imports and shows page."""
+                current = change.currentPage
+                url = f"/test/{current}"
+                ##log("Pusing url:", url)  ##
+                native.history.pushState({}, "", url)  ##
+                use(f"@@/{current}/", test=meta.test)
+
+            @window.on(run=True)
+            def popstate(event):
+                pathname = native.location.pathname
+                log("pathname:", pathname)  ##
+                currentPage = pathname[len("/test/") :]  ##
+                ##log("currentPage:", currentPage)  ##
+                app.state.update(dict(currentPage=currentPage))
+
+            # Nav links -> updates currentPage state
+            ACTIVE = "disabled"
+            SELECTOR = ":is(a[page].nav-link)"
+
+            @self.on(
+                self.template.nodes.home,
+                component.nav(
+                    "nav.d-flex.flex-column",
+                    component.a("nav-link", text="About", **{"[page]": "about"}),
+                    component.a("nav-link", text="Front", **{"[page]": "front"}),
+                    component.a("nav-link", text="Stats", **{"[page]": "stats"}),
+                    component.a("nav-link", text="No path"),
+                    slot="side",
+                    parent=self.template.nodes.frame,
+                ),
+            )
+            def click(event):
+                event.preventDefault()
+                target = (
+                    event.target
+                    if event.target.matches(SELECTOR)
+                    else event.target.closest(SELECTOR)
+                )
+                if not target:
+                    return
+                previous = self.node.querySelector(f"{SELECTOR}.{ACTIVE}")
+                if previous:
+                    previous.classList.remove(ACTIVE)
+                target.classList.add(ACTIVE)
+                page = target.getAttribute("page")
+                app.state.update(dict(currentPage=page))
+
+            # Set up user state
+
+            nav = component.nav(
+                "nav.d-flex",
+                component.a(
+                    "nav-link.link-light", text="Log out", _action=Logout
+                ),
+                component.a(
+                    "nav-link.link-light", text="Log in", _action=Login
+                ),
+                component.a(
+                    "nav-link.link-light", text="Sign up", _action=Signup
+                ),
+                slot="top",
+                parent=self.template.nodes.frame,
+            )
+
+            @self.on(nav)
+            def click(event):
+                event.preventDefault()
+                if not hasattr(event.target, '_action'):
+                    return
+                event.target._action()
+                
 
     frame = frame()
-
-    def effect(*args):
-        ##log('args from effect:', args, native=True)
-        console.warn('args from effect:', args)
-
-    app.effects.add(effect, ['foo'])
-
-    app.state.update(dict(foo=42))
-
-
-
-
-    nav = component.nav(
-        "nav.d-flex.flex-column",
-        component.a("nav-link", text="About", _path="/about"),
-        component.a("nav-link", text="Front", _path="/front"),
-        component.a(
-            "nav-link",
-            text="Plot",
-            _path="/plot",
-            _data=[
-                dict(
-                    Scatter=dict(
-                        name="Wonder Land",
-                        x=[2019, 2020, 2021, 2022, 2023],
-                        y=[510, 620, 687, 745, 881],
-                    )
-                )
-            ],
-        ),
-        component.a("nav-link", text="No path"),
-        slot="side",
-        parent=frame.template.nodes.frame,
-    )
-
-    @nav.on()
-    def click(event):
-        event.preventDefault()
-        if not hasattr(event.target, '_path'):
-            return
-        log("path:", event.target._path)##
-        previous = nav.querySelector('.disabled')
-        if previous:
-            previous['class'].disabled = False
-        event.target['class'].disabled = True
-
 
     return dict(frame=frame)

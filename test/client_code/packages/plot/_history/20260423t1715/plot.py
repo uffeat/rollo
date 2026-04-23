@@ -2,19 +2,11 @@ def main(use, *args, **kwargs):
 
     use("@@/assets/")  # For side effects
     mixins = use("@@/mixins")
-    Base, Html, On, Wrap = mixins.Base, mixins.Html, mixins.On, mixins.Wrap
-    anvil, app, console, document, js, log, meta, native, window = (
-        use.anvil,
-        use.app,
-        use.console,
-        use.document,
-        use.js,
-        use.log,
-        use.meta,
-        use.native,
-        use.window,
-    )
+    Base, Html, On = mixins.Base, mixins.Html, mixins.On
+    log, meta = use.log, use.meta
     component = use("@@/component/")
+    js = use("@@/js/")
+    Promise = use("@@/promise").Promise
 
     use("assets/plot/plot.css")
 
@@ -38,17 +30,19 @@ def main(use, *args, **kwargs):
             font=dict(color=css.root.bsLight),
         )
 
-    class plot(Base):
+    class Plot(Base):
 
-        def __init__(self, *traces, **kwargs):
+        def __init__(self, *args, **kwargs):
             Base.__init__(self)
-            self._.update(plot=use.anvil.Plot())
-            self.plot.config.update(Config())
-            self.plot.layout.update(Layout())
-            self.append(self.plot)
 
-            if traces:
-                self(*traces)
+            args = js.signature(args, kwargs)
+            self.slot = kwargs.get("slot")
+
+            plot = use.anvil.Plot()
+            plot.config.update(Config())
+            plot.layout.update(Layout())
+            self.append(plot)
+            self._.update(plot=plot)
 
         def __call__(self, *traces, **kwargs):
             """Renders plot from traces that can consist of JS objects and/or Py dicts."""
@@ -57,11 +51,21 @@ def main(use, *args, **kwargs):
                 for t in traces
                 for k, v in [next(iter(dict(t).items()))]
             ]
-            return self
 
         @property
         def plot(self):
             """Returns plot component."""
             return self._["plot"]
 
-    return dict(plot=plot)
+    class plot(Plot):
+        """Page version of Plot."""
+
+        page = True
+
+        def __init__(self, *args, **kwargs):
+            Plot.__init__(self, *args, **kwargs)
+
+            self.node.classList.add('container', 'mt-3')
+           
+
+    return dict(Plot=Plot, plot=plot)
