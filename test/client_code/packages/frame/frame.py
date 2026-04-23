@@ -3,8 +3,9 @@ def main(use, *args, **kwargs):
     use("@@/assets/")
     mixins = use("@@/mixins")
     Base, Html, On = mixins.Base, mixins.Html, mixins.On
-    anvil, console, document, js, log, meta, native, window = (
+    anvil, app, console, document, js, log, meta, native, window = (
         use.anvil,
+        use.app,
         use.console,
         use.document,
         use.js,
@@ -88,6 +89,17 @@ def main(use, *args, **kwargs):
                 return process
 
     frame = frame()
+
+    def effect(*args):
+        ##log('args from effect:', args, native=True)
+        console.warn('args from effect:', args)
+
+    app.effects.add(effect, ['foo'])
+
+    app.state.update(dict(foo=42))
+
+
+
 
     nav = component.nav(
         "nav.d-flex.flex-column",
