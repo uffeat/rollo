@@ -41,9 +41,16 @@
         //src: `${use.meta.server.origin}/plot?data=${btoa(JSON.stringify(data))}&test=true`,
       });
 
-      await setup(iframe)
-
-      
+      window.addEventListener("message", (event) => {
+        if (
+          event.origin !== use.meta.server.origin ||
+          !is.object(event.data) ||
+          event.data.type !== "height"
+        ) {
+          return;
+        }
+        frame.__.height = `${event.data.height || 0}px`;
+      });
     </script>
   </head>
   <body></body>

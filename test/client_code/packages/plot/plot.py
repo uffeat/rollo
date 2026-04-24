@@ -2,8 +2,14 @@ def main(use, *args, **kwargs):
 
     use("@@/assets/")  # For side effects
     mixins = use("@@/mixins")
-    Base, Html, On, Wrap = mixins.Base, mixins.Html, mixins.On, mixins.Wrap
-    anvil, app, console, document, js, log, meta, native, window = (
+    Base, Html, On, Wrap, initialize = (
+        mixins.Base,
+        mixins.Html,
+        mixins.On,
+        mixins.Wrap,
+        mixins.initialize,
+    )
+    anvil, app, console, document, js, log, meta, native, tools, window = (
         use.anvil,
         use.app,
         use.console,
@@ -12,6 +18,7 @@ def main(use, *args, **kwargs):
         use.log,
         use.meta,
         use.native,
+        use.tools,
         use.window,
     )
     component = use("@@/component/")
@@ -40,12 +47,33 @@ def main(use, *args, **kwargs):
 
     class plot(Base):
 
-        def __init__(self, *args, data: list=None, **kwargs):
-            Base.__init__(self)
+        def __init__(self, *args, data: list = None, path: str = None, **kwargs):
+            initialize(self, Base)
             self._.update(plot=use.anvil.Plot())
             self.plot.config.update(Config())
             self.plot.layout.update(Layout())
             self.append(self.plot)
+
+            ##log("data:", data)  ##
+
+            if path and use.meta.IWORKER:
+                # NOTE Invoked from server and embedded. Assume CORS.
+
+                @tools.on(use.app)
+                def _resize_y(event):
+                    window.parent.postMessage(
+                        dict(height=event.detail, type="height"), "*"
+                    )
+
+                # Test height sync
+                form = component.form(
+                    "p-3", component.input("form-control"), parent=self.node
+                )
+                form.on("submit")(lambda event: event.preventDefault())
+
+                @form.on()
+                def change(event):
+                    self.plot.height = f"{event.srcElement.value}px"
 
             if data:
                 self(*data)

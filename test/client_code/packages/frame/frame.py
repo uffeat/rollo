@@ -3,7 +3,7 @@ def main(use, *args, **kwargs):
     use("@@/assets/")
     mixins = use("@@/mixins")
     Base, Html, On, initialize = mixins.Base, mixins.Html, mixins.On, mixins.initialize
-    anvil, app, console, document, js, log, meta, native, packages, window = (
+    anvil, app, console, document, js, log, meta, native, packages, tools, window = (
         use.anvil,
         use.app,
         use.console,
@@ -13,6 +13,7 @@ def main(use, *args, **kwargs):
         use.meta,
         use.native,
         use.packages,
+        use.tools,
         use.window,
     )
     component = use("@@/component/")
@@ -124,9 +125,10 @@ def main(use, *args, **kwargs):
 
             # Nav links -> updates currentPage state
             ACTIVE = "disabled"
+            NAV_LINK = 'nav-link'
             SELECTOR = ":is(a[page].nav-link)"
 
-            @self.on(
+            @tools.on(
                 self.template.nodes.home,
                 component.nav(
                     "nav.d-flex.flex-column",
@@ -171,7 +173,7 @@ def main(use, *args, **kwargs):
                 parent=self.template.nodes.frame,
             )
 
-            @self.on(nav)
+            @nav.on()
             def click(event):
                 event.preventDefault()
                 if not hasattr(event.target, '_action'):
