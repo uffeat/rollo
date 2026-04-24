@@ -32,7 +32,7 @@ def main(use, *args, **kwargs):
             Html.__init__(self)
             self.node.classList.add("container", "mt-3")
 
-            traces = [
+            data = [
                 dict(
                     Scatter=dict(
                         name="Wonder Land",
@@ -42,7 +42,7 @@ def main(use, *args, **kwargs):
                 )
             ]
 
-            plot = Plot(*traces)
+            plot = Plot(data=data)
 
             self.append(plot)
 

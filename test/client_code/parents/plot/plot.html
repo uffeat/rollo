@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <base href="https://rolloh.vercel.app" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/anvil/main.css" />
+    <link rel="shortcut icon" href="favicon.svg" type="image/x-icon" />
+    <title>Plot</title>
+    <style>
+      iframe {
+        width: 100%;
+      }
+    </style>
+    <script type="module">
+      const { default: use } = await import(`/anvil/use.js`);
+      const { component } = await use("@/rollo/");
+      const { frame } = await use("@/frame/");
+      const { server } = await use("@/server");
+
+      console.log("use.meta.server.origin:", use.meta.server.origin);
+
+      const data = [
+        {
+          Scatter: {
+            name: "Wonder Land",
+            x: [2019, 2020, 2021, 2022, 2023],
+            y: [510, 620, 687, 745, 881],
+          },
+        },
+      ];
+
+      const iframe = component.iframe({
+        parent: frame,
+        name: 'iframe',
+        src: `${use.meta.server.origin}/plot?data=${JSON.stringify(data)}&test=true`,
+      });
+
+      //`data=${btoa(JSON.stringify(data))}`
+      //`data=${JSON.stringify(data)}`
+    </script>
+  </head>
+  <body></body>
+</html>

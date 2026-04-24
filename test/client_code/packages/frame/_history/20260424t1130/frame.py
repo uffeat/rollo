@@ -3,7 +3,7 @@ def main(use, *args, **kwargs):
     use("@@/assets/")
     mixins = use("@@/mixins")
     Base, Html, On, initialize = mixins.Base, mixins.Html, mixins.On, mixins.initialize
-    anvil, app, console, document, js, log, meta, native, packages, window = (
+    anvil, app, console, document, js, log, meta, native, window = (
         use.anvil,
         use.app,
         use.console,
@@ -12,7 +12,6 @@ def main(use, *args, **kwargs):
         use.log,
         use.meta,
         use.native,
-        use.packages,
         use.window,
     )
     component = use("@@/component/")
@@ -28,7 +27,7 @@ def main(use, *args, **kwargs):
 
     class frame(Html, Base, On):
 
-        def __init__(self, *args, server_data: dict=None, **kwargs):
+        def __init__(self, *args, **kwargs):
             initialize(self, Base, Html, On)
             self.node.id = "main"
             # Set template
@@ -93,32 +92,28 @@ def main(use, *args, **kwargs):
             XXX Use 'currentPage' key (rather than 'page') to avoid collision with CSS prop.
             """
 
-            log('server_data:', server_data)
-
-            def decode_path(path: str) -> str:
-                """."""
-                return path[len("/test/") :]
-            
-            def encode_path(path: str) -> str:
-                """."""
-                return f"/test/{path}"
-
             @effect(app.state, "currentPage")
             def route(change, message):
                 """Imports and shows page."""
                 current = change.currentPage
-                path = encode_path(current)
-                ##log("pathname:", native.location.pathname)  ##
-                if path != native.location.pathname:
-                    ##log("Pusing path:", path)  ##
-                    native.history.pushState({}, "", path)  ##
+                
+                url = f"/test/{current}" # Remove test prefix in non-test
+                
+
+                pathname = native.location.pathname
+                log("Current pathname:", pathname)  ##
+
+                if url != native.location.pathname:
+                    log("Pusing url:", url)  ##
+                    native.history.pushState({}, "", url)  ##
 
                 use(f"@@/{current}/", test=meta.test)
 
             @window.on(run=True)
             def popstate(event):
-                ##log("pathname:", native.location.pathname)  ##
-                currentPage = decode_path(native.location.pathname)
+                pathname = native.location.pathname
+                log("pathname:", pathname)  ##
+                currentPage = pathname[len("/test/") :]  ##
                 ##log("currentPage:", currentPage)  ##
                 app.state.update(dict(currentPage=currentPage))
 

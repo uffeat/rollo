@@ -40,21 +40,21 @@ def main(use, *args, **kwargs):
 
     class plot(Base):
 
-        def __init__(self, *traces, **kwargs):
+        def __init__(self, *args, data: list=None, **kwargs):
             Base.__init__(self)
             self._.update(plot=use.anvil.Plot())
             self.plot.config.update(Config())
             self.plot.layout.update(Layout())
             self.append(self.plot)
 
-            if traces:
-                self(*traces)
+            if data:
+                self(*data)
 
-        def __call__(self, *traces, **kwargs):
+        def __call__(self, *data, **kwargs):
             """Renders plot from traces that can consist of JS objects and/or Py dicts."""
             self.plot.data = [
                 getattr(use.anvil.go, k)(**v)
-                for t in traces
+                for t in data
                 for k, v in [next(iter(dict(t).items()))]
             ]
             return self
