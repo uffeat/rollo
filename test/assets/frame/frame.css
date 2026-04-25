@@ -6,7 +6,7 @@ frame-component {
     }
     .nav-link.disabled {
       color: var(--bs-link-color);
-      font-weight: 600;
+      background-color: rgba(var(--bs-tertiary-color-rgb), 0.1);
     }
   }
 }

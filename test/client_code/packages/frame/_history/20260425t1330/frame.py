@@ -26,19 +26,9 @@ def main(use, *args, **kwargs):
     )
     effect = use("@@/state").effect
 
-    toast = use("@@/toast/", test=meta.test)
-    ##log("toast:", toast)  ##
-    
-
     # Register frame component
     use("@/frame/")
     use("assets/frame/frame.css", test=meta.test)
-
-    # CSS classes
-    LINK_LIGHT = "link-light"
-    NAV_LINK = "nav-link"
-    NAV_LINK_LIGHT = f"{NAV_LINK}.{LINK_LIGHT}"
-    SELECTOR = ":is(a[page].nav-link)"
 
     class frame(Html, Base, On):
 
@@ -99,69 +89,6 @@ def main(use, *args, **kwargs):
                 result = child(*args, **kwargs) if callable(child) else None
                 return result
 
-            # Set up user state
-
-            # :TODO Toast
-            toast('Achtung', 'Rollo rocks')
-            toast('Achtung', 'Rollo rocks', style='secondary')
-            toast('Achtung', 'Rollo rocks', style='danger')
-            toast('Achtung', 'Rollo rocks', style='success')
-            toast('Achtung', 'Rollo rocks', style='dark')
-
-            # NOTE 'user' parcel takes care of link visibility
-            @tools.on(
-                component.nav(
-                    "nav.d-flex",
-                    component.a(
-                        NAV_LINK_LIGHT,
-                        text="Log out",
-                        _action=Logout,
-                        **{"[user]": True},
-                    ),
-                    component.a(NAV_LINK_LIGHT, text="Log in", _action=Login),
-                    component.a(NAV_LINK_LIGHT, text="Sign up", _action=Signup),
-                    slot="top",
-                    parent=self.template.nodes.frame,
-                )
-            )
-            def click(event):
-                event.preventDefault()
-                if not hasattr(event.target, "_action"):
-                    return
-                user = event.target._action()
-                if user:
-                    app.state.update(dict(user=user))
-                else:
-                    if user is False:
-                        app.state.update(dict(user=False))
-                    # NOTE None-user -> do nothing.
-
-            @effect(app.state, "user")
-            class user:
-                """Stateful effect."""
-
-                def __init__(self):
-                    self._ = dict()
-
-                def __call__(self, change, message):
-                    self._.update(
-                        current=js.pythonize(change.user),
-                        previous=js.pythonize(
-                            getattr(message.owner.previous, "user", None)
-                        ),
-                    )
-
-                    log("previous user:", self.previous)  ##
-                    log("current user:", self.current)  ##
-
-                @property
-                def current(self):
-                    return self._.get("current")
-
-                @property
-                def previous(self):
-                    return self._.get("previous")
-
             """Set up router.
             NOTE Using app state for routing enables:
             - Attribute-based page-specific styling; e.g., page="about" -> state-current-page="about" 
@@ -169,31 +96,6 @@ def main(use, *args, **kwargs):
             - Accessible from JS (without module import).
             XXX Use 'currentPage' key (rather than 'page') to avoid collision with CSS prop.
             """
-
-            # Nav links -> updates currentPage state
-            @tools.on(
-                self.template.nodes.home,
-                component.nav(
-                    "nav.d-flex.flex-column",
-                    component.a(NAV_LINK, text="About", **{"[page]": "about"}),
-                    component.a(NAV_LINK, text="Front", **{"[page]": "front"}),
-                    component.a(NAV_LINK, text="Stats", **{"[page]": "stats"}),
-                    component.a(NAV_LINK, text="No path"),
-                    slot="side",
-                    parent=self.template.nodes.frame,
-                ),
-            )
-            def click(event):
-                event.preventDefault()
-                target = (
-                    event.target
-                    if event.target.matches(SELECTOR)
-                    else event.target.closest(SELECTOR)
-                )
-                if not target:
-                    return
-                page = target.getAttribute("page")
-                app.state.update(dict(currentPage=page))
 
             ##log("server_data:", server_data)  ##
 
@@ -224,22 +126,9 @@ def main(use, *args, **kwargs):
             @effect(app.state, "currentPage")
             def route(change, message):
                 """Imports and shows page."""
-                previous = getattr(message.owner.previous, "currentPage", None)
-                ##log("previous:", previous)  ##
-                if previous:
-                    links = self.template.nodes.frame.querySelectorAll(
-                        f'a.nav-link[page="{previous}"]'
-                    )
-                    for link in links:
-                        link.classList.remove("disabled")
 
                 current = change.currentPage
-                links = self.template.nodes.frame.querySelectorAll(
-                    f'a.nav-link[page="{current}"]'
-                )
-                for link in links:
-                    ##log("Disabling:", link, native=True)  ##
-                    link.classList.add("disabled")
+
                 path = Path.encode(current)
                 if path != native.location.pathname:
                     native.history.pushState({}, "", path)
@@ -249,6 +138,73 @@ def main(use, *args, **kwargs):
             def popstate(event):
                 currentPage = Path.decode(native.location.pathname)
                 app.state.update(dict(currentPage=currentPage))
+
+            # CSS classes
+            ACTIVE = "disabled"
+            LINK_LIGHT = "link-light"
+            NAV_LINK = "nav-link"
+            NAV_LINK_LIGHT = f"{NAV_LINK}.{LINK_LIGHT}"
+            SELECTOR = ":is(a[page].nav-link)"
+
+            # Nav links -> updates currentPage state
+            @tools.on(
+                self.template.nodes.home,
+                component.nav(
+                    "nav.d-flex.flex-column",
+                    component.a(NAV_LINK, text="About", **{"[page]": "about"}),
+                    component.a(NAV_LINK, text="Front", **{"[page]": "front"}),
+                    component.a(NAV_LINK, text="Stats", **{"[page]": "stats"}),
+                    component.a(NAV_LINK, text="No path"),
+                    slot="side",
+                    parent=self.template.nodes.frame,
+                ),
+            )
+            def click(event):
+                event.preventDefault()
+                target = (
+                    event.target
+                    if event.target.matches(SELECTOR)
+                    else event.target.closest(SELECTOR)
+                )
+                if not target:
+                    return
+                previous = self.node.querySelector(f"{SELECTOR}.{ACTIVE}")
+                if previous:
+                    previous.classList.remove(ACTIVE)
+                target.classList.add(ACTIVE)
+                page = target.getAttribute("page")
+                app.state.update(dict(currentPage=page))
+
+            # Set up user state
+
+            nav = component.nav(
+                "nav.d-flex",
+                component.a(
+                    NAV_LINK_LIGHT, text="Log out", _action=Logout, **{"[user]": True}
+                ),
+                component.a(NAV_LINK_LIGHT, text="Log in", _action=Login),
+                component.a(NAV_LINK_LIGHT, text="Sign up", _action=Signup),
+                slot="top",
+                parent=self.template.nodes.frame,
+            )
+
+            @effect(app.state, "user")
+            def user(change, message):
+                """."""
+                current = change.user
+                log("user effect got user:", current)
+
+            @nav.on()
+            def click(event):
+                event.preventDefault()
+                if not hasattr(event.target, "_action"):
+                    return
+                user = event.target._action()
+                if user:
+                    app.state.update(dict(user=True))
+                else:
+                    if user is False:
+                        app.state.update(dict(user=False))
 
             anvil.open_form(self)
 

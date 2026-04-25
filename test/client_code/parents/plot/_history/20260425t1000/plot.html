@@ -14,6 +14,10 @@
       }
     </style>
     <script type="module">
+
+      console.dir(location)
+
+      // :TODO Read test from search
      
 
       const { setup } = await import(
@@ -41,16 +45,9 @@
         //src: `${use.meta.server.origin}/plot?data=${btoa(JSON.stringify(data))}&test=true`,
       });
 
-      window.addEventListener("message", (event) => {
-        if (
-          event.origin !== use.meta.server.origin ||
-          !is.object(event.data) ||
-          event.data.type !== "height"
-        ) {
-          return;
-        }
-        frame.__.height = `${event.data.height || 0}px`;
-      });
+      await setup(iframe)
+
+      
     </script>
   </head>
   <body></body>
