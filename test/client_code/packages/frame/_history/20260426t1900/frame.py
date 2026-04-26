@@ -39,9 +39,7 @@ def main(use, *args, **kwargs):
 
     class frame(Html, Base, On):
 
-        def __init__(
-            self, *args, base: str = "", parts: tuple = None, path: str = "", **kwargs
-        ):
+        def __init__(self, *args, base: str = "", **kwargs):
             owner = self
             initialize(self, Base, Html, On)
             self.node.id = "main"
@@ -196,7 +194,7 @@ def main(use, *args, **kwargs):
                 page = target.getAttribute("page")
                 app.state.update(dict(currentPage=page))
 
-            ##log("base:", base)  ##
+            log("base:", base)  ##
 
             @effect(app.state, "currentPage")
             class navs:
@@ -224,100 +222,27 @@ def main(use, *args, **kwargs):
                         ##log("Disabling:", link, native=True)  ##
                         link.classList.add("disabled")
 
-            class Location:
-                @property
-                def location(self):
-                    return native.location
-
-                @property
-                def path(self):
-                    return native.location.pathname
-
-                @property
-                def search(self):
-                    return native.location.search
-
-            Location = Location()
-
-            class History:
-                def __init__(self):
-                    """."""
-                    element = component.div(
-                        slot="data", parent=app, **{"[history]": True}
-                    )
-
-                    element.append(
-                        component.div(**({"[path]": native.location.pathname}))
-                    )
-
-                    self._ = dict(element=element,index=0)
-
-                def print(self):
-                    """."""
-                    console.dir(native.location)
-
-                def __call__(self, *args, **kwargs):
-                    """."""
-                    self.push(*args, **kwargs)
-
-                @property
-                def element(self):
-                    return self._["element"]
-                
-                @property
-                def index(self) -> int:
-                    return self._["index"]
-
-                @property
-                def history(self):
-                    return native.history
-                
-                @property
-                def size(self) -> int:
-                    return native.history.length
-
-                def replace(self, path: str, *args, **kwargs):
-                    """."""
-                    if not path:
-                        return
-                    if not path.startswith("/"):
-                        path = f"/{path}"
-                    if path == native.location.pathname:
-                        return
-                    self.history.replaceState({}, "", f"{path}{native.location.search}")
-
-                def push(self, path: str, *args, **kwargs):
-                    """."""
-                    if not path:
-                        return
-                    if not path.startswith("/"):
-                        path = f"/{path}"
-                    if path == native.location.pathname:
-                        return
-                    
-                    self.history.pushState({"index": self.index}, "", f"{path}{native.location.search}")
-                    self._['index'] += 1
-
-                    log('state:', self.state(), native=True, trace='push')##
-
-                    self.element.append(component.div(**({"[path]": path})))
-
-                def state(self):
-                    return self.history.state
-
-            History = History()
-
             @effect(app.state, "currentPage")
             class router:
                 """Controls nav links from currentPage."""
+
+                def __init__(self):
+                    """."""
 
                 def __call__(self, change, message):
                     """Imports and shows page."""
                     current = change.currentPage
                     ##log("router got current:", current)  ##
+
                     path = self.path(current)
                     ##log("router created path:", path)  ##
-                    History(path)
+                    pathname = native.location.pathname
+                    ##log("router reads pathname:", pathname)  ##
+
+                    if path != pathname:
+                        native.history.pushState(
+                            {}, "", f"{path}{native.location.search}"
+                        )
                     use(f"@@/{current}/", test=meta.test)
 
                 @staticmethod
@@ -329,47 +254,33 @@ def main(use, *args, **kwargs):
 
             console.dir(native.location)  ##
 
-            @window.on()
+            @window.on(run=True)
             class popstate:
                 def __init__(self):
                     """."""
-                    self._ = dict()
-
 
                 def __call__(self, event):
-                    log('own index:', self._.get('index'))##
-                    state = History.state()
-                    log('state:', state, native=True, trace='popstate')##
-                    index = getattr(state, 'index', None)
-                    log('index:', index)##
-                    self._['index'] = index
-
-
-
-
-
+                    initial = event.type == "_"
                     parts = native.location.pathname[1:].split("/")
-                    ##log("popstate created parts:", parts)  ##
+                    log("popstate created parts:", parts)  ##
                     if base:
-                        page = "home" if len(parts) == 1 else parts[1]
+                        if len(parts) == 1:
+                            page = "home"
+                        else:
+                            page = parts[1]
+                            if initial and len(parts) > 2:
+                                native.history.replaceState(
+                                    {}, "", f"/{base}/{page}{native.location.search}"
+                                )
                     else:
-                        page = next(iter(parts), "home")
+                        page = parts[0] or "home"
+                        if initial and len(parts) > 1:
+                            native.history.replaceState(
+                                {}, "", f"/{page}{native.location.search}"
+                            )
+
                     ##log("popstate sends page:", page)  ##
                     app.state.update(dict(currentPage=page))
-
-            # Handle initial page and enforce single-part path
-            if base:
-                page = "home" if len(parts) == 1 else parts[1]
-                if len(parts) > 2:
-                    log("Replacing")  ##
-                    History.replace(f"/{base}/{page}")
-            else:
-                page = next(iter(parts), "home")
-                if len(parts) > 1:
-                    log("Replacing")  ##
-                    History.replace(page)
-
-            app.state.update(dict(currentPage=page))
 
             anvil.open_form(self)
 

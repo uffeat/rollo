@@ -25,7 +25,7 @@ def main(use, *args, **kwargs):
         def __init__(self, **options):
             Base.__init__(self)
             self.slot="persist"
-            iframe = Iframe(dict(name="front", src=f"{meta.base}/front/index.html"))
+            iframe = Iframe(dict(name="front", src=f"{meta.origin}/front"))
             self.node.append(iframe)
 
     return dict(front=front)

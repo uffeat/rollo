@@ -15,22 +15,8 @@ def main(use, *args, **kwargs):
     )
     render = tools.render
     component = use("@@/component/")
-
-    from_html = use("@@/component").from_html
-
-    effect = use("@@/state").effect
-
     bootstrap = use("@/bootstrap/").bootstrap
-
     Toast = bootstrap.Toast
-
-    def new(target):
-        def create(*args):
-            return anvil.new(target, *args)
-
-        return create
-
-    ##use("assets/toast/toast.css", test=meta.test)  ##
 
     class toast:
         def __init__(self):
@@ -46,9 +32,7 @@ def main(use, *args, **kwargs):
             )
             html = render(self.template, title=title, content=content, style=style)
             element.html(html)
-
-
-            toast = new(Toast)(element, dict(delay=delay))
+            toast = js.new(Toast)(element, delay=delay)
 
             @element.on("hidden.bs.toast", once=True)
             def onhidden(event):
