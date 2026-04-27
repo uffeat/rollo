@@ -25,7 +25,6 @@ def main(use, *args, **kwargs):
         user.get_user,
     )
     effect = use("@@/state").effect
-    router = use("@@/router/", test=meta.test)
     toast = use("@@/toast/", test=meta.test)
 
     # Register frame component
@@ -38,13 +37,91 @@ def main(use, *args, **kwargs):
     NAV_LINK_LIGHT = f"{NAV_LINK}.{LINK_LIGHT}"
     SELECTOR = ":is(a[path].nav-link)"
 
-    class frame(Html, Base):
+    class Router:
+        def __init__(self, base: str = ''):
+            """."""
+            self._ = dict()
+            if base:
+                self._.update(base=base)
+
+        def __call__(self, path: str):
+            ##log("Incoming path:", path, trace="router")  ##
+            # Normalize path -> remove trailing '/', but preserve '/'-path
+            if path != "/" and path.endswith("/"):
+                path = path[:-1]
+            ##log("Normalized path:", path, trace="router")  ##
+            # Extract page
+            parts = path.split("/")
+            ##log("parts:", parts, trace="router")  ##
+            page = parts[1]
+            ##log("page:", page, trace="router")  ##
+            # Enable links
+            _path = self._.get("current_path")
+            self._["previous_path"] = _path
+            if _path:
+                links = app.querySelectorAll(f'a.{NAV_LINK}[path="{_path}"]')
+                if links:
+                    for link in links:
+                        link.classList.remove("disabled")
+            # Create route path from page
+            _path = f"/{page}"
+            # Hook up to reactive state
+            app.state.update(dict(path=_path))
+            # Disable links
+            self._["current_path"] = _path
+            links = app.querySelectorAll(f'a.{NAV_LINK}[path="{_path}"]')
+            if links:
+                for link in links:
+                    link.classList.add("disabled")
+            ##log("path:", path, trace="router, before push")  ##
+            ##log("pathname:", native.location.pathname, trace="router, before push")  ##
+            if path != native.location.pathname:
+                ##log("Previous index:", self.index, trace="router, before push")  ##
+                index = self.index + 1
+                ##log("Current index:", index, trace="router, before push")  ##
+                native.history.pushState(
+                    {"index": index}, "", f"{path}{native.location.search}"
+                )
+            # Handle view
+            if not page:
+                page = "home"
+            use(f"@@/{page}/", test=meta.test)
+
+        @property
+        def base(self) -> str:
+            return self._.get("base", "")
+
+        @property
+        def index(self) -> int:
+            return getattr(native.history.state, "index", 0)
+
+        @property
+        def size(self) -> int:
+            return native.history.length
+
+        def use(self):
+            @window.on()
+            def popstate(event):
+                # Store previous index to enable nav direction detection
+                self._["previous_index"] = self.index
+                self(native.location.pathname)
+            path: str = native.location.pathname
+            log("Initial path:", path, trace="router.use")  ##
+            if self.base:
+                ...
+            else:
+                ...
+            url = f"{path}{native.location.search}"
+            native.history.replaceState({"index": 0}, "", url)
+            self(path)
+
+    class frame(Html, Base, On):
 
         def __init__(
             self, *args, base: str = "", parts: tuple = None, path: str = "", **kwargs
         ):
             owner = self
-            initialize(self, Base, Html)
+            initialize(self, Base, Html, On)
             self.node.id = "main"
             # Set template
             self.template(use("assets/frame/frame.html", test=meta.test))
@@ -144,7 +221,7 @@ def main(use, *args, **kwargs):
                     )
                     if self.current:
                         toast(
-                            "You're in",
+                            "Welcome",
                             f"{self.current.get('email')} logged in",
                             style="success",
                         )
@@ -164,7 +241,10 @@ def main(use, *args, **kwargs):
                 def previous(self):
                     return self._.get("previous")
 
-            # Router nav links
+            # Set up router
+            router = Router(base=base)
+
+            # Nav links -> updates currentPage state
             @tools.on(
                 self.template.nodes.home,
                 component.nav(
@@ -187,10 +267,10 @@ def main(use, *args, **kwargs):
                 if not target:
                     return
                 path = target.getAttribute("path")
+                ##log("path:", path, trace="click")  ##
                 router(path)
 
             anvil.open_form(self)
-            # Activate router
-            router.use(base=base)
+            router.use()
 
     return dict(frame=frame)

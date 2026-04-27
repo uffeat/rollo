@@ -1,4 +1,4 @@
-/* Side nav*/
+/* Side nav */
 frame-component {
   nav.nav[slot="side"] {
     .nav-link {
