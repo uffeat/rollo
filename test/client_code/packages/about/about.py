@@ -19,6 +19,9 @@ def main(use, *args, **kwargs):
 
     setup = use("assets/about/about.js.html", test=meta.test).default
 
+
+    # Put cross-view persisting state here of classmethod
+
     class about(Html, Base):
         page = True
 
@@ -50,13 +53,19 @@ def main(use, *args, **kwargs):
 
 
 
+            
+
+
             user_data = component.output(parent=self.node)
 
-
             
+
+
             @user.effect(component=self)
             def user_effect(current):
                 """."""
+
+                
                 log('current:', current, trace='user_effect')
                 if current:
                     user_data.text = current.get('email')

@@ -47,10 +47,10 @@ def main(use, *args, **kwargs):
                         return handler(current)
                     
                     if self.component:
+                        # NOTE Components wipe own effects on disconnect (memory safe)
                         options = dict(run=True)
                         self.options.update(self.options)
                         
-
                         @self.component.effect(connect=True)
                         def add(**change):
                             state.effects.add(wrapper, options)
@@ -137,6 +137,10 @@ def main(use, *args, **kwargs):
             log("result:", result, trace="user.Signup")
             result = js.pythonize(result)
             self.state.update(result)
+
+
+        def bind(self, component):
+            """."""
 
     user = user()
 
