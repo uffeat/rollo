@@ -17,14 +17,16 @@ def main(use, *args, **kwargs):
         use.window,
     )
     component = use("@@/component/")
-    Login =  use("@@/user").Login
-    Logout =  use("@@/user").Logout
-    Signup =  use("@@/user").Signup
-    get_user =  use("@@/user").get_user
+    user = use("@@/user")
+    Login, Logout, Signup, get_user = (
+        user.Login,
+        user.Logout,
+        user.Signup,
+        user.get_user,
+    )
     effect = use("@@/state").effect
     router = use("@@/router/", test=meta.test)
     toast = use("@@/toast/", test=meta.test)
-    user = use("@@/user/", test=meta.test)
 
     # Register frame component
     use("@/frame/")
@@ -98,18 +100,18 @@ def main(use, *args, **kwargs):
                 return result
 
             # Set up user state
-            
+            # NOTE 'user' parcel takes care of link visibility
             @tools.on(
                 component.nav(
                     "nav.d-flex",
                     component.a(
                         NAV_LINK_LIGHT,
                         text="Log out",
-                        _action=user.Logout,
+                        _action=Logout,
                         **{"[user]": True},
                     ),
-                    component.a(NAV_LINK_LIGHT, text="Log in", _action=user.Login),
-                    component.a(NAV_LINK_LIGHT, text="Sign up", _action=user.Signup),
+                    component.a(NAV_LINK_LIGHT, text="Log in", _action=Login),
+                    component.a(NAV_LINK_LIGHT, text="Sign up", _action=Signup),
                     slot="top",
                     parent=self.template.nodes.frame,
                 )
@@ -118,11 +120,49 @@ def main(use, *args, **kwargs):
                 event.preventDefault()
                 if not hasattr(event.target, "_action"):
                     return
-                event.target._action()
-                
-            
+                user = event.target._action()
+                if user:
+                    app.state.update(dict(user=user))
+                else:
+                    if user is False:
+                        app.state.update(dict(user=False))
+                    # NOTE None-user -> do nothing.
 
-                
+            @effect(app.state, "user")
+            class user:
+                """Stateful effect for launching toasts."""
+
+                def __init__(self):
+                    self._ = dict()
+
+                def __call__(self, change, message):
+                    self._.update(
+                        current=js.pythonize(change.user),
+                        previous=js.pythonize(
+                            getattr(message.owner.previous, "user", None)
+                        ),
+                    )
+                    if self.current:
+                        toast(
+                            "You're in",
+                            f"{self.current.get('email')} logged in",
+                            style="success",
+                        )
+                    else:
+                        if self.previous:
+                            toast(
+                                "See you soon",
+                                f"{self.previous.get('email')} logged out",
+                                style="dark",
+                            )
+
+                @property
+                def current(self):
+                    return self._.get("current")
+
+                @property
+                def previous(self):
+                    return self._.get("previous")
 
             # Router nav links
             @tools.on(

@@ -15,6 +15,7 @@ def main(use, *args, **kwargs):
         use.window,
     )
     component = use("@@/component/")
+    user = use("@@/user/", test=meta.test)
 
     setup = use("assets/about/about.js.html", test=meta.test).default
 
@@ -46,5 +47,36 @@ def main(use, *args, **kwargs):
                 log("Clicked")
 
             setup(self.node)
+
+
+
+            user_data = component.output(parent=self.node)
+
+
+            
+            @user.effect(component=self)
+            def user_effect(current):
+                """."""
+                log('current:', current, trace='user_effect')
+                if current:
+                    user_data.text = current.get('email')
+                else:
+                     user_data.text = 'No user'
+
+
+            
+
+            @self.effect(connect=True)
+            def on_connect(**change):
+                log('Connected', trace='on_connect')
+
+            @self.effect(connect=False)
+            def on_disconnect(**change):
+                log('Disconnected', trace='on_disconnect')
+               
+
+            
+
+
 
     return dict(about=about)
