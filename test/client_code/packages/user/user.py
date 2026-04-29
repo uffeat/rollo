@@ -24,6 +24,10 @@ def main(use, *args, **kwargs):
 
     toast = use("@@/toast/", test=meta.test)
 
+    Special = tools.Special
+
+
+
     Ref = use("@/rollo/").Ref
 
     class user:
@@ -34,22 +38,30 @@ def main(use, *args, **kwargs):
             owner = self
             state = Ref.create()
 
+            if js.instance(state, Ref, strict=False):
+                log("state is Ref", trace="user.__init__")##
+
+
             class effect:
-                def __init__(self, component=None, **options):
-                    self.component = component
+                def __init__(self, *args, **options):
+                    self.component = next(iter(args), None)
                     self.options = options
 
                 def __call__(self, handler: callable):
+                    special = Special(handler)
                     if isinstance(handler, type):
                         handler = handler()
 
+                    @special.target()
                     def wrapper(current, message):
                         return handler(current)
                     
                     if self.component:
+                        # Set up effect to follow component LC
                         # NOTE Components wipe own effects on disconnect (memory safe)
+                        # Default: Run on registration
                         options = dict(run=True)
-                        self.options.update(self.options)
+                        options.update(self.options)
                         
                         @self.component.effect(connect=True)
                         def add(**change):
@@ -60,19 +72,17 @@ def main(use, *args, **kwargs):
                             state.effects.remove(wrapper)
 
                     else:
+                        # Default: Do not run on registration
                         options = dict(run=False)
-                        self.options.update(self.options)
-
-
-                        state.effects.add(wrapper, self.options)
+                        options.update(self.options)
+                        state.effects.add(wrapper, options)
                     return wrapper
 
             self._ = dict(effect=effect, state=state)
 
             @effect()
             def sync_to_app(current):
-                """."""
-                log("current:", current, trace="effect")
+                log("current:", current, trace="effect")##
                 if current:
                     app.state.update(dict(user=current))
                 else:
@@ -82,7 +92,6 @@ def main(use, *args, **kwargs):
 
             @effect()
             def show_toast(current):
-                """."""
                 if current:
                     toast(
                         "You're in",
@@ -118,23 +127,20 @@ def main(use, *args, **kwargs):
             return self._["state"]
 
         def Login(self):
-            """."""
             result = Login()
-            log("result:", result, trace="user.Login")
+            log("result:", result, trace="user.Login")##
             result = js.pythonize(result)
             self.state.update(result)
 
         def Logout(self):
-            """."""
             result = Logout()
-            log("result:", result, trace="user.Logout")
+            log("result:", result, trace="user.Logout")##
             result = js.pythonize(result)
             self.state.update(result)
 
         def Signup(self):
-            """."""
             result = Signup()
-            log("result:", result, trace="user.Signup")
+            log("result:", result, trace="user.Signup")##
             result = js.pythonize(result)
             self.state.update(result)
 

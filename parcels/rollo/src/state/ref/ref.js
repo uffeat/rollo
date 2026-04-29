@@ -90,7 +90,7 @@ export class Ref {
       }
     })(this, this.#_.registry);
     /* Parse args */
-    
+
     const options = args.find((a) => is.object(a)) || {};
     const {
       detail,
@@ -149,7 +149,10 @@ export class Ref {
 
   set match(match) {
     if (match !== undefined) {
-      this.#_.match = match.bind(this);
+      if ('bind' in match) {
+        match = match.bind(this)
+      }
+      this.#_.match = match;
     }
   }
 
@@ -200,16 +203,15 @@ export class Ref {
       message.detail = detail;
       message.effect = effect;
       message.index = index++;
-
       const { condition, once } = detail;
       if (!condition || condition(this.current, message, ...args)) {
         effect(this.current, message, ...args);
-        if (once) {
-          this.effects.remove(effect, ...args);
-        }
         if (message.stopped) {
           break;
         }
+      }
+      if (once) {
+        this.effects.remove(effect, ...args);
       }
     }
     return this;

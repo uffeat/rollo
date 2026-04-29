@@ -223,7 +223,7 @@ class z {
     return this.#t.match;
   }
   set match(t) {
-    t !== void 0 && (this.#t.match = t.bind(this));
+    t !== void 0 && ("bind" in t && (t = t.bind(this)), this.#t.match = t);
   }
   get name() {
     return this.#t.name;
@@ -251,8 +251,9 @@ class z {
     for (const [c, u] of this.#t.registry.entries()) {
       i.detail = u, i.effect = c, i.index = o++;
       const { condition: a, once: d } = u;
-      if ((!a || a(this.current, i, ...n)) && (c(this.current, i, ...n), d && this.effects.remove(c, ...n), i.stopped))
+      if ((!a || a(this.current, i, ...n)) && (c(this.current, i, ...n), i.stopped))
         break;
+      d && this.effects.remove(c, ...n);
     }
     return this;
   }
@@ -314,7 +315,7 @@ class A {
             b.call(_);
         return _;
       }
-      /* TODO
+      /* :TODO
       - Implement: remove, size, etc. */
     }(), this.#t.config = new class {
       #e = {
@@ -508,8 +509,9 @@ class A {
     for (const [u, a] of this.#t.registry.entries()) {
       o.detail = a, o.effect = u, o.index = c++;
       const { condition: d, once: h } = a;
-      if ((!d || d(this.change, o)) && (u(this.change, o), h && this.effects.remove(u), o.stopped))
+      if ((!d || d(this.change, o)) && (u(this.change, o), o.stopped))
         break;
+      h && this.effects.remove(u);
     }
     return this;
   }

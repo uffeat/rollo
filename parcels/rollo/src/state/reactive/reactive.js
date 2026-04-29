@@ -43,7 +43,7 @@ export class Reactive {
         /* Create symmetry with 'get' */
         Exception.if(
           key === "effects" || (key in instance && is.function(instance[key])),
-          `Reserved key: ${key}.`
+          `Reserved key: ${key}.`,
         );
         instance.update({ [key]: value });
         return true;
@@ -82,7 +82,7 @@ export class Reactive {
           (change, message) => {
             ref.update(reducer(change, message));
           },
-          { data, once, run }
+          { data, once, run },
         );
 
         this.#_.registry.set(ref, effect);
@@ -304,7 +304,7 @@ export class Reactive {
       {
         config: { match: this.config.match },
         detail: structuredClone(this.detail),
-      }
+      },
     );
   }
 
@@ -345,7 +345,7 @@ export class Reactive {
       if (is.object(other)) {
         /* Remove items with undefined values (ignored by convention) */
         other = Object.fromEntries(
-          Object.entries(other).filter(([k, v]) => v !== undefined)
+          Object.entries(other).filter(([k, v]) => v !== undefined),
         );
       } else {
         return false;
@@ -435,12 +435,12 @@ export class Reactive {
       const { condition, once } = detail;
       if (!condition || condition(this.change, message)) {
         effect(this.change, message);
-        if (once) {
-          this.effects.remove(effect);
-        }
         if (message.stopped) {
           break;
         }
+      }
+      if (once) {
+        this.effects.remove(effect);
       }
     }
     return this;
