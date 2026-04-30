@@ -15,34 +15,28 @@ def main(use, *args, **kwargs):
         use.window,
     )
 
-    Special = tools.Special
-    Ref = use("@/rollo/").Ref
+    _Ref = use("@/rollo/").Ref
 
-    log('Special:', tools.Special)
-
-    class ref:
+    class Ref:
         """Python adaptation of Ref."""
 
         def __init__(self, *args):
             value = next(iter(args), None)
-            state = Ref.create(value)
+            state = _Ref.create(value)
 
             class effect:
                 def __init__(self, *args, once=False, run=False):
-                    """."""
+                    # BUG (in parcel) 'once' does not work for conditional effects.
                     self.args = args
                     self.options = dict(once=once, run=run)
 
                 def __call__(self, handler: callable) -> callable:
 
-                    
+                    if isinstance(handler, type):
+                        handler = handler()
 
-
-                    
                     def wrapper(current, message, *args):
                         return handler(current)
-
-
 
                     values = [a for a in self.args if not callable(a)]
                     if values:
@@ -51,18 +45,19 @@ def main(use, *args, **kwargs):
                         first = next(iter(self.args), None)
                         if callable(first):
 
-                            def condition(current, message):
+                            def condition(current, message, *args):
                                 return first(current)
 
                             state.effects.add(wrapper, condition, self.options)
                         else:
                             state.effects.add(wrapper, self.options)
+
                     return wrapper
 
-            self._ = dict(effect=effect, match=None, state=state)
+            self._ = dict(effect=effect, state=state)
 
-        def __call__(self, current, silent=False):
-            self.state.update(current, dict(silent=silent))
+        def __call__(self, value, silent=False):
+            self.state.update(value, dict(silent=silent))
             return self
 
         @property
@@ -73,12 +68,6 @@ def main(use, *args, **kwargs):
         def effect(self):
             """Decorates effect."""
             return self._["effect"]
-
-        @property
-        def effects(self):
-            return self.state.effects
-
-       
 
         @property
         def previous(self):
@@ -97,4 +86,15 @@ def main(use, *args, **kwargs):
             self.state.effects.clear()
             return self
 
-    return dict(ref=ref)
+    class effect:
+        """Decorates unbound Ref effect."""
+
+        def __init__(self, state: Ref, *args, **kwargs):
+            self.state = state
+            self.args = args
+            self.kwargs = kwargs
+
+        def __call__(self, handler: callable) -> callable:
+            return self.state.effect(*self.args, **self.kwargs)(handler)
+
+    return dict(Ref=Ref, effect=effect)

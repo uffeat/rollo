@@ -18,13 +18,10 @@ def main(use, *args, **kwargs):
         use.window,
     )
 
-    
-
-    
-
     Ref = use("@@/ref", test=True).Ref
-    effect = use("@@/ref", test=True).effect
-    
+    ##effect_for = use("@@/ref", test=True).effect_for
+
+   
 
     state = Ref(42)
     
@@ -39,10 +36,9 @@ def main(use, *args, **kwargs):
     def once_effect(current):
         log('current', current, trace='once_effect')
 
-    @effect(state)
+    ##@effect_for(state)
     def catch_all(current):
         log('current', current, trace='catch_all')
-
 
     state(43)
     state(42)
