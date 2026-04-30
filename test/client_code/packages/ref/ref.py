@@ -20,9 +20,13 @@ def main(use, *args, **kwargs):
     class Ref:
         """Python adaptation of Ref."""
 
-        def __init__(self, *args):
+        def __init__(self, *args, state=None):
             value = next(iter(args), None)
-            state = _Ref.create(value)
+            if state is None:
+                state = _Ref.create(value)
+            else:
+                state.update(value)
+            
 
             class effect:
                 def __init__(self, *args, once=False, run=False):
@@ -87,14 +91,17 @@ def main(use, *args, **kwargs):
             return self
 
     class effect:
-        """Decorates unbound Ref effect."""
+        """Decorates unbound JS Ref effect."""
 
-        def __init__(self, state: Ref, *args, **kwargs):
+        def __init__(self, state, *args):
             self.state = state
             self.args = args
-            self.kwargs = kwargs
 
         def __call__(self, handler: callable) -> callable:
-            return self.state.effect(*self.args, **self.kwargs)(handler)
+            def wrapper(change, message, *args):
+                handler(**change)
+
+            self.state.effects.add(wrapper, *self.args)
+            return wrapper
 
     return dict(Ref=Ref, effect=effect)

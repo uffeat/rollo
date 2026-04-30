@@ -21,7 +21,7 @@ def main(use, *args, **kwargs):
         use.window,
     )
     component = use("@@/component/")
-    ##user = use("@@/user/", test=meta.test)
+    user = use("@@/user/", test=meta.test)
 
     setup = use("assets/about/about.js.html", test=meta.test).default
 
@@ -59,19 +59,25 @@ def main(use, *args, **kwargs):
 
 
 
-            
+            @user.effect(self)
+            def show_user(current):
+                ##log("current:", current, trace="show_user")  ##
+                if current:
+                    user_data.text = current.get("email")
+                else:
+                    user_data.text = "No user"
 
             @self.effect(connect=True)
             def on_connect(**change) -> None:
                 """Connected."""
                 ##log("dir", dir(on_connect), trace="on_connect")  ##
-                log(on_connect.__doc__, trace="on_connect")  ##
+                ##log(on_connect.__doc__, trace="on_connect")  ##
                 ##log('annotations: ', on_connect.__annotations__, trace="on_connect")  ##
                 
 
             @self.effect(connect=False)
             def on_disconnect(**change):
                 """Disconnected."""
-                log(on_disconnect.__doc__, trace="on_disconnect")  ##
+                ##log(on_disconnect.__doc__, trace="on_disconnect")  ##
 
     return dict(about=about)

@@ -48,11 +48,11 @@ def main(use, *args, **kwargs):
                     self.options = options
 
                 def __call__(self, handler: callable):
-                    special = Special(handler)
+                    ##special = Special(handler)
                     if isinstance(handler, type):
                         handler = handler()
 
-                    @special.target()
+                    ##@special.target()
                     def wrapper(current, message):
                         return handler(current)
                     

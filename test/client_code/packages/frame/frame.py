@@ -17,10 +17,10 @@ def main(use, *args, **kwargs):
         use.window,
     )
     component = use("@@/component/")
-    Login =  use("@@/user").Login
-    Logout =  use("@@/user").Logout
-    Signup =  use("@@/user").Signup
-    get_user =  use("@@/user").get_user
+    Login = use("@@/user").Login
+    Logout = use("@@/user").Logout
+    Signup = use("@@/user").Signup
+    get_user = use("@@/user").get_user
     effect = use("@@/state").effect
     router = use("@@/router/", test=meta.test)
     toast = use("@@/toast/", test=meta.test)
@@ -97,8 +97,7 @@ def main(use, *args, **kwargs):
                 result = child(*args, **kwargs) if callable(child) else None
                 return result
 
-            # Set up user state
-            
+            # User modal control
             @tools.on(
                 component.nav(
                     "nav.d-flex",
@@ -119,10 +118,6 @@ def main(use, *args, **kwargs):
                 if not hasattr(event.target, "_action"):
                     return
                 event.target._action()
-                
-            
-
-                
 
             # Router nav links
             @tools.on(
