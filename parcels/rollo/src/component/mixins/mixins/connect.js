@@ -7,14 +7,14 @@ export default (parent, config) => {
       super.connectedCallback?.();
       this.#_.onConnect?.(this);
       this.dispatchEvent(new CustomEvent("_connect"));
-      this.state?.update({ _connect: true });
+      this?.$({ _connect: true });
     }
 
     disconnectedCallback() {
       super.disconnectedCallback?.();
       this.#_.onDisconnect?.(this);
       this.dispatchEvent(new CustomEvent("_disconnect"));
-      this.state?.update({ _connect: false });
+      this?.$({ _connect: false });
     }
 
     onConnect(onConnect) {

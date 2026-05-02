@@ -6,7 +6,7 @@ const g = (s) => {
       return s.constructor.__type__;
   }
   return Object.prototype.toString.call(s).slice(8, -1);
-}, v = g, p = new class {
+}, v = g, _ = new class {
   array(s) {
     return g(s) === "Array";
   }
@@ -158,17 +158,17 @@ class z {
       }
       add(h, ...l) {
         const f = (() => {
-          const m = l.find((_) => p.function(_));
+          const m = l.find((p) => _.function(p));
           if (m)
             return m;
-          const j = l.find((_) => Array.isArray(_));
+          const j = l.find((p) => Array.isArray(p));
           if (j)
-            return (_) => j.includes(_);
+            return (p) => j.includes(p);
         })(), {
           data: y = {},
           once: w,
           run: S = !0
-        } = l.find((m, j) => !j && p.object(m)) || {}, x = (() => {
+        } = l.find((m, j) => !j && _.object(m)) || {}, x = (() => {
           const m = { data: { ...y } };
           return f && (m.condition = f), w && (m.once = w), m;
         })();
@@ -188,7 +188,7 @@ class z {
         this.#e.registry.delete(h);
       }
     }(this, this.#t.registry);
-    const r = e.find((d) => p.object(d)) || {}, {
+    const r = e.find((d) => _.object(d)) || {}, {
       detail: n,
       hooks: i,
       match: o = function(d) {
@@ -196,7 +196,7 @@ class z {
       },
       name: c,
       owner: u
-    } = r, a = e.filter((d) => p.function(d));
+    } = r, a = e.filter((d) => _.function(d));
     this.match = o, this.#t.name = c, this.#t.owner = u, n && (this.#t.detail = n), this.update(t);
     for (const d of a)
       this.effects.add(d);
@@ -274,11 +274,11 @@ class A {
     this.#t.$ = new Proxy(() => {
     }, {
       get(l, f) {
-        return f === "effects" ? e.effects : f in e && p.function(e[f]) ? e[f].bind(e) : e.#t.current[f];
+        return f === "effects" ? e.effects : f in e && _.function(e[f]) ? e[f].bind(e) : e.#t.current[f];
       },
       set(l, f, y) {
         return O.if(
-          f === "effects" || f in e && p.function(e[f]),
+          f === "effects" || f in e && _.function(e[f]),
           `Reserved key: ${f}.`
         ), e.update({ [f]: y }), !0;
       },
@@ -301,19 +301,19 @@ class A {
           hooks: S,
           once: x = !1,
           run: m = !0
-        } = y.find((b, T) => !T && p.object(b)) || {}, j = y.filter((b) => p.function(b)), _ = z.create({ owner: e }), L = e.effects.add(
+        } = y.find((b, T) => !T && _.object(b)) || {}, j = y.filter((b) => _.function(b)), p = z.create({ owner: e }), L = e.effects.add(
           (b, T) => {
-            _.update(f(b, T));
+            p.update(f(b, T));
           },
           { data: w, once: x, run: m }
         );
-        this.#e.registry.set(_, L);
+        this.#e.registry.set(p, L);
         for (const b of j)
-          _.effects.add(b, { once: x, run: m });
+          p.effects.add(b, { once: x, run: m });
         if (S)
           for (const b of S)
-            b.call(_);
-        return _;
+            b.call(p);
+        return p;
       }
       /* :TODO
       - Implement: remove, size, etc. */
@@ -341,9 +341,9 @@ class A {
       }
       add(f, ...y) {
         const w = (() => {
-          const _ = y.find((b) => p.function(b));
-          if (_)
-            return _;
+          const p = y.find((b) => _.function(b));
+          if (p)
+            return p;
           const L = y.find((b) => Array.isArray(b));
           if (L)
             return (b) => {
@@ -356,13 +356,13 @@ class A {
           data: S = {},
           once: x,
           run: m = !0
-        } = y.find((_) => p.object(_)) || {}, j = (() => {
-          const _ = { data: { ...S } };
-          return w && (_.condition = w), x && (_.once = x), _;
+        } = y.find((p) => _.object(p)) || {}, j = (() => {
+          const p = { data: { ...S } };
+          return w && (p.condition = w), x && (p.once = x), p;
         })();
         if (this.#e.registry.set(f, j), m) {
-          const _ = C.create(this.#e.owner);
-          _.detail = j, _.effect = f, (!w || w(this.#e.owner.current, _)) && f(this.#e.owner.current, _);
+          const p = C.create(this.#e.owner);
+          p.detail = j, p.effect = f, (!w || w(this.#e.owner.current, p)) && f(this.#e.owner.current, p);
         }
         return f;
       }
@@ -377,8 +377,8 @@ class A {
       }
     }(this, this.#t.registry);
     const r = {
-      ...t.find((l, f) => !f && p.object(l)) || {}
-    }, n = t.find((l, f) => f && p.object(l)) || {}, { config: i = {}, detail: o, hooks: c, name: u, owner: a } = n, { match: d } = i, h = t.filter((l) => p.function(l));
+      ...t.find((l, f) => !f && _.object(l)) || {}
+    }, n = t.find((l, f) => f && _.object(l)) || {}, { config: i = {}, detail: o, hooks: c, name: u, owner: a } = n, { match: d } = i, h = t.filter((l) => _.function(l));
     this.#t.owner = a, this.#t.name = u, o && (this.#t.detail = o), this.config.match = d, this.update(r);
     for (const l of h)
       this.effects.add(l);
@@ -466,7 +466,7 @@ class A {
   match(t) {
     if (t instanceof A)
       t = t.current;
-    else if (p.object(t))
+    else if (_.object(t))
       t = Object.fromEntries(
         Object.entries(t).filter(([e, r]) => r !== void 0)
       );
@@ -488,7 +488,7 @@ class A {
   and to set detail. */
   update(...t) {
     let e = t.find((u, a) => !a);
-    const { detail: r, silent: n = !1 } = t.find((u, a) => a && p.object(u)) || {};
+    const { detail: r, silent: n = !1 } = t.find((u, a) => a && _.object(u)) || {};
     if (r && (this.#t.detail = r), !e)
       return this;
     Array.isArray(e) ? e = Object.fromEntries(e) : e instanceof A ? e = e.current : e = { ...e };
@@ -523,7 +523,7 @@ const ee = (...s) => A.create(...s).$, se = (...s) => {
     get(e, r) {
       O.if(!(r in t), `Invalid key: ${r}`);
       const n = t[r];
-      return p.function(n) ? n.bind(t) : n;
+      return _.function(n) ? n.bind(t) : n;
     },
     set(e, r, n) {
       return O.if(!(r in t), `Invalid key: ${r}`), t[r] = n, !0;
@@ -909,10 +909,10 @@ const at = (s, t) => class extends s {
   static __name__ = "connect";
   #t = {};
   connectedCallback() {
-    super.connectedCallback?.(), this.#t.onConnect?.(this), this.dispatchEvent(new CustomEvent("_connect")), this.state?.update({ _connect: !0 });
+    super.connectedCallback?.(), this.#t.onConnect?.(this), this.dispatchEvent(new CustomEvent("_connect")), this?.$({ _connect: !0 });
   }
   disconnectedCallback() {
-    super.disconnectedCallback?.(), this.#t.onDisconnect?.(this), this.dispatchEvent(new CustomEvent("_disconnect")), this.state?.update({ _connect: !1 });
+    super.disconnectedCallback?.(), this.#t.onDisconnect?.(this), this.dispatchEvent(new CustomEvent("_disconnect")), this?.$({ _connect: !1 });
   }
   onConnect(e) {
     return e ? (this.#t.onConnect = e.bind ? e.bind(this) : e, this.isConnected && this.#t.onConnect()) : delete this.#t.onConnect, this;
@@ -945,7 +945,7 @@ const at = (s, t) => class extends s {
       )
     ), this;
   }
-}, pt = (s, t) => class extends s {
+}, _t = (s, t) => class extends s {
   static __name__ = "detail";
   #t = {
     detail: {}
@@ -954,7 +954,7 @@ const at = (s, t) => class extends s {
   get detail() {
     return this.#t.detail;
   }
-}, _t = (s, t) => class extends s {
+}, pt = (s, t) => class extends s {
   static __name__ = "find";
   /* Unified alternative to 'querySelector' and 'querySelectorAll' 
   with a leaner syntax. */
@@ -1087,7 +1087,7 @@ const de = (s, t, e, {
   enumerable: i,
   writable: o,
   value: e
-}), s), pe = (s, t, { bind: e = !0, configurable: r = !0, enumerable: n = !1, get: i, set: o } = {}) => {
+}), s), _e = (s, t, { bind: e = !0, configurable: r = !0, enumerable: n = !1, get: i, set: o } = {}) => {
   e && (i = i.bind(s));
   const c = {
     configurable: r,
@@ -1443,8 +1443,8 @@ const Lt = (s, t) => class extends s {
         "./mixins/clear.js": ft,
         "./mixins/connect.js": lt,
         "./mixins/data.js": dt,
-        "./mixins/detail.js": pt,
-        "./mixins/find.js": _t,
+        "./mixins/detail.js": _t,
+        "./mixins/find.js": pt,
         "./mixins/for_.js": gt,
         "./mixins/hook.js": mt,
         "./mixins/insert.js": bt,
@@ -2022,11 +2022,11 @@ class U {
   }
 }
 const ye = (s) => {
-  if (p.object(s))
+  if (_.object(s))
     return Object.keys(s).forEach((t) => delete s[t]), s;
-  if (p.map(s) || p.set(s))
+  if (_.map(s) || _.set(s))
     return s.clear(), s;
-  if (p.array(s))
+  if (_.array(s))
     return s.length = 0, s;
 };
 function be(s) {
@@ -2107,7 +2107,7 @@ const Y = (s, t) => {
   const t = [s];
   for (; t.length; ) {
     const e = t.pop();
-    if (Object.freeze(e), p.map(e) || p.set(e)) {
+    if (Object.freeze(e), _.map(e) || _.set(e)) {
       for (const r of e.values())
         Y(t, r);
       continue;
@@ -2159,11 +2159,11 @@ const Y = (s, t) => {
         continue;
       }
       const u = n[o], a = [v(u), v(c)];
-      if (a.every(p.object)) {
+      if (a.every(_.object)) {
         r.push([u, c]);
         continue;
       }
-      n[o] = e && a.every(p.array) ? e(u, c) : c;
+      n[o] = e && a.every(_.array) ? e(u, c) : c;
     }
   }
   return s;
@@ -2185,48 +2185,48 @@ function Ae(s, ...t) {
   return s;
 }
 const Bt = (s, ...t) => {
-  if (p.object(s)) {
+  if (_.object(s)) {
     for (const e of t)
       delete s[e];
     return s;
   }
-  if (p.map(s)) {
+  if (_.map(s)) {
     for (const e of t)
       s.delete(e);
     return s;
   }
-  if (p.set(s)) {
+  if (_.set(s)) {
     for (const e of t)
       s.delete(e);
     return s;
   }
-  if (p.array(s)) {
+  if (_.array(s)) {
     if (!s.length || !t.length) return s;
     for (let e = t.length - 1; e >= 0; e--)
       t.includes(s[e]) && s.splice(e, 1);
     return s;
   }
 }, P = (s) => s.length === 1 ? s[0] : s, $e = (s, ...t) => {
-  if (p.object(s)) {
+  if (_.object(s)) {
     const e = t.map((r) => {
       const n = s[r];
       return delete s[r], n;
     });
     return P(e);
   }
-  if (p.map(s)) {
+  if (_.map(s)) {
     const e = t.map((r) => {
       const n = s.get(r);
       return s.delete(r), n;
     });
     return P(e);
   }
-  if (p.set(s)) {
+  if (_.set(s)) {
     for (const e of t)
       s.delete(e);
     return P(t);
   }
-  if (p.array(s))
+  if (_.array(s))
     return Bt(s, ...t), P(t);
 };
 function Xt(s) {
@@ -2288,7 +2288,7 @@ export {
   me as css,
   Ce as deduplicate,
   de as defineMethod,
-  pe as defineProperty,
+  _e as defineProperty,
   k as defineValue,
   be as delay,
   Re as difference,
@@ -2299,7 +2299,7 @@ export {
   xe as html,
   Nt as htmlToComponent,
   Pe as intersection,
-  p as is,
+  _ as is,
   fe as isUpper,
   ie as kebabToCamel,
   oe as kebabToPascal,

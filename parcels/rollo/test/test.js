@@ -57,4 +57,4 @@ const run = (() => {
 })();
 
 //
-await run("/component/attributes.test.js");
+//await run("/component/attributes.test.js");
