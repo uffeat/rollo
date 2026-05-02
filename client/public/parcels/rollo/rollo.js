@@ -909,10 +909,10 @@ const at = (s, t) => class extends s {
   static __name__ = "connect";
   #t = {};
   connectedCallback() {
-    super.connectedCallback?.(), this.#t.onConnect?.(this), this.dispatchEvent(new CustomEvent("_connect")), this?.$({ _connect: !0 });
+    super.connectedCallback?.(), this?.$({ _connect: !0 }), this.dispatchEvent(new CustomEvent("_connect")), this.#t.onConnect?.(this);
   }
   disconnectedCallback() {
-    super.disconnectedCallback?.(), this.#t.onDisconnect?.(this), this.dispatchEvent(new CustomEvent("_disconnect")), this?.$({ _connect: !1 });
+    super.disconnectedCallback?.(), this?.$({ _connect: !1 }), this.dispatchEvent(new CustomEvent("_disconnect")), this.#t.onDisconnect?.(this);
   }
   onConnect(e) {
     return e ? (this.#t.onConnect = e.bind ? e.bind(this) : e, this.isConnected && this.#t.onConnect()) : delete this.#t.onConnect, this;

@@ -5,16 +5,16 @@ export default (parent, config) => {
 
     connectedCallback() {
       super.connectedCallback?.();
-      this.#_.onConnect?.(this);
-      this.dispatchEvent(new CustomEvent("_connect"));
       this?.$({ _connect: true });
+      this.dispatchEvent(new CustomEvent("_connect"));
+      this.#_.onConnect?.(this);
     }
 
     disconnectedCallback() {
       super.disconnectedCallback?.();
-      this.#_.onDisconnect?.(this);
-      this.dispatchEvent(new CustomEvent("_disconnect"));
       this?.$({ _connect: false });
+      this.dispatchEvent(new CustomEvent("_disconnect"));
+      this.#_.onDisconnect?.(this);
     }
 
     onConnect(onConnect) {
