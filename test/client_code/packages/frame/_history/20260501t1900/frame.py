@@ -17,9 +17,13 @@ def main(use, *args, **kwargs):
         use.window,
     )
     component = use("@@/component/")
-
+    Login = use("@@/user").Login
+    Logout = use("@@/user").Logout
+    Signup = use("@@/user").Signup
+    get_user = use("@@/user").get_user
+    effect = use("@@/state").effect
     router = use("@@/router/", test=meta.test)
-
+    toast = use("@@/toast/", test=meta.test)
     user = use("@@/user/", test=meta.test)
 
     # Register frame component

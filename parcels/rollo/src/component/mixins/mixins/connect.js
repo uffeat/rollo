@@ -7,17 +7,19 @@ export default (parent, config) => {
       super.connectedCallback?.();
       this.#_.onConnect?.(this);
       this.dispatchEvent(new CustomEvent("_connect"));
+      this.state?.update({ _connect: true });
     }
 
     disconnectedCallback() {
       super.disconnectedCallback?.();
       this.#_.onDisconnect?.(this);
       this.dispatchEvent(new CustomEvent("_disconnect"));
+      this.state?.update({ _connect: false });
     }
 
     onConnect(onConnect) {
       if (onConnect) {
-        this.#_.onConnect = onConnect.bind ? onConnect.bind(this) : onConnect
+        this.#_.onConnect = onConnect.bind ? onConnect.bind(this) : onConnect;
         if (this.isConnected) {
           this.#_.onConnect();
         }
@@ -29,7 +31,9 @@ export default (parent, config) => {
 
     onDisconnect(onDisconnect) {
       if (onDisconnect) {
-        this.#_.onDisconnect = onDisconnect.bind ? onDisconnect.bind(this) : onDisconnect
+        this.#_.onDisconnect = onDisconnect.bind
+          ? onDisconnect.bind(this)
+          : onDisconnect;
       } else {
         delete this.#_.onDisconnect;
       }

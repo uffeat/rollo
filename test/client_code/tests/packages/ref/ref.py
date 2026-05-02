@@ -6,7 +6,8 @@ packages/ref/ref.py
 def main(use, *args, **kwargs):
     
 
-    anvil, app, console, document, js, log, meta, native, window = (
+    use("@@/assets/")
+    anvil, app, console, document, js, log, meta, native, packages, tools, window = (
         use.anvil,
         use.app,
         use.console,
@@ -15,18 +16,20 @@ def main(use, *args, **kwargs):
         use.log,
         use.meta,
         use.native,
+        use.packages,
+        use.tools,
         use.window,
     )
 
     
-
+    _Ref = use("@/rollo/").Ref
     
 
-    Ref = use("@@/ref", test=True).Ref
-    effect = use("@@/ref", test=True).effect
+    Ref = use("@@/ref", test=False).Ref
+    
     
 
-    state = Ref(42)
+    state = Ref(_Ref.create(42))
     
     log('current', state.current, trace='main')
     log('previous', state.previous, trace='main')
@@ -39,9 +42,7 @@ def main(use, *args, **kwargs):
     def once_effect(current):
         log('current', current, trace='once_effect')
 
-    @effect(state)
-    def catch_all(current):
-        log('current', current, trace='catch_all')
+    
 
 
     state(43)
