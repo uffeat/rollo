@@ -13,7 +13,7 @@ def main(use, *args, **kwargs):
         use.tools,
         use.window,
     )
-    app = use("@@/app/", test=meta.test)
+    app = use("@@/app/")
     component = use("@@/component/")
     Login = use("@@/user").Login
     Logout = use("@@/user").Logout
@@ -29,18 +29,33 @@ def main(use, *args, **kwargs):
         """Controller for user state."""
 
         def __init__(self):
+            owner = self
             state = State(name="user")
-            self._ = dict(state=state)
+
+            class bind:
+                def __init__(self, component):
+                    self.component = component
+
+                def __call__(self, effect):
+                    component = self.component
+
+                    @component.effect(connect=True)
+                    def on_connect(**change):
+                        owner.effects.add(effect, run=True)
+
+                    @component.effect(connect=False)
+                    def on_disconnect(**change):
+                        owner.effects.remove(effect)
+
+            self._ = dict(bind=bind, state=state)
 
         def __call__(self, value=None):
-            ##log("__call__ got value:", value, trace=__file__)  ##
+            ##log("value:", value, trace="user.__call__")  ##
             if value is not None and not isinstance(value, dict):
                 Error(f"Invalid user value: {value}", trace=__file__)
             self._["state"](value)
             if value:
-                ##log("__call__ sets app state:", value, trace=__file__)  ##
                 app.state(user=value)
-                ##log("__call__ shows toast", trace=__file__)  ##
                 toast(
                     "You're in",
                     f"{value.get('email')} logged in",
@@ -88,7 +103,11 @@ def main(use, *args, **kwargs):
             ##log("result:", result, trace="user.Signup")  ##
             self(result)
 
-
+        @property
+        def bind(self):
+            """Decorates effect that registers/deregister as per component LC."""
+            return self._["bind"]
+        
     user = user()
 
     return dict(user=user)

@@ -1,89 +1,71 @@
 def main(use, *args, **kwargs):
 
-    console, document, log, meta, window = (
+    use("@@/assets/")
+    anvil, console, document, js, log, meta, native, packages, tools, window = (
+        use.anvil,
         use.console,
         use.document,
+        use.js,
         use.log,
         use.meta,
+        use.native,
+        use.packages,
+        use.tools,
         use.window,
     )
+    component = use("@@/component/")
+    Reactive = use("@@/reactive", test=meta.test).Reactive
 
     class app:
-        def __init__(self, *args, **kwargs):
-            self._ = dict(app=document.getElementById("app"))
-            owner = self
+        def __init__(self):
+            """."""
+            state = Reactive(use.app.state)
 
-            class effect:
-                def __init__(self, *keys, run=False, **options):
-                    self.keys = keys or None
-                    # Ensure that default 'run' option is False
-                    options.update(run=run)
+            class on:
+                def __init__(self, *args, **options):
+                    self.args = args
                     self.options = options
 
                 def __call__(self, handler: callable) -> callable:
-                    def wrapper(change, message):
-                        handler(**change)
+                    event_type = next(iter(self.args), handler.__name__)
+                    # XXX class-based handlers are not suitable for decorator-stacking
+                    if isinstance(handler, type):
+                        handler = handler()
+                    use.app.addEventListener(
+                        event_type,
+                        handler,
+                        self.options,
+                    )
+                    return handler
 
-                    owner.app.effects.add(wrapper, self.options, self.keys)
-                    return wrapper
-
-            self._.update(effect=effect)
+            self._ = dict(on=on, state=state)
 
         def __call__(self, **updates):
-            """Updates state."""
-            return self.app.state.update(updates)
-
-        def __getattr__(self, key: str):
-            return self[key]
-
-        def __getitem__(self, key: str):
-            """Returns current value by key."""
-            return self.app.state[key]
+            use.app.update(updates)
 
         @property
-        def app(self):
-            """Returns app component."""
-            return self._["app"]
-
-        @property
-        def current(self) -> dict:
-            """Returns current state."""
-            return dict(self.app.state.current)
-
-        @current.setter
-        def current(self, current: dict):
-            """Sets current state."""
-            self.app.state.current = current
+        def detail(self):
+            return use.app.detail
 
         @property
         def effect(self) -> callable:
             """Decorates effect."""
-            return self._["effect"]
+            return self.state.effect
 
         @property
         def effects(self):
-            """Returns effects conroller."""
-            return self.app.effects
+            """Returns effects controller."""
+            return self.state.effects
 
         @property
-        def previous(self) -> dict:
-            """Returns previous state."""
-            return dict(self.app.state.previous)
+        def node(self):
+            return use.app
+
+        @property
+        def state(self):
+            return self._["state"]
+
 
     app = app()
-
-    """Set up router.
-    NOTE Using app state for routing enables:
-    - Attribute-based page-specific styling; e.g., page="about" -> state-current-page="about" 
-      attr on app.
-    - Accessible from JS (without module import).
-    XXX Use 'currentPage' key (rather than 'page') to avoid collision with CSS prop.
-    """
-
-    @window.on(run=True)
-    def popstate(event):
-        pathname = window.location.pathname
-        currentPage = pathname[len("/test/") :]  ##
-        app(currentPage=currentPage)
 
     return dict(app=app)

@@ -13,61 +13,13 @@ def main(use, *args, **kwargs):
         use.tools,
         use.window,
     )
-
+ 
     component = use("@@/component/")
-
-    Special = tools.Special
 
     __file__ = "reactive"
 
-    class Effect:
-        """Decorates unbound JS Reactive effect."""
-
-        def __init__(self, state, *keys, once=False, run=False, **items):
-            # XXX 'items' should not contain the keys: "once", "run"
-            self.state = state
-            self.keys = keys
-            self.options = dict(once=once, run=run)
-            self.items = items
-
-        def __call__(self, handler: callable) -> callable:
-            special = Special(handler)
-            if isinstance(handler, type):
-                handler = handler()
-
-            @special.target()
-            def wrapper(change, message, *args):
-                handler(**change)
-
-            keys = [a for a in self.keys if isinstance(a, str)]
-            if keys:
-                self.state.effects.add(wrapper, self.options, keys)
-            elif self.items:
-                # XXX Reference to 'self' inside condition causes crash!!!
-                # Probably an Anvil quirk...
-                required = self.items
-
-                def condition(change, message, *args):
-                    change = dict(change)
-                    for key, value in change.items():
-                        if key not in required:
-                            return False
-                        if value != required[key]:
-                            return False
-                    return True
-
-                self.state.effects.add(wrapper, self.options, condition)
-            else:
-                first = next(iter(self.keys), None)
-                if callable(first):
-
-                    def condition(change, message, *args):
-                        return first(**change)
-
-                    self.state.effects.add(wrapper, self.options, condition)
-                else:
-                    self.state.effects.add(wrapper, self.options)
-            return wrapper
+    # XXX Cannot make test version of 'effect' work!!?
+    Effect = use("@@/reactive").effect
 
     class Reactive:
         def __init__(self, state):

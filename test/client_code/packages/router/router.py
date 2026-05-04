@@ -1,7 +1,5 @@
 def main(use, *args, **kwargs):
 
-    
-    
     anvil, app, console, document, js, log, meta, native, packages, tools, window = (
         use.anvil,
         use.app,
@@ -15,15 +13,9 @@ def main(use, *args, **kwargs):
         use.tools,
         use.window,
     )
-    
-    
-    
-
-    
 
     # CSS classes
     NAV_LINK = "nav-link"
-    
 
     class Router:
         """Browser router.
@@ -33,16 +25,17 @@ def main(use, *args, **kwargs):
         - Callable from JS.
         - Syncs to app 'path' state slice.
         - Option for base path.
-        - Pages can implement own sub-routing based on Router extentions, search 
+        - Pages can implement own sub-routing based on Router extentions, search
           or hash.
         """
+
         def __init__(self, base: str = ""):
             self._ = dict()
             if base:
                 self._.update(base=base)
 
         def __call__(self, path: str):
-            if not self._.get('_use'):
+            if not self._.get("_use"):
                 raise ValueError("Router not initialized.")
             if self.base:
                 if path.startswith(f"/{self.base}"):
@@ -75,7 +68,9 @@ def main(use, *args, **kwargs):
             if path != native.location.pathname:
                 index = self.index + 1
                 native.history.pushState(
-                    {"index": index}, "", f"{path}{native.location.search}{native.location.hash}"
+                    {"index": index},
+                    "",
+                    f"{path}{native.location.search}{native.location.hash}",
                 )
             # Handle view
             if not page:
@@ -95,9 +90,9 @@ def main(use, *args, **kwargs):
             if base:
                 self._.update(base=base)
             # Track init
-            if self._.get('_use'):
+            if self._.get("_use"):
                 return
-            self._['_use'] = True
+            self._["_use"] = True
 
             @window.on()
             def popstate(event):
@@ -111,7 +106,5 @@ def main(use, *args, **kwargs):
             self(path)
 
     router = Router()
-
-    
 
     return dict(Router=Router, router=router)

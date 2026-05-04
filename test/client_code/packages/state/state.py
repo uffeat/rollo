@@ -1,9 +1,8 @@
 def main(use, *args, **kwargs):
 
     use("@@/assets/")
-    anvil, app, console, document, js, log, meta, native, packages, tools, window = (
+    anvil, console, document, js, log, meta, native, packages, tools, window = (
         use.anvil,
-        use.app,
         use.console,
         use.document,
         use.js,
@@ -14,6 +13,8 @@ def main(use, *args, **kwargs):
         use.tools,
         use.window,
     )
+    app = use("@@/app/", test=meta.test)
+    component = use("@@/component/")
 
     import copy
 

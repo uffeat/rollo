@@ -3,9 +3,8 @@ def main(use, *args, **kwargs):
     use("@@/assets/")
     mixins = use("@@/mixins")
     Base, Html, On, initialize = mixins.Base, mixins.Html, mixins.On, mixins.initialize
-    anvil, app, console, document, js, log, meta, native, packages, tools, window = (
+    anvil, console, document, js, log, meta, native, packages, tools, window = (
         use.anvil,
-        use.app,
         use.console,
         use.document,
         use.js,
@@ -16,15 +15,17 @@ def main(use, *args, **kwargs):
         use.tools,
         use.window,
     )
+    app = use("@@/app/")
     component = use("@@/component/")
 
     router = use("@@/router/", test=meta.test)
-
     user = use("@@/user/", test=meta.test)
 
     # Register frame component
     use("@/frame/")
     use("assets/frame/frame.css", test=meta.test)
+
+    __file__ = "frame"
 
     # CSS classes
     LINK_LIGHT = "link-light"
@@ -113,6 +114,7 @@ def main(use, *args, **kwargs):
                 event.preventDefault()
                 if not hasattr(event.target, "_action"):
                     return
+                ##log("user link clicked", trace=__file__)  ##
                 event.target._action()
 
             # Router nav links

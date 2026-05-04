@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <base href="https://rollohdev.anvil.app" />
+    <link rel="stylesheet" href="https://rolloh.vercel.app/anvil/main.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="favicon.svg" type="image/x-icon" />
+    <title>Index</title>
+  </head>
+  <style></style>
+  <script type="module">
+    const { default: use } = await import(
+      `https://rolloh.vercel.app/anvil/use.js`
+    );
+
+    //const { foo } = await import('/public/index.js?test=true')
+    const { foo } = await import('/_/api/assets/public/index.js?test=true')
+
+    console.log('foo:', foo)
+
+
+
+    const { app, component, is } = await use("@/rollo/");
+    //const { frame } = await use("@/frame/");
+  </script>
+  <body>
+    <h1>Test index</h1>
+  </body>
+</html>

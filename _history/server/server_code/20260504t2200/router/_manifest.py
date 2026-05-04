@@ -1,0 +1,2 @@
+#  Generated: 2026-05-04T10:31:25.949350+00:00
+manifest = set(['standard-page.html', 'templates/emails/reset.jinja', 'tests/test.html', 'tests/foo/foo.html', 'tests/foo/foo.jinja', 'public/test/foo.html', 'about/about.html', 'error/error.jinja', 'foo/foo.jinja', 'front/index.html', 'frame/frame.html', 'stats/stats.html', 'toast/toast.html', 'index/index.html', 'index/index.jinja'])

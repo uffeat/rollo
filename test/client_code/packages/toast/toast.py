@@ -1,22 +1,23 @@
 def main(use, *args, **kwargs):
     use("@@/assets/")
-    anvil, app, console, document, js, log, meta, native, packages, tools, window = (
+    anvil, console, document, js, log, meta, native, tools, window = (
         use.anvil,
-        use.app,
         use.console,
         use.document,
         use.js,
         use.log,
         use.meta,
         use.native,
-        use.packages,
         use.tools,
         use.window,
     )
-    render = tools.render
+    app = use("@@/app/")
     component = use("@@/component/")
     bootstrap = use("@/bootstrap/").bootstrap
     Toast = bootstrap.Toast
+    render = use("@@/render/", test=meta.test)
+
+    __file__ = 'toast'
 
     class toast:
         def __init__(self):
@@ -49,7 +50,7 @@ def main(use, *args, **kwargs):
             if not self._.get("container"):
                 container = component.div(
                     "position-fixed.bottom-0.end-0.p-3.d-flex.flex-column.row-gap-3.z-3",
-                    parent=app,
+                    parent=use.app,
                 )
                 self._.update(container=container)
             return self._["container"]
@@ -57,7 +58,7 @@ def main(use, *args, **kwargs):
         @property
         def template(self):
             if not self._.get("template"):
-                template = use("assets/toast/toast.html", test=meta.test)
+                template = use("assets/toast/toast.html", test=use.meta.test)
                 self._.update(template=template)
             return self._["template"]
 

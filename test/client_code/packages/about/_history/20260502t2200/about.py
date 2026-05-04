@@ -9,34 +9,24 @@ def main(use, *args, **kwargs):
         mixins.Wrap,
         mixins.initialize,
     )
-    anvil, console, document, js, log, meta, native, tools, window = (
+    anvil, app, console, document, js, log, meta, native, window = (
         use.anvil,
+        use.app,
         use.console,
         use.document,
         use.js,
         use.log,
         use.meta,
         use.native,
-        use.tools,
         use.window,
     )
-    app = use("@@/app/", test=meta.test)
     component = use("@@/component/")
     # XXX Cannot make test-version of "@@/user/" work!!?
-    user = use("@@/user/", test=meta.test)
+    user = use("@@/user/", test=False)
 
     setup = use("assets/about/about.js.html", test=meta.test).default
-    user_data = component.output()
 
-
-    @user.effect(run=True)
-    def user_effect(message):
-        current = message.current
-        if isinstance(current, dict):
-            user_data.text = f'User: {current.get("email")}'
-        else:
-            user_data.text = "No user"
-
+    # Put cross-view persisting state here or in classmethod
 
     class about(Html, Base):
         page = True
@@ -46,38 +36,54 @@ def main(use, *args, **kwargs):
                 sheets=[
                     use("assets/about/about.css.html", test=meta.test),
                 ],
-                template=use("assets/about/about.html", test=meta.test),
+                template=use(f"assets/about/about.html", test=meta.test),
             )
 
         def __init__(self, **options):
             initialize(self, Base, Html)
-            self.classes.add("container.mt-3")
+            self.node.classList.add("container", "mt-3")
 
             html = use(
                 "assets/about/about.md",
                 test=meta.test,
                 data=dict(foo="FOO", bar="BAR", color="bs-secondary"),
             )
-            self.public.foo = component.html(html, parent=self.node)
+            wrapped = Wrap(html, parent=self)
 
-            @self.public.foo.on()
+            @wrapped.on()
             def click(event):
-                log("Clicked", trace=__file__)  ##
-
-            self.node.append(user_data)
-
-            @self.effect(_connect=True)
-            def on_connect(**change) -> None:
-                """Connected."""
-                log(on_connect.__doc__, trace="on_connect")  ##
-
-            @self.effect(_connect=False)
-            def on_disconnect(**change):
-                """Disconnected."""
-                log(on_disconnect.__doc__, trace="on_disconnect")  ##
+                log("Clicked")
 
             setup(self.node)
 
-            self(__height="300px", **{"[foo]": 42, ".baz": True})
+            user_data = component.output(parent=self.node)
+
+            @user_data.state.effect()
+            def effect(**change):
+                log("change: ", change, trace="effect")  ##
+
+            user_data.state(color="pink")
+
+            @user.bind(self)
+            def user_effect(message):
+                current = message.current
+                if isinstance(current, dict):
+                    user_data.text = f'User: {current.get("email")}'
+                else:
+                    user_data.text = "No user"
+
+            @self.effect(connect=True)
+            def on_connect(**change) -> None:
+                """Connected."""
+                ##log("dir", dir(on_connect), trace="on_connect")  ##
+                log(on_connect.__doc__, trace="on_connect")  ##
+                ##log('annotations: ', on_connect.__annotations__, trace="on_connect")  ##
+                ##user.effects.add(user_effect, run=True)
+
+            @self.effect(connect=False)
+            def on_disconnect(**change):
+                """Disconnected."""
+                log(on_disconnect.__doc__, trace="on_disconnect")  ##
+                ##user.effects.remove(user_effect)
 
     return dict(about=about)
