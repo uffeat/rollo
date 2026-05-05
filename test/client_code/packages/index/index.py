@@ -27,8 +27,13 @@ def main(use, *args, **kwargs):
 
             srcdoc = use(f"assets/index/index.html", raw=True, test=True)
             log("srcdoc:", srcdoc)
-
             iframe = component.iframe(srcdoc=srcdoc)
+
+            iframe = component.iframe(src=f"/index/index?test=true")
+
+
+
+
             self.node.append(iframe)
 
     return dict(index=index)
