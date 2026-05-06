@@ -22,12 +22,16 @@ def main(use, *args, **kwargs):
     )
     app = use("@@/app/", test=meta.test)
     component = use("@@/component/")
-    # XXX Cannot make test-version of "@@/user/" work!!?
-    user = use("@@/user/", test=meta.test)
+
+    
+
+    # BUG Cannot make test-version of "@@/user/" work!!?
+    user = use("@@/user/", test=False)
+
+    
 
     setup = use("assets/about/about.js.html", test=meta.test).default
     user_data = component.output()
-
 
     @user.effect(run=True)
     def user_effect(message):
@@ -36,7 +40,6 @@ def main(use, *args, **kwargs):
             user_data.text = f'User: {current.get("email")}'
         else:
             user_data.text = "No user"
-
 
     class about(Html, Base):
         page = True
@@ -78,6 +81,6 @@ def main(use, *args, **kwargs):
 
             setup(self.node)
 
-            self(__height="300px", **{"[foo]": 42, ".baz": True})
+            self(__height="300px", **{"[foo]": 42, ".test": True})
 
     return dict(about=about)

@@ -20,6 +20,7 @@ def main(use, *args, **kwargs):
     )
     app = use("@@/app/", test=meta.test)
     component = use("@@/component/")
+    router = use("@@/router/", test=meta.test)
 
     # CSS classes
     NAV_LINK = "nav-link"
@@ -36,5 +37,7 @@ def main(use, *args, **kwargs):
 
     ##iframe = component.iframe(srcdoc=srcdoc)
     ##frame_element.append(iframe)
+
+    router("/index")
 
 

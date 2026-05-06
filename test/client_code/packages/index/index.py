@@ -25,9 +25,9 @@ def main(use, *args, **kwargs):
         def __init__(self, **options):
             initialize(self, Base)
 
-            srcdoc = use(f"assets/index/index.html", raw=True, test=True)
-            log("srcdoc:", srcdoc)
-            iframe = component.iframe(srcdoc=srcdoc)
+            ##srcdoc = use(f"assets/index/index.html", raw=True, test=True)
+            ##log("srcdoc:", srcdoc)
+            ##iframe = component.iframe(srcdoc=srcdoc)
 
             iframe = component.iframe(src=f"/index/index?test=true")
 

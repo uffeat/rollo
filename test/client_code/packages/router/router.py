@@ -17,6 +17,8 @@ def main(use, *args, **kwargs):
     # CSS classes
     NAV_LINK = "nav-link"
 
+    __file__ = "router"
+
     class Router:
         """Browser router.
         NOTE
