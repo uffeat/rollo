@@ -1,5 +1,4 @@
 def main(use, *args, **kwargs):
-    Sheet = use("@/rollo/").Sheet
     use("@@/assets/")
     mixins = use("@@/mixins")
     Base, Html, On, Wrap, initialize = (
@@ -23,10 +22,18 @@ def main(use, *args, **kwargs):
     app = use("@@/app/", test=meta.test)
     component = use("@@/component/")
 
+
+    
+
     
 
     # BUG Cannot make test-version of "@@/user/" work!!?
     user = use("@@/user/", test=False)
+
+
+    sheet = use("assets/about/about.css", test=meta.test).sheet
+    sheet.disabled = True
+    console.dir(sheet)
 
     
 
@@ -65,7 +72,7 @@ def main(use, *args, **kwargs):
 
             @self.public.foo.on()
             def click(event):
-                log("Clicked", trace=__file__)  ##
+                log("Clicked", trace='click')  ##
 
             self.node.append(user_data)
 
