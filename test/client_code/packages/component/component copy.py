@@ -1,5 +1,5 @@
 def main(use, *args, **kwargs):
-    __file__ = "component"
+    __file__ = 'component'
     use("@@/assets/")
     console, document, js, log, meta, window = (
         use.console,
@@ -10,36 +10,47 @@ def main(use, *args, **kwargs):
         use.window,
     )
 
+
+   
     Reactive = use("@@/reactive", test=meta.test).Reactive
     mixup = use("@@/mixup/", test=meta.test)
     # XXX Use 'Component' rather than 'component', since Anvil messes up some JS proxies
     Component = use("@/rollo/").Component
-    from_html = use("@/rollo/").htmlToComponent
+    htmlToComponent = use("@/rollo/").htmlToComponent
+
+    
 
     def set_html(target, html: str):
         """Sets target html and converts all descendants to web components."""
         # NOTE target does not have to be a web component
-        target.append(*from_html(html))
+        target.append(*htmlToComponent(html))
         return target
 
     def pythonize(target):
         if target.hasAttribute("pythonized") or not hasattr(target, "update"):
             return target
+        
+
+        
+        
+
+
+       
+        
         # Extract originals
         _onConnect = js.pop(target, "onConnect")
         _onDisconnect = js.pop(target, "onDisconnect")
-        ##_state = js.pop(target, "state")
+        _state = js.pop(target, "state")
         _update = js.pop(target, "update")
 
-        ##log("About to mixup...", trace=__file__)  ##
+        
 
         @mixup(target)
         class Mixup:
-
             def __init__(self):
-                """."""
-                print("Pythonizing")##
-                
+
+                log('Pythonizing', trace=__file__)##
+
                 class on:
 
                     def __init__(self, *types, **options):
@@ -58,8 +69,7 @@ def main(use, *args, **kwargs):
 
                 self._ = dict(
                     on=on, 
-                    ##state=Reactive(_state)
-                    )
+                    state=Reactive(_state))
 
             @property
             def on(self):
@@ -82,14 +92,11 @@ def main(use, *args, **kwargs):
                 _update(updates.update(dict(next(iter(args), {}))) or updates)
                 return self
 
-        ##log("About to set up onDisconnect", trace=__file__)  ##
-
         def onDisconnect(*args):
-            target.effects.clear()
+            target.state.effects.clear()
 
         _onDisconnect(onDisconnect)
 
-        ##log("About to set pythonized attribute", trace=__file__)  ##
         target.attribute.pythonized = True
         return target
 
