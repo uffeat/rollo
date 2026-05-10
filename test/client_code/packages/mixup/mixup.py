@@ -45,10 +45,10 @@ def main(use, *args, **kwargs):
             def wrapper(*args, **kwargs):
                 return value(self.target, *args, **kwargs)
 
-            ##setattr(wrapper, "__annotations__", getattr(value, "__annotations__", {}))
-            ##setattr(wrapper, "__defaults__", getattr(value, "__defaults__", ""))
-            ##setattr(wrapper, "__doc__", getattr(value, "__doc__", ""))
-            ##setattr(wrapper, "__name__", getattr(value, "__name__", ""))
+            setattr(wrapper, "__annotations__", getattr(value, "__annotations__", {}))
+            setattr(wrapper, "__defaults__", getattr(value, "__defaults__", ""))
+            setattr(wrapper, "__doc__", getattr(value, "__doc__", ""))
+            setattr(wrapper, "__name__", getattr(value, "__name__", ""))
             Object.defineProperty(
                 self.target,
                 key,

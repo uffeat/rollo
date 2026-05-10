@@ -13,8 +13,9 @@ def main(use, *args, **kwargs):
         use.tools,
         use.window,
     )
-    app = use("@@/app/", test=meta.test)
-    component = use("@@/component/")
+
+    Error = tools.Error
+    
 
     import copy
 
@@ -28,6 +29,12 @@ def main(use, *args, **kwargs):
 
         def __getitem__(self, key: str):
             return self._.get(key)
+        
+        def __setattr__(self, *args):
+            Error(f"Cannot change message.", trace=__file__)
+
+        def __setitem__(self, *args):
+            Error(f"Cannot change message.", trace=__file__)
 
 
     class State:
@@ -37,11 +44,6 @@ def main(use, *args, **kwargs):
             owner = self
             registry = dict()
             _ = dict(detail=dict(), registry=registry)
-            if name:
-                _.update(name=name)
-            if value is not ...:
-                _.update(current=value)
-            self._ = _
 
             class effects:
                 @property
@@ -56,10 +58,6 @@ def main(use, *args, **kwargs):
                     once: bool = False,
                     run: bool = False,
                 ) -> callable:
-                    
-                    log('HERE', trace="effects")##
-                    
-
                     if data is None:
                         data = {}
                     if not name:
@@ -69,13 +67,9 @@ def main(use, *args, **kwargs):
                     if once:
                         detail.update(once=once)
                     if run:
-
-                        log('owner:', owner, trace="effects")##
-
-
                         message = Message(
-                            ##current=owner.current,
-                            ##previous=owner.previous,
+                            current=owner.current,
+                            previous=owner.previous,
                             session=None,
                             **detail
                         )
@@ -106,6 +100,13 @@ def main(use, *args, **kwargs):
 
             _.update(effect=effect, effects=effects)
 
+            if name:
+                _.update(name=name)
+
+            if value is not ...:
+                _.update(current=value)
+
+            self._ = _
 
         def __call__(self, value, silent=False):
             if value is ...:

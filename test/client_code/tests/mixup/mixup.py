@@ -24,10 +24,6 @@ def main(use, *args, **kwargs):
     compose = use("@@/compose/", test=meta.test)
     mixup = use("@@/mixup/", test=meta.test)
 
-    
-
-    
-
     element = document.createElement("div")
 
     @compose(element)

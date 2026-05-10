@@ -1,5 +1,5 @@
 def main(use, *args, **kwargs):
-    __file__ = 'component'
+    __file__ = "component"
     use("@@/assets/")
     console, document, js, log, meta, window = (
         use.console,
@@ -10,46 +10,36 @@ def main(use, *args, **kwargs):
         use.window,
     )
 
-
-   
     Reactive = use("@@/reactive", test=meta.test).Reactive
+    Effect = use("@@/reactive", test=meta.test).effect
+
     mixup = use("@@/mixup/", test=meta.test)
     # XXX Use 'Component' rather than 'component', since Anvil messes up some JS proxies
     Component = use("@/rollo/").Component
-    htmlToComponent = use("@/rollo/").htmlToComponent
-
-    
+    from_html = use("@/rollo/").htmlToComponent
 
     def set_html(target, html: str):
         """Sets target html and converts all descendants to web components."""
         # NOTE target does not have to be a web component
-        target.append(*htmlToComponent(html))
+        target.append(*from_html(html))
         return target
 
     def pythonize(target):
         if target.hasAttribute("pythonized") or not hasattr(target, "update"):
             return target
-        
-
-        
-        
-
-
-       
-        
         # Extract originals
         _onConnect = js.pop(target, "onConnect")
         _onDisconnect = js.pop(target, "onDisconnect")
-        _state = js.pop(target, "state")
         _update = js.pop(target, "update")
 
-        
+        ##log("About to mixup...", trace=__file__)  ##
 
         @mixup(target)
         class Mixup:
-            def __init__(self):
 
-                log('Pythonizing', trace=__file__)##
+            def __init__(self):
+                """."""
+                ##print("Pythonizing")  ##
 
                 class on:
 
@@ -68,17 +58,13 @@ def main(use, *args, **kwargs):
                         return handler
 
                 self._ = dict(
-                    on=on, 
-                    state=Reactive(_state))
+                    on=on,
+                )
 
             @property
             def on(self):
                 """Decorates event handler."""
                 return self._["on"]
-
-            @property
-            def state(self):
-                return self._["state"]
 
             def html(self, html: str):
                 """Appends components from html with all components converted to
@@ -87,16 +73,19 @@ def main(use, *args, **kwargs):
                 return self
 
             def update(self, *args, **updates):
-                """Updates component from updates and/or first pos arg."""
+                """Updates component from updates or first pos arg."""
                 # XXX component could update during pythonization -> pos arg important
                 _update(updates.update(dict(next(iter(args), {}))) or updates)
                 return self
+
+        ##log("About to set up onDisconnect", trace=__file__)  ##
 
         def onDisconnect(*args):
             target.state.effects.clear()
 
         _onDisconnect(onDisconnect)
 
+        ##log("About to set pythonized attribute", trace=__file__)  ##
         target.attribute.pythonized = True
         return target
 

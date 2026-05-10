@@ -31,11 +31,11 @@ def main(use, *args, **kwargs):
             self.items = items
 
         def __call__(self, handler: callable) -> callable:
-            special = Special(handler)
+            ##special = Special(handler)
             if isinstance(handler, type):
                 handler = handler()
 
-            @special.target()
+            ##@special.target()
             def wrapper(change, message, *args):
                 handler(**change)
 

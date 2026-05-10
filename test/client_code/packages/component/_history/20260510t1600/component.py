@@ -10,8 +10,6 @@ def main(use, *args, **kwargs):
         use.window,
     )
 
-    compose = use("@@/compose/", test=meta.test)
-    mixup = use("@@/mixup/", test=meta.test)
     patch = use("@@/patch/", test=meta.test)
 
     # XXX Use 'Component' rather than 'component', since Anvil messes up some JS proxies
@@ -28,9 +26,11 @@ def main(use, *args, **kwargs):
         if target.hasAttribute("pythonized") or not hasattr(target, "update"):
             return target
         # Extract originals
+        _onConnect = js.pop(target, "onConnect")
+        _onDisconnect = js.pop(target, "onDisconnect")
         _update = js.pop(target, "update")
 
-        @compose(target)
+        @patch(target)
         def html(html: str):
             """Appends components from html with all components converted to
             (non-pythonized) web components."""
@@ -50,11 +50,11 @@ def main(use, *args, **kwargs):
                 # XXX class-based handlers are not suitable for decorator-stacking
                 if isinstance(handler, type):
                     handler = handler()
-                for type_ in self.types:
-                    target.addEventListener(type_, handler, self.options)
+                for t in self.types:
+                    target.addEventListener(t, handler, self.options)
                 return handler
 
-        @compose(target)
+        @patch(target)
         def update(*args, **updates):
             """Updates component from updates or first pos arg."""
             # XXX component could update during pythonization -> pos arg important
@@ -63,9 +63,10 @@ def main(use, *args, **kwargs):
 
         ##log("About to set up onDisconnect", trace=__file__)  ##
 
-        
+        def onDisconnect(*args):
+            target.state.effects.clear()
 
-        
+        _onDisconnect(onDisconnect)
 
         ##log("About to set pythonized attribute", trace=__file__)  ##
         target.attribute.pythonized = True
