@@ -13,6 +13,7 @@ def main(use, *args, **kwargs):
     compose = use("@@/compose/", test=meta.test)
     mixup = use("@@/mixup/", test=meta.test)
     patch = use("@@/patch/", test=meta.test)
+    _on = use("@@/on/", test=meta.test)
 
     # XXX Use 'Component' rather than 'component', since Anvil messes up some JS proxies
     Component = use("@/rollo/").Component
@@ -38,21 +39,10 @@ def main(use, *args, **kwargs):
             return target
 
         @patch(target)
-        class on:
+        class on(_on):
 
             def __init__(self, *types, **options):
-                self.types = types
-                self.options = options
-
-            def __call__(self, handler: callable) -> callable:
-                if not self.types:
-                    self.types = [handler.__name__]
-                # XXX class-based handlers are not suitable for decorator-stacking
-                if isinstance(handler, type):
-                    handler = handler()
-                for type_ in self.types:
-                    target.addEventListener(type_, handler, self.options)
-                return handler
+                _on.__init__(self, target, *types, **options)
 
         @compose(target)
         def update(*args, **updates):
@@ -62,10 +52,6 @@ def main(use, *args, **kwargs):
             return target
 
         ##log("About to set up onDisconnect", trace=__file__)  ##
-
-        
-
-        
 
         ##log("About to set pythonized attribute", trace=__file__)  ##
         target.attribute.pythonized = True

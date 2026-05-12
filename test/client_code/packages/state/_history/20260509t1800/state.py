@@ -15,8 +15,10 @@ def main(use, *args, **kwargs):
     )
 
     Error = tools.Error
+    
 
     import copy
+
 
     class Message:
         def __init__(self, **_):
@@ -27,19 +29,21 @@ def main(use, *args, **kwargs):
 
         def __getitem__(self, key: str):
             return self._.get(key)
-
+        
         def __setattr__(self, *args):
             Error(f"Cannot change message.", trace=__file__)
 
         def __setitem__(self, *args):
             Error(f"Cannot change message.", trace=__file__)
 
+
     class State:
         """Reactive state tool."""
 
-        def __init__(self, *args, name=None):
+        def __init__(self, value=..., name=None):
             owner = self
             registry = dict()
+            _ = dict(detail=dict(), registry=registry)
 
             class effects:
                 @property
@@ -67,7 +71,7 @@ def main(use, *args, **kwargs):
                             current=owner.current,
                             previous=owner.previous,
                             session=None,
-                            **detail,
+                            **detail
                         )
                         effect(message)
                         if once:
@@ -94,22 +98,20 @@ def main(use, *args, **kwargs):
                     effects.add(effect, **self.kwargs)
                     return effect
 
-            current = next(iter(args), None)
-            self._ = dict(
-                current=current,
-                detail=dict(),
-                effect=effect,
-                effects=effects,
-                registry=registry,
-            )
-            if name:
-                self._.update(name=name)
+            _.update(effect=effect, effects=effects)
 
-           
+            if name:
+                _.update(name=name)
+
+            if value is not ...:
+                _.update(current=value)
+
+            self._ = _
 
         def __call__(self, value, silent=False):
-            
-            current =  self._["current"]
+            if value is ...:
+                return self
+            current = self._.get("current", ...)
             # Abort if no change
             if current == value:
                 return self
@@ -138,7 +140,7 @@ def main(use, *args, **kwargs):
                     current=self.current,
                     previous=self.previous,
                     session=self.session,
-                    **detail,
+                    **detail
                 )
 
                 effect(message)
@@ -152,7 +154,7 @@ def main(use, *args, **kwargs):
 
         @property
         def current(self):
-            value = self._["current"]
+            value = self._.get("current", ...)
             if isinstance(value, (dict, list, tuple)):
                 value = copy.deepcopy(value)
             return value
@@ -185,5 +187,7 @@ def main(use, *args, **kwargs):
         @property
         def session(self) -> str:
             return self._.get("session")
+
+
 
     return dict(State=State)
