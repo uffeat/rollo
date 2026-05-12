@@ -14,7 +14,7 @@ def main(use, *args, **kwargs):
         use.window,
     )
     app = use("@@/app/", test=meta.test)
-    component = use("@@/component/")
+    component = use("@@/component/", test=meta.test)
     Login = use("@@/user").Login
     Logout = use("@@/user").Logout
     Signup = use("@@/user").Signup
@@ -48,11 +48,12 @@ def main(use, *args, **kwargs):
                 )
             else:
                 app.state(user=False)
-                toast(
-                    "See you soon",
-                    f"{self.previous.get('email')} logged out",
-                    style="dark",
-                )
+                if self.previous:
+                    toast(
+                        "See you soon",
+                        f"{self.previous.get('email')} logged out",
+                        style="dark",
+                    )
 
         @property
         def current(self):

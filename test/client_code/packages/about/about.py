@@ -28,12 +28,12 @@ def main(use, *args, **kwargs):
     
 
     # BUG Cannot make test-version of "@@/user/" work!!?
-    user = use("@@/user/", test=False)
+    user = use("@@/user/", test=meta.test)
 
 
     sheet = use("assets/about/about.css", test=meta.test).sheet
     sheet.disabled = True
-    console.dir(sheet)
+    ##console.dir(sheet)##
 
     
 
@@ -43,6 +43,7 @@ def main(use, *args, **kwargs):
     @user.effect(run=True)
     def user_effect(message):
         current = message.current
+        log('current:', current, trace="user_effect")##
         if isinstance(current, dict):
             user_data.text = f'User: {current.get("email")}'
         else:
