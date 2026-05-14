@@ -1,11 +1,10 @@
 """
-state/state.py
+skulpt/from_text.py
 """
 
 
 def main(use, *args, **kwargs):
-    """."""
-
+  
     use("@@/assets/")
     anvil, app, console, document, js, log, meta, native, packages, tools, window = (
         use.anvil,
@@ -20,7 +19,20 @@ def main(use, *args, **kwargs):
         use.tools,
         use.window,
     )
+  
+    importMainWithBody = window.Sk.importMainWithBody
 
-    State = use("@@/state", test=meta.test).State
+    body = """
+    print(42)
 
-    state = State()
+    ding = 42
+    dong = {"dong": "DONG"}
+
+    def main():
+        return 42
+
+
+    """
+    foo = importMainWithBody(None, False, body, False)
+
+    
