@@ -5,11 +5,23 @@ def log(*args, **kwargs):
     print(*args)
 
 
+PRIMITIVES = (bool, int, str)
+SINGLETONS = (False, None, True)
+
+
 def copy(value):
     """Returns deep copy of value if mutable else value."""
     if isinstance(value, (dict, list, tuple)):
         return _copy.deepcopy(value)
     return value
+
+
+def difference(value, other):
+    """."""
+    if isinstance(value, dict) and isinstance(other, dict):
+        change = {}
+        for key, value in other.items():
+            ...
 
 
 class Effects:
@@ -129,7 +141,9 @@ class Message:
         return [
             k
             for k, v in cls.__dict__.items()
-            if not k.startswith("__") and not k.endswith("__") and isinstance(v, property)
+            if not k.startswith("__")
+            and not k.endswith("__")
+            and isinstance(v, property)
         ]
 
     def __init__(self, owner=None, session=None, transient: dict = None):
@@ -191,9 +205,9 @@ class Message:
 class State:
     """Reactive state tool."""
 
-    def __init__(self, *args, context=None, name: str = None, type: type=None):
+    def __init__(self, *args, context=None, name: str = None):
         current = next(iter(args), ...)
-        
+
         effects = Effects(owner=self)
 
         class effect:
@@ -214,25 +228,56 @@ class State:
             self._.update(context=context)
         if name:
             self._.update(name=name)
-        if type:
-            self._.update(type=type)
         if current is not ...:
-            current = copy(current)
-            self._.update(current=current)
-
+            if isinstance(current, dict):
+                current = _copy.deepcopy(current)
+            self._.update(current=current, type=type(current))
 
     def __call__(self, *args, silent=False, **updates) -> "State":
-        value = next(iter(args), None)
-        value = copy(value)
-        current = self._.get("current")
         ##log("current before update:", current, trace="State.__call__")  ##
         ##log("previous before update:", self._.get("previous"), trace="State.__call__")  ##
-        # Abort if no change
-        if current == value:
-            log("No change from:", value, trace="State.__call__")  ##
-            return self
-        # Update values
-        self._.update(current=value, previous=current)
+        current = self._.get("current")
+        if self.type and self.type is dict:
+            # Abort if no updates
+            if not updates:
+                return self
+            # XXX TODO Deal with value
+            previous = self._.get("current")
+            if not previous:
+                # Init previous
+                previous = {}
+                self._["previous"] = previous
+            change = {}
+            for key, value in updates.items():
+                if key in current:
+                    # HACK ... deletes
+                    if value is ...:
+                        previous[key] = current[key]
+                        current.pop(key)
+                        change[key] = value
+                    else:
+                        if current[key] != value:
+                            previous[key] = current[key]
+                            current[key] = value
+                            change[key] = value
+                else:
+                    if value is not ...:
+                        previous[key] = current[key]
+                        current[key] = value
+                        change[key] = value
+                self._['change'] = change
+
+        else:
+            # XXX TODO Deal with updates
+            value = next(iter(args), None)
+            value = copy(value)
+            # Abort if no change
+            if current == value:
+                ##log("No change from:", value, trace="State.__call__")  ##
+                return self
+            # Update values
+            self._.update(current=value, previous=current)
+
         ##log("current after update:", self.current, trace="State.__call__")  ##
         ##log("previous after update:", self.previous, trace="State.__call__")  ##
         # Init session
@@ -281,7 +326,7 @@ class State:
     @property
     def session(self) -> str:
         return self._.get("session")
-    
+
     @property
     def type(self) -> type:
         return self._.get("type")

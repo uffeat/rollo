@@ -2,7 +2,7 @@ from state import State, Message
 
 
 
-state = State(name="foo")
+state = State(dict(foo='FOO'))
 
 
 @state.effect()
@@ -15,9 +15,4 @@ def effect(message: Message):
 state(foo=42)
 
 
-value = dict(foo=42)
 
-
-type_ = type(value)
-
-print(type_ is dict)
