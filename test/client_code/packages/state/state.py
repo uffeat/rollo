@@ -14,7 +14,7 @@ def main(use, *args, **kwargs):
         use.window,
     )
 
-    Error = tools.Error
+    
 
     import copy as _copy
 
