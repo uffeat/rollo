@@ -242,7 +242,7 @@ class State:
             if not updates:
                 return self
             # XXX TODO Deal with value
-            previous = self._.get("current")
+            previous = self._.get("previous")
             if not previous:
                 # Init previous
                 previous = {}
@@ -265,7 +265,7 @@ class State:
                         previous[key] = current[key]
                         current[key] = value
                         change[key] = value
-                self._['change'] = change
+            self._['change'] = change
 
         else:
             # XXX TODO Deal with updates

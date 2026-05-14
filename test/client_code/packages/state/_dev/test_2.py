@@ -13,6 +13,7 @@ def effect(message: Message):
     
 
 state(foo=42)
+print(f"previous:", state.previous)
 
 
 
