@@ -54,7 +54,7 @@ class Effects:
     def __contains__(self, effect: callable) -> bool:
         """Checks if effect registered."""
         return effect in self.registry
-    
+
     def __getitem__(self, key: str):
         """Returns declared attribute."""
         return getattr(self, key, None)
@@ -81,45 +81,58 @@ class Effects:
         return len(self.registry)
 
     def add(
-        self, effect: callable, once: bool = False, protected: bool=False, run: bool = False, **data
+        self,
+        effect: callable,
+        once: bool = False,
+        protected: bool = False,
+        run: bool = False,
+        **data
     ) -> callable:
         # Create detail
         detail = dict(data=data)
-        # Dedupe re effect
-        if effect in self:
-            ...
-
-
-        else:
-            if run:
-                transient = dict()
-                message = Message(
-                    owner=self.owner,
-                    session=None,  # NOTE Signals non-reactive invocation
-                    transient=transient,
-                )
-                # Update transient part of message
-                transient.update(effect=effect, detail=detail)
-                ##log("Running effect before registration", trace="Effects.add")  ##
-                effect(message)
-                if once:
-                    ##log("Not registering effect.", trace="Effects.add")  ##
-                    return effect
-            
-            
+        # Handle ii effect
+        if run:
+            transient = dict()
+            message = Message(
+                owner=self.owner,
+                # Signal non-reactive invocation:
+                session=None,
+                transient=transient,
+            )
+            # Update transient part of message
+            transient.update(effect=effect, detail=detail)
+            ##log("Running effect before registration", trace="Effects.add")  ##
+            effect(message)
             if once:
-                detail.update(once=once)
-            
+                ##log("Not registering effect.", trace="Effects.add")  ##
+                return effect
+        # Update detail
+        if once:
+            detail.update(once=once)
+        if protected:
+            detail.update(protected=protected)
+
+        if effect in self:
+            # Dedupe effect, but update detail
+            self.update(**detail)
+        else:
             # Register
             self.registry[effect] = detail
             ##log("Registered effect with detail:", detail, trace="Effects.add")  ##
-        
-        
         # Return effect to facilitate removal
         return effect
 
     def clear(self) -> None:
-        self.registry.clear()
+        remove = []
+        # Run effects
+        for effect, detail in self:
+            protected = detail.get("protected")
+            if protected:
+                continue
+            remove.append(effect)
+        for effect in remove:
+            self.remove(effect)
+        ##self.registry.clear()
 
     def get(self, effect: callable, *args) -> dict:
         """Returns detail associated with effect."""
@@ -137,7 +150,7 @@ class Effects:
         """Updates detail associated with effect."""
         detail = self.get(effect)
         if not isinstance(detail, dict):
-            raise KeyError("Cannot update detail.")
+            raise KeyError("Cannot update detail for non-registered effect.")
         detail.update(updates)
 
 
@@ -176,7 +189,7 @@ class Message:
 
     @property
     def detail(self) -> dict:
-        # Belongs to effect
+        # NOTE Belongs to effect
         transient: dict = self._["transient"]
         return transient.get("detail")
 
@@ -187,7 +200,7 @@ class Message:
 
     @property
     def index(self) -> int:
-        # Belongs to effect
+        # NOTE Belongs to effect
         transient: dict = self._["transient"]
         return transient.get("index")
 
@@ -234,6 +247,7 @@ class State:
         if name:
             self._.update(name=name)
         if current is not ...:
+            # NOTE Instantiation with current infers type
             if isinstance(current, dict):
                 current = _copy.deepcopy(current)
             self._.update(current=current, type=type(current))
@@ -244,6 +258,8 @@ class State:
         current = self._.get("current")
         if self.type and self.type is dict:
             _updates = next(iter(args), {})
+            if not isinstance(_updates, dict):
+                TypeError(f"Type locked to: {self.type.__name__}. Cannot update to {str(_updates)}")
             updates.update(_updates)
             # Abort if no updates
             if not updates:
@@ -271,7 +287,7 @@ class State:
                         previous[key] = current[key]
                         current[key] = value
                         change[key] = value
-            self._['change'] = change
+            self._["change"] = change
 
         else:
             # XXX TODO Deal with updates
@@ -285,7 +301,7 @@ class State:
                 ##log("No change from:", value, trace="State.__call__")  ##
                 return self
             # Update values
-            self._.update(current=value, previous=current)
+            self._.update(change=current, current=value, previous=current)
         ##log("current after update:", self.current, trace="State.__call__")  ##
         ##log("previous after update:", self.previous, trace="State.__call__")  ##
         # Init session

@@ -7,9 +7,14 @@ state = State(name="foo")
 
 @state.effect()
 def effect(message: Message):
-    for key in Message.keys():
-        value = getattr(message, key)
-        print(f"{key}:", value)
+    """Tests reative primitives."""
+    session = message.session
+    print('session:', session)
+    change = message.change
+    print('change:', change)
+    current = message.current
+    print('current:', current)
     
 
 state(42)
+state(8)
