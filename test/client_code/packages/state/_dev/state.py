@@ -16,14 +16,6 @@ def copy(value):
     return value
 
 
-def difference(value, other):
-    """."""
-    if isinstance(value, dict) and isinstance(other, dict):
-        change = {}
-        for key, value in other.items():
-            ...
-
-
 class Effects:
     def __init__(self, owner=None):
         self._ = dict(owner=owner, registry=dict())
@@ -48,11 +40,8 @@ class Effects:
                 ##log("index:", index, trace="State.__call__")  ##
                 ##log("Effect detail:", detail, trace="State.__call__")  ##
                 once = detail.pop("once", False)
-
                 # Update transient part of message
-
                 transient.update(effect=effect, detail=detail, index=index)
-
                 # Run effect
                 effect(message)
                 if once:
@@ -65,6 +54,10 @@ class Effects:
     def __contains__(self, effect: callable) -> bool:
         """Checks if effect registered."""
         return effect in self.registry
+    
+    def __getitem__(self, key: str):
+        """Returns declared attribute."""
+        return getattr(self, key, None)
 
     def __iter__(self) -> iter:
         """Returns iterator for registry."""
@@ -88,27 +81,41 @@ class Effects:
         return len(self.registry)
 
     def add(
-        self, effect: callable, once: bool = False, run: bool = False, **data
+        self, effect: callable, once: bool = False, protected: bool=False, run: bool = False, **data
     ) -> callable:
+        # Create detail
         detail = dict(data=data)
-        if run:
-            transient = dict()
-            message = Message(
-                owner=self.owner,
-                session=None,  # NOTE Signals non-reactive invocation
-                transient=transient,
-            )
-            # Update transient part of message
-            transient.update(effect=effect, detail=detail)
-            ##log("Running effect before registration", trace="Effects.add")  ##
-            effect(message)
+        # Dedupe re effect
+        if effect in self:
+            ...
+
+
+        else:
+            if run:
+                transient = dict()
+                message = Message(
+                    owner=self.owner,
+                    session=None,  # NOTE Signals non-reactive invocation
+                    transient=transient,
+                )
+                # Update transient part of message
+                transient.update(effect=effect, detail=detail)
+                ##log("Running effect before registration", trace="Effects.add")  ##
+                effect(message)
+                if once:
+                    ##log("Not registering effect.", trace="Effects.add")  ##
+                    return effect
+            
+            
             if once:
-                ##log("Not registering effect.", trace="Effects.add")  ##
-                return effect
-        if once:
-            detail.update(once=once)
-        self.registry[effect] = detail
-        ##log("Registered effect with detail:", detail, trace="Effects.add")  ##
+                detail.update(once=once)
+            
+            # Register
+            self.registry[effect] = detail
+            ##log("Registered effect with detail:", detail, trace="Effects.add")  ##
+        
+        
+        # Return effect to facilitate removal
         return effect
 
     def clear(self) -> None:
@@ -196,7 +203,7 @@ class Message:
 
     def data(self, **updates) -> dict:
         """Updates and returns data."""
-        # NOTE Own store
+        # NOTE Belongs to message
         data: dict = self._["data"]
         data.update(data)
         return data
@@ -207,7 +214,6 @@ class State:
 
     def __init__(self, *args, context=None, name: str = None):
         current = next(iter(args), ...)
-
         effects = Effects(owner=self)
 
         class effect:
@@ -223,7 +229,6 @@ class State:
             effect=effect,
             effects=effects,
         )
-
         if context:
             self._.update(context=context)
         if name:
@@ -238,10 +243,11 @@ class State:
         ##log("previous before update:", self._.get("previous"), trace="State.__call__")  ##
         current = self._.get("current")
         if self.type and self.type is dict:
+            _updates = next(iter(args), {})
+            updates.update(_updates)
             # Abort if no updates
             if not updates:
                 return self
-            # XXX TODO Deal with value
             previous = self._.get("previous")
             if not previous:
                 # Init previous
@@ -269,15 +275,17 @@ class State:
 
         else:
             # XXX TODO Deal with updates
-            value = next(iter(args), None)
-            value = copy(value)
+            if updates:
+                value = updates
+            else:
+                value = next(iter(args), None)
+                value = copy(value)
             # Abort if no change
             if current == value:
                 ##log("No change from:", value, trace="State.__call__")  ##
                 return self
             # Update values
             self._.update(current=value, previous=current)
-
         ##log("current after update:", self.current, trace="State.__call__")  ##
         ##log("previous after update:", self.previous, trace="State.__call__")  ##
         # Init session
