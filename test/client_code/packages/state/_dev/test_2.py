@@ -16,6 +16,7 @@ state()
 print("state.foo:", state.foo)
 
 state(dict(ping='PING'))
+state.ping = 'ping'
 
 
 print("state.current:", state.current)

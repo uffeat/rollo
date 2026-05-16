@@ -262,15 +262,22 @@ class Message:
         return data
 
 
-class State:
-    """Reactive state tool.
-    NOTE
-    - Primarily intended for flat structures with immutable values.
-    - Can be used as effect for other State instances, therefore no critical need
-      for implementing filter, reducer and transformer features.
-    """
+class Ref:
+    """Reactive state tool for single values."""
 
-    def __init__(self, context=None, name: str = ""):
+    @classmethod
+    def keys(cls) -> list:
+        """Returns own property names."""
+        return [
+            k
+            for k, v in cls.__dict__.items()
+            if not k.startswith("__")
+            and not k.endswith("__")
+            and isinstance(v, property)
+        ]
+
+    def __init__(self, *args, context=None, name: str = ""):
+        current = next(iter(args), None)
         owner = self
         effects = Effects(owner=self)
 
@@ -294,23 +301,159 @@ class State:
             return value == other
 
         self._ = dict(
-            _=dict(
-                change=Data({}),
-                current=Data({}),
-                previous=Data({}),
-            ),
-            current=dict(),
+            current=current,
             detail=dict(),
             effect=effect,
             effects=effects,
             match=match,
             matches=matches,
-            previous=dict(),
+            previous=None,
         )
         if context:
             self._.update(context=context)
         if name:
             self._.update(name=name)
+
+    def __bool__(self):
+        return bool(self.current)
+
+    def __call__(self, value, silent=False) -> "Ref":
+        if self.current != value:
+            self._["previous"] = self.current
+            self._["current"] = value
+            # Init session
+            if self.session is None:
+                self._["session"] = 0
+            if not silent:
+                # Run effects
+                self.effects()
+            # Update session
+            self._["session"] += 1
+        return self
+
+    def __eq__(self, other) -> bool:
+        matches = self._["matches"]
+        return matches(self.current, other)
+
+    def __str__(self):
+        return str(self.current)
+
+    @property
+    def change(self):
+        """."""
+        return self.previous
+
+    @property
+    def context(self):
+        return self._.get("context")
+
+    @property
+    def current(self):
+        return self._["current"]
+
+    @property
+    def effect(self) -> callable:
+        """Decorates effect."""
+        return self._["effect"]
+
+    @property
+    def effects(self) -> Effects:
+        """Returns effects controller."""
+        return self._["effects"]
+
+    @property
+    def match(self) -> callable:
+        """Decorates match function."""
+        return self._["match"]
+
+    @property
+    def previous(self):
+        """Returns changed items as-was before most recent update."""
+        return self._["previous"]
+
+    @property
+    def name(self) -> str:
+        return self._.get("name", "")
+
+    @property
+    def session(self) -> str:
+        return self._.get("session")
+
+    def detail(self, **updates) -> dict:
+        """Updates and returns detail."""
+        # NOTE Useful for storing non-reactive additional data
+        detail = self._["detail"]
+        detail.update(updates)
+        return detail
+
+
+class State:
+    """Reactive state tool.
+    NOTE
+    - Primarily intended for flat structures with immutable values.
+    - Can be used as effect for other State instances, therefore no critical need
+      for implementing filter, reducer and transformer features.
+    """
+
+    @classmethod
+    def keys(cls) -> list:
+        """Returns own property names."""
+        return [
+            k
+            for k, v in cls.__dict__.items()
+            if not k.startswith("__")
+            and not k.endswith("__")
+            and isinstance(v, property)
+        ]
+
+    def __init__(self, *args, context=None, name: str = ""):
+        current = next(iter(args), {})
+        if not isinstance(current, dict):
+            raise TypeError(f"Expected dict. Got: {str(current)}.")
+
+        owner = self
+        effects = Effects(owner=self)
+
+        class effect:
+            def __init__(self, **kwargs):
+                self.kwargs = kwargs
+
+            def __call__(self, effect: callable) -> callable:
+                effects.add(effect, **self.kwargs)
+                return effect
+
+        class match:
+            def __init__(self):
+                """."""
+                # XXX Keep for future use.
+
+            def __call__(self, matches: callable) -> callable:
+                owner._.update(matches=matches)
+
+        def matches(value, other):
+            return value == other
+
+        _ = dict(
+            _=dict(
+                change=Data({}),
+                current=Data(current),
+                previous=Data({}),
+            ),
+            current=current,
+            detail={},
+            effect=effect,
+            effects=effects,
+            match=match,
+            matches=matches,
+            previous={},
+        )
+        if context:
+            _.update(context=context)
+
+        if name:
+            _.update(name=name)
+
+        self.__dict__["_"] = _
 
     def __bool__(self):
         return bool(len(self._["current"]))
@@ -322,7 +465,7 @@ class State:
             if current is None:
                 current = {}
             elif not isinstance(current, dict):
-                raise TypeError(f"Expected dict. Got: {type(current).__name__}.")
+                raise TypeError(f"Expected dict. Got: {str(current)}.")
             # current provided as pos arg -> reset current
             self._["current"] = current
             previous = {}
@@ -385,6 +528,14 @@ class State:
 
     def __iter__(self) -> iter:
         return iter(self._["current"].items())
+    
+    def __setattr__(self, key: str, value):
+        """."""
+        self(**{key: value})
+
+    def __setitem__(self, key: str, value):
+        """."""
+        self(**{key: value})
 
     def __str__(self):
         return str(self._["current"])
@@ -448,6 +599,9 @@ class State:
 
     def keys(self):
         return self._["current"].keys()
+
+    def reset(self, **current):
+        return self(current)
 
     def values(self):
         return self._["current"].values()
