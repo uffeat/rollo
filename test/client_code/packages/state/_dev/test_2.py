@@ -12,5 +12,14 @@ def effect(message: Message):
 
 state(foo=42, ding='DING')
 state(foo=43, ding='ding')
+state()
 print("state.foo:", state.foo)
+
+state(dict(ping='PING'))
+
+
 print("state.current:", state.current)
+
+
+
+

@@ -290,12 +290,18 @@ class State:
             return value == other
 
         self._ = dict(
-            _=dict(),
+            _=dict(
+                current=Data({}),
+                previous=Data({}),
+            ),
+            change=Data({}),
+            current=dict(),
             detail=dict(),
             effect=effect,
             effects=effects,
             match=match,
             matches=matches,
+            previous=dict(),
         )
         if context:
             self._.update(context=context)
@@ -303,52 +309,44 @@ class State:
             self._.update(name=name)
 
     def __bool__(self):
-        current = self._.get("current")
-        if current is None:
-            return False
-        return bool(len(current))
+        return bool(len(self._["current"]))
     
-    def __call__(self, *args, silent=False, **updates) -> "State":
-        current = self._.get("current")
-        if current is None:
-            current = {}
-            self._["current"] = current
-        
-        # XXX TODO Handle args
-
-        # Abort if no updates
-        if not updates:
-            return self
-        
-        
-        
-        matches = self._["matches"]
-        previous = self._.get("previous")
-        if previous is None:
-            previous = {}
-            self._["previous"] = previous
-        change = {}
-        for key, value in updates.items():
-            if key in current:
-                # HACK None deletes
-                if value is None:
-                    previous[key] = current[key]
-                    current.pop(key)
-                    change[key] = value
-                else:
-                    if not matches(current[key], value):
+    def __call__(self, silent=False, **updates) -> "State":
+        current: dict = self._["current"]
+        previous: dict = self._["previous"]
+        if updates:
+            matches = self._["matches"]
+            change = {}
+            for key, value in updates.items():
+                if key in current:
+                    # HACK None deletes
+                    if value is None:
                         previous[key] = current[key]
+                        current.pop(key)
+                        change[key] = value
+                    else:
+                        if not matches(current[key], value):
+                            previous[key] = current[key]
+                            current[key] = value
+                            change[key] = value
+                else:
+                    # New key
+                    if value is not None:
                         current[key] = value
                         change[key] = value
-            else:
-                # New key
-                if value is not None:
-                    current[key] = value
-                    change[key] = value
+            
+        else:
+            previous.clear()
+            previous.update(current)
+            change = dict(current)
+            current.clear()
+
+
         # Create public exposures
         self._["change"] = Data(change)
         self._["_"]["current"] = Data(current)
         self._["_"]["previous"] = Data(previous)
+        
         # Init session
         if self.session is None:
             self._["session"] = 0
@@ -360,35 +358,27 @@ class State:
         return self
 
     def __contains__(self, key: str):
-        current = self._.get("current")
-        if current is None:
-            return False
-        return key in current
+        return key in self._["current"]
     
     def __eq__(self, other) -> bool:
-        current = self._.get("current")
-        return current == other
+        return self._["current"] == other
 
     def __getattr__(self, key: str):
         return self[key]
 
     def __getitem__(self, key: str):
-        current = self._.get("current")
-        if current is not None:
-            return current.get(key)
+        return self._["current"].get(key)
         
     def __iter__(self) -> iter:
-        current = self._.get("current")
-        if current is not None:
-            return iter(current.items())
+        return iter(self._["current"].items())
 
     def __str__(self):
-        return str(self._.get("current"))
+        return str(self._["current"])
 
     @property
     def change(self):
         """Returns items changed during most recent update."""
-        return self._.get("change")
+        return self._["change"]
 
     @property
     def context(self):
@@ -396,7 +386,7 @@ class State:
 
     @property
     def current(self):
-        return self._["_"].get("current")
+        return self._["_"]["current"]
 
     @property
     def effect(self) -> callable:
@@ -416,7 +406,7 @@ class State:
     @property
     def previous(self):
         """Returns changed items as-was before most recent update."""
-        return self._["_"].get("previous")
+        return self._["_"]["previous"]
 
     @property
     def name(self) -> str:
@@ -428,10 +418,8 @@ class State:
 
     def clear(self, silent=False) -> "State":
         """."""
-        keys = self.keys()
-        if keys:
-            updates = {k: None for k in self.keys()}
-            self(silent=silent, **updates)
+        updates = {k: None for k in self.keys()}
+        self(silent=silent, **updates)
         return self
 
     def detail(self, **updates) -> dict:
@@ -441,16 +429,10 @@ class State:
         return detail
 
     def items(self):
-        current = self._.get("current")
-        if current is not None:
-            return current.items()
+        return self._["current"].items()
 
     def keys(self):
-        current = self._.get("current")
-        if current is not None:
-            return current.keys()
+        return self._["current"].keys()
 
     def values(self):
-        current = self._.get("current")
-        if current is not None:
-            return current.values()
+        return self._["current"].values()

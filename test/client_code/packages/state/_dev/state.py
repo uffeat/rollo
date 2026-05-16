@@ -1,19 +1,11 @@
-import copy as _copy
-from types import MappingProxyType
-
-
 def log(*args, **kwargs):
     print(*args)
 
 
-def copy(value):
-    """Returns deep copy of value if mutable else value."""
-    if isinstance(value, (dict, list, tuple)):
-        return _copy.deepcopy(value)
-    return value
-
-
 class Data:
+    """Dict wrapper for providing read-only items with JS-like access syntax."""
+
+    # NOTE Primarily intended for flat structures with immutable values.
     def __init__(self, _: dict):
         self.__dict__["_"] = _
 
@@ -125,7 +117,7 @@ class Effects:
         once: bool = False,
         protected: bool = False,
         run: bool = False,
-        **data
+        **data,
     ) -> callable:
         # Create detail
         detail = dict(data=data)
@@ -150,7 +142,6 @@ class Effects:
             detail.update(once=once)
         if protected:
             detail.update(protected=protected)
-
         if effect in self:
             # Dedupe effect, but update detail
             self.update(**detail)
@@ -196,9 +187,13 @@ class Effects:
 
 
 class Message:
+    """Argument for effects."""
+
+    # NOTE Inspired by web events
 
     @classmethod
-    def keys(cls):
+    def keys(cls) -> list:
+        """Returns own property names."""
         return [
             k
             for k, v in cls.__dict__.items()
@@ -208,6 +203,7 @@ class Message:
         ]
 
     def __init__(self, owner=None, session=None, transient: dict = None):
+        # HACK Consumer passes in 'transient' to provide pseudo encapsulation
         self._ = dict(
             data=dict(),
             owner=owner,
@@ -218,10 +214,12 @@ class Message:
 
     @property
     def change(self):
+        # NOTE Already accessible via 'owner', but provided for convenience.
         return self.owner.change
 
     @property
     def current(self):
+        # NOTE Already accessible via 'owner', but provided for convenience.
         return self.owner.current
 
     @property
@@ -247,6 +245,7 @@ class Message:
 
     @property
     def previous(self):
+        # NOTE Already accessible via 'owner', but provided for convenience.
         return self.owner.previous
 
     @property
@@ -257,18 +256,22 @@ class Message:
 
     def data(self, **updates) -> dict:
         """Updates and returns data."""
-        # NOTE Belongs to message
+        # NOTE Belongs to message. Useful for inter-effect coms.
         data: dict = self._["data"]
         data.update(data)
         return data
 
 
 class State:
-    """Reactive state tool."""
+    """Reactive state tool.
+    NOTE
+    - Primarily intended for flat structures with immutable values.
+    - Can be used as effect for other State instances, therefore no critical need
+      for implementing filter, reducer and transformer features.
+    """
 
     def __init__(self, context=None, name: str = ""):
         owner = self
-
         effects = Effects(owner=self)
 
         class effect:
@@ -282,6 +285,7 @@ class State:
         class match:
             def __init__(self):
                 """."""
+                # XXX Keep for future use.
 
             def __call__(self, matches: callable) -> callable:
                 owner._.update(matches=matches)
@@ -291,10 +295,10 @@ class State:
 
         self._ = dict(
             _=dict(
+                change=Data({}),
                 current=Data({}),
                 previous=Data({}),
             ),
-            change=Data({}),
             current=dict(),
             detail=dict(),
             effect=effect,
@@ -310,37 +314,53 @@ class State:
 
     def __bool__(self):
         return bool(len(self._["current"]))
-    
-    def __call__(self, silent=False, **updates) -> "State":
-        if updates:
-            matches = self._["matches"]
-            current = self._["current"]
-            previous = self._["previous"]
+
+    def __call__(self, *args, silent=False, **updates) -> "State":
+        # XXX 'updates' should not contain a 'silent' key
+        current = next(iter(args), ...)
+        if current is not ...:
+            if current is None:
+                current = {}
+            elif not isinstance(current, dict):
+                raise TypeError(f"Expected dict. Got: {type(current).__name__}.")
+            # current provided as pos arg -> reset current
+            self._["current"] = current
+            previous = {}
+            self._["previous"] = previous
             change = {}
-            for key, value in updates.items():
-                if key in current:
-                    # HACK None deletes
-                    if value is None:
-                        previous[key] = current[key]
-                        current.pop(key)
-                        change[key] = value
-                    else:
-                        if not matches(current[key], value):
+        else:
+            current: dict = self._["current"]
+            previous: dict = self._["previous"]
+            if updates:
+                matches = self._["matches"]
+                change = {}
+                for key, value in updates.items():
+                    if key in current:
+                        # HACK None deletes
+                        if value is None:
                             previous[key] = current[key]
+                            current.pop(key)
+                            change[key] = value
+                        else:
+                            if not matches(current[key], value):
+                                previous[key] = current[key]
+                                current[key] = value
+                                change[key] = value
+                    else:
+                        # New key
+                        if value is not None:
                             current[key] = value
                             change[key] = value
-                else:
-                    # New key
-                    if value is not None:
-                        current[key] = value
-                        change[key] = value
-            # Create public exposures
-            self._["change"] = Data(change)
-            self._["_"]["current"] = Data(current)
-            self._["_"]["previous"] = Data(previous)
-        else:
-            ...
-        
+            else:
+                # No updates -> clear
+                previous.clear()
+                previous.update(current)
+                change = dict(current)
+                current.clear()
+        # Create public exposures
+        self._["_"].update(
+            change=Data(change), current=Data(current), previous=Data(previous)
+        )
         # Init session
         if self.session is None:
             self._["session"] = 0
@@ -353,7 +373,7 @@ class State:
 
     def __contains__(self, key: str):
         return key in self._["current"]
-    
+
     def __eq__(self, other) -> bool:
         return self._["current"] == other
 
@@ -362,7 +382,7 @@ class State:
 
     def __getitem__(self, key: str):
         return self._["current"].get(key)
-        
+
     def __iter__(self) -> iter:
         return iter(self._["current"].items())
 
@@ -372,7 +392,7 @@ class State:
     @property
     def change(self):
         """Returns items changed during most recent update."""
-        return self._["change"]
+        return self._["_"]["change"]
 
     @property
     def context(self):
@@ -411,15 +431,14 @@ class State:
         return self._.get("session")
 
     def clear(self, silent=False) -> "State":
-        """."""
-        keys = self.keys()
-        if keys:
-            updates = {k: None for k in self.keys()}
-            self(silent=silent, **updates)
+        """Clears items reactively."""
+        updates = {k: None for k in self.keys()}
+        self(silent=silent, **updates)
         return self
 
     def detail(self, **updates) -> dict:
         """Updates and returns detail."""
+        # NOTE Useful for storing non-reactive additional data
         detail = self._["detail"]
         detail.update(updates)
         return detail
