@@ -10,13 +10,13 @@ def effect(message: Message):
         print(f"effect got {key}:", value)
 
 
-state(foo=42, ding='DING')
-state(foo=43, ding='ding')
+state(foo=42, bar='BAR')
+state(foo=43, bar='bar')
 state()
 print("state.foo:", state.foo)
 
-state(dict(ping='PING'))
-state.ping = 'ping'
+state(dict(stuff='STUFF'))
+state.stuff = 'stuff'
 
 
 print("state.current:", state.current)

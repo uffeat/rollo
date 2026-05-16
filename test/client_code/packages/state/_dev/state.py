@@ -3,48 +3,65 @@ def log(*args, **kwargs):
 
 
 class Data:
-    """Dict wrapper for providing read-only items with JS-like access syntax."""
+    """Dict wrapper with JS-like syntax."""
 
     # NOTE Primarily intended for flat structures with immutable values.
-    def __init__(self, _: dict):
-        self.__dict__["_"] = _
+    def __init__(self, data: dict, writable=False):
+        self.__dict__.update(_=dict(data=data, writable=writable))
 
     def __bool__(self):
-        return bool(len(self._))
+        return bool(len(self._["data"]))
+
+    def __call__(self, **updates):
+        if not self._.get("writable"):
+            raise AttributeError("Read-only.")
+        data: dict = self._["data"]
+        for key, value in updates.items():
+            if value is None:
+                data.pop(key, None)
+            else:
+                data[key] = value
+        return self
 
     def __contains__(self, key: str):
-        return key in self._
+        return key in self._["data"]
 
     def __eq__(self, other) -> bool:
-        return self._ == other
+        return self._["data"] == other
 
     def __getattr__(self, key: str):
         return self[key]
 
     def __getitem__(self, key: str):
-        return self._.get(key)
+        return self._["data"].get(key)
 
     def __iter__(self) -> iter:
-        return iter(self._.items())
+        return iter(self._["data"].items())
 
     def __len__(self) -> int:
-        return len(self._)
+        return len(self._["data"])
+
+    def __setattr__(self, key: str, value):
+        self(**{key: value})
+
+    def __setitem__(self, key: str, value):
+        self(**{key: value})
 
     def __str__(self):
-        return str(self._)
+        return str(self._["data"])
 
     def items(self):
-        return self._.items()
+        return self._["data"].items()
 
     def get(self, key: str, *args):
         default = next(iter(args), None)
-        return self._.get(key, default)
+        return self._["data"].get(key, default)
 
     def keys(self):
-        return self._.keys()
+        return self._["data"].keys()
 
     def values(self):
-        return self._.values()
+        return self._["data"].values()
 
 
 class Effects:
@@ -120,7 +137,7 @@ class Effects:
         **data,
     ) -> callable:
         # Create detail
-        detail = dict(data=data)
+        detail = dict(data=Data(data, writable=True))
         # Handle ii effect
         if run:
             transient = dict()
@@ -174,6 +191,11 @@ class Effects:
 
     def has(self, effect: callable) -> bool:
         return effect in self.registry
+    
+    def index(self, effect: callable) -> int:
+        if effect in self.registry:
+            keys = list(self.registry.keys())
+            return keys.index(effect)
 
     def remove(self, effect: callable) -> None:
         self.registry.pop(effect, None)
@@ -203,9 +225,9 @@ class Message:
         ]
 
     def __init__(self, owner=None, session=None, transient: dict = None):
-        # HACK Consumer passes in 'transient' to provide pseudo encapsulation
+        # HACK Consumer passes in 'transient' to provide pseudo-encapsulation
         self._ = dict(
-            data=dict(),
+            data=Data({}, writable=True),
             owner=owner,
             transient=transient,
         )
@@ -223,8 +245,10 @@ class Message:
         return self.owner.current
 
     @property
-    def owner(self) -> "State":
-        return self._["owner"]
+    def data(self) -> Data:
+        """Returns data."""
+        # NOTE Belongs to message. Useful for inter-effect coms.
+        return self._["data"]
 
     @property
     def detail(self) -> dict:
@@ -244,6 +268,10 @@ class Message:
         return transient.get("index")
 
     @property
+    def owner(self) -> "State":
+        return self._["owner"]
+
+    @property
     def previous(self):
         # NOTE Already accessible via 'owner', but provided for convenience.
         return self.owner.previous
@@ -254,16 +282,9 @@ class Message:
             return self._["session"]
         return self.owner.session
 
-    def data(self, **updates) -> dict:
-        """Updates and returns data."""
-        # NOTE Belongs to message. Useful for inter-effect coms.
-        data: dict = self._["data"]
-        data.update(data)
-        return data
-
 
 class Ref:
-    """Reactive state tool for single values."""
+    """Reactive state tool for single value."""
 
     @classmethod
     def keys(cls) -> list:
@@ -276,7 +297,7 @@ class Ref:
             and isinstance(v, property)
         ]
 
-    def __init__(self, *args, context=None, name: str = ""):
+    def __init__(self, *args, context=None, name: str = "", **detail):
         current = next(iter(args), None)
         owner = self
         effects = Effects(owner=self)
@@ -302,7 +323,7 @@ class Ref:
 
         self._ = dict(
             current=current,
-            detail=dict(),
+            detail=Data(detail, writable=True),
             effect=effect,
             effects=effects,
             match=match,
@@ -317,7 +338,8 @@ class Ref:
     def __bool__(self):
         return bool(self.current)
 
-    def __call__(self, value, silent=False) -> "Ref":
+    def __call__(self, value, silent=False, **updates) -> "Ref":
+        self.detail(**updates)
         if self.current != value:
             self._["previous"] = self.current
             self._["current"] = value
@@ -352,6 +374,11 @@ class Ref:
         return self._["current"]
 
     @property
+    def detail(self) -> Data:
+        # NOTE Useful for storing non-reactive additional data
+        return self._["detail"]
+
+    @property
     def effect(self) -> callable:
         """Decorates effect."""
         return self._["effect"]
@@ -379,13 +406,6 @@ class Ref:
     def session(self) -> str:
         return self._.get("session")
 
-    def detail(self, **updates) -> dict:
-        """Updates and returns detail."""
-        # NOTE Useful for storing non-reactive additional data
-        detail = self._["detail"]
-        detail.update(updates)
-        return detail
-
 
 class State:
     """Reactive state tool.
@@ -406,10 +426,14 @@ class State:
             and isinstance(v, property)
         ]
 
-    def __init__(self, *args, context=None, name: str = ""):
+    def __init__(self, *args, context=None, detail: dict = None, name: str = ""):
         current = next(iter(args), {})
         if not isinstance(current, dict):
             raise TypeError(f"Expected dict. Got: {str(current)}.")
+        if detail is None:
+            detail = {}
+        elif not isinstance(detail, dict):
+            raise TypeError(f"Expected dict. Got: {str(detail)}.")
 
         owner = self
         effects = Effects(owner=self)
@@ -440,7 +464,7 @@ class State:
                 previous=Data({}),
             ),
             current=current,
-            detail={},
+            detail=Data(detail, writable=True),
             effect=effect,
             effects=effects,
             match=match,
@@ -528,7 +552,7 @@ class State:
 
     def __iter__(self) -> iter:
         return iter(self._["current"].items())
-    
+
     def __setattr__(self, key: str, value):
         """."""
         self(**{key: value})
@@ -552,6 +576,11 @@ class State:
     @property
     def current(self):
         return self._["_"]["current"]
+
+    @property
+    def detail(self) -> Data:
+        # NOTE Useful for storing non-reactive additional data
+        return self._["detail"]
 
     @property
     def effect(self) -> callable:
@@ -586,13 +615,6 @@ class State:
         updates = {k: None for k in self.keys()}
         self(silent=silent, **updates)
         return self
-
-    def detail(self, **updates) -> dict:
-        """Updates and returns detail."""
-        # NOTE Useful for storing non-reactive additional data
-        detail = self._["detail"]
-        detail.update(updates)
-        return detail
 
     def items(self):
         return self._["current"].items()
