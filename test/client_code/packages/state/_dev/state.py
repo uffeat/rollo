@@ -2,6 +2,19 @@ def log(*args, **kwargs):
     print(*args)
 
 
+class instantiate:
+
+    def __init__(self, *args, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
+
+    def __call__(self, target: callable):
+        if "__init__" in target.__dict__:
+            return target(*self.args, **self.kwargs)
+        return target()
+
+
+
 class Data:
     """Dict wrapper with JS-like syntax."""
 
@@ -411,8 +424,7 @@ class State:
     """Reactive state tool.
     NOTE
     - Primarily intended for flat structures with immutable values.
-    - Can be used as effect for other State instances, therefore no critical need
-      for implementing filter, reducer and transformer features.
+    
     """
 
     @classmethod
