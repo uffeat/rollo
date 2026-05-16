@@ -1,12 +1,9 @@
 import copy as _copy
+from types import MappingProxyType
 
 
 def log(*args, **kwargs):
     print(*args)
-
-
-PRIMITIVES = (bool, int, str)
-SINGLETONS = (False, None, True)
 
 
 def copy(value):
@@ -14,6 +11,48 @@ def copy(value):
     if isinstance(value, (dict, list, tuple)):
         return _copy.deepcopy(value)
     return value
+
+
+class Data:
+    def __init__(self, _: dict):
+        self.__dict__["_"] = _
+
+    def __bool__(self):
+        return bool(len(self._))
+
+    def __contains__(self, key: str):
+        return key in self._
+
+    def __eq__(self, other) -> bool:
+        return self._ == other
+
+    def __getattr__(self, key: str):
+        return self[key]
+
+    def __getitem__(self, key: str):
+        return self._.get(key)
+
+    def __iter__(self) -> iter:
+        return iter(self._.items())
+
+    def __len__(self) -> int:
+        return len(self._)
+
+    def __str__(self):
+        return str(self._)
+
+    def items(self):
+        return self._.items()
+
+    def get(self, key: str, *args):
+        default = next(iter(args), None)
+        return self._.get(key, default)
+
+    def keys(self):
+        return self._.keys()
+
+    def values(self):
+        return self._.values()
 
 
 class Effects:
@@ -122,17 +161,19 @@ class Effects:
         # Return effect to facilitate removal
         return effect
 
-    def clear(self) -> None:
-        remove = []
-        # Run effects
-        for effect, detail in self:
-            protected = detail.get("protected")
-            if protected:
-                continue
-            remove.append(effect)
-        for effect in remove:
-            self.remove(effect)
-        ##self.registry.clear()
+    def clear(self, force=False) -> None:
+        if force:
+            self.registry.clear()
+        else:
+            remove = []
+            # Run effects
+            for effect, detail in self:
+                protected = detail.get("protected")
+                if protected:
+                    continue
+                remove.append(effect)
+            for effect in remove:
+                self.remove(effect)
 
     def get(self, effect: callable, *args) -> dict:
         """Returns detail associated with effect."""
@@ -225,8 +266,9 @@ class Message:
 class State:
     """Reactive state tool."""
 
-    def __init__(self, *args, context=None, name: str = None):
-        current = next(iter(args), ...)
+    def __init__(self, context=None, name: str = ""):
+        owner = self
+
         effects = Effects(owner=self)
 
         class effect:
@@ -237,73 +279,76 @@ class State:
                 effects.add(effect, **self.kwargs)
                 return effect
 
+        class match:
+            def __init__(self):
+                """."""
+
+            def __call__(self, matches: callable) -> callable:
+                owner._.update(matches=matches)
+
+        def matches(value, other):
+            return value == other
+
         self._ = dict(
+            _=dict(),
             detail=dict(),
             effect=effect,
             effects=effects,
+            match=match,
+            matches=matches,
         )
         if context:
             self._.update(context=context)
         if name:
             self._.update(name=name)
-        if current is not ...:
-            # NOTE Instantiation with current infers type
-            if isinstance(current, dict):
-                current = _copy.deepcopy(current)
-            self._.update(current=current, type=type(current))
 
-    def __call__(self, *args, silent=False, **updates) -> "State":
-        ##log("current before update:", current, trace="State.__call__")  ##
-        ##log("previous before update:", self._.get("previous"), trace="State.__call__")  ##
+    def __bool__(self):
         current = self._.get("current")
-        if self.type and self.type is dict:
-            _updates = next(iter(args), {})
-            if not isinstance(_updates, dict):
-                TypeError(f"Type locked to: {self.type.__name__}. Cannot update to {str(_updates)}")
-            updates.update(_updates)
-            # Abort if no updates
-            if not updates:
-                return self
-            previous = self._.get("previous")
-            if not previous:
-                # Init previous
-                previous = {}
-                self._["previous"] = previous
-            change = {}
-            for key, value in updates.items():
-                if key in current:
-                    # HACK ... deletes
-                    if value is ...:
-                        previous[key] = current[key]
-                        current.pop(key)
-                        change[key] = value
-                    else:
-                        if current[key] != value:
-                            previous[key] = current[key]
-                            current[key] = value
-                            change[key] = value
+        if current is None:
+            return False
+        return bool(len(current))
+    
+    def __call__(self, *args, silent=False, **updates) -> "State":
+        current = self._.get("current")
+        if current is None:
+            current = {}
+            self._["current"] = current
+        
+        # XXX TODO Handle args
+
+        # Abort if no updates
+        if not updates:
+            return self
+        
+        
+        
+        matches = self._["matches"]
+        previous = self._.get("previous")
+        if previous is None:
+            previous = {}
+            self._["previous"] = previous
+        change = {}
+        for key, value in updates.items():
+            if key in current:
+                # HACK None deletes
+                if value is None:
+                    previous[key] = current[key]
+                    current.pop(key)
+                    change[key] = value
                 else:
-                    if value is not ...:
+                    if not matches(current[key], value):
                         previous[key] = current[key]
                         current[key] = value
                         change[key] = value
-            self._["change"] = change
-
-        else:
-            # XXX TODO Deal with updates
-            if updates:
-                value = updates
             else:
-                value = next(iter(args), None)
-                value = copy(value)
-            # Abort if no change
-            if current == value:
-                ##log("No change from:", value, trace="State.__call__")  ##
-                return self
-            # Update values
-            self._.update(change=current, current=value, previous=current)
-        ##log("current after update:", self.current, trace="State.__call__")  ##
-        ##log("previous after update:", self.previous, trace="State.__call__")  ##
+                # New key
+                if value is not None:
+                    current[key] = value
+                    change[key] = value
+        # Create public exposures
+        self._["change"] = Data(change)
+        self._["_"]["current"] = Data(current)
+        self._["_"]["previous"] = Data(previous)
         # Init session
         if self.session is None:
             self._["session"] = 0
@@ -314,10 +359,36 @@ class State:
         self._["session"] += 1
         return self
 
+    def __contains__(self, key: str):
+        current = self._.get("current")
+        if current is None:
+            return False
+        return key in current
+    
+    def __eq__(self, other) -> bool:
+        current = self._.get("current")
+        return current == other
+
+    def __getattr__(self, key: str):
+        return self[key]
+
+    def __getitem__(self, key: str):
+        current = self._.get("current")
+        if current is not None:
+            return current.get(key)
+        
+    def __iter__(self) -> iter:
+        current = self._.get("current")
+        if current is not None:
+            return iter(current.items())
+
+    def __str__(self):
+        return str(self._.get("current"))
+
     @property
     def change(self):
-        change = self._.get("change")
-        return copy(change)
+        """Returns items changed during most recent update."""
+        return self._.get("change")
 
     @property
     def context(self):
@@ -325,11 +396,10 @@ class State:
 
     @property
     def current(self):
-        current = self._.get("current")
-        return copy(current)
+        return self._["_"].get("current")
 
     @property
-    def effect(self):
+    def effect(self) -> callable:
         """Decorates effect."""
         return self._["effect"]
 
@@ -339,9 +409,14 @@ class State:
         return self._["effects"]
 
     @property
+    def match(self) -> callable:
+        """Decorates match function."""
+        return self._["match"]
+
+    @property
     def previous(self):
-        previous = self._.get("previous")
-        return copy(previous)
+        """Returns changed items as-was before most recent update."""
+        return self._["_"].get("previous")
 
     @property
     def name(self) -> str:
@@ -351,12 +426,31 @@ class State:
     def session(self) -> str:
         return self._.get("session")
 
-    @property
-    def type(self) -> type:
-        return self._.get("type")
+    def clear(self, silent=False) -> "State":
+        """."""
+        keys = self.keys()
+        if keys:
+            updates = {k: None for k in self.keys()}
+            self(silent=silent, **updates)
+        return self
 
     def detail(self, **updates) -> dict:
         """Updates and returns detail."""
         detail = self._["detail"]
         detail.update(updates)
         return detail
+
+    def items(self):
+        current = self._.get("current")
+        if current is not None:
+            return current.items()
+
+    def keys(self):
+        current = self._.get("current")
+        if current is not None:
+            return current.keys()
+
+    def values(self):
+        current = self._.get("current")
+        if current is not None:
+            return current.values()

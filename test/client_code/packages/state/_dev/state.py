@@ -17,10 +17,13 @@ class Data:
     def __init__(self, _: dict):
         self.__dict__["_"] = _
 
+    def __bool__(self):
+        return bool(len(self._))
+
     def __contains__(self, key: str):
         return key in self._
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         return self._ == other
 
     def __getattr__(self, key: str):
@@ -29,25 +32,25 @@ class Data:
     def __getitem__(self, key: str):
         return self._.get(key)
 
-    def __iter__(self):
+    def __iter__(self) -> iter:
         return iter(self._.items())
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._)
 
     def __str__(self):
         return str(self._)
-    
+
     def items(self):
         return self._.items()
-    
+
     def get(self, key: str, *args):
         default = next(iter(args), None)
         return self._.get(key, default)
-       
+
     def keys(self):
         return self._.keys()
-    
+
     def values(self):
         return self._.values()
 
@@ -264,6 +267,7 @@ class State:
     """Reactive state tool."""
 
     def __init__(self, context=None, name: str = ""):
+        owner = self
 
         effects = Effects(owner=self)
 
@@ -275,55 +279,68 @@ class State:
                 effects.add(effect, **self.kwargs)
                 return effect
 
+        class match:
+            def __init__(self):
+                """."""
+
+            def __call__(self, matches: callable) -> callable:
+                owner._.update(matches=matches)
+
+        def matches(value, other):
+            return value == other
+
         self._ = dict(
-            _=dict(),
+            _=dict(
+                current=Data({}),
+                previous=Data({}),
+            ),
+            change=Data({}),
+            current=dict(),
             detail=dict(),
             effect=effect,
             effects=effects,
+            match=match,
+            matches=matches,
+            previous=dict(),
         )
         if context:
             self._.update(context=context)
         if name:
             self._.update(name=name)
 
-    def __call__(self, *args, silent=False, **updates) -> "State":
-        ##log("current before update:", current, trace="State.__call__")  ##
-        ##log("previous before update:", self._.get("previous"), trace="State.__call__")  ##
-        current = self._.get("current")
-        if current is None:
-            current = {}
-            self._["current"] = current
-        # XXX TODO Handle args
-
-        # Abort if no updates
-        if not updates:
-            return self
-        previous = self._.get("previous")
-        if previous is None:
-            previous = {}
-            self._["previous"] = previous
-        change = {}
-        for key, value in updates.items():
-            if key in current:
-                # HACK None deletes
-                if value is None:
-                    previous[key] = current[key]
-                    current.pop(key)
-                    change[key] = value
-                else:
-                    if current[key] != value:
+    def __bool__(self):
+        return bool(len(self._["current"]))
+    
+    def __call__(self, silent=False, **updates) -> "State":
+        if updates:
+            matches = self._["matches"]
+            current = self._["current"]
+            previous = self._["previous"]
+            change = {}
+            for key, value in updates.items():
+                if key in current:
+                    # HACK None deletes
+                    if value is None:
                         previous[key] = current[key]
+                        current.pop(key)
+                        change[key] = value
+                    else:
+                        if not matches(current[key], value):
+                            previous[key] = current[key]
+                            current[key] = value
+                            change[key] = value
+                else:
+                    # New key
+                    if value is not None:
                         current[key] = value
                         change[key] = value
-            else:
-                # New key
-                if value is not None:
-                    current[key] = value
-                    change[key] = value
-        # Create public exposures
-        self._["change"] = Data(change)
-        self._["_"]["current"] = Data(current)
-        self._["_"]["previous"] = Data(previous)
+            # Create public exposures
+            self._["change"] = Data(change)
+            self._["_"]["current"] = Data(current)
+            self._["_"]["previous"] = Data(previous)
+        else:
+            ...
+        
         # Init session
         if self.session is None:
             self._["session"] = 0
@@ -334,21 +351,28 @@ class State:
         self._["session"] += 1
         return self
 
+    def __contains__(self, key: str):
+        return key in self._["current"]
+    
+    def __eq__(self, other) -> bool:
+        return self._["current"] == other
+
     def __getattr__(self, key: str):
         return self[key]
 
     def __getitem__(self, key: str):
-        current = self._.get("current")
-        if current is not None:
-            return current.get(key)
+        return self._["current"].get(key)
+        
+    def __iter__(self) -> iter:
+        return iter(self._["current"].items())
 
     def __str__(self):
-        return str(self._.get("current"))
+        return str(self._["current"])
 
     @property
     def change(self):
         """Returns items changed during most recent update."""
-        return self._.get("change")
+        return self._["change"]
 
     @property
     def context(self):
@@ -356,10 +380,10 @@ class State:
 
     @property
     def current(self):
-        return self._["_"].get("current")
+        return self._["_"]["current"]
 
     @property
-    def effect(self):
+    def effect(self) -> callable:
         """Decorates effect."""
         return self._["effect"]
 
@@ -369,9 +393,14 @@ class State:
         return self._["effects"]
 
     @property
+    def match(self) -> callable:
+        """Decorates match function."""
+        return self._["match"]
+
+    @property
     def previous(self):
         """Returns changed items as-was before most recent update."""
-        return self._["_"].get("previous")
+        return self._["_"]["previous"]
 
     @property
     def name(self) -> str:
@@ -395,7 +424,11 @@ class State:
         detail.update(updates)
         return detail
 
+    def items(self):
+        return self._["current"].items()
+
     def keys(self):
-        current = self._.get("current")
-        if current is not None:
-            return current.keys()
+        return self._["current"].keys()
+
+    def values(self):
+        return self._["current"].values()
