@@ -1,6 +1,6 @@
 from state import State, Message
 
-state = State(dict(foo="FOO"))
+state = State()
 
 
 @state.effect()
@@ -10,8 +10,7 @@ def effect(message: Message):
         print(f"effect got {key}:", value)
 
 
-state(foo=42)
-
-
-
-state(foo=43)
+state(foo=42, ding='DING')
+state(foo=43, ding='ding')
+print("state.foo:", state.foo)
+print("state.current:", state.current)
