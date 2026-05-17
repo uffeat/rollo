@@ -510,6 +510,7 @@ class State:
     """Reactive state tool.
     NOTE
     - Primarily intended for flat structures with immutable values.
+
     """
 
     @classmethod
@@ -523,21 +524,18 @@ class State:
             and isinstance(v, property)
         ]
 
-    def __init__(
-        self, *args, context=None, detail: dict = None, name: str = "", **current
-    ):
-        _current = next(iter(args), None)
-        if _current is not None:
-            # Create from pos arg
-            if isinstance(_current, Data):
-                _current = _current.copy()
-            elif isinstance(_current, State):
-                _current = _current.copy()
-            else:
-                if not isinstance(_current, dict):
-                    raise TypeError(f"Cannot create from: {str(_current)}.")
-                _current = deepcopy(_current)
-            current.update(_current)
+    def __init__(self, *args, context=None, detail: dict = None, name: str = ""):
+
+
+        current = next(iter(args), {})
+        if not isinstance(current, dict):
+            raise TypeError(f"Expected dict. Got: {str(current)}.")
+        if detail is None:
+            detail = {}
+        elif not isinstance(detail, dict):
+            raise TypeError(f"Expected dict. Got: {str(detail)}.")
+        
+        
 
         owner = self
         effects = Effects(owner=self)
@@ -577,8 +575,10 @@ class State:
         )
         if context:
             _.update(context=context)
+
         if name:
             _.update(name=name)
+
         self.__dict__["_"] = _
 
     def __bool__(self):
@@ -586,46 +586,46 @@ class State:
 
     def __call__(self, *args, silent=False, **updates) -> "State":
         # XXX 'updates' should not contain a 'silent' key
-        _updates = next(iter(args), None)
-        if _updates is not None:
-            # Update from pos arg
-            if isinstance(_updates, Data):
-                _updates = _updates.copy()
-            elif isinstance(_updates, State):
-                _updates = _updates.copy()
-            else:
-                if not isinstance(_updates, dict):
-                    raise TypeError(f"Cannot update from: {str(_updates)}.")
-                _updates = deepcopy(_updates)
-            updates.update(_updates)
-        current: dict = self._["current"]
-        previous: dict = self._["previous"]
-        if updates:
-            matches = self._["matches"]
+        current = next(iter(args), ...)
+        if current is not ...:
+            if current is None:
+                current = {}
+            elif not isinstance(current, dict):
+                raise TypeError(f"Expected dict. Got: {str(current)}.")
+            # current provided as pos arg -> reset current
+            self._["current"] = current
+            previous = {}
+            self._["previous"] = previous
             change = {}
-            for key, value in updates.items():
-                if key in current:
-                    # HACK None deletes
-                    if value is None:
-                        previous[key] = current[key]
-                        current.pop(key)
-                        change[key] = value
-                    else:
-                        if not matches(current[key], value):
+        else:
+            current: dict = self._["current"]
+            previous: dict = self._["previous"]
+            if updates:
+                matches = self._["matches"]
+                change = {}
+                for key, value in updates.items():
+                    if key in current:
+                        # HACK None deletes
+                        if value is None:
                             previous[key] = current[key]
+                            current.pop(key)
+                            change[key] = value
+                        else:
+                            if not matches(current[key], value):
+                                previous[key] = current[key]
+                                current[key] = value
+                                change[key] = value
+                    else:
+                        # New key
+                        if value is not None:
                             current[key] = value
                             change[key] = value
-                else:
-                    # New key
-                    if value is not None:
-                        current[key] = value
-                        change[key] = value
-        else:
-            # No updates -> clear
-            previous.clear()
-            previous.update(current)
-            change = dict(current)
-            current.clear()
+            else:
+                # No updates -> clear
+                previous.clear()
+                previous.update(current)
+                change = dict(current)
+                current.clear()
         # Create public exposures
         self._["_"].update(
             change=Data(change), current=Data(current), previous=Data(previous)
@@ -640,36 +640,34 @@ class State:
         self._["session"] += 1
         return self
 
-    def __contains__(self, key):
+    def __contains__(self, key: str):
         return key in self._["current"]
 
     def __eq__(self, other) -> bool:
-        if isinstance(other, Data):
-            other = other.data
-        elif isinstance(other, State):
-            other = other.current.data
         return self._["current"] == other
 
-    def __getattr__(self, key):
+    def __getattr__(self, key: str):
         return self[key]
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str):
         return self._["current"].get(key)
 
     def __iter__(self) -> iter:
         return iter(self._["current"].items())
 
-    def __setattr__(self, key, value):
+    def __setattr__(self, key: str, value):
+        """."""
         self(**{key: value})
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: str, value):
+        """."""
         self(**{key: value})
 
     def __str__(self):
         return str(self._["current"])
 
     @property
-    def change(self) -> Data:
+    def change(self):
         """Returns items changed during most recent update."""
         return self._["_"]["change"]
 
@@ -678,7 +676,7 @@ class State:
         return self._.get("context")
 
     @property
-    def current(self) -> Data:
+    def current(self):
         return self._["_"]["current"]
 
     @property
@@ -702,21 +700,16 @@ class State:
         return self._["match"]
 
     @property
-    def previous(self) -> Data:
+    def previous(self):
         """Returns changed items as-was before most recent update."""
         return self._["_"]["previous"]
 
     @property
     def name(self) -> str:
         return self._.get("name", "")
-    
-    @property
-    def size(self) -> int:
-        """Returns number of items."""
-        return len(self._["current"])
 
     @property
-    def session(self) -> int:
+    def session(self) -> str:
         return self._.get("session")
 
     def clear(self, silent=False) -> "State":
@@ -725,47 +718,14 @@ class State:
         self(silent=silent, **updates)
         return self
 
-    def copy(self, deep: bool = True) -> dict:
-        current: dict = self._["current"]
-        if deep:
-            return deepcopy(current)
-        return current.copy()
-    
-    def get(self, key, *args):
-        current: dict = self._["current"]
-        default = next(iter(args), None)
-        return current.get(key, default)
-    
-    def has(self, key) -> bool:
-        current: dict = self._["current"]
-        return key in current
-    
-    def index(self, key) -> int:
-        current: dict = self._["current"]
-        if key in current:
-            keys = list(current.keys())
-            return keys.index(key)
-
     def items(self):
-        current: dict = self._["current"]
-        return current.items()
+        return self._["current"].items()
 
     def keys(self):
-        current: dict = self._["current"]
-        return current.keys()
-    
-    def pop(self, key, *args):
-        current: dict = self._["current"]
-        if key in current:
-            value = current[key]
-            self(**{key: None})
-        else:
-            value = next(iter(args), None)
-        return value
+        return self._["current"].keys()
 
     def reset(self, **current):
         return self(current)
 
     def values(self):
-        current: dict = self._["current"]
-        return current.values()
+        return self._["current"].values()
