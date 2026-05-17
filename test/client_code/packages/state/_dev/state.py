@@ -48,6 +48,7 @@ class Data:
             data.update(_data)
         # Create private state
         _ = dict(data=data)
+        # NOTE Add '_' to '__dict__' to enable '__setattr__'
         self.__dict__.update(_=_)
         if writable:
             _.update(writable=True)
@@ -159,12 +160,15 @@ class Data:
         default = next(iter(args), None)
         return self.data.pop(key, default)
 
+    def update(self, *args, **kwargs):
+        return self(*args, **kwargs)
+
     def values(self):
         return self.data.values()
 
 
 class Effects:
-    def __init__(self, owner=None):
+    def __init__(self, owner):
         self._ = dict(owner=owner, registry=dict())
 
     def __bool__(self):
@@ -206,7 +210,7 @@ class Effects:
         """Returns declared attribute."""
         return getattr(self, key, None)
 
-    def __iter__(self) -> iter:
+    def __iter__(self):
         """Returns iterator for registry."""
         return iter(self.registry.items())
 
@@ -215,7 +219,18 @@ class Effects:
         return len(self.registry)
 
     @property
-    def owner(self) -> "State":
+    def max(self) -> int:
+        return self._.get("max")
+
+    @max.setter
+    def max(self, max: int):
+        if max is None:
+            self._.pop("max", None)
+        else:
+            self._["max"] = max
+
+    @property
+    def owner(self):
         return self._["owner"]
 
     @property
@@ -236,7 +251,8 @@ class Effects:
         **data,
     ) -> callable:
         # Create detail
-        detail = dict(data=Data(data, writable=True))
+        ##detail = dict(data=Data(data, writable=True))
+        detail = Data(data=Data(data, writable=True), writable=True)
         # Handle ii effect
         if run:
             transient = dict()
@@ -263,6 +279,9 @@ class Effects:
             self.update(**detail)
         else:
             # Register
+            if self.max and self.size >= self.max:
+                raise ValueError(f"Cannot register more than {self.max} effects.")
+
             self.registry[effect] = detail
             ##log("Registered effect with detail:", detail, trace="Effects.add")  ##
         # Return effect to facilitate removal
@@ -334,12 +353,12 @@ class Message:
             self._.update(session=session)
 
     @property
-    def change(self):
+    def change(self) -> Data:
         # NOTE Already accessible via 'owner', but provided for convenience.
         return self.owner.change
 
     @property
-    def current(self):
+    def current(self) -> Data:
         # NOTE Already accessible via 'owner', but provided for convenience.
         return self.owner.current
 
@@ -350,7 +369,7 @@ class Message:
         return self._["data"]
 
     @property
-    def detail(self) -> dict:
+    def detail(self) -> Data:
         # NOTE Belongs to effect
         transient: dict = self._["transient"]
         return transient.get("detail")
@@ -367,11 +386,11 @@ class Message:
         return transient.get("index")
 
     @property
-    def owner(self) -> "State":
+    def owner(self):
         return self._["owner"]
 
     @property
-    def previous(self):
+    def previous(self) -> Data:
         # NOTE Already accessible via 'owner', but provided for convenience.
         return self.owner.previous
 
@@ -396,10 +415,10 @@ class Ref:
             and isinstance(v, property)
         ]
 
-    def __init__(self, *args, context=None, name: str = "", **detail):
+    def __init__(self, *args, context=None, tag: str = "", **detail):
         current = next(iter(args), None)
         owner = self
-        effects = Effects(owner=self)
+        effects = Effects(self)
 
         class effect:
             def __init__(self, **kwargs):
@@ -431,8 +450,8 @@ class Ref:
         )
         if context:
             self._.update(context=context)
-        if name:
-            self._.update(name=name)
+        if tag:
+            self._.update(tag=tag)
 
     def __bool__(self):
         return bool(self.current)
@@ -498,12 +517,12 @@ class Ref:
         return self._["previous"]
 
     @property
-    def name(self) -> str:
-        return self._.get("name", "")
-
-    @property
     def session(self) -> str:
         return self._.get("session")
+
+    @property
+    def tag(self) -> str:
+        return self._.get("tag", "")
 
 
 class State:
@@ -524,7 +543,7 @@ class State:
         ]
 
     def __init__(
-        self, *args, context=None, detail: dict = None, name: str = "", **current
+        self, *args, context=None, detail: dict = None, tag: str = "", **current
     ):
         _current = next(iter(args), None)
         if _current is not None:
@@ -540,7 +559,7 @@ class State:
             current.update(_current)
 
         owner = self
-        effects = Effects(owner=self)
+        effects = Effects(self)
 
         class effect:
             def __init__(self, **kwargs):
@@ -577,12 +596,12 @@ class State:
         )
         if context:
             _.update(context=context)
-        if name:
-            _.update(name=name)
+        if tag:
+            _.update(tag=tag)
         self.__dict__["_"] = _
 
     def __bool__(self):
-        return bool(len(self._["current"]))
+        return bool(len(self.data))
 
     def __call__(self, *args, silent=False, **updates) -> "State":
         # XXX 'updates' should not contain a 'silent' key
@@ -591,6 +610,8 @@ class State:
             # Update from pos arg
             if isinstance(_updates, Data):
                 _updates = _updates.copy()
+            elif isinstance(_updates, Message):
+                _updates = _updates.owner.copy()
             elif isinstance(_updates, State):
                 _updates = _updates.copy()
             else:
@@ -641,23 +662,23 @@ class State:
         return self
 
     def __contains__(self, key):
-        return key in self._["current"]
+        return key in self.data
 
     def __eq__(self, other) -> bool:
         if isinstance(other, Data):
             other = other.data
         elif isinstance(other, State):
-            other = other.current.data
-        return self._["current"] == other
+            other = other.data
+        return self.data == other
 
     def __getattr__(self, key):
         return self[key]
 
     def __getitem__(self, key):
-        return self._["current"].get(key)
+        return self.data.get(key)
 
     def __iter__(self) -> iter:
-        return iter(self._["current"].items())
+        return iter(self.data.items())
 
     def __setattr__(self, key, value):
         self(**{key: value})
@@ -666,7 +687,7 @@ class State:
         self(**{key: value})
 
     def __str__(self):
-        return str(self._["current"])
+        return str(self.data)
 
     @property
     def change(self) -> Data:
@@ -680,6 +701,15 @@ class State:
     @property
     def current(self) -> Data:
         return self._["_"]["current"]
+
+    @property
+    def data(self) -> dict:
+        """Returns wrapped data as-is.
+        NOTE
+        Should only be accessed externally in special cases (circumvents
+        reactivity).
+        """
+        return self._["current"]
 
     @property
     def detail(self) -> Data:
@@ -707,17 +737,17 @@ class State:
         return self._["_"]["previous"]
 
     @property
-    def name(self) -> str:
-        return self._.get("name", "")
-    
-    @property
     def size(self) -> int:
         """Returns number of items."""
-        return len(self._["current"])
+        return len(self.data)
 
     @property
     def session(self) -> int:
         return self._.get("session")
+
+    @property
+    def tag(self) -> str:
+        return self._.get("tag", "")
 
     def clear(self, silent=False) -> "State":
         """Clears items reactively."""
@@ -725,39 +755,35 @@ class State:
         self(silent=silent, **updates)
         return self
 
+    def clone(self) -> "State":
+        return State(self)
+
     def copy(self, deep: bool = True) -> dict:
-        current: dict = self._["current"]
         if deep:
-            return deepcopy(current)
-        return current.copy()
-    
+            return deepcopy(self.data)
+        return self.data.copy()
+
     def get(self, key, *args):
-        current: dict = self._["current"]
         default = next(iter(args), None)
-        return current.get(key, default)
-    
+        return self.data.get(key, default)
+
     def has(self, key) -> bool:
-        current: dict = self._["current"]
-        return key in current
-    
+        return key in self.data
+
     def index(self, key) -> int:
-        current: dict = self._["current"]
-        if key in current:
-            keys = list(current.keys())
+        if key in self.data:
+            keys = list(self.data.keys())
             return keys.index(key)
 
     def items(self):
-        current: dict = self._["current"]
-        return current.items()
+        return self.data.items()
 
     def keys(self):
-        current: dict = self._["current"]
-        return current.keys()
-    
+        return self.data.keys()
+
     def pop(self, key, *args):
-        current: dict = self._["current"]
-        if key in current:
-            value = current[key]
+        if key in self.data:
+            value = self.data[key]
             self(**{key: None})
         else:
             value = next(iter(args), None)
@@ -766,6 +792,8 @@ class State:
     def reset(self, **current):
         return self(current)
 
+    def update(self, *args, **kwargs):
+        return self(*args, **kwargs)
+
     def values(self):
-        current: dict = self._["current"]
-        return current.values()
+        return self.data.values()

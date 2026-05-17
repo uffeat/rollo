@@ -2,7 +2,7 @@ from state import Ref, State, Message, instantiate
 
 
 
-state = Ref(name="foo", ding=42)
+state = Ref(tag="foo", ding=42)
 state.detail.ding = 'DING'
 
 
