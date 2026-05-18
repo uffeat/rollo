@@ -7,7 +7,7 @@ state = State()
 def effect(message: Message):
     for key in Message.keys():
         value = getattr(message, key)
-        print(f"effect got {key}:", value)
+        print(f"effect got {key}:", str(value))
 
 
 state(foo=42, bar='BAR')

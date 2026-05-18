@@ -35,9 +35,7 @@ class Data:
     be used for other cases.
     """
 
-    def __init__(self, *args, **data):
-        _ = {}
-
+    def __init__(self, *args, writable=False, **data):
         _data = next(iter(args), None)
         if _data is not None:
             # Create from pos arg
@@ -48,19 +46,12 @@ class Data:
                     raise TypeError(f"Cannot create from: {str(_data)}.")
                 _data = deepcopy(_data)
             data.update(_data)
-        # Adapt to "no-None" value convention
-        data = {k: v for k, v in data.items() if v is not None}
-
-        class match:
-            def __init__(self):
-                """XXX For future use."""
-
-            def __call__(self, match: callable) -> callable:
-                _.update(match=match)
-
         # Create private state
+        _ = dict(data=data)
         # NOTE Add '_' to '__dict__' to enable '__setattr__'
-        self.__dict__.update(_=dict(_=_, data=data, match=match))
+        self.__dict__.update(_=_)
+        if writable:
+            _.update(writable=True)
 
     def __bool__(self):
         return bool(len(self.data))
@@ -92,20 +83,6 @@ class Data:
     def __eq__(self, other) -> bool:
         if isinstance(other, Data):
             other = other.data
-        if not isinstance(other, dict):
-            return False
-        # Adapt to "no-None" value convention
-        other = {k: v for k, v in other.items() if v is not None}
-        match = self._["_"].get("match")
-        if match:
-            if len(self) != len(other):
-                return False
-            for key, value in self:
-                if key not in other:
-                    return False
-                if not match(value, other[key]):
-                    return False
-            return True
         return self.data == other
 
     def __getattr__(self, key):
@@ -119,9 +96,6 @@ class Data:
 
     def __len__(self) -> int:
         return len(self.data)
-
-    def __rsub__(self, other):
-        return self.difference(other)
 
     def __setattr__(self, key, value):
         self(**{key: value})
@@ -141,18 +115,10 @@ class Data:
         """
         return self._["data"]
 
-    def __sub__(self, other):
-        return self.difference(other, flip=True)
-
-    @property
-    def match(self) -> callable:
-        """Returns decorator for value-level match function."""
-        return self._["match"]
-
     @property
     def size(self) -> int:
         """Returns number of items."""
-        return len(self)
+        return len(self.data)
 
     @property
     def writable(self) -> bool:
@@ -167,50 +133,15 @@ class Data:
     def clone(self) -> "Data":
         return Data(self)
 
-    def config(self, writable=True) -> "Data":
-        if writable:
-            self._["writable"] = True
-        else:
-            self._.pop("writable", None)
-        return self
-
     def copy(self, deep: bool = True) -> dict:
         if deep:
             return deepcopy(self.data)
         return self.data.copy()
 
-    def difference(self, other: dict, flip=False):
-        """Not flipped: Returns items that are in other, but not in data.
-        Flipped: Returns items that are in data, but not in other."""
-        if isinstance(other, Data):
-            other = other.data
-        if not isinstance(other, dict):
-            raise TypeError(f"Cannot infer difference with respect to: {str(other)}.")
-        match = self._["_"].get("match") or (lambda value, other: value == other)
-        result = {}
-        if flip:
-            for key, value in self:
-                if key in other:
-                    if not match(value, other[key]):
-                        result[key] = value
-                else:
-                    result[key] = value
-            return result
-        # NOTE Do not adapt to "no-None" value convention, since difference may be
-        # used to trigger the "None removes" convention.
-        for key, value in other.items():
-            if key in self:
-                if not match(value, self[key]):
-                    result[key] = value
-            else:
-                result[key] = value
-        return result
-
     def has(self, key) -> bool:
-        return key in self
+        return key in self.data
 
     def index(self, key) -> int:
-        """Returns item index. Returns None if key does not exist."""
         if key in self.data:
             keys = list(self.data.keys())
             return keys.index(key)
@@ -237,8 +168,8 @@ class Data:
 
 
 class Effects:
-    def __init__(self, owner: "Base"):
-        self._ = Data(owner=owner, registry=dict()).config()
+    def __init__(self, owner):
+        self._ = dict(owner=owner, registry=dict())
 
     def __bool__(self):
         return bool(len(self.registry))
@@ -289,26 +220,23 @@ class Effects:
 
     @property
     def max(self) -> int:
-        """Returns number of allowed effects. None means no limit."""
-        return self._.max
+        return self._.get("max")
 
     @max.setter
     def max(self, max: int):
-        """Sets number of allowed effects. None means no limit."""
-        # NOTE Useful during dev to guard against memory leaks.
         if max is None:
             self._.pop("max", None)
         else:
-            self._.max = max
+            self._["max"] = max
 
     @property
-    def owner(self) -> "Base":
-        return self._.owner
+    def owner(self):
+        return self._["owner"]
 
     @property
     def registry(self) -> dict:
         # XXX Should generally not be used externally, but exposed for special cases.
-        return self._.registry
+        return self._["registry"]
 
     @property
     def size(self) -> int:
@@ -316,17 +244,15 @@ class Effects:
 
     def add(
         self,
-        _effect: callable,
+        effect: callable,
         once: bool = False,
         protected: bool = False,
         run: bool = False,
         **data,
     ) -> callable:
         # Create detail
-        def effect(message):
-            return _effect(message)
-
-        detail = Data(data=Data(data).config()).config()
+        ##detail = dict(data=Data(data, writable=True))
+        detail = Data(data=Data(data, writable=True), writable=True)
         # Handle ii effect
         if run:
             transient = dict()
@@ -368,7 +294,8 @@ class Effects:
             remove = []
             # Run effects
             for effect, detail in self:
-                if detail.protected:
+                protected = detail.get("protected")
+                if protected:
                     continue
                 remove.append(effect)
             for effect in remove:
@@ -418,13 +345,13 @@ class Message:
 
     def __init__(self, owner=None, session=None, transient: dict = None):
         # HACK Consumer passes in 'transient' to provide pseudo-encapsulation
-        self._ = Data(
-            data=Data().config(),
+        self._ = dict(
+            data=Data({}, writable=True),
             owner=owner,
             transient=transient,
         )
         if session is None:
-            self._(session=session)
+            self._.update(session=session)
 
     @property
     def change(self) -> Data:
@@ -440,28 +367,28 @@ class Message:
     def data(self) -> Data:
         """Returns data."""
         # NOTE Belongs to message. Useful for inter-effect coms.
-        return self._.data
+        return self._["data"]
 
     @property
     def detail(self) -> Data:
         # NOTE Belongs to effect
-        transient: dict = self._.transient
+        transient: dict = self._["transient"]
         return transient.get("detail")
 
     @property
     def effect(self) -> callable:
-        transient: dict = self._.transient
+        transient: dict = self._["transient"]
         return transient.get("effect")
 
     @property
     def index(self) -> int:
         # NOTE Belongs to effect
-        transient: dict = self._.transient
+        transient: dict = self._["transient"]
         return transient.get("index")
 
     @property
     def owner(self):
-        return self._.owner
+        return self._["owner"]
 
     @property
     def previous(self) -> Data:
@@ -471,30 +398,27 @@ class Message:
     @property
     def session(self) -> int:
         if "session" in self._:
-            return self._.session
+            return self._["session"]
         return self.owner.session
 
 
-class Base:
-    """Base for reactive tools."""
+class Ref:
+    """Reactive state tool for single value."""
 
     @classmethod
     def keys(cls) -> list:
         """Returns own property names."""
-        result = []
-        for c in cls.mro():
-            _keys = [
-                k
-                for k, v in c.__dict__.items()
-                if not k.startswith("__")
-                and not k.endswith("__")
-                and len(k) > 2
-                and isinstance(v, property)
-            ]
-            result.extend(_keys)
-        return list(set(result))
+        return [
+            k
+            for k, v in cls.__dict__.items()
+            if not k.startswith("__")
+            and not k.endswith("__")
+            and len(k) > 2
+            and isinstance(v, property)
+        ]
 
-    def __init__(self, context=None, tag: str = "", **detail):
+    def __init__(self, *args, context=None, tag: str = "", **detail):
+        current = next(iter(args), None)
         owner = self
         effects = Effects(self)
 
@@ -508,58 +432,66 @@ class Base:
 
         class match:
             def __init__(self):
-                """XXX For future use."""
+                """."""
+                # XXX Keep for future use.
 
             def __call__(self, matches: callable) -> callable:
                 owner._.update(matches=matches)
 
-        class onchange:
-            def __init__(self):
-                """XXX For future use."""
-
-            def __call__(self, onchange: callable) -> callable:
-                owner._._.update(onchange=onchange)
-
         def matches(value, other):
             return value == other
 
-        _ = Data(
-            _=Data().config(),
-            detail=Data(detail).config(),
+        self._ = dict(
+            current=current,
+            detail=Data(detail, writable=True),
             effect=effect,
             effects=effects,
             match=match,
             matches=matches,
-            onchange=onchange,
-        ).config()
+            previous=None,
+        )
         if context:
-            _.update(context=context)
+            self._.update(context=context)
         if tag:
-            _.update(tag=tag)
-        self.__dict__["_"] = _
+            self._.update(tag=tag)
+
+    def __bool__(self):
+        return bool(self.current)
+
+    def __call__(self, value, silent=False, **updates) -> "Ref":
+        self.detail(**updates)
+        if self.current != value:
+            self._["previous"] = self.current
+            self._["current"] = value
+            # Init session
+            if self.session is None:
+                self._["session"] = 0
+            if not silent:
+                # Run effects
+                self.effects()
+            # Update session
+            self._["session"] += 1
+        return self
 
     def __eq__(self, other) -> bool:
-        if isinstance(other, Data):
-            other = other.data
-        elif isinstance(other, Ref):
-            other = other.current
-        elif isinstance(other, State):
-            other = other.data
         matches = self._["matches"]
-        return matches(self.data, other)
+        return matches(self.current, other)
 
     def __str__(self):
-        return str(self.data)
+        return str(self.current)
+
+    @property
+    def change(self):
+        """."""
+        return self.previous
 
     @property
     def context(self):
         return self._.get("context")
 
     @property
-    def data(self):
-        """Returns current as-is.
-        NOTE Should only be accessed externally in special cases."""
-        return self._.get("current")
+    def current(self):
+        return self._["current"]
 
     @property
     def detail(self) -> Data:
@@ -582,12 +514,12 @@ class Base:
         return self._["match"]
 
     @property
-    def onchange(self) -> callable:
-        """Decorates onchange function."""
-        return self._["onchange"]
+    def previous(self):
+        """Returns changed items as-was before most recent update."""
+        return self._["previous"]
 
     @property
-    def session(self) -> int:
+    def session(self) -> str:
         return self._.get("session")
 
     @property
@@ -595,87 +527,32 @@ class Base:
         return self._.get("tag", "")
 
 
-class Ref(Base):
-    """Reactive state tool for single value."""
-
-    def __init__(self, *args, context=None, tag: str = "", **detail):
-        Base.__init__(self, context=context, tag=tag, **detail)
-        current = next(iter(args), None)
-
-        if isinstance(current, Data):
-            current = current.copy()
-        elif isinstance(current, State):
-            current = current.copy()
-
-        self._.update(current=current, previous=None)
-        if context:
-            self._.update(context=context)
-        if tag:
-            self._.update(tag=tag)
-
-    def __bool__(self):
-        return bool(self.current)
-
-    def __call__(self, value, silent=False, **detail) -> "Ref":
-        self.detail(**detail)
-        if isinstance(value, Data):
-            value = value.copy()
-        elif isinstance(value, Message):
-            value = value.owner.copy()
-        elif isinstance(value, Ref):
-            value = value.current
-        elif isinstance(value, State):
-            value = value.copy()
-
-        matches = self._["matches"]
-        if not matches(self.current, value):
-            self._.update(previous=self.current, current=value)
-            # Init session
-            if self.session is None:
-                self._["session"] = 0
-            if not silent:
-                # Run effects
-                self.effects()
-            # Update session
-            self._["session"] += 1
-        return self
-
-    @property
-    def change(self) -> Data:
-        """."""
-        # For alignment with 'State'
-        return self.current
-
-    @property
-    def current(self):
-        return self._["current"]
-
-    @property
-    def previous(self):
-        """Returns changed items as-was before most recent update."""
-        return self._["previous"]
-
-
-class State(Base):
+class State:
     """Reactive state tool.
     NOTE
     - Primarily intended for flat structures with immutable values.
     """
 
+    @classmethod
+    def keys(cls) -> list:
+        """Returns own property names."""
+        return [
+            k
+            for k, v in cls.__dict__.items()
+            if not k.startswith("__")
+            and not k.endswith("__")
+            and len(k) > 2
+            and isinstance(v, property)
+        ]
+
     def __init__(
         self, *args, context=None, detail: dict = None, tag: str = "", **current
     ):
-        if detail is None:
-            detail = {}
-        Base.__init__(self, context=context, tag=tag, **detail)
-
         _current = next(iter(args), None)
         if _current is not None:
             # Create from pos arg
             if isinstance(_current, Data):
                 _current = _current.copy()
-            elif isinstance(_current, Ref):
-                _current = _current.current
             elif isinstance(_current, State):
                 _current = _current.copy()
             else:
@@ -684,15 +561,47 @@ class State(Base):
                 _current = deepcopy(_current)
             current.update(_current)
 
-        _ = self._["_"]
+        owner = self
+        effects = Effects(self)
 
-        _.update(
-            change=Data({}),
-            current=Data(current),
-            previous=Data({}),
+        class effect:
+            def __init__(self, **kwargs):
+                self.kwargs = kwargs
+
+            def __call__(self, effect: callable) -> callable:
+                effects.add(effect, **self.kwargs)
+                return effect
+
+        class match:
+            def __init__(self):
+                """."""
+                # XXX Keep for future use.
+
+            def __call__(self, matches: callable) -> callable:
+                owner._.update(matches=matches)
+
+        def matches(value, other):
+            return value == other
+
+        _ = dict(
+            _=dict(
+                change=Data({}),
+                current=Data(current),
+                previous=Data({}),
+            ),
+            current=current,
+            detail=Data(detail, writable=True),
+            effect=effect,
+            effects=effects,
+            match=match,
+            matches=matches,
+            previous={},
         )
-
-        self._.update(current=current, previous={})
+        if context:
+            _.update(context=context)
+        if tag:
+            _.update(tag=tag)
+        self.__dict__["_"] = _
 
     def __bool__(self):
         return bool(len(self.data))
@@ -706,8 +615,6 @@ class State(Base):
                 _updates = _updates.copy()
             elif isinstance(_updates, Message):
                 _updates = _updates.owner.copy()
-            elif isinstance(_updates, Ref):
-                _updates = _updates.current
             elif isinstance(_updates, State):
                 _updates = _updates.copy()
             else:
@@ -737,36 +644,35 @@ class State(Base):
                     if value is not None:
                         current[key] = value
                         change[key] = value
-
-            if change:
-                # Init session
-                if self.session is None:
-                    self._["session"] = 0
-
-                _ = self._["_"]
-                onchange = _.get("onchange")
-                if onchange:
-                    onchange(self, change=change, current=current, previous=previous)
-
-                # Create public exposures
-                self._["_"].update(
-                    change=Data(change), current=Data(current), previous=Data(previous)
-                )
-
-                if not silent:
-                    # Run effects
-                    self.effects()
-                # Update session
-                self._["session"] += 1
-
         else:
             # No updates -> clear
-            self.clear()
-
+            previous.clear()
+            previous.update(current)
+            change = dict(current)
+            current.clear()
+        # Create public exposures
+        self._["_"].update(
+            change=Data(change), current=Data(current), previous=Data(previous)
+        )
+        # Init session
+        if self.session is None:
+            self._["session"] = 0
+        if not silent:
+            # Run effects
+            self.effects()
+        # Update session
+        self._["session"] += 1
         return self
 
     def __contains__(self, key):
         return key in self.data
+
+    def __eq__(self, other) -> bool:
+        if isinstance(other, Data):
+            other = other.data
+        elif isinstance(other, State):
+            other = other.data
+        return self.data == other
 
     def __getattr__(self, key):
         return self[key]
@@ -777,14 +683,14 @@ class State(Base):
     def __iter__(self) -> iter:
         return iter(self.data.items())
 
-    def __len__(self) -> int:
-        return len(self.data)
-
     def __setattr__(self, key, value):
         self(**{key: value})
 
     def __setitem__(self, key, value):
         self(**{key: value})
+
+    def __str__(self):
+        return str(self.data)
 
     @property
     def change(self) -> Data:
@@ -792,8 +698,41 @@ class State(Base):
         return self._["_"]["change"]
 
     @property
+    def context(self):
+        return self._.get("context")
+
+    @property
     def current(self) -> Data:
         return self._["_"]["current"]
+
+    @property
+    def data(self) -> dict:
+        """Returns wrapped data as-is.
+        NOTE
+        Should only be accessed externally in special cases (circumvents
+        reactivity).
+        """
+        return self._["current"]
+
+    @property
+    def detail(self) -> Data:
+        # NOTE Useful for storing non-reactive additional data
+        return self._["detail"]
+
+    @property
+    def effect(self) -> callable:
+        """Decorates effect."""
+        return self._["effect"]
+
+    @property
+    def effects(self) -> Effects:
+        """Returns effects controller."""
+        return self._["effects"]
+
+    @property
+    def match(self) -> callable:
+        """Decorates match function."""
+        return self._["match"]
 
     @property
     def previous(self) -> Data:
@@ -804,6 +743,14 @@ class State(Base):
     def size(self) -> int:
         """Returns number of items."""
         return len(self.data)
+
+    @property
+    def session(self) -> int:
+        return self._.get("session")
+
+    @property
+    def tag(self) -> str:
+        return self._.get("tag", "")
 
     def clear(self, silent=False) -> "State":
         """Clears items reactively."""
