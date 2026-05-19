@@ -28,54 +28,42 @@ class instantiate:
         return target()
 
 
-class Private:
-    def __init__(self):
-        # NOTE Add to '__dict__' to enable '__setattr__'
-        self.__dict__.update(__={})
-
-    @property
-    def _(self) -> dict:
-        return self.__
-
-
-class Data(Private):
+class Data:
     """Dict wrapper with enhanced features, some inspired by JS Map and JS (plain) Object.
     NOTE
     Intended for flat structures with immutable values, but can
     be used for other cases.
     """
 
-    def __init__(self, *args, **current):
-        Private.__init__(self)
-        owner = self
+    def __init__(self, *args, **data):
+        _ = {}
 
-        
-
-        _current = next(iter(args), None)
-        if _current is not None:
+        _data = next(iter(args), None)
+        if _data is not None:
             # Create from pos arg
-            if isinstance(_current, Data):
-                _current = _current.copy()
+            if isinstance(_data, Data):
+                _data = _data.copy()
             else:
-                if not isinstance(_current, dict):
-                    raise TypeError(f"Cannot create from: {str(_current)}.")
-                _current = deepcopy(_current)
-            current.update(_current)
+                if not isinstance(_data, dict):
+                    raise TypeError(f"Cannot create from: {str(_data)}.")
+                _data = deepcopy(_data)
+            data.update(_data)
         # Adapt to "no-None" value convention
-        current = {k: v for k, v in current.items() if v is not None}
+        data = {k: v for k, v in data.items() if v is not None}
 
         class match:
             def __init__(self):
                 """XXX For future use."""
 
             def __call__(self, match: callable) -> callable:
-                owner._.update(_match=match)
+                _.update(match=match)
 
-        # Update public
-        self._.update(current=current, match=match)
+        # Create private state
+        # NOTE Add '_' to '__dict__' to enable '__setattr__'
+        self.__dict__.update(_=dict(_=_, data=data, match=match))
 
     def __bool__(self):
-        return bool(len(self.current))
+        return bool(len(self.data))
 
     def __call__(self, *args, **updates):
         if not self.writable:
@@ -93,22 +81,22 @@ class Data(Private):
         for key, value in updates.items():
             if value is None:
                 # NOTE Convention: None removes
-                self.current.pop(key, None)
+                self.data.pop(key, None)
             else:
-                self.current[key] = value
+                self.data[key] = value
         return self
 
     def __contains__(self, key):
-        return key in self.current
+        return key in self.data
 
     def __eq__(self, other) -> bool:
         if isinstance(other, Data):
-            other = other.current
+            other = other.data
         if not isinstance(other, dict):
             return False
         # Adapt to "no-None" value convention
         other = {k: v for k, v in other.items() if v is not None}
-        match = self._.get("_match")
+        match = self._["_"].get("match")
         if match:
             if len(self) != len(other):
                 return False
@@ -118,19 +106,19 @@ class Data(Private):
                 if not match(value, other[key]):
                     return False
             return True
-        return self.current == other
+        return self.data == other
 
     def __getattr__(self, key):
         return self[key]
 
     def __getitem__(self, key):
-        return self.current.get(key)
+        return self.data.get(key)
 
     def __iter__(self):
-        return iter(self.current.items())
+        return iter(self.data.items())
 
     def __len__(self) -> int:
-        return len(self.current)
+        return len(self.data)
 
     def __rsub__(self, other):
         return self.difference(other)
@@ -142,12 +130,16 @@ class Data(Private):
         self(**{key: value})
 
     def __str__(self):
-        return str(self.current)
+        return str(self.data)
 
     @property
-    def current(self) -> dict:
-        # NOTE Should only be accessed externally in special cases.
-        return self._["current"]
+    def data(self) -> dict:
+        """Returns wrapped data.
+        NOTE
+        Should only be accessed externally in special cases (circumvents
+        any write protection).
+        """
+        return self._["data"]
 
     def __sub__(self, other):
         return self.difference(other, flip=True)
@@ -164,15 +156,12 @@ class Data(Private):
 
     @property
     def writable(self) -> bool:
-        """."""
         return self._.get("writable", False)
 
     def clear(self) -> "Data":
         if not self.writable:
             raise AttributeError("Read-only.")
-        updates = {k: None for k in self.keys()}
-        # NOTE All changes channeled through __call__
-        self(**updates)
+        self.data.clear()
         return self
 
     def clone(self) -> "Data":
@@ -187,17 +176,17 @@ class Data(Private):
 
     def copy(self, deep: bool = True) -> dict:
         if deep:
-            return deepcopy(self.current)
-        return self.current.copy()
+            return deepcopy(self.data)
+        return self.data.copy()
 
     def difference(self, other: dict, flip=False):
         """Not flipped: Returns items that are in other, but not in data.
         Flipped: Returns items that are in data, but not in other."""
         if isinstance(other, Data):
-            other = other.current
+            other = other.data
         if not isinstance(other, dict):
             raise TypeError(f"Cannot infer difference with respect to: {str(other)}.")
-        match = self._.get("_match") or (lambda value, other: value == other)
+        match = self._["_"].get("match") or (lambda value, other: value == other)
         result = {}
         if flip:
             for key, value in self:
@@ -222,29 +211,29 @@ class Data(Private):
 
     def index(self, key) -> int:
         """Returns item index. Returns None if key does not exist."""
-        if key in self.current:
-            keys = list(self.current.keys())
+        if key in self.data:
+            keys = list(self.data.keys())
             return keys.index(key)
 
     def items(self):
-        return self.current.items()
+        return self.data.items()
 
     def get(self, key, *args):
         default = next(iter(args), None)
-        return self.current.get(key, default)
+        return self.data.get(key, default)
 
     def keys(self):
-        return self.current.keys()
+        return self.data.keys()
 
     def pop(self, key, *args):
         default = next(iter(args), None)
-        return self.current.pop(key, default)
+        return self.data.pop(key, default)
 
     def update(self, *args, **kwargs):
         return self(*args, **kwargs)
 
     def values(self):
-        return self.current.values()
+        return self.data.values()
 
 
 class Effects:
@@ -333,7 +322,7 @@ class Effects:
         run: bool = False,
         **data,
     ) -> callable:
-        # Wrap to ensure hashability of effects that are callable classes
+        # Create detail
         def effect(message):
             return _effect(message)
 

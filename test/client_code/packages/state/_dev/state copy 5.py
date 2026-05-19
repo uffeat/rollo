@@ -28,17 +28,7 @@ class instantiate:
         return target()
 
 
-class Private:
-    def __init__(self):
-        # NOTE Add to '__dict__' to enable '__setattr__'
-        self.__dict__.update(__={})
-
-    @property
-    def _(self) -> dict:
-        return self.__
-
-
-class Data(Private):
+class Data:
     """Dict wrapper with enhanced features, some inspired by JS Map and JS (plain) Object.
     NOTE
     Intended for flat structures with immutable values, but can
@@ -46,10 +36,7 @@ class Data(Private):
     """
 
     def __init__(self, *args, **current):
-        Private.__init__(self)
-        owner = self
-
-        
+        _ = {}
 
         _current = next(iter(args), None)
         if _current is not None:
@@ -69,10 +56,11 @@ class Data(Private):
                 """XXX For future use."""
 
             def __call__(self, match: callable) -> callable:
-                owner._.update(_match=match)
+                _.update(match=match)
 
-        # Update public
-        self._.update(current=current, match=match)
+        # Create private state
+        # NOTE Add '_' to '__dict__' to enable '__setattr__'
+        self.__dict__.update(_=dict(_=_, current=current, match=match))
 
     def __bool__(self):
         return bool(len(self.current))
@@ -108,7 +96,7 @@ class Data(Private):
             return False
         # Adapt to "no-None" value convention
         other = {k: v for k, v in other.items() if v is not None}
-        match = self._.get("_match")
+        match = self._["_"].get("match")
         if match:
             if len(self) != len(other):
                 return False
@@ -146,7 +134,11 @@ class Data(Private):
 
     @property
     def current(self) -> dict:
-        # NOTE Should only be accessed externally in special cases.
+        """Returns wrapped data.
+        NOTE
+        Should only be accessed externally in special cases (circumvents
+        any write protection).
+        """
         return self._["current"]
 
     def __sub__(self, other):
@@ -164,15 +156,14 @@ class Data(Private):
 
     @property
     def writable(self) -> bool:
-        """."""
         return self._.get("writable", False)
+    
+    
 
     def clear(self) -> "Data":
         if not self.writable:
             raise AttributeError("Read-only.")
-        updates = {k: None for k in self.keys()}
-        # NOTE All changes channeled through __call__
-        self(**updates)
+        self.current.clear()
         return self
 
     def clone(self) -> "Data":
@@ -197,7 +188,7 @@ class Data(Private):
             other = other.current
         if not isinstance(other, dict):
             raise TypeError(f"Cannot infer difference with respect to: {str(other)}.")
-        match = self._.get("_match") or (lambda value, other: value == other)
+        match = self._["_"].get("match") or (lambda value, other: value == other)
         result = {}
         if flip:
             for key, value in self:
