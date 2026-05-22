@@ -55,8 +55,12 @@ class Data(Base):
             else:
                 _current: dict = deepcopy(_current)
             current.update(**_current)
+
+        ###
         # Enforce "no None-value" convention
-        current = {k: v for k, v in current.items() if v is not None}
+        ##current = {k: v for k, v in current.items() if v is not None}
+        ###
+
         self._.update(current=current)
 
     def __bool__(self):
@@ -182,27 +186,37 @@ class State(Base):
         _current = Data(*args, **updates)
         _previous = Data()
 
-        change = Data().freeze()
-        current = Data(_current).freeze()
-        previous = Data().freeze()
-
         self._.update(
             _current=_current,
             _previous=_previous,
-            change=change,
-            current=current,
-            previous=previous,
+            change=Data().freeze(),
+            current=Data(_current).freeze(),
+            previous=Data().freeze(),
         )
 
     def __call__(self, *args, **updates) -> "State":
         """."""
-        _current: Data = self._["_current"]
-        _previous: Data = self._["_previous"]
 
         change = self.difference(updates)
         print("change:", change)
 
-        
+        if change:
+            _current: Data = self._["_current"]
+            _previous: Data = self._["_previous"]
+            for key, value in change.items():
+                _previous[key] = _current[key]
+                if value is None:
+                    _current.pop(key, None)
+                else:
+                    _current[key] = value
+
+            # Update exposed
+            self._.update(
+                change=Data().freeze(change),
+                current=Data(_current).freeze(_current),
+                previous=Data().freeze(_previous),
+            )
+
         return self
 
     @property
@@ -218,7 +232,6 @@ class State(Base):
     def previous(self) -> Data:
         """Returns changed items as-was before most recent update."""
         return self._["previous"]
-    
 
     def difference(self, other: dict) -> dict:
         """Returns items that are in other, but not in state."""
