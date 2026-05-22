@@ -55,7 +55,11 @@ class Private:
 
 
 class Data(Private):
-    """Dict wrapper with enhanced features, some inspired by JS Map and JS (plain) Object."""
+    """Dict wrapper with enhanced features, some inspired by JS Map and JS (plain) Object.
+    NOTE
+    Intended for flat structures with immutable values, but can
+    be used for other cases.
+    """
 
     def __init__(self, *args, **current):
         Private.__init__(self)
@@ -669,7 +673,10 @@ class Ref(Base):
 
 
 class State(Base):
-    """Reactive state tool, primarily for flat dicts."""
+    """Reactive state tool.
+    NOTE
+    - Primarily intended for flat structures with immutable values.
+    """
 
     def __init__(
         self, *args, context=None, detail: dict = None, tag: str = "", **current
