@@ -196,6 +196,10 @@ class State(Base):
                 ##print("Registered capability:", name)  ##
                 return handler
 
+        @capability()
+        def matches(value, other):
+            return value == other
+
         self._.update(
             _capabilities=_capabilities,
             _config=_config,
@@ -208,20 +212,21 @@ class State(Base):
         )
 
     def __call__(self, *args, **updates) -> "State":
-        """."""
+        """Updates current."""
         # Handle pos arg updates
         _updates = next(iter(args), ...)
         if _updates is None:
             return self.clear()
         if _updates is not ...:
-            if isinstance(_updates, Data):
+            if isinstance(_updates, State):
+                _updates: dict = _updates._["_current"]._["current"]
+            elif isinstance(_updates, Data):
                 _updates: dict = _updates._["current"]
             updates.update(_updates)
         updates: dict = deepcopy(updates)
-
+        # Infer change
         change = self.difference(updates)
         ##print("change:", change)  ##
-
         if change:
             # Handle session
             if self.session is None:
@@ -230,34 +235,66 @@ class State(Base):
             else:
                 # Update session
                 self._["session"] += 1
-
+            # Get private current
             _current: Data = self._["_current"]
-            # Update exposed
+            # Update previous
             self._.update(
                 previous=Data(_current).freeze(),
             )
+            # Update private current
             _current(change)
 
-            # Update exposed
+            # Update change and public current
             self._.update(
                 change=Data(change).freeze(),
                 current=Data(_current).freeze(),
             )
-
             ##print("_current after change:", _current)  ##
         else:
             ...
-
         return self
+
+    def __bool__(self):
+        current: Data = self._["_current"]
+        return bool(current)
+
+    def __contains__(self, key):
+        current: Data = self._["_current"]
+        return key in current
+
+    def __eq__(self, other) -> bool:
+        return not bool(self.difference(other))
+    
+    def __getitem__(self, key):
+        current: Data = self._["_current"]
+        return current[key]
+
+    def __iter__(self):
+        current: Data = self._["_current"]
+        return iter(current)
+
+    def __len__(self) -> int:
+        current: Data = self._["_current"]
+        return len(current)
+
+    def __ne__(self, other) -> bool:
+        return bool(self.difference(other))
+    
+    def __setitem__(self, key, value):
+        self(**{key: value})
+
+    def __str__(self) -> str:
+        current: Data = self._["_current"]
+        return str(current)
 
     @property
     def capability(self) -> callable:
-        """."""
+        """Decorates capability."""
         return self._["capability"]
 
     @property
     def change(self) -> Data:
-        """Returns items changed during most recent update."""
+        """Returns changes from most recent update."""
         return self._["change"]
 
     @property
@@ -281,7 +318,7 @@ class State(Base):
 
     @property
     def previous(self) -> Data:
-        """Returns changed items as-was before most recent update."""
+        """Returns current as-was before most recent update."""
         return self._["previous"]
 
     @property
@@ -294,36 +331,63 @@ class State(Base):
         self(**updates)
         return self
 
-    def config(self, *args, **updates):
-        """."""
+    def config(self, **updates) -> "State":
+        """Updates config."""
         if updates:
             _config: Data = self._["_config"]
             _config(updates)
         return self
+    
+    def copy(self, deep: bool = True) -> dict:
+        _current: Data = self._["_current"]
+        return _current.copy(deep=deep)
 
     def difference(self, other: dict) -> dict:
-        """Returns items that are in other, but not in state."""
-        if isinstance(other, Data):
+        """Returns items that are in other, but not in current."""
+        if isinstance(other, State):
+            other: dict = other._["_current"]._["current"]
+        elif isinstance(other, Data):
             other: dict = other._["current"]
         _current: Data = self._["_current"]
         _capabilities: Data = self._["_capabilities"]
-        match_ = _capabilities.get("match")
-        if not match_:
-
-            def match_(value, other):
-                return value == other
-
+        matches = _capabilities.get("matches")
         result = {}
         # NOTE Do not adapt to "no-None" value convention, since difference may be
         # used to trigger the "None removes" convention.
         for key, value in other.items():
             if key in _current:
-                if not match_(_current[key], value):
+                if not matches(_current[key], value):
                     result[key] = value
             else:
                 result[key] = value
         return result
+    
+    def get(self, key, *args):
+        _current: Data = self._["_current"]
+        return _current.get(key, *args)
+
+    def index(self, key) -> int:
+        """Returns item index. Returns None if key does not exist."""
+        _current: Data = self._["_current"]
+        return _current.index(key)
+
+    def items(self):
+        _current: Data = self._["_current"]
+        return _current.items()
 
     def keys(self):
         _current: Data = self._["_current"]
         return _current.keys()
+
+    def pop(self, key, *args):
+        if key in self:
+            value = self[key]
+            self(**{key: None})
+            return value
+        return next(iter(args), None)
+
+    def values(self):
+        _current: Data = self._["_current"]
+        return _current.values()
+
+    
