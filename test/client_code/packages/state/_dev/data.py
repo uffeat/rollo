@@ -55,12 +55,7 @@ class Data(Base):
             else:
                 _current: dict = deepcopy(_current)
             current.update(**_current)
-
-        ###
-        # Enforce "no None-value" convention
-        ##current = {k: v for k, v in current.items() if v is not None}
-        ###
-
+        # NOTE Do not enforce "no None-value" convention
         self._.update(current=current)
 
     def __bool__(self):
@@ -74,21 +69,21 @@ class Data(Base):
             raise AttributeError("Frozen")
         current: dict = self._["current"]
         # Handle pos arg updates
-        _updates = next(iter(args), None)
-        if _updates is not None:
+        _updates = next(iter(args), ...)
+        if _updates is None:
+            return self.clear()
+        if _updates is not ...:
             if isinstance(_updates, Data):
-                _updates: dict = _updates.copy()
-            else:
-                _updates: dict = deepcopy(_updates)
+                _updates: dict = _updates._["current"]
+            updates.update(_updates)
+        updates: dict = deepcopy(updates)
         # Update current
         for key, value in updates.items():
             if value is None:
-                # NOTE Convention: None removes
+                # NOTE Convention: None-value removes
                 current.pop(key, None)
             else:
                 current[key] = value
-
-        current.update(updates)
         return self
 
     def __contains__(self, key):
@@ -97,6 +92,8 @@ class Data(Base):
 
     def __eq__(self, other) -> bool:
         current: dict = self._["current"]
+        if isinstance(other, Data):
+            other: dict = other._["current"]
         return other == current
 
     def __getattr__(self, key):
@@ -116,6 +113,8 @@ class Data(Base):
 
     def __ne__(self, other) -> bool:
         current: dict = self._["current"]
+        if isinstance(other, Data):
+            other: dict = other._["current"]
         return other != current
 
     def __setattr__(self, key, value):
@@ -183,41 +182,87 @@ class State(Base):
     def __init__(self, *args, **updates):
         Base.__init__(self)
 
+        _capabilities = Data()
+        _config = Data()
         _current = Data(*args, **updates)
         _previous = Data()
 
+        class capability:
+            def __init__(self, *args, **kwargs):
+                self.args = args
+
+            def __call__(self, handler: callable) -> callable:
+                name = next(iter(self.args), handler.__name__)
+                _capabilities[name] = handler
+                ##print("Registered capability:", name)  ##
+                return handler
+
         self._.update(
+            _capabilities=_capabilities,
+            _config=_config,
             _current=_current,
             _previous=_previous,
+            capability=capability,
             change=Data().freeze(),
             current=Data(_current).freeze(),
+            detail=Data(),
             previous=Data().freeze(),
         )
 
     def __call__(self, *args, **updates) -> "State":
         """."""
+        # Handle pos arg updates
+        _updates = next(iter(args), ...)
+        if _updates is None:
+            return self.clear()
+        if _updates is not ...:
+            if isinstance(_updates, Data):
+                _updates: dict = _updates._["current"]
+            updates.update(_updates)
+        updates: dict = deepcopy(updates)
 
         change = self.difference(updates)
-        print("change:", change)
+        ##print("change:", change)  ##
 
         if change:
+            # Handle session
+            if self.session is None:
+                # Init session
+                self._["session"] = 0
+            else:
+                # Update session
+                self._["session"] += 1
+
             _current: Data = self._["_current"]
             _previous: Data = self._["_previous"]
+
+            ##print("_current before change:", _current)  ##
+
             for key, value in change.items():
                 _previous[key] = _current[key]
                 if value is None:
+                    # NOTE Convention: None-value removes
                     _current.pop(key, None)
                 else:
                     _current[key] = value
 
             # Update exposed
             self._.update(
-                change=Data().freeze(change),
-                current=Data(_current).freeze(_current),
-                previous=Data().freeze(_previous),
+                change=Data(change).freeze(),
+                current=Data(_current).freeze(),
+                previous=Data(_previous).freeze(),
             )
 
+            ##print("_current after change:", _current)  ##
+        else:
+            ...
+
         return self
+
+    @property
+    def capability(self) -> callable:
+        """."""
+        return self._["capability"]
 
     @property
     def change(self) -> Data:
@@ -225,24 +270,70 @@ class State(Base):
         return self._["change"]
 
     @property
+    def context(self):
+        _config: Data = self._["_config"]
+        return _config.get("context")
+
+    @property
     def current(self) -> Data:
         return self._["current"]
+
+    @property
+    def detail(self) -> Data:
+        # NOTE Useful for storing non-reactive additional data
+        
+        return self._.get("detail")
+
+    @property
+    def name(self) -> str:
+        _config: Data = self._["_config"]
+        return _config.get("name", "")
 
     @property
     def previous(self) -> Data:
         """Returns changed items as-was before most recent update."""
         return self._["previous"]
 
+    @property
+    def session(self) -> int:
+        return self._.get("session")
+
+    def clear(self) -> "State":
+        """Clears current reactively."""
+        updates = {k: None for k in self.keys()}
+        self(**updates)
+        return self
+
+    def config(self, *args, **updates):
+        """."""
+        if updates:
+            _config: Data = self._["_config"]
+            _config(updates)
+        return self
+
     def difference(self, other: dict) -> dict:
         """Returns items that are in other, but not in state."""
+        if isinstance(other, Data):
+            other: dict = other._["current"]
         _current: Data = self._["_current"]
+        _capabilities: Data = self._["_capabilities"]
+        match_ = _capabilities.get("match")
+        if not match_:
+
+            def match_(value, other):
+                return value == other
+
         result = {}
         # NOTE Do not adapt to "no-None" value convention, since difference may be
         # used to trigger the "None removes" convention.
         for key, value in other.items():
             if key in _current:
-                if value != _current[key]:
+                if not match_(_current[key], value):
                     result[key] = value
             else:
                 result[key] = value
         return result
+
+    def keys(self):
+        _current: Data = self._["_current"]
+        return _current.keys()
