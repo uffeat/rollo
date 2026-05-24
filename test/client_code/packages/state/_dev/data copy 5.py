@@ -185,6 +185,7 @@ class State(Base):
         _capabilities = Data()
         _config = Data()
         _current = Data(*args, **updates)
+        _previous = Data()
 
         class capability:
             def __init__(self, *args, **kwargs):
@@ -200,6 +201,7 @@ class State(Base):
             _capabilities=_capabilities,
             _config=_config,
             _current=_current,
+            _previous=_previous,
             capability=capability,
             change=Data().freeze(),
             current=Data(_current).freeze(),
@@ -232,16 +234,22 @@ class State(Base):
                 self._["session"] += 1
 
             _current: Data = self._["_current"]
-            # Update exposed
-            self._.update(
-                previous=Data(_current).freeze(),
-            )
-            _current(change)
+            _previous: Data = self._["_previous"]
+            ##print("_current before change:", _current)  ##
+
+            for key, value in change.items():
+                _previous[key] = _current[key]
+                if value is None:
+                    # NOTE Convention: None-value removes
+                    _current.pop(key, None)
+                else:
+                    _current[key] = value
 
             # Update exposed
             self._.update(
                 change=Data(change).freeze(),
                 current=Data(_current).freeze(),
+                previous=Data(_previous).freeze(),
             )
 
             ##print("_current after change:", _current)  ##
