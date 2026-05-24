@@ -1,40 +1,29 @@
 from data import Data, State
 
-state = State(foo=42, bar=8, dong="dong").config(name="Knud")
+state = State(foo=42, bar=8)
 
 
 
-@state.capability()
-def matches(value, other):
-    if isinstance(value, str) and isinstance(other, str):
-        return value.lower() == other.lower()
-    return value == other
+@state.effect("foo", dict(ding=2), run=True)
+def effect(**change):
+    print("effect reads session:", state.session)
+    print("effect reads index:", state.effects.index)
+    print("effect got change:", change)
 
 
-state.detail.stuff = 42
+@state.effect(lambda **change: 'ping' in change)
+def effect(**change):
+    print("ping effect got change:", change)
 
 
-print("initial:", state.current)
-
-state(ding=2, foo=42, bar=None, dong="DONG")
-
-print("state:", state)
-print("state.current:", state.current)
-print("state.previous:", state.previous)
-print("state.change:", state.change)
-print("state.name:", state.name)
-print("state.detail:", state.detail)
-print("index:", state.index('foo'))
-print("foo:", state['foo'])
-
-for key, value in state:
-    print("key:", key)
-    print("value:", value)
+##state.effects.clear()
 
 
-other = State({'foo': 42, 'dong': 'dong', 'ding': 2})
+state(bar=None)
 
-print("difference:", state.difference(other))
-print("same:", state == other)
+
+state(ding=2, foo=42)
+state(foo=43)
+state(ping=1)
 
 
