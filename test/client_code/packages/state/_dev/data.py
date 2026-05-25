@@ -621,6 +621,26 @@ class Subscriptions(Base):
         registry = []
         self._.update(effect=effect, registry=registry)
 
+    def __bool__(self):
+        registry: list = self._["registry"]
+        return bool(registry)
+    
+    def __contains__(self, state):
+        registry: list = self._["registry"]
+        return state in registry
+    
+    def __iter__(self):
+        registry: list = self._["registry"]
+        return iter(registry)
+    
+    def __len__(self) -> int:
+        registry: list = self._["registry"]
+        return len(registry)
+    
+    def __str__(self) -> str:
+        registry: list = self._["registry"]
+        return str(registry)
+
     @property
     def effect(self) -> "Effect":
         return self._["effect"]
@@ -628,22 +648,24 @@ class Subscriptions(Base):
     def add(self, state: State, *args, **kwargs):
         """."""
         registry: list = self._["registry"]
-        if state not in registry:
+        if state not in self:
             registry.append(state)
             state.effects.add(self.effect, *args, **kwargs)
 
     def clear(self):
         """."""
-        registry: list = self._["registry"]
-        for state in registry:
+        for state in self:
             self.remove(state)
 
     def remove(self, state: State):
         """."""
         registry: list = self._["registry"]
-        if state in registry:
+        if state in self:
             registry.remove(state)
             state.effects.remove(self.effect)
+
+    def values(self) -> tuple:
+        return tuple(self._["registry"])
 
 
 class Effect(Base):

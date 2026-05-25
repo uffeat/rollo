@@ -16,3 +16,14 @@ my_effect.subscriptions.add(my_state, run=True)
 
 
 my_state(bar=None)
+
+##my_effect.subscriptions.clear()
+##my_state.effects.clear()
+my_state.effects.remove(my_effect)
+
+print("effects:", len(my_state.effects))
+print("effects:", len(my_effect.subscriptions))
+
+
+
+my_state(ding=2)
