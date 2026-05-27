@@ -1,21 +1,19 @@
 from data import Data, State, state
 
-##state = State(foo=42, bar=8)
 
 
-
-@state(dict(foo=42), condition=['foo'])
+@state(foo=42, run=True)
 def stuff(state, **change):
     print("state:", state)
     
-    print("effect got change:", change)
+    print("on_change got change:", change)
 
 
 
 
 
 
-print("name:", stuff.name)
+print("stuff.name:", stuff.name)
 
 stuff(bar=8)
 

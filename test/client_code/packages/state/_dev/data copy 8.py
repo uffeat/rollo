@@ -2,6 +2,21 @@ from copy import deepcopy
 from types import MappingProxyType
 
 
+def log(*args, **kwargs):
+    print(*args)
+
+
+def Dict(sequence: list) -> dict:
+    """Returns dict from items sequence."""
+    if isinstance(sequence, (list, tuple)):
+        result = {}
+        for item in sequence:
+            if isinstance(item, (list, tuple)) and len(item) == 2:
+                key, value = item
+                result[key] = value
+        return result
+
+
 class Base:
     @classmethod
     def keys(cls) -> tuple:
@@ -28,21 +43,6 @@ class Base:
         return self.__
 
 
-class Config(Base):
-    """."""
-
-    def __init__(self, **current):
-        Base.__init__(self)
-        self._.update(current=current)
-
-    def __getattr__(self, key):
-        return self[key]
-
-    def __getitem__(self, key):
-        current: dict = self._["current"]
-        return current.get(key)
-
-
 class Data(Base):
     """."""
 
@@ -55,7 +55,7 @@ class Data(Base):
             else:
                 _current: dict = deepcopy(_current)
             current.update(**_current)
-        # NOTE Do not enforce "no None-value" convention at creation
+        # NOTE Do not enforce "no None-value" convention
         self._.update(current=current)
 
     def __bool__(self):
@@ -66,7 +66,7 @@ class Data(Base):
         """."""
         frozen: bool = self._.get("frozen", False)
         if frozen:
-            raise AttributeError(f"Cannot change frozen data instance: {self}.")
+            raise AttributeError("Frozen")
         current: dict = self._["current"]
         # Handle pos arg updates
         _updates = next(iter(args), ...)
@@ -194,26 +194,20 @@ class Effects(Base):
             remove = []
             # Run effects
             for index, (effect, spec) in enumerate(self):
-                spec: dict = spec
                 self._["index"] = index
                 ##print("index:", index")  ##
                 ##print("spec:", spec")  ##
                 once = spec.pop("once", False)
                 condition = spec.get("condition")
                 if not condition or condition(**change):
-                    self._["active"] = effect
                     if isinstance(effect, Effect):
-                        effect.subscriptions._.update(active=self.owner)
-                        effect(**change)
-                        effect.subscriptions._.pop("active", None)
-
-                    else:
-                        effect(**change)
+                        effect._.update(index=index, state=self.owner)
+                    effect(**change)
+                    if isinstance(effect, Effect):
+                        effect._.pop("index", None)
+                        effect._.pop("state", None)
                     if once:
                         remove.append(effect)
-            # Reset transient props
-            self._.pop("active", None)
-            self._.pop("index", None)
             # Remove 'once' effects
             for effect in remove:
                 self.remove(effect)
@@ -239,10 +233,6 @@ class Effects(Base):
         return len(registry)
 
     @property
-    def active(self) -> callable:
-        return self._.get("active")
-
-    @property
     def index(self) -> int:
         return self._.get("index")
 
@@ -264,63 +254,68 @@ class Effects(Base):
     def add(
         self,
         effect: callable,
-        *keys,
+        *conditions,
         condition: callable = None,
         once: bool = None,
         protected: bool = None,
         run: bool = None,
         **detail,
     ) -> callable:
-        
+        # Create spec
+        # NOTE 'protected' does not prevent removal, only removal with 'clear(force=False)'
+        spec = Data(detail=Data(detail), once=once, protected=protected)
+        # Handle condition
+        if isinstance(condition, (list, tuple)):
+            conditions = list(conditions)
+            conditions.extend(condition)
 
-        if effect not in self:
-            
+        if conditions:
+
+            def condition(**change):
+                for item in change.items():
+                    key, value = item
+                    for c in conditions:
+                        if callable(c):
+                            if c(**{key: value}):
+                                return True
+                        elif isinstance(c, dict):
+                            if key in c and c[key] == value:
+                                return True
+                        else:
+                            if key == c:
+                                return True
+
+                return False
+
+        # Update spec
+        spec(condition=condition)
+        # Handle ii effect
+        if run:
+            ##print("Running effect before registration")  ##
+            change = self.owner.current._["current"]
+            if not condition or condition(**change):
+                if isinstance(effect, Effect):
+                    effect._.update(state=self.owner)
+                effect(**change)
+                if isinstance(effect, Effect):
+                    effect._.pop("state", None)
+            if once:
+                ##print("Not registering effect.")  ##
+                return effect
+
+        if effect in self:
+            # Dedupe effect, but update spec
+            self.update(effect, **spec)
+        else:
             # Register
             if self.max and len(self) >= self.max:
                 raise ValueError(f"Cannot register more than {self.max} effects.")
             registry: dict = self._["registry"]
-            
-            registry[effect] = {}
+            registry[effect] = spec
             if isinstance(effect, Effect):
-                _registry: dict = effect.subscriptions._["registry"]
+                _registry: list = effect.subscriptions._["registry"]
                 if self.owner not in _registry:
-                    _registry[self.owner] = True
-            
-            
-        spec = self.update(effect, *keys, condition=condition, once=once, protected=protected)
-
-            
-        
-
-
-
-
-
-
-
-
-        
-        if run:
-            condition = spec.get('condition')
-            
-
-
-
-
-            change = self.owner.copy()
-            if not condition or condition(**change):
-                if isinstance(effect, Effect):
-                    effect.subscriptions._.update(active=self.owner)
-                    effect(**change)
-                    effect.subscriptions._.pop("active", None)
-                else:
-                    effect(**change)
-            if once:
-                self.remove(effect)
-               
-
-        
-
+                    _registry.append(self.owner)
             ##print("Registered effect with spec:", spec")  ##
         # Return effect to facilitate removal
         return effect
@@ -336,58 +331,21 @@ class Effects(Base):
         for effect in remove:
             self.remove(effect)
 
-    def get(self, effect: callable) -> dict:
-        """."""
-        registry: dict = self._["registry"]
-        return registry.get(effect)
-
     def remove(self, effect: callable) -> None:
         registry: dict = self._["registry"]
         registry.pop(effect, None)
         if isinstance(effect, Effect):
-            _registry: dict = effect.subscriptions._["registry"]
+            _registry: list = effect.subscriptions._["registry"]
             if self.owner in _registry:
-                _registry.pop(self.owner, None)
+                _registry.remove(self.owner)
 
-    def update(
-        self,
-        effect: callable,
-        *keys,
-        condition: callable = None,
-        once: bool = None,
-        protected: bool = None,
-        **detail,
-    ) -> dict:
+    def update(self, effect: callable, *updates) -> None:
         """Updates spec associated with effect."""
-
-        spec: dict = self.get(effect)
+        registry: dict = self._["registry"]
+        spec: Data = registry.get(effect)
         if not isinstance(spec, dict):
             raise KeyError("Cannot update spec.")
-        
-        if keys:
-
-            def condition(**change):
-                for key in change.keys():
-                    if key in keys:
-                        return True
-
-                return False
-        
-
-        if condition is not None:
-            spec.update(condition=condition)
-        if once is not None:
-            spec.update(once=once)
-        if protected is not None:
-            spec.update(protected=protected)
-
-        return spec
-
-        
-
-
-
-       
+        spec.update(updates)
 
 
 class State(Base):
@@ -396,23 +354,23 @@ class State(Base):
     def __init__(self, *args, **updates):
         Base.__init__(self)
 
-        _hooks = Data()
+        _capabilities = Data()
         _config = Data()
         _current = Data(*args, **updates)
         effects = Effects(self)
 
-        class hook:
-            def __init__(self, *args):
+        class capability:
+            def __init__(self, *args, **kwargs):
                 self.args = args
 
             def __call__(self, handler: callable) -> callable:
                 name = next(iter(self.args), handler.__name__)
-                _hooks[name] = handler
+                _capabilities[name] = handler
                 ##print("Registered capability:", name)  ##
                 return handler
 
         # Set default 'matches' capability
-        @hook()
+        @capability()
         def matches(value, other):
             return value == other
 
@@ -426,10 +384,10 @@ class State(Base):
                 return effect
 
         self._.update(
-            _hooks=_hooks,
+            _capabilities=_capabilities,
             _config=_config,
             _current=_current,
-            hook=hook,
+            capability=capability,
             change=Data().freeze(),
             current=Data(_current).freeze(),
             detail=Data(),
@@ -458,7 +416,6 @@ class State(Base):
         # Infer change
         change = self.difference(updates)
         ##print("change:", change)  ##
-
         if change:
             # Handle session
             if self.session is None:
@@ -467,9 +424,6 @@ class State(Base):
             else:
                 # Update session
                 self._["session"] += 1
-
-            _hooks: Data = self._["_hooks"]
-
             # Get private current
             _current: Data = self._["_current"]
             # Update previous
@@ -478,18 +432,12 @@ class State(Base):
             )
             # Update private current
             _current(change)
-
             # Update change and public current
             self._.update(
                 change=Data(change).freeze(),
                 current=Data(_current).freeze(),
             )
             ##print("_current after change:", _current)  ##
-
-            on_change = _hooks.get("on_change")
-            if on_change:
-                on_change(self, **change)
-
             # Run effects
             self.effects(**change)
         else:
@@ -520,9 +468,9 @@ class State(Base):
         return str(current)
 
     @property
-    def hook(self) -> callable:
-        """Decorates hook."""
-        return self._["hook"]
+    def capability(self) -> callable:
+        """Decorates capability."""
+        return self._["capability"]
 
     @property
     def change(self) -> Data:
@@ -577,6 +525,7 @@ class State(Base):
         if updates:
             _config: Data = self._["_config"]
             _config(**updates)
+
         return self
 
     def copy(self, deep: bool = True) -> dict:
@@ -590,8 +539,8 @@ class State(Base):
         elif isinstance(other, Data):
             other: dict = other._["current"]
         _current: Data = self._["_current"]
-        _hooks: Data = self._["_hooks"]
-        matches = _hooks.get("matches")
+        _capabilities: Data = self._["_capabilities"]
+        matches = _capabilities.get("matches")
         result = {}
         # NOTE Do not adapt to "no-None" value convention, since difference may be
         # used to trigger the "None removes" convention.
@@ -638,7 +587,9 @@ class state(Base):
     def __init__(
         self,
         *args,
+        condition=None,
         context=None,
+        once: bool = False,
         run: bool = False,
         state: State = None,
         **updates,
@@ -648,106 +599,79 @@ class state(Base):
             state = State(*args, **updates)
         state(*args)
 
-        self._.update(run=run, state=state)
-        state.configure(context=context)
+        self._.update(setup=dict(once=once, run=run), state=state)
+        state.configure(condition=condition, context=context)
 
-    def __call__(self, handler: callable) -> State:
+    def __call__(self, effect: callable) -> State:
         """."""
-        run: dict = self._.pop("run")
+        setup: dict = self._.pop("setup")
         state: State = self._.pop("state")
-        _hooks: Data = state._["_hooks"]
-        _hooks(on_change=handler)
-        state.configure(name=handler.__name__)
-        if run:
-            handler(state, **state.copy())
+
+        def wrapper(**change):
+            return effect(state, **change)
+
+        state.effects.add(wrapper, protected=True, **setup)
+        state.configure(name=effect.__name__)
         return state
 
 
 class Subscriptions(Base):
-    def __init__(self, owner: "Effect"):
+    def __init__(self, effect: "Effect"):
         Base.__init__(self)
-        registry = {}
-        self._.update(owner=owner, registry=registry)
+        registry = []
+        self._.update(effect=effect, registry=registry)
 
     def __bool__(self):
-        registry: dict = self._["registry"]
+        registry: list = self._["registry"]
         return bool(registry)
-
+    
     def __contains__(self, state):
-        registry: dict = self._["registry"]
+        registry: list = self._["registry"]
         return state in registry
-
+    
     def __iter__(self):
-        registry: dict = self._["registry"]
-        return iter(registry.items())
-
+        registry: list = self._["registry"]
+        return iter(registry)
+    
     def __len__(self) -> int:
-        registry: dict = self._["registry"]
+        registry: list = self._["registry"]
         return len(registry)
-
+    
     def __str__(self) -> str:
-        registry: dict = self._["registry"]
+        registry: list = self._["registry"]
         return str(registry)
 
     @property
-    def active(self) -> State:
-        """Returns state that triggered effect.
-        NOTE Transient property only available, while source runs."""
-        return self._.get("active")
+    def effect(self) -> "Effect":
+        return self._["effect"]
 
-    @property
-    def owner(self) -> "Effect":
-        return self._["owner"]
-
-    def add(
-        self, state: State, once: bool = None, protected: bool = None, run: bool = None
-    ):
+    def add(self, state: State, *args, **kwargs):
         """."""
-        registry: dict = self._["registry"]
-        if state in self:
-            state.effects.update(self.owner, once=once, protected=protected)
-        else:
-
-            registry[state] = True
-            state.effects.add(self.owner, once=once, protected=protected, run=run)
+        registry: list = self._["registry"]
+        if state not in self:
+            registry.append(state)
+            state.effects.add(self.effect, *args, **kwargs)
 
     def clear(self):
         """."""
-        remove = []
-        for state, spec in self:
-            remove.append(state)
-        for state in remove:
+        for state in self:
             self.remove(state)
-
-    def items(self):
-        registry: dict = self._["registry"]
-        return registry.items()
-
-    def keys(self):
-        registry: dict = self._["registry"]
-        return registry.keys()
 
     def remove(self, state: State):
         """."""
-        registry: dict = self._["registry"]
-        registry.pop(state, None)
-        state.effects.remove(self.owner)
+        registry: list = self._["registry"]
+        if state in self:
+            registry.remove(state)
+            state.effects.remove(self.effect)
 
-    def values(self):
-        registry: dict = self._["registry"]
-        return registry.values()
-
-    def update(self, state: State, **updates):
-        """."""
-        if state not in self:
-            raise KeyError(f"Does not subscribe to state: {state}")
-        state.effects.add(self.owner, **updates)
+    def values(self) -> tuple:
+        return tuple(self._["registry"])
 
 
 class Effect(Base):
     """State effect."""
 
-    def __init__(self, *states, context=None, protected: bool = None, run: bool = None):
+    def __init__(self, *states, context=None, protected:bool=None, run:bool=None):
         """NOTE
         - 'context' can be a State instance to also make the effect reactive.
         - Use 'detail' to make the effect stateful.
@@ -786,6 +710,12 @@ class Effect(Base):
         return self._["detail"]
 
     @property
+    def index(self) -> int:
+        """Returns effect index for current state update session.
+        NOTE Transient property only available, while source runs."""
+        return self._.get("index")
+
+    @property
     def name(self) -> str:
         return self._.get("name", "")
 
@@ -793,6 +723,12 @@ class Effect(Base):
     def source(self) -> type:
         """Decorates source function."""
         return self._["source"]
+
+    @property
+    def state(self) -> State:
+        """Returns state that triggered effect.
+        NOTE Transient property only available, while source runs."""
+        return self._.get("state")
 
     @property
     def subscriptions(self) -> Subscriptions:
