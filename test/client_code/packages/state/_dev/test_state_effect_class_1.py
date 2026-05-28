@@ -17,3 +17,10 @@ def stuff(effect: Effect, **change):
 my_effect.subscriptions.add(my_state, run=True)
 
 my_state(bar=None)
+
+
+def test(**kwargs):
+    print('kwargs:', kwargs)
+
+
+test(**my_state)

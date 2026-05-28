@@ -1,25 +1,22 @@
 from copy import deepcopy
-import json
 from types import MappingProxyType
 
 
 class Base:
-    
-    
     @classmethod
     def keys(cls) -> tuple:
-        """Returns unique member names."""
+        """Returns unique property names."""
         result = []
         for c in cls.mro():
-            _result = [
+            _keys = [
                 k
                 for k, v in c.__dict__.items()
                 if not k.startswith("__")
                 and not k.endswith("__")
                 and len(k) > 2
-                
+                and isinstance(v, property)
             ]
-            result.extend(_result)
+            result.extend(_keys)
         return tuple(set(result))
 
     def __init__(self):
@@ -30,6 +27,20 @@ class Base:
     def _(self) -> dict:
         return self.__
 
+
+class Config(Base):
+    """."""
+
+    def __init__(self, **current):
+        Base.__init__(self)
+        self._.update(current=current)
+
+    def __getattr__(self, key):
+        return self[key]
+
+    def __getitem__(self, key):
+        current: dict = self._["current"]
+        return current.get(key)
 
 
 def create_updates(first, updates: dict) -> dict:
@@ -43,11 +54,6 @@ def create_updates(first, updates: dict) -> dict:
         else:
             raise TypeError(f"Cannot update from: {str(first)}.")
     updates: dict = deepcopy(updates)
-    # Check keys
-    reserved = Data.keys()
-    for key in updates.keys():
-        if key in reserved:
-            raise ValueError(f"Reserved key: {key}")
     return updates
 
 
@@ -136,7 +142,11 @@ class Data(Base):
         data: dict = self._["data"]
         return str(data)
 
-    
+    @property
+    def _data_(self) -> dict:
+        """Returns wrapped data."""
+        # NOTE Generally for internal use, but can be used as escape hatch.
+        return self._["data"]
 
     def clear(self) -> "Data":
         # Channel changes through __call__
@@ -169,11 +179,6 @@ class Data(Base):
     def items(self):
         data: dict = self._["data"]
         return data.items()
-    
-    def json(self) -> str:
-        data: dict = self._["data"]
-        return json.dumps(data)
-
 
     def keys(self):
         data: dict = self._["data"]

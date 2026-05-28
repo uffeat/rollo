@@ -1,25 +1,22 @@
 from copy import deepcopy
-import json
 from types import MappingProxyType
 
 
 class Base:
-    
-    
     @classmethod
     def keys(cls) -> tuple:
-        """Returns unique member names."""
+        """Returns unique property names."""
         result = []
         for c in cls.mro():
-            _result = [
+            _keys = [
                 k
                 for k, v in c.__dict__.items()
                 if not k.startswith("__")
                 and not k.endswith("__")
                 and len(k) > 2
-                
+                and isinstance(v, property)
             ]
-            result.extend(_result)
+            result.extend(_keys)
         return tuple(set(result))
 
     def __init__(self):
@@ -31,169 +28,152 @@ class Base:
         return self.__
 
 
-
-def create_updates(first, updates: dict) -> dict:
+class Config(Base):
     """."""
-    if first is not ...:
-        if isinstance(first, Data):
-            first: dict = first._["data"]
-            updates.update(first)
-        elif isinstance(first, dict):
-            updates.update(first)
-        else:
-            raise TypeError(f"Cannot update from: {str(first)}.")
-    updates: dict = deepcopy(updates)
-    # Check keys
-    reserved = Data.keys()
-    for key in updates.keys():
-        if key in reserved:
-            raise ValueError(f"Reserved key: {key}")
-    return updates
 
-
-class Data(Base):
-    """dict wrapper with JS-inspired features and special update features.
-    NOTE
-    - None-values are allowed at creation, but deletes on update.
-    """
-
-    def __init__(self, *args, **updates):
+    def __init__(self, **current):
         Base.__init__(self)
-        first = next(iter(args), ...)
-        updates: dict = create_updates(first, updates)
-        # NOTE Do not enforce "no None-value" convention at creation
-        self._.update(data=updates)
-
-    def __bool__(self):
-        data: dict = self._["data"]
-        return bool(len(data))
-
-    def __call__(self, *args, **updates) -> "Data":
-        """."""
-        frozen: bool = self._.get("frozen", False)
-        if frozen:
-            raise AttributeError(f"Cannot change frozen instance: {self}.")
-
-        first = next(iter(args), ...)
-        if first is None:
-            # NOTE Convention: None clears
-            return self.clear()
-
-        updates: dict = create_updates(first, updates)
-
-        # Update data
-        data: dict = self._["data"]
-        for key, value in updates.items():
-            if value is None:
-                # NOTE Convention: None-value removes
-                data.pop(key, None)
-            else:
-                data[key] = value
-        return self
-
-    def __contains__(self, key) -> bool:
-        data: dict = self._["data"]
-        return key in data
-
-    def __delattr__(self, key) -> None:
-        # Channel changes through __call__
-        self({key: None})
-
-    def __eq__(self, other) -> bool:
-        data: dict = self._["data"]
-        if isinstance(other, Data):
-            other: dict = other._["data"]
-        return other == data
+        self._.update(current=current)
 
     def __getattr__(self, key):
         return self[key]
 
     def __getitem__(self, key):
-        data: dict = self._["data"]
-        return data.get(key)
+        current: dict = self._["current"]
+        return current.get(key)
+
+
+class Data(Base):
+    """."""
+
+    def __init__(self, *args, **current):
+        Base.__init__(self)
+        _current = next(iter(args), None)
+        if _current is not None:
+            if isinstance(_current, Data):
+                _current: dict = _current.copy()
+            else:
+                _current: dict = deepcopy(_current)
+            current.update(**_current)
+        # NOTE Do not enforce "no None-value" convention at creation
+        self._.update(current=current)
+
+    def __bool__(self):
+        current: dict = self._["current"]
+        return bool(len(current))
+
+    def __call__(self, *args, **updates) -> "Data":
+        """."""
+        frozen: bool = self._.get("frozen", False)
+        if frozen:
+            raise AttributeError(f"Cannot change frozen data instance: {self}.")
+        current: dict = self._["current"]
+        # Handle pos arg updates
+        _updates = next(iter(args), ...)
+        if _updates is None:
+            return self.clear()
+        if _updates is not ...:
+            if isinstance(_updates, Data):
+                _updates: dict = _updates._["current"]
+            updates.update(_updates)
+        updates: dict = deepcopy(updates)
+        # Update current
+        for key, value in updates.items():
+            if value is None:
+                # NOTE Convention: None-value removes
+                current.pop(key, None)
+            else:
+                current[key] = value
+        return self
+
+    def __contains__(self, key):
+        current: dict = self._["current"]
+        return key in current
+
+    def __eq__(self, other) -> bool:
+        current: dict = self._["current"]
+        if isinstance(other, Data):
+            other: dict = other._["current"]
+        return other == current
+
+    def __getattr__(self, key):
+        return self[key]
+
+    def __getitem__(self, key):
+        current: dict = self._["current"]
+        return current.get(key)
 
     def __iter__(self):
-        data: dict = self._["data"]
-        return iter(data)
+        current: dict = self._["current"]
+        return iter(current)
 
     def __len__(self) -> int:
-        data: dict = self._["data"]
-        return len(data)
+        current: dict = self._["current"]
+        return len(current)
 
     def __ne__(self, other) -> bool:
-        data: dict = self._["data"]
+        current: dict = self._["current"]
         if isinstance(other, Data):
-            other: dict = other._["data"]
-        return other != data
+            other: dict = other._["current"]
+        return other != current
 
-    def __setattr__(self, key, value) -> None:
+    def __setattr__(self, key, value):
         self(**{key: value})
 
-    def __setitem__(self, key, value) -> None:
+    def __setitem__(self, key, value):
         self(**{key: value})
 
     def __str__(self) -> str:
-        data: dict = self._["data"]
-        return str(data)
-
-    
+        current: dict = self._["current"]
+        return str(current)
 
     def clear(self) -> "Data":
-        # Channel changes through __call__
-        return self({k: None for k in self.keys()})
+        updates = {k: None for k in self.keys()}
+        # NOTE All changes channeled through __call__
+        self(**updates)
+        return self
 
     def copy(self, deep: bool = True) -> dict:
-        # NOTE Deep copy by default
-        data: dict = self._["data"]
+        current: dict = self._["current"]
         if deep:
-            return deepcopy(data)
-        return data.copy()
+            return deepcopy(current)
+        return current.copy()
 
     def freeze(self) -> "Data":
-        """Prevents subsequent changes."""
+        """."""
         self._.update(frozen=True)
         return self
 
     def get(self, key, *args):
-        data: dict = self._["data"]
+        current: dict = self._["current"]
         default = next(iter(args), None)
-        return data.get(key, default)
+        return current.get(key, default)
 
     def index(self, key) -> int:
         """Returns item index. Returns None if key does not exist."""
-        data: dict = self._["data"]
-        if key in data:
-            keys = list(data.keys())
+        current: dict = self._["current"]
+        if key in current:
+            keys = list(current.keys())
             return keys.index(key)
 
     def items(self):
-        data: dict = self._["data"]
-        return data.items()
-    
-    def json(self) -> str:
-        data: dict = self._["data"]
-        return json.dumps(data)
-
+        current: dict = self._["current"]
+        return current.items()
 
     def keys(self):
-        data: dict = self._["data"]
-        return data.keys()
+        current: dict = self._["current"]
+        return current.keys()
 
     def pop(self, key, *args):
-        # NOTE No need to provide default value
         if key in self:
             value = self[key]
-            # Channel changes through __call__
-            self({key: None})
+            self(**{key: None})
             return value
         return next(iter(args), None)
 
-    def update(self, *args, **kwargs) -> "Data":
-        return self(*args, **kwargs)
-
     def values(self):
-        data: dict = self._["data"]
-        return data.values()
+        current: dict = self._["current"]
+        return current.values()
 
 
 class Effects(Base):
@@ -621,9 +601,6 @@ class State(Base):
             self(**{key: None})
             return value
         return next(iter(args), None)
-
-    def update(self, *args, **kwargs) -> "Data":
-        return self(*args, **kwargs)
 
     def values(self):
         _current: Data = self._["_current"]
