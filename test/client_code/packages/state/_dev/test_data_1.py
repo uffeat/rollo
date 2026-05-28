@@ -1,7 +1,5 @@
 from data import Data
 
-print("members:", Data.members())
-
 
 
 

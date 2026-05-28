@@ -4,20 +4,16 @@ from types import MappingProxyType
 
 
 class Base:
-    
-    
+
     @classmethod
-    def keys(cls) -> tuple:
+    def Keys(cls) -> tuple:
         """Returns unique member names."""
         result = []
         for c in cls.mro():
             _result = [
                 k
                 for k, v in c.__dict__.items()
-                if not k.startswith("__")
-                and not k.endswith("__")
-                and len(k) > 2
-                
+                if not k.startswith("__") and not k.endswith("__") and len(k) > 2
             ]
             result.extend(_result)
         return tuple(set(result))
@@ -31,7 +27,6 @@ class Base:
         return self.__
 
 
-
 def create_updates(first, updates: dict) -> dict:
     """."""
     if first is not ...:
@@ -43,11 +38,14 @@ def create_updates(first, updates: dict) -> dict:
         else:
             raise TypeError(f"Cannot update from: {str(first)}.")
     updates: dict = deepcopy(updates)
+    
     # Check keys
-    reserved = Data.keys()
+    reserved = Data.Keys()
     for key in updates.keys():
         if key in reserved:
             raise ValueError(f"Reserved key: {key}")
+    
+    
     return updates
 
 
@@ -62,6 +60,10 @@ class Data(Base):
         first = next(iter(args), ...)
         updates: dict = create_updates(first, updates)
         # NOTE Do not enforce "no None-value" convention at creation
+
+
+
+
         self._.update(data=updates)
 
     def __bool__(self):
@@ -136,8 +138,6 @@ class Data(Base):
         data: dict = self._["data"]
         return str(data)
 
-    
-
     def clear(self) -> "Data":
         # Channel changes through __call__
         return self({k: None for k in self.keys()})
@@ -169,11 +169,10 @@ class Data(Base):
     def items(self):
         data: dict = self._["data"]
         return data.items()
-    
+
     def json(self) -> str:
         data: dict = self._["data"]
         return json.dumps(data)
-
 
     def keys(self):
         data: dict = self._["data"]
