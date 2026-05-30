@@ -359,15 +359,37 @@ class Effects(Base):
                 _registry: dict = effect.subscriptions._["registry"]
                 if self.owner not in _registry:
                     _registry[self.owner] = True
+
             spec = self.update(effect, condition=condition, once=once, protected=protected, **detail)
+
+            annotations = effect.__annotations__
+            print("annotations:", annotations)  ##
+            returns = annotations.get('return')
+            signature = {k: v for k, v in annotations.items() if k != "return"}
+            expects = next(iter(signature.values()), None)
+            print("expects:", expects)  ##
+            if expects is not None:
+                spec.update(expects=expects)
+            if returns is not None:
+                spec.update(returns=returns)
+
+
+        
         if run:
             change = self.owner.current
             condition = spec.get("condition")
+            expects = spec.get("expects")
+            
+            if expects is Message:
+                ...
+
+
             # Create message
             message = Message(change, self.owner)
             # Update transient
             transient: dict = message._["transient"]
             transient.update(effect=effect)
+
             if not condition or condition(message):
                 if isinstance(effect, Effect):
                     effect.subscriptions._.update(active=self.owner)
@@ -375,9 +397,11 @@ class Effects(Base):
                     effect.subscriptions._.pop("active", None)
                 else:
                     effect(message)
+            
             # Handle the unlikely case: run + once
             if once:
                 self.remove(effect)
+
             ##print("Registered effect with spec:", spec")  ##
         # Return effect to facilitate removal
         return effect
@@ -815,14 +839,6 @@ class Effect(Base):
         Base.__init__(self)
         owner = self
 
-        class condition:
-            def __init__(self):
-                """."""
-
-            def __call__(self, condition: callable) -> callable:
-                owner._.update(_condition=condition)
-                return condition
-
         class source:
             def __init__(self, name: str = None):
                 self.name = name
@@ -830,30 +846,28 @@ class Effect(Base):
             def __call__(self, source: callable) -> callable:
                 if not self.name:
                     self.name = source.__name__
-                owner._.update(name=self.name, _source=source)
+
+                annotations = Data(source.__annotations__).freeze()
+
+                owner._.update(annotations=annotations, name=self.name, _source=source)
                 return source
 
-        self._.update(condition=condition, detail=Data(), source=source, subscriptions=Subscriptions(self))
+        self._.update(detail=Data(), source=source, subscriptions=Subscriptions(self))
         if context:
             self._.update(context=context)
         if states:
             for state in states:
                 self.subscriptions.add(state, protected=protected, run=run)
 
-    def __call__(self, message: Message):
-        source = self._.get("_source")
-        if source:
-            condition = self._.get("_condition")
-            if not condition or not condition(self, message):
-                return source(self, message)
-
-    
+    def __call__(self, *args, **kwargs):
+        _source = self._.get("_source")
+        if _source:
+            return _source(self, *args, **kwargs)
 
     @property
-    def condition(self) -> type:
-        """Decorates condition function."""
-        return self._["condition"]
-    
+    def __annotations__(self) -> Data:
+        return self._.get("annotations", Data().freeze())
+
     @property
     def context(self):
         return self._.get("context")
@@ -870,8 +884,6 @@ class Effect(Base):
     def source(self) -> type:
         """Decorates source function."""
         return self._["source"]
-    
-
 
     @property
     def subscriptions(self) -> Subscriptions:

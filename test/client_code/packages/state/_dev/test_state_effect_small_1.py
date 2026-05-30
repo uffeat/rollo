@@ -8,9 +8,9 @@ my_state = State(foo=42, bar=8)
 @effect()
 def stuff(effect: Effect, **change):
     print("stuff got change:", change)
-    print("stuff called by state:", effect.state)
-    print("stuff reads index:", effect.index)
-    effect.detail.index = effect.index
+    print("stuff called by state:", effect.subscriptions.active)
+    print("stuff reads index:", effect.subscriptions.active.effects.active.index)
+    effect.detail.index = effect.subscriptions.active.effects.active.index
 
 
 

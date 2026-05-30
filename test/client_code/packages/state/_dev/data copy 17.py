@@ -27,6 +27,9 @@ class Base:
         return self.__
 
 
+
+
+
 class Data(Base):
     """dict wrapper with JS-inspired features and special update features.
     NOTE
@@ -200,64 +203,6 @@ class ActiveEffect(Base):
         return self._.get("spec")
 
 
-class Message(Base):
-    def __init__(self, change: Data, state: int):
-        Base.__init__(self)
-        self._.update(change=change, detail=Data(), state=state, transient={})
-
-    def __getattr__(self, key):
-        return self[key]
-
-    def __getitem__(self, key):
-        return self.change.get(key, ...)
-
-    def __iter__(self):
-        return iter(self.change)
-
-    def __str__(self) -> str:
-        return str(self.change)
-
-    def keys(self):
-        return self.change.keys()
-
-    @property
-    def change(self) -> Data:
-        return self._["change"]
-
-    @property
-    def detail(self) -> Data:
-        return self._["detail"]
-
-    @property
-    def effect(self) -> callable:
-        transient: dict = self._["transient"]
-        return transient.get("effect")
-
-    @property
-    def index(self) -> int:
-        transient: dict = self._["transient"]
-        return transient.get("index")
-
-    @property
-    def state(self) -> "State":
-        return self._["state"]
-
-
-class Condition(Base):
-    def __init__(self, *keys):
-
-        def condition(message: Message):
-            for key in message.keys():
-                if key in keys:
-                    return True
-            return False
-
-        self._.update(condition=condition)
-
-    def __call__(self, message: Message) -> bool:
-        return self._["condition"](message)
-
-
 class Effects(Base):
     def __init__(self, owner):
         Base.__init__(self)
@@ -267,38 +212,36 @@ class Effects(Base):
         registry: dict = self._["registry"]
         return bool(registry)
 
-    def __call__(self, change: Data) -> "Effects":
+    def __call__(self, **change) -> "Effects":
         """Runs effects."""
         ##print("Number of effects:", len(self)")  ##
         # Check if effects registered
         if self:
             # Create container to capture 'once' effects
             remove = []
-            # Create message
-            message = Message(change, self.owner)
-            transient: dict = message._["transient"]
             # Run effects
             for index, (effect, spec) in enumerate(self.items()):
                 spec: dict = spec
-                # Extract once flag
-                once: bool = spec.pop("once", False)
-                condition = spec.get("condition")
-                # Update transient
-                transient.update(effect=effect, index=index)
+
+                # Update active
                 self.active._.update(effect=effect, index=index, spec=spec)
 
-                if not condition or condition(message):
+                ##print("index:", index")  ##
+                ##print("spec:", spec")  ##
+                once = spec.pop("once", False)
+                condition = spec.get("condition")
+                if not condition or condition(**change):
                     if isinstance(effect, Effect):
                         effect.subscriptions._.update(active=self.owner)
-                        effect(message)
+                        effect(**change)
                         effect.subscriptions._.pop("active", None)
                     else:
-                        effect(message)
+                        effect(**change)
                     if once:
                         remove.append(effect)
-                # Reset transient
-                transient.clear()
+                # Reset active
                 self.active._.clear()
+
             # Remove 'once' effects
             for effect in remove:
                 self.remove(effect)
@@ -341,15 +284,15 @@ class Effects(Base):
     def add(
         self,
         effect: callable,
-        condition: callable=None,
+        *keys,
+        condition: callable = None,
         once: bool = None,
         protected: bool = None,
         run: bool = None,
         **detail,
     ) -> callable:
-        if effect in self:
-            spec = self.update(effect, condition=condition, once=once, protected=protected, **detail)
-        else:
+
+        if effect not in self:
             # Register
             if self.max and len(self) >= self.max:
                 raise ValueError(f"Cannot register more than {self.max} effects.")
@@ -359,25 +302,22 @@ class Effects(Base):
                 _registry: dict = effect.subscriptions._["registry"]
                 if self.owner not in _registry:
                     _registry[self.owner] = True
-            spec = self.update(effect, condition=condition, once=once, protected=protected, **detail)
+        spec = self.update(
+            effect, *keys, condition=condition, once=once, protected=protected
+        )
         if run:
-            change = self.owner.current
             condition = spec.get("condition")
-            # Create message
-            message = Message(change, self.owner)
-            # Update transient
-            transient: dict = message._["transient"]
-            transient.update(effect=effect)
-            if not condition or condition(message):
+            change = self.owner.copy()
+            if not condition or condition(**change):
                 if isinstance(effect, Effect):
                     effect.subscriptions._.update(active=self.owner)
-                    effect(message)
+                    effect(**change)
                     effect.subscriptions._.pop("active", None)
                 else:
-                    effect(message)
-            # Handle the unlikely case: run + once
+                    effect(**change)
             if once:
                 self.remove(effect)
+
             ##print("Registered effect with spec:", spec")  ##
         # Return effect to facilitate removal
         return effect
@@ -397,10 +337,10 @@ class Effects(Base):
         """Returns spec associated with registered effect."""
         registry: dict = self._["registry"]
         return registry.get(effect)
-
+    
     def index(self, effect: callable) -> int:
         """Returns effect index. Returns None if effect not registered."""
-
+       
         if effect in self:
             keys = list(self.keys())
             return keys.index(effect)
@@ -408,10 +348,12 @@ class Effects(Base):
     def items(self):
         registry: dict = self._["registry"]
         return registry.items()
-
+    
     def keys(self):
         registry: dict = self._["registry"]
         return registry.keys()
+    
+    
 
     def remove(self, effect: callable) -> None:
         registry: dict = self._["registry"]
@@ -424,7 +366,8 @@ class Effects(Base):
     def update(
         self,
         effect: callable,
-        condition: callable=None,
+        *keys,
+        condition: callable = None,
         once: bool = None,
         protected: bool = None,
         **detail,
@@ -433,7 +376,12 @@ class Effects(Base):
         spec: dict = self.get(effect)
         if not isinstance(spec, dict):
             raise KeyError("Cannot update spec.")
-        spec.update(detail)
+        if keys:
+            def condition(**change):
+                for key in change.keys():
+                    if key in keys:
+                        return True
+                return False
         if condition is not None:
             spec.update(condition=condition)
         if once is not None:
@@ -441,7 +389,7 @@ class Effects(Base):
         if protected is not None:
             spec.update(protected=protected)
         return spec
-
+    
     def values(self):
         registry: dict = self._["registry"]
         return registry.values()
@@ -513,7 +461,7 @@ class State(Base):
             updates.update(_updates)
         updates: dict = deepcopy(updates)
         # Infer change
-        change: dict = self.difference(updates)
+        change = self.difference(updates)
         ##print("change:", change)  ##
 
         if change:
@@ -537,9 +485,8 @@ class State(Base):
             _current(change)
 
             # Update change and public current
-            change = Data(change).freeze()
             self._.update(
-                change=change,
+                change=Data(change).freeze(),
                 current=Data(_current).freeze(),
             )
             ##print("_current after change:", _current)  ##
@@ -549,8 +496,9 @@ class State(Base):
                 on_change(self, **change)
 
             # Run effects
-            self.effects(change)
-
+            self.effects(**change)
+        else:
+            ...
         return self
 
     def __contains__(self, key):
@@ -623,7 +571,7 @@ class State(Base):
     def session(self) -> int:
         return self._.get("session")
 
-    def clear(self, *keys) -> "State":
+    def clear(self) -> "State":
         """Clears current reactively."""
         updates = {k: None for k in self.keys()}
         self(**updates)
@@ -815,14 +763,6 @@ class Effect(Base):
         Base.__init__(self)
         owner = self
 
-        class condition:
-            def __init__(self):
-                """."""
-
-            def __call__(self, condition: callable) -> callable:
-                owner._.update(_condition=condition)
-                return condition
-
         class source:
             def __init__(self, name: str = None):
                 self.name = name
@@ -833,27 +773,18 @@ class Effect(Base):
                 owner._.update(name=self.name, _source=source)
                 return source
 
-        self._.update(condition=condition, detail=Data(), source=source, subscriptions=Subscriptions(self))
+        self._.update(detail=Data(), source=source, subscriptions=Subscriptions(self))
         if context:
             self._.update(context=context)
         if states:
             for state in states:
                 self.subscriptions.add(state, protected=protected, run=run)
 
-    def __call__(self, message: Message):
-        source = self._.get("_source")
-        if source:
-            condition = self._.get("_condition")
-            if not condition or not condition(self, message):
-                return source(self, message)
+    def __call__(self, *args, **kwargs):
+        _source = self._.get("_source")
+        if _source:
+            return _source(self, *args, **kwargs)
 
-    
-
-    @property
-    def condition(self) -> type:
-        """Decorates condition function."""
-        return self._["condition"]
-    
     @property
     def context(self):
         return self._.get("context")
@@ -870,8 +801,6 @@ class Effect(Base):
     def source(self) -> type:
         """Decorates source function."""
         return self._["source"]
-    
-
 
     @property
     def subscriptions(self) -> Subscriptions:

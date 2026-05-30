@@ -1,12 +1,12 @@
-from data import Data, State
+from data import Data, Message, State
 
 state = State(foo=42, bar=8)
 
 
 
 @state.effect("foo", dict(ding=2), run=True)
-def effect(**change):
-    print("effect reads session:", state.session)
+def effect(message):
+    print("effect got message:", message)
     print("effect reads index:", state.effects.index)
     print("effect got change:", change)
 
