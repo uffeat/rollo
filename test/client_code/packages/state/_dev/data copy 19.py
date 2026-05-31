@@ -125,11 +125,9 @@ class Data(Base):
         data: dict = self._["data"]
         return str(data)
 
-    def clear(self, *keys) -> "Data":
+    def clear(self) -> "Data":
         # Channel changes through __call__
-        if not keys:
-            keys = self.keys()
-        return self({k: None for k in keys})
+        return self({k: None for k in self.keys()})
 
     def copy(self, deep: bool = True) -> dict:
         # NOTE Deep copy by default
@@ -160,7 +158,6 @@ class Data(Base):
         return data.items()
 
     def json(self) -> str:
-        # NOTE Intentionally fails if data is not jsonable.
         data: dict = self._["data"]
         return json.dumps(data)
 
@@ -185,10 +182,26 @@ class Data(Base):
         return data.values()
 
 
-class Message(Base):
-    """Argument for effects."""
+class ActiveEffect(Base):
+    def __init__(self, effect: callable = None, index: int = None, spec: dict = None):
+        Base.__init__(self)
+        self._.update(effect=effect, index=index, spec=spec)
 
-    def __init__(self, change: Data = None, state: int = None):
+    @property
+    def effect(self) -> callable:
+        return self._.get("effect")
+
+    @property
+    def index(self) -> int:
+        return self._.get("index")
+
+    @property
+    def spec(self) -> dict:
+        return self._.get("spec")
+
+
+class Message(Base):
+    def __init__(self, change: Data, state: int):
         Base.__init__(self)
         self._.update(change=change, detail=Data(), state=state, transient={})
 
@@ -212,19 +225,7 @@ class Message(Base):
         return self._["change"]
 
     @property
-    def data(self) -> Data:
-        transient: dict = self._["transient"]
-        spec: dict = transient.get("spec", {})
-        data = spec.get("data")
-        if data is None:
-            # Create data on-demand
-            data = Data()
-            spec.update(data=data)
-        return data
-
-    @property
     def detail(self) -> Data:
-        # NOTE Belongs to message. Useful for inter-effects coms.
         return self._["detail"]
 
     @property
@@ -244,7 +245,6 @@ class Message(Base):
 
 class Condition(Base):
     def __init__(self, *keys):
-        Base.__init__(self)
 
         def condition(message: Message):
             for key in message.keys():
@@ -261,7 +261,7 @@ class Condition(Base):
 class Effects(Base):
     def __init__(self, owner):
         Base.__init__(self)
-        self._.update(owner=owner, registry=dict())
+        self._.update(active=ActiveEffect(), owner=owner, registry=dict())
 
     def __bool__(self):
         registry: dict = self._["registry"]
@@ -284,15 +284,21 @@ class Effects(Base):
                 once: bool = spec.pop("once", False)
                 condition = spec.get("condition")
                 # Update transient
-                transient.update(effect=effect, index=index, spec=spec)
+                transient.update(effect=effect, index=index)
+                self.active._.update(effect=effect, index=index, spec=spec)
 
                 if not condition or condition(message):
-                    effect(message)
+                    if isinstance(effect, Effect):
+                        effect.subscriptions._.update(active=self.owner)
+                        effect(message)
+                        effect.subscriptions._.pop("active", None)
+                    else:
+                        effect(message)
                     if once:
                         remove.append(effect)
                 # Reset transient
                 transient.clear()
-
+                self.active._.clear()
             # Remove 'once' effects
             for effect in remove:
                 self.remove(effect)
@@ -314,6 +320,10 @@ class Effects(Base):
         return len(registry)
 
     @property
+    def active(self) -> ActiveEffect:
+        return self._["active"]
+
+    @property
     def max(self) -> int:
         return self._.get("max")
 
@@ -331,44 +341,40 @@ class Effects(Base):
     def add(
         self,
         effect: callable,
-        condition: callable = None,
+        condition: callable=None,
         once: bool = None,
         protected: bool = None,
         run: bool = None,
-        **data,
+        **detail,
     ) -> callable:
         if effect in self:
-            spec = self.update(
-                effect, condition=condition, once=once, protected=protected, **data
-            )
+            spec = self.update(effect, condition=condition, once=once, protected=protected, **detail)
         else:
             # Register
             if self.max and len(self) >= self.max:
                 raise ValueError(f"Cannot register more than {self.max} effects.")
             registry: dict = self._["registry"]
-            # Init spec
             registry[effect] = {}
-
-            spec = self.update(
-                effect, condition=condition, once=once, protected=protected, **data
-            )
-
             if isinstance(effect, Effect):
                 _registry: dict = effect.subscriptions._["registry"]
                 if self.owner not in _registry:
-                    _registry[self.owner] = spec
-
+                    _registry[self.owner] = True
+            spec = self.update(effect, condition=condition, once=once, protected=protected, **detail)
         if run:
             change = self.owner.current
             condition = spec.get("condition")
             # Create message
-            message = Message(change=change, state=self.owner)
+            message = Message(change, self.owner)
             # Update transient
             transient: dict = message._["transient"]
-            transient.update(effect=effect, spec=spec)
-
+            transient.update(effect=effect)
             if not condition or condition(message):
-                effect(message)
+                if isinstance(effect, Effect):
+                    effect.subscriptions._.update(active=self.owner)
+                    effect(message)
+                    effect.subscriptions._.pop("active", None)
+                else:
+                    effect(message)
             # Handle the unlikely case: run + once
             if once:
                 self.remove(effect)
@@ -418,22 +424,16 @@ class Effects(Base):
     def update(
         self,
         effect: callable,
-        condition: callable = None,
+        condition: callable=None,
         once: bool = None,
         protected: bool = None,
-        **data,
+        **detail,
     ) -> dict:
         """Updates spec associated with effect."""
         spec: dict = self.get(effect)
         if not isinstance(spec, dict):
             raise KeyError("Cannot update spec.")
-        # Update data associated with effect
-        if data:
-            _data = spec.get("data")
-            if _data is None:
-                _data = Data()
-                spec["data"] = _data
-            _data(data)
+        spec.update(detail)
         if condition is not None:
             spec.update(condition=condition)
         if once is not None:
@@ -625,15 +625,15 @@ class State(Base):
 
     def clear(self, *keys) -> "State":
         """Clears current reactively."""
-        if not keys:
-            keys = self.keys()
-        return self({k: None for k in keys})
+        updates = {k: None for k in self.keys()}
+        self(**updates)
+        return self
 
     def configure(self, **updates) -> "State":
         """Updates config."""
         if updates:
             _config: Data = self._["_config"]
-            _config(updates)
+            _config(**updates)
         return self
 
     def copy(self, deep: bool = True) -> dict:
@@ -673,11 +673,6 @@ class State(Base):
         _current: Data = self._["_current"]
         return _current.items()
 
-    def json(self) -> str:
-        # NOTE Intentionally fails if data is not jsonable.
-        _current: Data = self._["_current"]
-        return _current.json()
-
     def keys(self):
         _current: Data = self._["_current"]
         return _current.keys()
@@ -685,7 +680,7 @@ class State(Base):
     def pop(self, key, *args):
         if key in self:
             value = self[key]
-            self({key: None})
+            self(**{key: None})
             return value
         return next(iter(args), None)
 
@@ -755,44 +750,34 @@ class Subscriptions(Base):
         return str(registry)
 
     @property
+    def active(self) -> State:
+        """Returns state that triggered effect.
+        NOTE Transient property only available, while source runs."""
+        return self._.get("active")
+
+    @property
     def owner(self) -> "Effect":
         return self._["owner"]
 
     def add(
-        self,
-        state: State,
-        condition: callable = None,
-        once: bool = None,
-        protected: bool = None,
-        run: bool = None,
+        self, state: State, once: bool = None, protected: bool = None, run: bool = None
     ):
         """."""
         registry: dict = self._["registry"]
         if state in self:
-            state.effects.update(
-                self.owner, condition=condition, once=once, protected=protected
-            )
+            state.effects.update(self.owner, once=once, protected=protected)
         else:
-            registry[state] = {}
-            state.effects.add(
-                self.owner, condition=condition, once=once, protected=protected, run=run
-            )
 
-    def clear(self, *states):
+            registry[state] = True
+            state.effects.add(self.owner, once=once, protected=protected, run=run)
+
+    def clear(self):
         """."""
-        if not states:
-            states = self.keys()
         remove = []
-        for state in states:
-
+        for state, spec in self:
             remove.append(state)
-
         for state in remove:
             self.remove(state)
-
-    def get(self, state: State) -> dict:
-        """Returns spec associated with effect."""
-        return state.get(self.owner)
 
     def items(self):
         registry: dict = self._["registry"]
@@ -816,22 +801,13 @@ class Subscriptions(Base):
         """."""
         if state not in self:
             raise KeyError(f"Does not subscribe to state: {state}")
-        state.effects.update(self.owner, **updates)
-
-
-
-
+        state.effects.add(self.owner, **updates)
 
 
 class Effect(Base):
     """State effect."""
 
-    def __init__(
-        self,
-        context=None,
-        source: callable = None,
-        **detail
-    ):
+    def __init__(self, *states, context=None, protected: bool = None, run: bool = None):
         """NOTE
         - 'context' can be a State instance to also make the effect reactive.
         - Use 'detail' to make the effect stateful.
@@ -839,36 +815,45 @@ class Effect(Base):
         Base.__init__(self)
         owner = self
 
-        class _source:
+        class condition:
+            def __init__(self):
+                """."""
+
+            def __call__(self, condition: callable) -> callable:
+                owner._.update(_condition=condition)
+                return condition
+
+        class source:
             def __init__(self, name: str = None):
                 self.name = name
 
             def __call__(self, source: callable) -> callable:
                 if not self.name:
                     self.name = source.__name__
-                owner._.update(name=self.name, source=source)
+                owner._.update(name=self.name, _source=source)
                 return source
 
-        self._.update(
-            detail=Data(),
-            _source=_source,
-            subscriptions=Subscriptions(self),
-        )
+        self._.update(condition=condition, detail=Data(), source=source, subscriptions=Subscriptions(self))
         if context:
             self._.update(context=context)
-        if detail:
-            self.detail(detail)
-        if source:
-            self._.update(source=source)
-
-
-        
+        if states:
+            for state in states:
+                self.subscriptions.add(state, protected=protected, run=run)
 
     def __call__(self, message: Message):
-        source = self._.get("source")
+        source = self._.get("_source")
         if source:
-            return source(self, message)
+            condition = self._.get("_condition")
+            if not condition or not condition(self, message):
+                return source(self, message)
 
+    
+
+    @property
+    def condition(self) -> type:
+        """Decorates condition function."""
+        return self._["condition"]
+    
     @property
     def context(self):
         return self._.get("context")
@@ -884,27 +869,22 @@ class Effect(Base):
     @property
     def source(self) -> type:
         """Decorates source function."""
-        return self._["_source"]
+        return self._["source"]
+    
 
-    @source.setter
-    def source(self, source: callable):
-        """Sets source function."""
-        self._["source"] = source
 
     @property
     def subscriptions(self) -> Subscriptions:
         """."""
         return self._["subscriptions"]
 
-    
-
 
 class effect(Base):
     """."""
 
-    def __init__(self, context=None, **detail):
+    def __init__(self, *args, **kwargs):
         Base.__init__(self)
-        effect = Effect(context=context, **detail)
+        effect = Effect(*args, **kwargs)
         self._.update(effect=effect)
 
     def __call__(self, source: callable, name: str = None) -> Effect:
