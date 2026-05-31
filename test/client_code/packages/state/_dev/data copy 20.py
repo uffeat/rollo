@@ -28,79 +28,16 @@ class Base:
 
 
 class Data(Base):
-    """Superset of dict."""
+    """Superset of dict with special update features."""
 
     def __init__(self, *args, **updates):
         Base.__init__(self)
-        owner = self
-
-        class filter:
-
-            def __init__(self, mutate: bool = False):
-                self.mutate = mutate
-
-            def __call__(self, handler: callable) -> callable:
-
-                def execute() -> dict:
-                    filtered = {}
-                    keys = []
-                    for index, (key, value) in enumerate(owner.items()):
-                        result = handler(key, value, data=owner, index=index)
-                        if result:
-                            filtered[key] = value
-                        else:
-                            keys.append(key)
-
-                    if self.mutate:
-                        owner.clear(*keys)
-
-                    return filtered
-
-                return execute
-
-        class map:
-
-            def __init__(self, mutate: bool = False):
-                self.mutate = mutate
-
-            def __call__(self, handler: callable) -> callable:
-
-                def execute() -> dict:
-                    mapped = {}
-                    for index, (key, value) in enumerate(owner.items()):
-                        _key, _value = handler(key, value, data=owner, index=index)
-                        mapped[_key] = _value
-                    if self.mutate:
-                        owner(mapped)
-                    return mapped
-
-                return execute
-
-        class reduce:
-
-            def __init__(self, accumulate: callable):
-                self.accumulate = accumulate
-
-            def __call__(self, handler: callable) -> callable:
-
-                def execute():
-                    accumulator = []
-                    for index, (key, value) in enumerate(owner.items()):
-                        part = handler(key, value, data=owner, index=index)
-                        if part is not None:
-                            accumulator.append(part)
-                    return self.accumulate(accumulator)
-
-                return execute
-
-        self._.update(
-            data={}, filter=filter, map=map, reduce=reduce, reserved=Data.Keys()
-        )
+        self._.update(data={}, reserved=Data.Keys())
         self(*args, **updates)
 
-    def __bool__(self) -> bool:
+    def __bool__(self):
         data: dict = self._["data"]
-        return bool(data)
+        return bool(len(data))
 
     def __call__(self, *args, **updates) -> "Data":
         """Updates data."""
@@ -110,35 +47,32 @@ class Data(Base):
         # Get data
         data: dict = self._["data"]
         # Update from first pos arg
-
-        _updates = next(iter(args), ...)
-        if _updates is None:
+        first = next(iter(args), ...)
+        if first is None and data:
+            # NOTE Convention: None first pos arg clears
             return self.clear()
-        if _updates is not ...:
-            if isinstance(_updates, (Data, Message, State)):
-                _updates: dict = _updates._["data"]
+        if first is not ...:
+            if isinstance(first, Data):
+                # Update from Data instance
+                first: dict = first._["data"]
+                updates.update(first)
+            elif isinstance(first, dict):
+                # Update from dict
+                updates.update(first)
             else:
-                if not isinstance(_updates, dict):
-                    raise TypeError(f"Cannot update from: {str(_updates)}.")
-            updates.update(_updates)
-
+                raise TypeError(f"Cannot update from: {str(first)}.")
         # Check keys
         reserved = self._["reserved"]
         for key in updates.keys():
             if key in reserved:
                 raise KeyError(f"Reserved key: {key}")
         # Update data
-        if data:
-            # Do not allow None-values
-            for key, value in updates.items():
-                if value is None:
-                    data.pop(key, None)
-                else:
-                    data[key] = value
-        else:
-            # Allow None-values
-            data.update(updates)
-
+        for key, value in updates.items():
+            if value is None and data:
+                # NOTE Convention: None-value removes when updating, but not at creation
+                data.pop(key, None)
+            else:
+                data[key] = value
         return self
 
     def __contains__(self, key) -> bool:
@@ -146,8 +80,8 @@ class Data(Base):
         return key in data
 
     def __delattr__(self, key) -> None:
-        data: dict = self._["data"]
-        data.pop(key, None)
+        # Channel changes through __call__
+        self({key: None})
 
     def __eq__(self, other) -> bool:
         data: dict = self._["data"]
@@ -177,40 +111,20 @@ class Data(Base):
         return other != data
 
     def __setattr__(self, key, value) -> None:
-        self({key: value})
+        self(**{key: value})
 
     def __setitem__(self, key, value) -> None:
-        self({key: value})
+        self(**{key: value})
 
     def __str__(self) -> str:
         data: dict = self._["data"]
         return str(data)
 
-    @property
-    def filter(self) -> callable:
-        return self._["filter"]
-
-    @property
-    def map(self) -> callable:
-        return self._["map"]
-
-    @property
-    def reduce(self) -> callable:
-        return self._["reduce"]
-
-    def clean(self) -> "Data":
-        data: dict = self._["data"]
-        keys = [k for k, v in data.items() if v is None]
-        return self.clear(*keys)
-
     def clear(self, *keys) -> "Data":
-        data: dict = self._["data"]
-        if keys:
-            for key in keys:
-                data.pop(key, None)
-        else:
-            data.clear()
-        return self
+        # Channel changes through __call__
+        if not keys:
+            keys = self.keys()
+        return self({k: None for k in keys})
 
     def copy(self, deep: bool = True) -> dict:
         # NOTE Deep copy by default
@@ -251,9 +165,12 @@ class Data(Base):
 
     def pop(self, key, *args):
         # NOTE No need to provide default value
-        data: dict = self._["data"]
-        default = next(iter(args), None)
-        return data.pop(key, default)
+        if key in self:
+            value = self[key]
+            # Channel changes through __call__
+            self({key: None})
+            return value
+        return next(iter(args), None)
 
     def update(self, *args, **kwargs) -> "Data":
         return self(*args, **kwargs)
@@ -268,9 +185,7 @@ class Message(Base):
 
     def __init__(self, change: Data = None, state: int = None):
         Base.__init__(self)
-        self._.update(
-            change=change, data=change, detail=Data(), state=state, transient={}
-        )
+        self._.update(change=change, detail=Data(), state=state, transient={})
 
     def __getattr__(self, key):
         return self[key]
@@ -323,8 +238,6 @@ class Message(Base):
 
 
 class Condition(Base):
-    """Creates condition function from keys"""
-
     def __init__(self, *keys):
         Base.__init__(self)
 
@@ -341,9 +254,7 @@ class Condition(Base):
 
 
 class Effects(Base):
-    """Effects controller."""
-
-    def __init__(self, owner: "State"):
+    def __init__(self, owner):
         Base.__init__(self)
         self._.update(owner=owner, registry=dict())
 
@@ -369,12 +280,14 @@ class Effects(Base):
                 condition = spec.get("condition")
                 # Update transient
                 transient.update(effect=effect, index=index, spec=spec)
+
                 if not condition or condition(message):
                     effect(message)
                     if once:
                         remove.append(effect)
                 # Reset transient
                 transient.clear()
+
             # Remove 'once' effects
             for effect in remove:
                 self.remove(effect)
@@ -397,7 +310,6 @@ class Effects(Base):
 
     @property
     def max(self) -> int:
-        # NOTE Returns None if no max
         return self._.get("max")
 
     @max.setter
@@ -421,23 +333,26 @@ class Effects(Base):
         **data,
     ) -> callable:
         if effect in self:
-            # Effect already registered -> update spec
             spec = self.update(
                 effect, condition=condition, once=once, protected=protected, **data
             )
         else:
+            # Register
             if self.max and len(self) >= self.max:
                 raise ValueError(f"Cannot register more than {self.max} effects.")
             registry: dict = self._["registry"]
-            # Register
+            # Init spec
             registry[effect] = {}
+
             spec = self.update(
                 effect, condition=condition, once=once, protected=protected, **data
             )
+
             if isinstance(effect, Effect):
                 _registry: dict = effect.subscriptions._["registry"]
                 if self.owner not in _registry:
                     _registry[self.owner] = spec
+
         if run:
             change = self.owner.current
             condition = spec.get("condition")
@@ -446,11 +361,14 @@ class Effects(Base):
             # Update transient
             transient: dict = message._["transient"]
             transient.update(effect=effect, spec=spec)
+
             if not condition or condition(message):
                 effect(message)
             # Handle the unlikely case: run + once
             if once:
                 self.remove(effect)
+            ##print("Registered effect with spec:", spec")  ##
+        # Return effect to facilitate removal
         return effect
 
     def clear(self, force=False) -> None:
@@ -471,6 +389,7 @@ class Effects(Base):
 
     def index(self, effect: callable) -> int:
         """Returns effect index. Returns None if effect not registered."""
+
         if effect in self:
             keys = list(self.keys())
             return keys.index(effect)
@@ -528,8 +447,11 @@ class State(Base):
 
     def __init__(self, *args, **updates):
         Base.__init__(self)
+
+        _hooks = Data()
+        _config = Data()
+        _current = Data(*args, **updates)
         effects = Effects(self)
-        hooks = {}
 
         class hook:
             def __init__(self, *args):
@@ -537,7 +459,7 @@ class State(Base):
 
             def __call__(self, handler: callable) -> callable:
                 name = next(iter(self.args), handler.__name__)
-                hooks[name] = handler
+                _hooks[name] = handler
                 ##print("Registered capability:", name)  ##
                 return handler
 
@@ -555,27 +477,21 @@ class State(Base):
                 effects.add(effect, *self.args, **self.kwargs)
                 return effect
 
-        _current = {}
-
         self._.update(
+            _hooks=_hooks,
+            _config=_config,
             _current=_current,
-            _previous={},
+            hook=hook,
             change=Data().freeze(),
-            config={},
-            current=Data({}).freeze(),
-            data=_current,
+            current=Data(_current).freeze(),
             detail=Data(),
             effects=effects,
             effect=effect,
-            hook=hook,
-            hooks=hooks,
             previous=Data().freeze(),
         )
 
-        self(*args, **updates)
-
     def __bool__(self):
-        current: dict = self._["_current"]
+        current: Data = self._["_current"]
         return bool(current)
 
     def __call__(self, *args, **updates) -> "State":
@@ -585,36 +501,17 @@ class State(Base):
         if _updates is None:
             return self.clear()
         if _updates is not ...:
-            if isinstance(_updates, (Data, Message, State)):
-                _updates: dict = _updates._["data"]
-            else:
-                if not isinstance(_updates, dict):
-                    raise TypeError(f"Cannot update from: {str(_updates)}.")
+            if isinstance(_updates, State):
+                _updates: dict = _updates._["_current"]._["current"]
+            elif isinstance(_updates, Data):
+                _updates: dict = _updates._["current"]
             updates.update(_updates)
+        updates: dict = deepcopy(updates)
+        # Infer change
+        change: dict = self.difference(updates)
+        ##print("change:", change)  ##
 
-        current: dict = self._["_current"]
-        previous: dict = self._["_previous"]
-        hooks: dict = self._["hooks"]
-        matches = hooks.get("matches")
-        _change = {}
-        for key, value in updates.items():
-            if key in current:
-                if value is None:
-                    _change[key] = None
-                    previous[key] = current.pop(key)
-                else:
-                    _value = current[key]
-                    if not matches(value, _value):
-                        _change[key] = value
-                        previous[key] = _value
-                        current[key] = _value
-            else:
-                if value is not None:
-                    _change[key] = value
-                    previous[key] = None
-                    current[key] = value
-        ##print("_change:", _change)  ##
-        if _change:
+        if change:
             # Handle session
             if self.session is None:
                 # Init session
@@ -623,42 +520,55 @@ class State(Base):
                 # Update session
                 self._["session"] += 1
 
-            change = Data(**_change).freeze()
-            # Update public
+            _hooks: Data = self._["_hooks"]
+
+            # Get private current
+            _current: Data = self._["_current"]
+            # Update previous
+            self._.update(
+                previous=Data(_current).freeze(),
+            )
+            # Update private current
+            _current(change)
+
+            # Update change and public current
+            change = Data(change).freeze()
             self._.update(
                 change=change,
-                current=Data(current).freeze(),
-                previous=Data(previous).freeze(),
+                current=Data(_current).freeze(),
             )
+            ##print("_current after change:", _current)  ##
 
-            on_change = hooks.get("on_change")
+            on_change = _hooks.get("on_change")
             if on_change:
-                on_change(self, **_change)
+                on_change(self, **change)
+
             # Run effects
             self.effects(change)
+
         return self
 
     def __contains__(self, key):
-        current: dict = self._["_current"]
+        current: Data = self._["_current"]
         return key in current
 
     def __getitem__(self, key):
-        current: dict = self._["_current"]
+        current: Data = self._["_current"]
         return current[key]
 
     def __iter__(self):
-        current: dict = self._["_current"]
+        current: Data = self._["_current"]
         return iter(current)
 
     def __len__(self) -> int:
-        current: dict = self._["_current"]
+        current: Data = self._["_current"]
         return len(current)
 
     def __setitem__(self, key, value):
-        self({key: value})
+        self(**{key: value})
 
     def __str__(self) -> str:
-        current: dict = self._["_current"]
+        current: Data = self._["_current"]
         return str(current)
 
     @property
@@ -673,8 +583,8 @@ class State(Base):
 
     @property
     def context(self):
-        config: dict = self._["config"]
-        return config.get("context")
+        _config: Data = self._["_config"]
+        return _config.get("context")
 
     @property
     def current(self) -> Data:
@@ -696,12 +606,12 @@ class State(Base):
 
     @property
     def name(self) -> str:
-        config: dict = self._["config"]
-        return config.get("name", "")
+        _config: Data = self._["_config"]
+        return _config.get("name", "")
 
     @property
     def previous(self) -> Data:
-        """Returns representation of changed items current as-was before most recent update."""
+        """Returns current as-was before most recent update."""
         return self._["previous"]
 
     @property
@@ -717,40 +627,55 @@ class State(Base):
     def configure(self, **updates) -> "State":
         """Updates config."""
         if updates:
-            config: dict = self._["config"]
-            config.update(updates)
+            _config: Data = self._["_config"]
+            _config(updates)
         return self
 
     def copy(self, deep: bool = True) -> dict:
-        current: dict = self._["_current"]
-        if deep:
-            return deepcopy(current)
-        return current.copy()
+        _current: Data = self._["_current"]
+        return _current.copy(deep=deep)
+
+    def difference(self, other: dict) -> dict:
+        """Returns items that are in other, but not in current."""
+        if isinstance(other, State):
+            other: dict = other._["_current"]._["current"]
+        elif isinstance(other, Data):
+            other: dict = other._["current"]
+        _current: Data = self._["_current"]
+        _hooks: Data = self._["_hooks"]
+        matches = _hooks.get("matches")
+        result = {}
+        # NOTE Do not adapt to "no-None" value convention, since difference may be
+        # used to trigger the "None removes" convention.
+        for key, value in other.items():
+            if key in _current:
+                if not matches(_current[key], value):
+                    result[key] = value
+            else:
+                result[key] = value
+        return result
 
     def get(self, key, *args):
-        current: dict = self._["_current"]
-        default = next(iter(args), None)
-        return current.get(key, default)
+        _current: Data = self._["_current"]
+        return _current.get(key, *args)
 
     def index(self, key) -> int:
         """Returns item index. Returns None if key does not exist."""
-        current: dict = self._["_current"]
-        if key in current:
-            keys = list(current.keys())
-            return keys.index(key)
+        _current: Data = self._["_current"]
+        return _current.index(key)
 
     def items(self):
-        current: dict = self._["_current"]
-        return current.items()
+        _current: Data = self._["_current"]
+        return _current.items()
 
     def json(self) -> str:
         # NOTE Intentionally fails if data is not jsonable.
-        current: dict = self._["_current"]
-        return json.dumps(current)
+        _current: Data = self._["_current"]
+        return _current.json()
 
     def keys(self):
-        current: dict = self._["_current"]
-        return current.keys()
+        _current: Data = self._["_current"]
+        return _current.keys()
 
     def pop(self, key, *args):
         if key in self:
@@ -759,16 +684,16 @@ class State(Base):
             return value
         return next(iter(args), None)
 
-    def update(self, *args, **kwargs) -> "State":
+    def update(self, *args, **kwargs) -> "Data":
         return self(*args, **kwargs)
 
     def values(self):
-        current: dict = self._["_current"]
-        return current.values()
+        _current: Data = self._["_current"]
+        return _current.values()
 
 
 class state(Base):
-    """Creates State instance."""
+    """Creates State instance with protected effect."""
 
     def __init__(
         self,
@@ -790,8 +715,8 @@ class state(Base):
         """."""
         run: dict = self._.pop("run")
         state: State = self._.pop("state")
-        hooks: dict = state._["hooks"]
-        hooks.update(on_change=handler)
+        _hooks: Data = state._["_hooks"]
+        _hooks(on_change=handler)
         state.configure(name=handler.__name__)
         if run:
             handler(state, **state.copy())

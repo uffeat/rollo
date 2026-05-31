@@ -3,16 +3,18 @@ from data import Data
 
 
 
-writable = Data(foo=42, temp=None)
+writable = Data(foo=42, none=None, thing=None)
 
 
-print("writable.foo:", writable.foo)
-writable.foo = 'FOO'
 
-writable(bar=8)
+
+writable(bar=8, nothing=None, thing=None)
+
+
+
 print("writable:", writable)
-writable.clear()
-print("writable:", writable)
+##writable.clear()
+##print("writable:", writable)
 
 
 
