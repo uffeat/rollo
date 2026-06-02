@@ -27,172 +27,10 @@ class Base:
         return self.__
 
 
-class DataMixin(Base):
-    """."""
-
-    def __init__(self):
-        Base.__init__(self)
-        self._.update(data={})
-
-    def __bool__(self) -> bool:
-        data: dict = self._["data"]
-        return bool(data)
-
-    def __contains__(self, key) -> bool:
-        data: dict = self._["data"]
-        return key in data
-
-    def __getattr__(self, key):
-        return self[key]
-
-    def __getitem__(self, key):
-        data: dict = self._["data"]
-        return data.get(key)
-
-    def __iter__(self):
-        data: dict = self._["data"]
-        return iter(data)
-
-    def __len__(self) -> int:
-        data: dict = self._["data"]
-        return len(data)
-
-    def __str__(self) -> str:
-        data: dict = self._["data"]
-        return str(data)
-
-    def copy(self, deep: bool = True) -> dict:
-        # NOTE Deep copy by default
-        data: dict = self._["data"]
-        if deep:
-            return deepcopy(data)
-        return data.copy()
-
-    def get(self, key, *args):
-        data: dict = self._["data"]
-        default = next(iter(args), None)
-        return data.get(key, default)
-
-    def index(self, key) -> int:
-        """Returns item index. Returns None if key does not exist."""
-        data: dict = self._["data"]
-        if key in data:
-            keys = list(data.keys())
-            return keys.index(key)
-
-    def items(self):
-        data: dict = self._["data"]
-        return data.items()
-
-    def json(self) -> str:
-        # NOTE Intentionally fails if data is not jsonable.
-        data: dict = self._["data"]
-        return json.dumps(data)
-
-    def keys(self):
-        data: dict = self._["data"]
-        return data.keys()
-
-    def values(self):
-        data: dict = self._["data"]
-        return data.values()
-
-
-class View(Base):
-    """."""
-
-    def __init__(self, **data):
-        Base.__init__(self)
-        self._.update(data=data)
-
-    def __bool__(self) -> bool:
-        data: dict = self._["data"]
-        return bool(data)
-
-    def __contains__(self, key) -> bool:
-        data: dict = self._["data"]
-        return key in data
-
-    def __getattr__(self, key):
-        return self[key]
-
-    def __getitem__(self, key):
-        data: dict = self._["data"]
-        return data.get(key)
-
-    def __iter__(self):
-        data: dict = self._["data"]
-        return iter(data)
-
-    def __len__(self) -> int:
-        data: dict = self._["data"]
-        return len(data)
-
-    def __str__(self) -> str:
-        data: dict = self._["data"]
-        return str(data)
-
-    def copy(self, deep: bool = True) -> dict:
-        # NOTE Deep copy by default
-        data: dict = self._["data"]
-        if deep:
-            return deepcopy(data)
-        return data.copy()
-
-    def get(self, key, *args):
-        data: dict = self._["data"]
-        default = next(iter(args), None)
-        return data.get(key, default)
-
-    def index(self, key) -> int:
-        """Returns item index. Returns None if key does not exist."""
-        data: dict = self._["data"]
-        if key in data:
-            keys = list(data.keys())
-            return keys.index(key)
-
-    def items(self):
-        data: dict = self._["data"]
-        return data.items()
-
-    def json(self) -> str:
-        # NOTE Intentionally fails if data is not jsonable.
-        data: dict = self._["data"]
-        return json.dumps(data)
-
-    def keys(self):
-        data: dict = self._["data"]
-        return data.keys()
-
-    def values(self):
-        data: dict = self._["data"]
-        return data.values()
-
-
-class DataComposition(Base):
-    """."""
-
-    def __init__(self, data: dict, update: callable):
-        Base.__init__(self)
-        self._.update(data=data, update=update)
-
-    def __getattr__(self, key):
-        return self[key]
-
-    def __getitem__(self, key):
-        return self._["data"].get(key)
-
-    def __setattr__(self, key, value) -> None:
-        self[key] = value
-
-    def __setitem__(self, key, value) -> None:
-        self._["update"](**{key: value})
-
-
 class Data(Base):
     """Superset of dict."""
 
-    def __init__(self, **updates):
+    def __init__(self, *args, **updates):
         Base.__init__(self)
         owner = self
 
@@ -255,17 +93,10 @@ class Data(Base):
 
                 return execute
 
-        data = {}
-
         self._.update(
-            _data=DataComposition(data, self),
-            data=data,
-            filter=filter,
-            map=map,
-            reduce=reduce,
-            reserved=Data.Keys(),
+            data={}, filter=filter, map=map, reduce=reduce, reserved=Data.Keys()
         )
-        self(**updates)
+        self(*args, **updates)
 
     def __bool__(self) -> bool:
         data: dict = self._["data"]
@@ -273,23 +104,41 @@ class Data(Base):
 
     def __call__(self, *args, **updates) -> "Data":
         """Updates data."""
-
-        # Clear if first pos arg is None
-        first = next(iter(args), ...)
-        if first is None:
-            return self.clear()
-
+        # Check frozen state
+        if self._.get("frozen", False):
+            raise AttributeError(f"Cannot change frozen instance: {self}.")
         # Get data
         data: dict = self._["data"]
-
-        # Update data
-        for key, value in updates.items():
-            # NOTE None removes
-            if value is None:
-                data.pop(key, None)
+        # Update from first pos arg
+        _updates = next(iter(args), ...)
+        if _updates is None:
+            return self.clear()
+        if _updates is not ...:
+            if isinstance(_updates, (Data, Message, State)):
+                _updates: dict = _updates._["data"]
             else:
-                data[key] = value
-        
+                if not isinstance(_updates, dict):
+                    raise TypeError(f"Cannot update from: {str(_updates)}.")
+            # Unpack _updates to accomodate different sources
+            updates.update(**_updates)
+
+        # Check keys
+        reserved = self._["reserved"]
+        for key in updates.keys():
+            if key in reserved:
+                raise KeyError(f"Reserved key: {key}")
+        # Update data
+        if data:
+            # Do not allow None-values
+            for key, value in updates.items():
+                if value is None:
+                    data.pop(key, None)
+                else:
+                    data[key] = value
+        else:
+            # Allow None-values
+            data.update(updates)
+
         return self
 
     def __contains__(self, key) -> bool:
@@ -300,6 +149,19 @@ class Data(Base):
         data: dict = self._["data"]
         data.pop(key, None)
 
+    def __eq__(self, other) -> bool:
+        data: dict = self._["data"]
+        if isinstance(other, Data):
+            other: dict = other._["data"]
+        return other == data
+
+    def __getattr__(self, key):
+        return self[key]
+
+    def __getitem__(self, key):
+        data: dict = self._["data"]
+        return data.get(key)
+
     def __iter__(self):
         data: dict = self._["data"]
         return iter(data)
@@ -308,13 +170,21 @@ class Data(Base):
         data: dict = self._["data"]
         return len(data)
 
+    def __ne__(self, other) -> bool:
+        data: dict = self._["data"]
+        if isinstance(other, Data):
+            other: dict = other._["data"]
+        return other != data
+
+    def __setattr__(self, key, value) -> None:
+        self({key: value})
+
+    def __setitem__(self, key, value) -> None:
+        self({key: value})
+
     def __str__(self) -> str:
         data: dict = self._["data"]
         return str(data)
-
-    @property
-    def data(self) -> DataComposition:
-        return self._["_data"]
 
     @property
     def filter(self) -> callable:
@@ -327,6 +197,11 @@ class Data(Base):
     @property
     def reduce(self) -> callable:
         return self._["reduce"]
+
+    def clean(self) -> "Data":
+        data: dict = self._["data"]
+        keys = [k for k, v in data.items() if v is None]
+        return self.clear(*keys)
 
     def clear(self, *keys) -> "Data":
         data: dict = self._["data"]
@@ -343,6 +218,11 @@ class Data(Base):
         if deep:
             return deepcopy(data)
         return data.copy()
+
+    def freeze(self) -> "Data":
+        """Prevents subsequent changes."""
+        self._.update(frozen=True)
+        return self
 
     def get(self, key, *args):
         data: dict = self._["data"]
@@ -471,7 +351,7 @@ class Effects(Base):
         registry: dict = self._["registry"]
         return bool(registry)
 
-    def __call__(self, change: View) -> "Effects":
+    def __call__(self, change: Data) -> "Effects":
         """Runs effects."""
         ##print("Number of effects:", len(self)")  ##
         # Check if effects registered
@@ -648,7 +528,7 @@ class State(Base):
 
     # XXX TODO Align with Data (perhaps move some features - reactively)
 
-    def __init__(self, **updates):
+    def __init__(self, *args, **updates):
         Base.__init__(self)
         effects = Effects(self)
         hooks = {}
@@ -660,9 +540,10 @@ class State(Base):
             def __call__(self, handler: callable) -> callable:
                 name = next(iter(self.args), handler.__name__)
                 hooks[name] = handler
+                ##print("Registered capability:", name)  ##
                 return handler
 
-        # Set default 'matches' hook
+        # Set default 'matches' capability
         @hook()
         def matches(value, other):
             return value == other
@@ -676,34 +557,42 @@ class State(Base):
                 effects.add(effect, *self.args, **self.kwargs)
                 return effect
 
-        data = {}
 
         self._.update(
-            _data=DataComposition(data, self),
             _previous={},
-            change=View(),
+            change=Data().freeze(),
             config={},
-            current=View(),
-            data=data,
+            current=Data({}).freeze(),
+            data={},
             detail=Data(),
             effects=effects,
             effect=effect,
             hook=hook,
             hooks=hooks,
-            previous=View(),
+            previous=Data().freeze(),
+            reserved=State.Keys(),
         )
 
-        self(**updates)
+        self(*args, **updates)
 
     def __bool__(self):
         data: dict = self._["data"]
         return bool(data)
 
     def __call__(self, *args, **updates) -> "State":
-        """Updates data."""
-        first = next(iter(args), ...)
-        if first is None:
+        """Updates current."""
+        # Handle pos arg updates
+        _updates = next(iter(args), ...)
+        if _updates is None:
             return self.clear()
+        if _updates is not ...:
+            if isinstance(_updates, (Data, Message, State)):
+                _updates: dict = _updates._["data"]
+            else:
+                if not isinstance(_updates, dict):
+                    raise TypeError(f"Cannot update from: {str(_updates)}.")
+            # Unpack _updates to accomodate different sources
+            updates.update(**_updates)
 
         _change = {}
 
@@ -717,7 +606,12 @@ class State(Base):
         matches = hooks.get("matches")
         transform = hooks.get("transform")
 
+        reserved = self._["reserved"]
+
         for key, value in updates.items():
+            # Check key
+            if key in reserved:
+                raise KeyError(f"Reserved key: {key}")
             if filter and not filter(key, value):
                 continue
             if transform:
@@ -749,17 +643,17 @@ class State(Base):
                 # Update session
                 self._["session"] += 1
 
-            change = View(**_change)
+            change = Data(_change).freeze()
             # Update public
             self._.update(
                 change=change,
-                current=View(**current),
-                previous=View(**previous),
+                current=Data(current).freeze(),
+                previous=Data(previous).freeze(),
             )
 
-            onchange = hooks.get("onchange")
-            if onchange:
-                onchange(self, **_change)
+            on_change = hooks.get("on_change")
+            if on_change:
+                on_change(self, **_change)
             # Run effects
             self.effects(change)
         return self
@@ -767,6 +661,10 @@ class State(Base):
     def __contains__(self, key):
         data: dict = self._["data"]
         return key in data
+
+    def __getitem__(self, key):
+        data: dict = self._["data"]
+        return data[key]
 
     def __iter__(self):
         data: dict = self._["data"]
@@ -776,16 +674,15 @@ class State(Base):
         data: dict = self._["data"]
         return len(data)
 
+    def __setitem__(self, key, value):
+        self({key: value})
+
     def __str__(self) -> str:
         data: dict = self._["data"]
         return str(data)
 
     @property
-    def data(self) -> DataComposition:
-        return self._["_data"]
-
-    @property
-    def change(self) -> View:
+    def change(self) -> Data:
         """Returns changes from most recent update."""
         return self._["change"]
 
@@ -795,11 +692,11 @@ class State(Base):
         return config.get("context")
 
     @property
-    def current(self) -> View:
+    def current(self) -> Data:
         return self._["current"]
 
     @property
-    def detail(self) -> View:
+    def detail(self) -> Data:
         # NOTE Useful for storing non-reactive additional data
         return self._["detail"]
 
@@ -911,15 +808,15 @@ class state(Base):
         self._.update(run=run, state=state)
         state.configure(context=context)
 
-    def __call__(self, onchange: callable) -> State:
+    def __call__(self, handler: callable) -> State:
         """."""
         run: dict = self._.pop("run")
         state: State = self._.pop("state")
         hooks: dict = state._["hooks"]
-        hooks.update(onchange=onchange)
-        state.configure(name=onchange.__name__)
+        hooks.update(on_change=handler)
+        state.configure(name=handler.__name__)
         if run:
-            onchange(state, **state)
+            handler(state, **state.copy())
         return state
 
 
@@ -1048,7 +945,7 @@ class Effect(Base):
         if context:
             self._.update(context=context)
         if detail:
-            self.detail(**detail)
+            self.detail(detail)
         if source:
             self._.update(source=source)
 
@@ -1097,11 +994,3 @@ class effect(Base):
         effect: Effect = self._["effect"]
         effect.source(name=name)(source)
         return effect
-
-
-class Ref:
-    """."""
-
-
-class Computed:
-    """."""

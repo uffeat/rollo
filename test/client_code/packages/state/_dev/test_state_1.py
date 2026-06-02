@@ -13,6 +13,7 @@ print('previous:', test.previous)
 
 
 test(foo=42, bar=None)
+test.data.ping = 2
 print('test:', test)
 print('current:', test.current)
 print('change:', test.change)
