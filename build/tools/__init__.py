@@ -1,4 +1,5 @@
-
+from ._blob import Blob
+from ._connect import Connection, connect, disconnect
 from ._encode import encode
 from ._plural import plural
 from ._render import render

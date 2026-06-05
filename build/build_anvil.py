@@ -1,12 +1,14 @@
 import json
 from pathlib import Path
 
+
 from anvil import BlobMedia
+from anvil.server import callable as server_function
 from anvil.tables import app_tables
-from anvil.server import callable as server_function, connect, wait_forever
+
 
 from mixins import Files, Minify
-from tools import encode, get_timestamp, plural
+from tools import Blob, Connection, connect, encode, get_timestamp, plural
 
 SOURCE = Path.cwd() / "anvil"
 UTF_8 = "utf-8"
@@ -18,12 +20,12 @@ TYPES = (".css", ".html", ".js", ".json", ".py", ".svg", ".template")
 timestamp = get_timestamp()
 
 
-class main(Files, Minify):
+class main:
     """."""
 
     def __call__(self):
         """."""
-        content = {}
+        code = {}
 
         for file in SOURCE.rglob("**/*.*"):
             # Ignore unsupported types
@@ -37,35 +39,42 @@ class main(Files, Minify):
             ##print("text:", text)  ##
 
             # Process
-            content[path] = text
+            code[path] = text
 
-        print("content:", content)  ##
-        count = len(content)
-        message = f"Processed {count} file{plural(count)}."
+        ##print("content:", content)  ##
+        count = len(code)
+        message = f"Serving code with {count} file{plural(count)}."
 
-        content = json.dumps(content)
-        content = content.encode(UTF_8)
+       
+        code = Blob(code, content_type='code', name="code")
+       
 
-        media = BlobMedia("code", content, name="code")
-        ##print("media:", media)  ##
+      
 
-        connect(KEY)
-        row = app_tables.meta.get(key="code")
-        ##print("row:", row)  ##
-        if row:
-            row.update(media=media)
-        else:
-            app_tables.meta.add_row(key="code", media=media)
+        with Connection(message=message):
+            row = app_tables.meta.get(key="code")
+            ##print("row:", row)  ##
+            if row:
+                row.update(media=code)
+            else:
+                app_tables.meta.add_row(key="code", media=code)
 
-        print(message)
+            @server_function
+            def _get_code() -> BlobMedia:
+                """."""
+                return code
+            
+        
 
-        @server_function
-        def _get_code() -> BlobMedia:
-            """."""
-            return media
+            
+            
 
-        wait_forever()
+        
 
+        
+
+    
+    
     @staticmethod
     def get_src(file: Path) -> tuple[str, str]:
         """Returns src asset path and text."""
