@@ -34,9 +34,18 @@ class main:
                 continue
 
             ##print("parts:", file.parts)  ##
-            if "test" in file.parts:
+            if 'test' in file.parts:
                 continue
 
+
+          
+            
+
+           
+            
+
+            
+            
             # Read source
             path, text = self.get_src(file)
 
@@ -46,14 +55,22 @@ class main:
             # Process
             code[path] = text
 
+        
         print("code:", code)  ##
         count = len(code)
         message = f"Serving code with {count} file{plural(count)}."
 
+        
+
         code = Blob(code, content_type="code", name="code")
 
         with Connection(message=message):
-            self.save(code)
+            row = app_tables.meta.get(key="code")
+            ##print("row:", row)  ##
+            if row:
+                row.update(media=code)
+            else:
+                app_tables.meta.add_row(key="code", media=code)
 
             @server_function
             def _get_code() -> BlobMedia:
@@ -67,7 +84,7 @@ class main:
             f"/{file.relative_to(SOURCE).as_posix()}",
             file.read_text(encoding=UTF_8).strip(),
         )
-
+    
     @staticmethod
     def save(code: BlobMedia) -> None:
         """."""
@@ -77,6 +94,7 @@ class main:
             row.update(media=code)
         else:
             app_tables.meta.add_row(key="code", media=code)
+        
 
 
 main = main()
